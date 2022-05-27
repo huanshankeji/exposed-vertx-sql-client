@@ -34,6 +34,8 @@ dependencies {
 
     implementation(CommonDependencies.KotlinCommon.core("0.1.1-kotlin-1.6.10-SNAPSHOT")) // TODO: don't use a SNAPSHOT version
     implementation(CommonDependencies.Arrow.core())
+
+    implementation(CommonDependencies.KotlinCommon.net())
 }
 
 version = "0.1.0-kotlin-1.6.10-SNAPSHOT"

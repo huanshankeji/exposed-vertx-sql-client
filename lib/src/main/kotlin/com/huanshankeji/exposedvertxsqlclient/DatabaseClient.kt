@@ -268,7 +268,7 @@ fun createDatabaseClient(
 ): DatabaseClient<PgPool> =
     createDatabaseClient(
         vertx, vertxSqlClientConnectionConfig,
-        exposedDatabaseConnect(exposedSocketConnectionConfig)
+        exposedDatabaseConnectPostgreSql(exposedSocketConnectionConfig)
     )
 
 fun createDatabaseClient(

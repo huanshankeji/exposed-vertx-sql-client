@@ -2,7 +2,7 @@ package com.huanshankeji.exposedvertxsqlclient
 
 import org.jetbrains.exposed.sql.Database
 
-fun exposedDatabaseConnect(socketConnectionConfig: ConnectionConfig.Socket) =
+fun exposedDatabaseConnectPostgreSql(socketConnectionConfig: ConnectionConfig.Socket) =
     with(socketConnectionConfig) {
         Database.connect(
             "jdbc:postgresql://$host/$database",
