@@ -20,7 +20,7 @@ dependencies {
     api(CommonDependencies.Exposed.core())  // TODO: use `implementation` when possible
     // TODO: remove the Exposed JDBC dependency and the PostgresSQL dependency when there is no need to have an exposed transaction to generate SQLs
     runtimeOnly(CommonDependencies.Exposed.module("jdbc"))
-    runtimeOnly("org.postgresql:postgresql:${DefaultVersions.postgreSql}")
+    "postgresqlRuntimeOnly"("org.postgresql:postgresql:${DefaultVersions.postgreSql}")
     api(CommonDependencies.KotlinCommon.exposed())
 
     with(CommonDependencies.Vertx) {
