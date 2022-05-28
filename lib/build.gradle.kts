@@ -32,7 +32,7 @@ dependencies {
     }
     implementation(CommonDependencies.KotlinCommon.vertx())
 
-    implementation(CommonDependencies.KotlinCommon.core("0.1.1-kotlin-1.6.10-SNAPSHOT")) // TODO: don't use a SNAPSHOT version
+    implementation(CommonDependencies.KotlinCommon.core())
     implementation(CommonDependencies.Arrow.core())
 
     implementation(CommonDependencies.KotlinCommon.net())
