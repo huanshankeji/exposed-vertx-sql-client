@@ -10,17 +10,10 @@ repositories {
     mavenCentral()
 }
 
-java {
-    registerFeature("postgresql") {
-        usingSourceSet(sourceSets["main"])
-    }
-}
-
 dependencies {
     api(CommonDependencies.Exposed.core())  // TODO: use `implementation` when possible
     // TODO: remove the Exposed JDBC dependency and the PostgresSQL dependency when there is no need to have an exposed transaction to generate SQLs
     runtimeOnly(CommonDependencies.Exposed.module("jdbc"))
-    "postgresqlRuntimeOnly"("org.postgresql:postgresql:${DefaultVersions.postgreSql}")
     api(CommonDependencies.KotlinCommon.exposed())
 
     with(CommonDependencies.Vertx) {
@@ -28,7 +21,6 @@ dependencies {
         api(moduleWithoutVersion("sql-client")) // TODO: use `implementation` when possible
         implementation(moduleWithoutVersion("lang-kotlin"))
         implementation(moduleWithoutVersion("lang-kotlin-coroutines"))
-        "postgresqlImplementation"(moduleWithoutVersion("pg-client"))
     }
     implementation(CommonDependencies.KotlinCommon.vertx())
 
@@ -38,8 +30,14 @@ dependencies {
     implementation(CommonDependencies.KotlinCommon.net())
 }
 
+// for PostgreSQL
+dependencies {
+    runtimeOnly("org.postgresql:postgresql:${DefaultVersions.postgreSql}")
+    implementation(CommonDependencies.Vertx.moduleWithoutVersion("pg-client"))
+}
+
 version = "0.1.0-kotlin-1.6.10-SNAPSHOT"
 
 publishing.publications.getByName<MavenPublication>("maven") {
-    artifactId = rootProject.name
+    artifactId = rootProject.name + "-postgresql"
 }
