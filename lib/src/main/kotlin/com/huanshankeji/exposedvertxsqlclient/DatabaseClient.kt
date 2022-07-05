@@ -273,10 +273,10 @@ fun createDatabaseClient(
 
 fun createDatabaseClient(
     vertx: Vertx? = null,
-    connectionType: ConnectionType, databaseConfig: DatabaseConfig,
+    connectionType: ConnectionType, config: Config,
     exposedDatabase: Database? = null
 ) =
-    with(databaseConfig) {
+    with(config) {
         val connectionConfig = when (connectionType) {
             ConnectionType.Socket -> socketConnectionConfig
             ConnectionType.UnixDomainSocketWithPeerAuthentication -> unixDomainSocketWithPeerAuthenticationConnectionConfig
@@ -290,12 +290,12 @@ fun createDatabaseClient(
 
 fun createBetterDatabaseClient(
     vertx: Vertx? = null,
-    databaseConfig: DatabaseConfig,
+    config: Config,
     exposedDatabase: Database? = null
 ) =
     createDatabaseClient(
         vertx,
         if (isOSLinux()) ConnectionType.UnixDomainSocketWithPeerAuthentication else ConnectionType.Socket,
-        databaseConfig,
+        config,
         exposedDatabase
     )
