@@ -273,11 +273,11 @@ fun createDatabaseClient(
 
 fun createDatabaseClient(
     vertx: Vertx? = null,
-    connectionType: ConnectionType, config: Config,
+    vertxSqlClientConnectionType: ConnectionType, config: Config,
     exposedDatabase: Database? = null
 ) =
     with(config) {
-        val connectionConfig = when (connectionType) {
+        val connectionConfig = when (vertxSqlClientConnectionType) {
             ConnectionType.Socket -> socketConnectionConfig
             ConnectionType.UnixDomainSocketWithPeerAuthentication -> unixDomainSocketWithPeerAuthenticationConnectionConfig
         }
