@@ -1,5 +1,5 @@
 import com.huanshankeji.CommonDependencies
-import com.huanshankeji.DefaultVersions
+import com.huanshankeji.CommonVersions
 
 plugins {
     id("com.huanshankeji.kotlin-jvm-library-sonatype-ossrh-publish-conventions")
@@ -10,30 +10,33 @@ repositories {
     mavenCentral()
 }
 
-dependencies {
-    api(CommonDependencies.Exposed.core())  // TODO: use `implementation` when possible
-    // TODO: remove the Exposed JDBC dependency and the PostgresSQL dependency when there is no need to have an exposed transaction to generate SQLs
-    runtimeOnly(CommonDependencies.Exposed.module("jdbc"))
-    api(CommonDependencies.KotlinCommon.exposed())
+val commonVersions = CommonVersions()
+val commonDependencies = CommonDependencies(commonVersions)
 
-    with(CommonDependencies.Vertx) {
+dependencies {
+    api(commonDependencies.exposed.core()) // TODO: use `implementation` when possible
+    // TODO: remove the Exposed JDBC dependency and the PostgresSQL dependency when there is no need to have an exposed transaction to generate SQLs
+    runtimeOnly(commonDependencies.exposed.module("jdbc"))
+    api(commonDependencies.kotlinCommon.exposed())
+
+    with(commonDependencies.vertx) {
         implementation(platformStackDepchain())
         api(moduleWithoutVersion("sql-client")) // TODO: use `implementation` when possible
         implementation(moduleWithoutVersion("lang-kotlin"))
         implementation(moduleWithoutVersion("lang-kotlin-coroutines"))
     }
-    implementation(CommonDependencies.KotlinCommon.vertx())
+    implementation(commonDependencies.kotlinCommon.vertx())
 
-    implementation(CommonDependencies.KotlinCommon.core())
-    implementation(CommonDependencies.Arrow.core())
+    implementation(commonDependencies.kotlinCommon.core())
+    implementation(commonDependencies.arrow.core())
 
-    implementation(CommonDependencies.KotlinCommon.net())
+    implementation(commonDependencies.kotlinCommon.net())
 }
 
 // for PostgreSQL
 dependencies {
-    runtimeOnly("org.postgresql:postgresql:${DefaultVersions.postgreSql}")
-    implementation(CommonDependencies.Vertx.moduleWithoutVersion("pg-client"))
+    runtimeOnly("org.postgresql:postgresql:${commonVersions.postgreSql}")
+    implementation(commonDependencies.vertx.moduleWithoutVersion("pg-client"))
 }
 
 version = "0.1.1-kotlin-1.6.10-SNAPSHOT"
