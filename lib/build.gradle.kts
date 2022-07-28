@@ -35,11 +35,11 @@ dependencies {
 
 // for PostgreSQL
 dependencies {
-    runtimeOnly("org.postgresql:postgresql:${commonVersions.postgreSql}")
+    runtimeOnly(commonDependencies.postgreSql())
     implementation(commonDependencies.vertx.moduleWithoutVersion("pg-client"))
 }
 
-version = "0.1.1-kotlin-1.6.10"
+version = "0.1.2"
 
 publishing.publications.getByName<MavenPublication>("maven") {
     artifactId = rootProject.name + "-postgresql"
