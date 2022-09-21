@@ -1,16 +1,19 @@
 import com.huanshankeji.CommonDependencies
 import com.huanshankeji.CommonVersions
+import com.huanshankeji.team.repositoriesAddTeamGithubPackagesMavenRegistry
 
 plugins {
     id("com.huanshankeji.kotlin-jvm-library-sonatype-ossrh-publish-conventions")
+    id("com.huanshankeji.team.default-github-packages-publish")
 }
 
 repositories {
     mavenLocal()
     mavenCentral()
 }
+repositoriesAddTeamGithubPackagesMavenRegistry("kotlin-common")
 
-val commonVersions = CommonVersions()
+val commonVersions = CommonVersions(kotlinCommon = "0.2.3-SNAPSHOT") // TODO: don't use a SNAPSHOT version
 val commonDependencies = CommonDependencies(commonVersions)
 
 dependencies {
