@@ -45,7 +45,7 @@ dependencies {
     implementation(commonDependencies.vertx.moduleWithoutVersion("pg-client"))
 }
 
-version = "0.1.3-SNAPSHOT"
+version = "0.2.0-SNAPSHOT"
 
 publishing.publications.getByName<MavenPublication>("maven") {
     artifactId = rootProject.name + "-postgresql"
