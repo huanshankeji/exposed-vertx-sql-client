@@ -100,7 +100,7 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
             if (value is EntityID<*>) value.value else value
         })
 
-    suspend fun execute(statement: Statement<*>): RowSet<Row> =
+    suspend fun executeForVertxSqlClientRowSet(statement: Statement<*>): RowSet<Row> =
         doExecute(statement) { this }
 
     suspend fun <U> executeWithMapping(statement: Statement<*>, mapper: Function<Row, U>): RowSet<U> =
@@ -129,7 +129,7 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
         executeQuery(query).single()
 
     suspend fun executeUpdate(statement: Statement<*>): Int =
-        execute(statement).rowCount()
+        executeForVertxSqlClientRowSet(statement).rowCount()
 
     class SingleUpdateException(rowCount: Int) : Exception("update row count: $rowCount")
 
@@ -145,7 +145,7 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
 
     // see: https://github.com/JetBrains/Exposed/issues/621
     suspend fun <T : Any> executeExpression(clazz: KClass<T>, expression: Expression<T?>): T? =
-        execute(Table.Dual.slice(expression).selectAll())
+        executeForVertxSqlClientRowSet(Table.Dual.slice(expression).selectAll())
             .single()[clazz.java, 0]
 
     suspend inline fun <reified T> executeExpression(expression: Expression<T>): T =
