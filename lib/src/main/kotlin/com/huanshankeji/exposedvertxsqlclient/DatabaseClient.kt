@@ -38,6 +38,10 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
         // How to close The Exposed `Database`?
     }
 
+    fun dbAssert(b: Boolean) {
+        if (!b)
+            throw AssertionError()
+    }
 
     fun <T> exposedTransaction(statement: ExposedTransaction.() -> T) =
         transaction(exposedDatabase, statement)
@@ -261,21 +265,15 @@ suspend fun <T> DatabaseClient<PgConnection>.withSavepointMayRollbackToIt(
     // Prepared query seems not to work here.
 
     require(savepointName.matches(savepointNameRegex))
-    executePlainSqlUpdate("SAVEPOINT \"$savepointName\"").also {
-        if (it != 0) throw IllegalStateException()
-    }
+    executePlainSqlUpdate("SAVEPOINT \"$savepointName\"").also { dbAssert(it == 0) }
 
     suspend fun rollbackToSavepoint() =
-        executePlainSqlUpdate("ROLLBACK TO SAVEPOINT \"$savepointName\"").also {
-            if (it != 0) throw IllegalStateException()
-        }
+        executePlainSqlUpdate("ROLLBACK TO SAVEPOINT \"$savepointName\"").also { dbAssert(it == 0) }
 
     return try {
         val result = function(this)
         if (result.isEmpty()) rollbackToSavepoint()
-        else executePlainSqlUpdate("RELEASE SAVEPOINT \"$savepointName\"").also {
-            if (it != 0) throw IllegalStateException()
-        }
+        else executePlainSqlUpdate("RELEASE SAVEPOINT \"$savepointName\"").also { dbAssert(it == 0) }
         result
     } catch (e: Exception) {
         rollbackToSavepoint()
