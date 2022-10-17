@@ -10,14 +10,18 @@ import kotlin.reflect.KClass
  */
 typealias ClassPropertyColumnIndexMappings<Data> = Nothing // TODO
 
+fun interface ClassPropertyIndexReadMapper<Data : Any> {
+    fun rowToData(row: Row): Data
+}
+
 /**
  * @see ReflectionBasedClassPropertyMapper
  */
-class ReflectionBasedClassPropertyIndexMapper<Data : Any>(
+class ReflectionBasedClassPropertyIndexReadMapper<Data : Any>(
     val clazz: KClass<Data>,
     val classPropertyColumnIndexMappings: ClassPropertyColumnIndexMappings<Data>
-) {
-    fun rowToData(row: Row): Data =
+) : ClassPropertyIndexReadMapper<Data> {
+    override fun rowToData(row: Row): Data =
         TODO()
 
     // I am not sure whether implementing writing to database with Vert.x SQL client prepared query indices and Exposed statements is feasible.

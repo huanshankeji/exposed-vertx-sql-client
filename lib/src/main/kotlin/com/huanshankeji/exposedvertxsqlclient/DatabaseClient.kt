@@ -3,8 +3,11 @@ package com.huanshankeji.exposedvertxsqlclient
 import arrow.core.None
 import arrow.core.Option
 import arrow.core.Some
+import com.huanshankeji.exposed.Where
+import com.huanshankeji.exposed.classpropertymapping.ClassPropertyMapper
 import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig.Socket
 import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig.UnixDomainSocketWithPeerAuthentication
+import com.huanshankeji.exposedvertxsqlclient.classpropertymapping.ClassPropertyIndexReadMapper
 import com.huanshankeji.os.isOSLinux
 import com.huanshankeji.vertx.kotlin.coroutines.coroutineToFuture
 import io.vertx.core.Vertx
@@ -144,11 +147,25 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
     suspend fun executeQuery(query: Query): RowSet<ResultRow> =
         executeWithMapping(query) { row -> row.toExposedResultRow(query) }
 
-    suspend fun executeSingleOrNullQuery(query: Query): ResultRow? =
+    /** "single or no" means differently here from [Iterable.singleOrNull]. */
+    suspend fun executeQueryForSingleOrNoResult(query: Query): ResultRow? =
         executeQuery(query).run { if (none()) null else single() }
 
-    suspend fun executeSingleQuery(query: Query): ResultRow =
+    suspend fun executeQueryForSingleResult(query: Query): ResultRow =
         executeQuery(query).single()
+
+    suspend fun <Data : Any> executeQuery(query: Query, classPropertyMapper: ClassPropertyMapper<Data>): RowSet<Data> =
+        executeWithMapping(query) { row -> classPropertyMapper.resultRowToData(row.toExposedResultRow(query)) }
+
+    suspend fun <Data : Any> executeQuery(
+        query: Query, classPropertyIndexReadMapper: ClassPropertyIndexReadMapper<Data>
+    ): RowSet<Data> =
+        executeWithMapping(query, classPropertyIndexReadMapper::rowToData)
+
+    suspend fun <Data : Any> executeTableSelect(
+        table: Table, classPropertyMapper: ClassPropertyMapper<Data>, where: Where
+    ) =
+        executeQuery(table.slice(classPropertyMapper.neededColumns).select(where), classPropertyMapper)
 
     // TODO: change the argument type to `UpdateBuilder<Int>`?
     suspend fun executeUpdate(statement: Statement<*>): Int =
