@@ -146,13 +146,6 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
     suspend fun executeQuery(query: Query): RowSet<ResultRow> =
         executeWithMapping(query) { row -> row.toExposedResultRow(query) }
 
-    /** "single or no" means differently here from [Iterable.singleOrNull]. */
-    suspend fun executeQueryForSingleOrNoResult(query: Query): ResultRow? =
-        executeQuery(query).run { if (none()) null else single() }
-
-    suspend fun executeQueryForSingleResult(query: Query): ResultRow =
-        executeQuery(query).single()
-
     suspend fun <Data : Any> executeQuery(query: Query, classPropertyMapper: ClassPropertyMapper<Data>): RowSet<Data> =
         executeWithMapping(query) { row -> classPropertyMapper.resultRowToData(row.toExposedResultRow(query)) }
 
@@ -242,6 +235,15 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
     ): Int =
         batchExecuteForVertxSqlClientRowSet(statement, data, setStatementArgs).rowCount()
 }
+
+
+fun <R> RowSet<R>.singleResult(): R =
+    single()
+
+/** "single or no" means differently here from [Iterable.singleOrNull]. */
+fun <R> RowSet<R>.singleOrNoResult(): R? =
+    if (none()) null else single()
+
 
 suspend fun <T> DatabaseClient<PgPool>.withTransaction(function: suspend (DatabaseClient<SqlConnection>) -> T): T =
     coroutineScope {
