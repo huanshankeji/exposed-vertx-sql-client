@@ -3,7 +3,6 @@ package com.huanshankeji.exposedvertxsqlclient
 import arrow.core.None
 import arrow.core.Option
 import arrow.core.Some
-import com.huanshankeji.exposed.Where
 import com.huanshankeji.exposed.classpropertymapping.ClassPropertyMapper
 import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig.Socket
 import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig.UnixDomainSocketWithPeerAuthentication
@@ -162,10 +161,10 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
     ): RowSet<Data> =
         executeWithMapping(query, classPropertyIndexReadMapper::rowToData)
 
-    suspend fun <Data : Any> executeTableSelect(
-        table: Table, classPropertyMapper: ClassPropertyMapper<Data>, where: Where
+    suspend fun <Data : Any> executeSelectQuery(
+        columnSet: ColumnSet, classPropertyMapper: ClassPropertyMapper<Data>, buildQuery: FieldSet.() -> Query
     ) =
-        executeQuery(table.slice(classPropertyMapper.neededColumns).select(where), classPropertyMapper)
+        executeQuery(columnSet.slice(classPropertyMapper.neededColumns).buildQuery(), classPropertyMapper)
 
     // TODO: change the argument type to `UpdateBuilder<Int>`?
     suspend fun executeUpdate(statement: Statement<*>): Int =
