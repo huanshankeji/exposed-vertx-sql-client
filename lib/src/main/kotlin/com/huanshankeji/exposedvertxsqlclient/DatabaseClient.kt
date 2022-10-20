@@ -85,6 +85,9 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
     fun Statement<*>.getVertxPgClientPreparedSql(transaction: ExposedTransaction) =
         prepareSQL(transaction).toVertxPgClientPreparedSql()
 
+    /**
+     * This method has to be called within an [ExposedTransaction].
+     */
     fun Statement<*>.getVertxSqlClientArgTuple() =
         arguments().firstOrNull()?.toVertxTuple()
 
@@ -92,11 +95,10 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
         statement: Statement<*>,
         beforeExecution: PreparedQuery<RowSet<Row>>.() -> PreparedQuery<RowSet<U>>
     ): RowSet<U> {
-        val sql = exposedTransaction {
-            statement.getVertxPgClientPreparedSql(this)
+        val (sql, argTuple) = exposedTransaction {
+            statement.getVertxPgClientPreparedSql(this) to
+                    statement.getVertxSqlClientArgTuple()
         }
-        // TODO: does this work after being moved out of an Exposed transaction?
-        val argTuple = statement.getVertxSqlClientArgTuple()
         return vertxSqlClient.preparedQuery(sql)
             .beforeExecution()
             .run { if (argTuple === null) execute() else execute(argTuple) }
@@ -203,13 +205,13 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
         setStatementArgs: StatementT.(E) -> Unit,
         beforeExecution: PreparedQuery<RowSet<Row>>.() -> PreparedQuery<RowSet<U>>
     ): RowSet<U> {
-        val sql = exposedTransaction {
-            statement.getVertxPgClientPreparedSql(this)
-        }
-        val argTuples = data.map {
-            // The statement is mutable and reused here for all data so the `map` should be parallelized.
-            statement.setStatementArgs(it)
-            statement.getVertxSqlClientArgTuple()
+        val (sql, argTuples) = exposedTransaction {
+            statement.getVertxPgClientPreparedSql(this) to
+                    data.map {
+                        // The statement is mutable and reused here for all data so the `map` should be parallelized.
+                        statement.setStatementArgs(it)
+                        statement.getVertxSqlClientArgTuple()
+                    }
         }
         return vertxSqlClient.preparedQuery(sql)
             .beforeExecution()
