@@ -161,20 +161,19 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
     ) =
         executeQuery(columnSet.slice(classPropertyMapper.neededColumns).buildQuery(), classPropertyMapper)
 
-    // TODO: change the argument type to `UpdateBuilder<Int>`?
-    suspend fun executeUpdate(statement: Statement<*>): Int =
+    suspend fun executeUpdate(statement: Statement<Int>): Int =
         executeForVertxSqlClientRowSet(statement).rowCount()
 
     class SingleUpdateException(rowCount: Int) : Exception("update row count: $rowCount")
 
-    suspend fun executeSingleOrNoUpdate(statement: Statement<*>): Boolean =
+    suspend fun executeSingleOrNoUpdate(statement: Statement<Int>): Boolean =
         when (val rowCount = executeUpdate(statement)) {
             0 -> false
             1 -> true
             else -> throw SingleUpdateException(rowCount)
         }
 
-    suspend fun executeSingleUpdate(statement: Statement<*>): Unit =
+    suspend fun executeSingleUpdate(statement: Statement<Int>): Unit =
         require(executeUpdate(statement) == 1)
 
     // see: https://github.com/JetBrains/Exposed/issues/621
