@@ -1,7 +1,7 @@
 package com.huanshankeji.exposedvertxsqlclient.classpropertymapping
 
-import com.huanshankeji.exposed.classpropertymapping.ClassPropertyColumnMappings
-import com.huanshankeji.exposed.classpropertymapping.ReflectionBasedClassPropertyMapper
+import com.huanshankeji.exposed.datamapping.classproperty.ClassPropertyColumnMappings
+import com.huanshankeji.exposed.datamapping.classproperty.ReflectionBasedClassPropertyDataMapper
 import io.vertx.sqlclient.Row
 import kotlin.reflect.KClass
 
@@ -15,7 +15,7 @@ fun interface ClassPropertyIndexReadMapper<Data : Any> {
 }
 
 /**
- * @see ReflectionBasedClassPropertyMapper
+ * @see ReflectionBasedClassPropertyDataMapper
  */
 class ReflectionBasedClassPropertyIndexReadMapper<Data : Any>(
     val clazz: KClass<Data>,

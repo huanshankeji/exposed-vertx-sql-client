@@ -3,7 +3,7 @@ package com.huanshankeji.exposedvertxsqlclient
 import arrow.core.None
 import arrow.core.Option
 import arrow.core.Some
-import com.huanshankeji.exposed.classpropertymapping.ClassPropertyMapper
+import com.huanshankeji.exposed.datamapping.DataMapper
 import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig.Socket
 import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig.UnixDomainSocketWithPeerAuthentication
 import com.huanshankeji.exposedvertxsqlclient.classpropertymapping.ClassPropertyIndexReadMapper
@@ -148,8 +148,8 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
     suspend fun executeQuery(query: Query): RowSet<ResultRow> =
         executeWithMapping(query) { row -> row.toExposedResultRow(query) }
 
-    suspend fun <Data : Any> executeQuery(query: Query, classPropertyMapper: ClassPropertyMapper<Data>): RowSet<Data> =
-        executeWithMapping(query) { row -> classPropertyMapper.resultRowToData(row.toExposedResultRow(query)) }
+    suspend fun <Data : Any> executeQuery(query: Query, dataMapper: DataMapper<Data>): RowSet<Data> =
+        executeWithMapping(query) { row -> dataMapper.resultRowToData(row.toExposedResultRow(query)) }
 
     suspend fun <Data : Any> executeQuery(
         query: Query, classPropertyIndexReadMapper: ClassPropertyIndexReadMapper<Data>
@@ -157,9 +157,9 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
         executeWithMapping(query, classPropertyIndexReadMapper::rowToData)
 
     suspend fun <Data : Any> executeSelectQuery(
-        columnSet: ColumnSet, classPropertyMapper: ClassPropertyMapper<Data>, buildQuery: FieldSet.() -> Query
+        columnSet: ColumnSet, dataMapper: DataMapper<Data>, buildQuery: FieldSet.() -> Query
     ) =
-        executeQuery(columnSet.slice(classPropertyMapper.neededColumns).buildQuery(), classPropertyMapper)
+        executeQuery(columnSet.slice(dataMapper.neededColumns).buildQuery(), dataMapper)
 
     suspend fun executeUpdate(statement: Statement<Int>): Int =
         executeForVertxSqlClientRowSet(statement).rowCount()
