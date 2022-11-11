@@ -198,6 +198,7 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
      * @see batchInsert
      * @see PreparedQuery.executeBatch
      */
+    // TODO: check that all arguments are set once before being reset by every data element to make sure that the generated prepared SQL is correct.
     suspend fun <U, StatementT : Statement<*>, E> doBatchExecute(
         statement: StatementT,
         data: List<E>,
@@ -231,6 +232,9 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
         }
     }
 
+    /**
+     * @see batchInsert
+     */
     suspend fun <E> batchExecuteUpdate(
         statement: UpdateBuilder<Int>, data: List<E>, setStatementArgs: UpdateBuilder<Int>.(E) -> Unit
     ): Int =
