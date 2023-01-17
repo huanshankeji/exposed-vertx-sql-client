@@ -47,6 +47,8 @@ dependencies {
 
 version = "0.2.0-SNAPSHOT"
 
+java.toolchain.languageVersion.set(JavaLanguageVersion.of(8))
+
 publishing.publications.getByName<MavenPublication>("maven") {
     artifactId = rootProject.name + "-postgresql"
 
