@@ -10,6 +10,8 @@ import com.huanshankeji.vertx.kotlin.coroutines.coroutineToFuture
 import io.vertx.core.Vertx
 import io.vertx.core.buffer.Buffer
 import io.vertx.kotlin.coroutines.await
+import io.vertx.kotlin.sqlclient.poolOptionsOf
+import io.vertx.pgclient.PgConnectOptions
 import io.vertx.pgclient.PgConnection
 import io.vertx.pgclient.PgPool
 import io.vertx.sqlclient.*
@@ -247,55 +249,71 @@ sealed interface ConnectionConfig {
 }
 
 // can be used for a shared Exposed `Database` among `DatabaseClient`s
-fun createDatabaseClient(
+fun createPgPoolDatabaseClient(
     vertx: Vertx? = null,
-    vertxSqlClientConnectionConfig: ConnectionConfig, exposedDatabase: Database
+    vertxSqlClientConnectionConfig: ConnectionConfig,
+    extraPgConnectOptions: PgConnectOptions.() -> Unit = {}, poolOptions: PoolOptions = poolOptionsOf(),
+    exposedDatabase: Database
 ): DatabaseClient<PgPool> =
     DatabaseClient(
         with(vertxSqlClientConnectionConfig) {
             when (this) {
-                is Socket -> createSocketPgPool(vertx, host, database, user, password)
+                is Socket ->
+                    createSocketPgPool(vertx, host, database, user, password, extraPgConnectOptions, poolOptions)
+
                 is UnixDomainSocketWithPeerAuthentication ->
-                    createPeerAuthenticationUnixDomainSocketPgPoolAndSetRole(vertx, path, database, role)
+                    createPeerAuthenticationUnixDomainSocketPgPoolAndSetRole(
+                        vertx, path, database, role, extraPgConnectOptions, poolOptions
+                    )
             }
         },
         exposedDatabase
     )
 
-fun createDatabaseClient(
+fun createPgPoolDatabaseClient(
     vertx: Vertx? = null,
-    vertxSqlClientConnectionConfig: ConnectionConfig, exposedSocketConnectionConfig: Socket
+    vertxSqlClientConnectionConfig: ConnectionConfig,
+    extraPgConnectOptions: PgConnectOptions.() -> Unit = {}, poolOptions: PoolOptions = poolOptionsOf(),
+    exposedSocketConnectionConfig: Socket
 ): DatabaseClient<PgPool> =
-    createDatabaseClient(
-        vertx, vertxSqlClientConnectionConfig,
+    createPgPoolDatabaseClient(
+        vertx, vertxSqlClientConnectionConfig, extraPgConnectOptions, poolOptions,
         exposedDatabaseConnectPostgreSql(exposedSocketConnectionConfig)
     )
 
-fun createDatabaseClient(
+/** It may be more efficient to use a single shared [Database] to generate SQLs for multiple [DatabaseClient]s/[SqlClient]s. */
+fun createPgPoolDatabaseClient(
     vertx: Vertx? = null,
-    vertxSqlClientConnectionType: ConnectionType, config: Config,
+    vertxSqlClientConnectionType: ConnectionType, localConnectionConfig: LocalConnectionConfig,
+    extraPgConnectOptions: PgConnectOptions.() -> Unit = {}, poolOptions: PoolOptions = poolOptionsOf(),
     exposedDatabase: Database? = null
 ) =
-    with(config) {
+    with(localConnectionConfig) {
         val connectionConfig = when (vertxSqlClientConnectionType) {
             ConnectionType.Socket -> socketConnectionConfig
             ConnectionType.UnixDomainSocketWithPeerAuthentication -> unixDomainSocketWithPeerAuthenticationConnectionConfig
         }
 
         if (exposedDatabase === null)
-            createDatabaseClient(vertx, connectionConfig, socketConnectionConfig)
+            createPgPoolDatabaseClient(
+                vertx, connectionConfig, extraPgConnectOptions, poolOptions, socketConnectionConfig
+            )
         else
-            createDatabaseClient(vertx, connectionConfig, exposedDatabase)
+            createPgPoolDatabaseClient(
+                vertx, connectionConfig, extraPgConnectOptions, poolOptions, exposedDatabase
+            )
     }
 
-fun createBetterDatabaseClient(
+fun createBetterPgPoolDatabaseClient(
     vertx: Vertx? = null,
-    config: Config,
+    localConnectionConfig: LocalConnectionConfig,
+    extraPgConnectOptions: PgConnectOptions.() -> Unit = {}, poolOptions: PoolOptions = poolOptionsOf(),
     exposedDatabase: Database? = null
 ) =
-    createDatabaseClient(
+    createPgPoolDatabaseClient(
         vertx,
         if (isOSLinux()) ConnectionType.UnixDomainSocketWithPeerAuthentication else ConnectionType.Socket,
-        config,
+        localConnectionConfig,
+        extraPgConnectOptions, poolOptions,
         exposedDatabase
     )
