@@ -4,15 +4,17 @@ import io.vertx.core.Vertx
 import io.vertx.kotlin.coroutines.await
 import io.vertx.kotlin.sqlclient.poolOptionsOf
 import io.vertx.pgclient.PgConnectOptions
+import io.vertx.pgclient.PgConnection
 import io.vertx.pgclient.PgPool
 import io.vertx.sqlclient.Pool
 import io.vertx.sqlclient.PoolOptions
 import io.vertx.sqlclient.SqlClient
+import io.vertx.sqlclient.SqlConnection
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-private inline fun createPgConnectOptions(
+/*private*/ inline fun createPgConnectOptions(
     mainPgConnectOptions: PgConnectOptions.() -> Unit = {},
     extraPgConnectOptions: PgConnectOptions.() -> Unit = {},
 ): PgConnectOptions =
@@ -22,11 +24,22 @@ private inline fun createPgConnectOptions(
         extraPgConnectOptions()
     }
 
-/*inline*/ fun <Client> createSocketPgClient(
-    vertx: Vertx? = null,
+/*
+// An extracted common `create` argument for `PgConnection`, but a suspend function has an incompatible type.
+private val pgConnectionConnect: suspend (Vertx?, PgConnectOptions, Nothing?) -> PgConnection = { vertx, pgConnectOptions, _ ->
+    PgConnection.connect(vertx, pgConnectOptions).await()
+}
+*/
+
+suspend fun SqlConnection.executeSetRole(role: String) =
+    query("SET ROLE $role").execute().await()
+
+
+inline fun <Client, PoolOptionsT : PoolOptions?> createSocketGenericPgClient(
+    vertx: Vertx?,
     host: String, database: String, user: String, password: String,
-    extraPgConnectOptions: PgConnectOptions.() -> Unit = {}, poolOptions: PoolOptions = poolOptionsOf(),
-    create: (Vertx?, PgConnectOptions, PoolOptions) -> Client
+    extraPgConnectOptions: PgConnectOptions.() -> Unit = {}, poolOptions: PoolOptionsT,
+    create: (Vertx?, PgConnectOptions, PoolOptionsT) -> Client
 ): Client {
     val pgConnectOptions = createPgConnectOptions({
         this.host = host
@@ -38,25 +51,42 @@ private inline fun createPgConnectOptions(
     return create(vertx, pgConnectOptions, poolOptions)
 }
 
-fun createSocketSqlClient(
-    vertx: Vertx? = null,
+fun createSocketPgSqlClient(
+    vertx: Vertx?,
     host: String, database: String, user: String, password: String,
     extraPgConnectOptions: PgConnectOptions.() -> Unit = {}, poolOptions: PoolOptions = poolOptionsOf()
 ): SqlClient =
-    createSocketPgClient(vertx, host, database, user, password, extraPgConnectOptions, poolOptions, PgPool::client)
+    createSocketGenericPgClient<SqlClient, PoolOptions>(
+        vertx, host, database, user, password, extraPgConnectOptions, poolOptions, PgPool::client
+    )
 
 fun createSocketPgPool(
-    vertx: Vertx? = null,
+    vertx: Vertx?,
     host: String, database: String, user: String, password: String,
     extraPgConnectOptions: PgConnectOptions.() -> Unit = {}, poolOptions: PoolOptions = poolOptionsOf()
 ): PgPool =
-    createSocketPgClient(vertx, host, database, user, password, extraPgConnectOptions, poolOptions, PgPool::pool)
+    createSocketGenericPgClient<PgPool, PoolOptions>(
+        vertx, host, database, user, password, extraPgConnectOptions, poolOptions, PgPool::pool
+    )
 
-/*inline*/ fun <Client> createPeerAuthenticationUnixDomainSocketPgClient(
-    vertx: Vertx? = null,
+// TODO: @Untested
+suspend fun createSocketPgConnection(
+    vertx: Vertx?,
+    host: String, database: String, user: String, password: String,
+    extraPgConnectOptions: PgConnectOptions.() -> Unit = {}
+): PgConnection =
+    createSocketGenericPgClient(
+        vertx, host, database, user, password, extraPgConnectOptions, null
+    ) { vertx, pgConnectOptions, _ ->
+        PgConnection.connect(vertx, pgConnectOptions).await()
+    }
+
+
+inline fun <Client, PoolOptionsT : PoolOptions?> createPeerAuthenticationUnixDomainSocketGenericPgClient(
+    vertx: Vertx?,
     unixDomainSocketPath: String, database: String,
-    extraPgConnectOptions: PgConnectOptions.() -> Unit = {}, poolOptions: PoolOptions = poolOptionsOf(),
-    create: (Vertx?, PgConnectOptions, PoolOptions) -> Client
+    extraPgConnectOptions: PgConnectOptions.() -> Unit = {}, poolOptions: PoolOptionsT,
+    create: (Vertx?, PgConnectOptions, PoolOptionsT) -> Client
 ): Client {
     val pgConnectOptions = createPgConnectOptions(
         {
@@ -70,16 +100,16 @@ fun createSocketPgPool(
 }
 
 fun createPeerAuthenticationUnixDomainSocketPgSqlClient(
-    vertx: Vertx? = null,
+    vertx: Vertx?,
     unixDomainSocketPath: String, database: String,
     extraPgConnectOptions: PgConnectOptions.() -> Unit = {}, poolOptions: PoolOptions = poolOptionsOf()
 ): SqlClient =
-    createPeerAuthenticationUnixDomainSocketPgClient(
+    createPeerAuthenticationUnixDomainSocketGenericPgClient<SqlClient, PoolOptions>(
         vertx, unixDomainSocketPath, database, extraPgConnectOptions, poolOptions, PgPool::client
     )
 
-suspend fun createUnixDomainSocketSqlClientAndSetRole(
-    vertx: Vertx? = null,
+suspend fun createUnixDomainSocketPgSqlClientAndSetRole(
+    vertx: Vertx?,
     host: String, database: String, role: String,
     extraPgConnectOptions: PgConnectOptions.() -> Unit = {}, poolOptions: PoolOptions = poolOptionsOf()
 ): SqlClient =
@@ -90,18 +120,17 @@ suspend fun createUnixDomainSocketSqlClientAndSetRole(
         query("SET ROLE $role").execute().await()
     }
 
-
 fun createPeerAuthenticationUnixDomainSocketPgPool(
-    vertx: Vertx? = null,
+    vertx: Vertx?,
     unixDomainSocketPath: String, database: String,
     extraPgConnectOptions: PgConnectOptions.() -> Unit = {}, poolOptions: PoolOptions = poolOptionsOf()
 ): PgPool =
-    createPeerAuthenticationUnixDomainSocketPgClient(
+    createPeerAuthenticationUnixDomainSocketGenericPgClient<PgPool, PoolOptions>(
         vertx, unixDomainSocketPath, database, extraPgConnectOptions, poolOptions, PgPool::pool
     )
 
 fun createPeerAuthenticationUnixDomainSocketPgPoolAndSetRole(
-    vertx: Vertx? = null,
+    vertx: Vertx?,
     host: String, database: String, role: String,
     extraPgConnectOptions: PgConnectOptions.() -> Unit = {}, poolOptions: PoolOptions = poolOptionsOf()
 ): PgPool =
@@ -109,8 +138,26 @@ fun createPeerAuthenticationUnixDomainSocketPgPoolAndSetRole(
         .connectHandler {
             CoroutineScope(Dispatchers.Unconfined).launch {
                 // TODO: are exceptions handled?
-                it.query("SET ROLE $role").execute().await()
+                it.executeSetRole(role)
                 /** @see Pool.connectHandler */
                 it.close().await()
             }
         }
+
+// TODO: @Untested
+suspend fun createPeerAuthenticationUnixDomainSocketPgConnectionAndSetRole(
+    vertx: Vertx?,
+    host: String, database: String, role: String,
+    extraPgConnectOptions: PgConnectOptions.() -> Unit = {}
+): PgConnection =
+    createPeerAuthenticationUnixDomainSocketGenericPgClient(
+        vertx,
+        host,
+        database,
+        extraPgConnectOptions,
+        null
+    ) { vertx, pgConnectOptions, _ ->
+        PgConnection.connect(vertx, pgConnectOptions).await().apply {
+            executeSetRole(role)
+        }
+    }

@@ -250,7 +250,7 @@ sealed interface ConnectionConfig {
 
 // can be used for a shared Exposed `Database` among `DatabaseClient`s
 fun createPgPoolDatabaseClient(
-    vertx: Vertx? = null,
+    vertx: Vertx?,
     vertxSqlClientConnectionConfig: ConnectionConfig,
     extraPgConnectOptions: PgConnectOptions.() -> Unit = {}, poolOptions: PoolOptions = poolOptionsOf(),
     exposedDatabase: Database
@@ -271,7 +271,7 @@ fun createPgPoolDatabaseClient(
     )
 
 fun createPgPoolDatabaseClient(
-    vertx: Vertx? = null,
+    vertx: Vertx?,
     vertxSqlClientConnectionConfig: ConnectionConfig,
     extraPgConnectOptions: PgConnectOptions.() -> Unit = {}, poolOptions: PoolOptions = poolOptionsOf(),
     exposedSocketConnectionConfig: Socket
@@ -283,7 +283,7 @@ fun createPgPoolDatabaseClient(
 
 /** It may be more efficient to use a single shared [Database] to generate SQLs for multiple [DatabaseClient]s/[SqlClient]s. */
 fun createPgPoolDatabaseClient(
-    vertx: Vertx? = null,
+    vertx: Vertx?,
     vertxSqlClientConnectionType: ConnectionType, localConnectionConfig: LocalConnectionConfig,
     extraPgConnectOptions: PgConnectOptions.() -> Unit = {}, poolOptions: PoolOptions = poolOptionsOf(),
     exposedDatabase: Database? = null
@@ -305,7 +305,7 @@ fun createPgPoolDatabaseClient(
     }
 
 fun createBetterPgPoolDatabaseClient(
-    vertx: Vertx? = null,
+    vertx: Vertx?,
     localConnectionConfig: LocalConnectionConfig,
     extraPgConnectOptions: PgConnectOptions.() -> Unit = {}, poolOptions: PoolOptions = poolOptionsOf(),
     exposedDatabase: Database? = null
