@@ -19,6 +19,8 @@ repositoriesAddTeamGithubPackagesMavenRegistry("kotlin-common")
 val commonVersions = CommonVersions(kotlinCommon = "0.2.4")
 val commonDependencies = CommonDependencies(commonVersions)
 
+kotlin.jvmToolchain(8)
+
 dependencies {
     api(commonDependencies.exposed.core()) // TODO: use `implementation` when possible
     // TODO: remove the Exposed JDBC dependency and the PostgresSQL dependency when there is no need to have an exposed transaction to generate SQLs
