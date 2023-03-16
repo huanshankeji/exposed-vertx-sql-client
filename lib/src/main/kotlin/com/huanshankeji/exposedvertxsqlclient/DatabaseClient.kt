@@ -28,7 +28,7 @@ import org.jetbrains.exposed.sql.Transaction as ExposedTransaction
 /**
  * A wrapper client around Vert.x [SqlClient] for queries and an Exposed [Database] to generate SQLs working around the limitations of Exposed.
  */
-class DatabaseClient<out VertxSqlClient : SqlClient>(
+open class DatabaseClient<out VertxSqlClient : SqlClient>(
     val vertxSqlClient: VertxSqlClient,
     val exposedDatabase: Database
 ) {
@@ -160,25 +160,47 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
         } catch (e: IllegalArgumentException) {
             false
         }
+
+    class NotWithinTransaction<out VertxSqlClient : SqlClient> internal constructor(
+        vertxSqlClient: VertxSqlClient, exposedDatabase: Database
+    ) : DatabaseClient<VertxSqlClient>(vertxSqlClient, exposedDatabase) {
+        internal fun asWithinTransaction() =
+            WithinTransaction(vertxSqlClient, exposedDatabase)
+    }
+
+    sealed class WithinTransactionOrSavepoint<out VertxSqlClient : SqlClient>(
+        vertxSqlClient: VertxSqlClient, exposedDatabase: Database
+    ) : DatabaseClient<VertxSqlClient>(vertxSqlClient, exposedDatabase)
+
+    class WithinTransaction<out VertxSqlClient : SqlClient> internal constructor(
+        vertxSqlClient: VertxSqlClient, exposedDatabase: Database
+    ) : WithinTransactionOrSavepoint<VertxSqlClient>(vertxSqlClient, exposedDatabase) {
+        internal fun asWithinSavepoint() =
+            WithinSavepoint(vertxSqlClient, exposedDatabase)
+    }
+
+    class WithinSavepoint<out VertxSqlClient : SqlClient> internal constructor(
+        vertxSqlClient: VertxSqlClient, exposedDatabase: Database
+    ) : WithinTransactionOrSavepoint<VertxSqlClient>(vertxSqlClient, exposedDatabase)
 }
 
-suspend fun <T> DatabaseClient<PgPool>.withTransaction(function: suspend (DatabaseClient<SqlConnection>) -> T): T =
+suspend fun <T> DatabaseClient.NotWithinTransaction<PgPool>.withTransaction(function: suspend (DatabaseClient.WithinTransaction<SqlConnection>) -> T): T =
     coroutineScope {
         vertxSqlClient.withTransaction {
-            coroutineToFuture { function(DatabaseClient(it, exposedDatabase)) }
+            coroutineToFuture { function(DatabaseClient.WithinTransaction(it, exposedDatabase)) }
         }.await()
     }
 
-suspend fun <T> DatabaseClient<PgPool>.withPgTransaction(function: suspend (DatabaseClient<PgConnection>) -> T): T =
+suspend fun <T> DatabaseClient.NotWithinTransaction<PgPool>.withPgTransaction(function: suspend (DatabaseClient.WithinTransaction<PgConnection>) -> T): T =
     withTransaction {
         @Suppress("UNCHECKED_CAST")
-        function(it as DatabaseClient<PgConnection>)
+        function(it as DatabaseClient.WithinTransaction<PgConnection>)
     }
 
-suspend fun <T> DatabaseClient<SqlConnection>.withTransactionCommitOrRollback(function: suspend (DatabaseClient<SqlConnection>) -> Option<T>): Option<T> {
+suspend fun <T> DatabaseClient.NotWithinTransaction<SqlConnection>.withTransactionCommitOrRollback(function: suspend (DatabaseClient.WithinTransaction<SqlConnection>) -> Option<T>): Option<T> {
     val transaction = vertxSqlClient.begin().await()
     return try {
-        val result = function(this)
+        val result = function(asWithinTransaction())
         when (result) {
             is Some<T> -> transaction.commit()
             is None -> transaction.rollback()
@@ -194,8 +216,8 @@ val savepointNameRegex = Regex("\\w+")
 
 // for PostgreSQL
 // A savepoint destroys one with the same name so be careful.
-suspend fun <T> DatabaseClient<PgConnection>.withSavepointMayRollbackToIt(
-    savepointName: String, function: suspend (DatabaseClient<PgConnection>) -> Option<T>
+suspend fun <T> DatabaseClient.WithinTransaction<PgConnection>.withSavepointMayRollbackToIt(
+    savepointName: String, function: suspend (DatabaseClient.WithinSavepoint<PgConnection>) -> Option<T>
 ): Option<T> {
     // Prepared query seems not to work here.
 
@@ -210,7 +232,7 @@ suspend fun <T> DatabaseClient<PgConnection>.withSavepointMayRollbackToIt(
         }
 
     return try {
-        val result = function(this)
+        val result = function(asWithinSavepoint())
         if (result.isEmpty()) rollbackToSavepoint()
         else executePlainSqlUpdate("RELEASE SAVEPOINT \"$savepointName\"").also {
             if (it != 0) throw IllegalStateException()
