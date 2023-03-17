@@ -9,6 +9,7 @@ import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig.UnixDomainSocketW
 import com.huanshankeji.exposedvertxsqlclient.classpropertymapping.ClassPropertyIndexReadMapper
 import com.huanshankeji.os.isOSLinux
 import com.huanshankeji.vertx.kotlin.coroutines.coroutineToFuture
+import com.huanshankeji.vertx.sqlclient.sortDataAndExecuteBatch
 import io.vertx.core.Vertx
 import io.vertx.core.buffer.Buffer
 import io.vertx.kotlin.coroutines.await
@@ -93,16 +94,19 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
     fun Statement<*>.getVertxSqlClientArgTuple() =
         arguments().firstOrNull()?.toVertxTuple()
 
-    private suspend inline fun <U> doExecute(
+    /**
+     * @param transformQuery transform the query by calling [PreparedQuery.mapping] and [PreparedQuery.collecting].
+     */
+    private suspend inline fun <SqlResultT : SqlResult<*>> doExecute(
         statement: Statement<*>,
-        beforeExecution: PreparedQuery<RowSet<Row>>.() -> PreparedQuery<RowSet<U>>
-    ): RowSet<U> {
+        transformQuery: PreparedQuery<RowSet<Row>>.() -> PreparedQuery<SqlResultT>
+    ): SqlResultT {
         val (sql, argTuple) = exposedTransaction {
             statement.getVertxPgClientPreparedSql(this) to
                     statement.getVertxSqlClientArgTuple()
         }
         return vertxSqlClient.preparedQuery(sql)
-            .beforeExecution()
+            .transformQuery()
             .run { if (argTuple === null) execute() else execute(argTuple) }
             .await()
     }
@@ -199,37 +203,39 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
      * @param statement a statement with dummy arguments set that can be mutated with different arguments.
      * @see batchInsert
      * @see PreparedQuery.executeBatch
+     * @see doExecute
      */
     // TODO: check that all arguments are set once before being reset by every data element to make sure that the generated prepared SQL is correct.
-    suspend fun <U, StatementT : Statement<*>, E> doBatchExecute(
+    suspend fun <SqlResultT : SqlResult<*>, StatementT : Statement<*>, E> doExecuteBatch(
         statement: StatementT,
         data: List<E>,
         setStatementArgs: StatementT.(E) -> Unit,
-        beforeExecution: PreparedQuery<RowSet<Row>>.() -> PreparedQuery<RowSet<U>>
-    ): RowSet<U> {
+        transformQuery: PreparedQuery<RowSet<Row>>.() -> PreparedQuery<SqlResultT>
+    ): SqlResultT {
         val (sql, argTuples) = exposedTransaction {
             statement.getVertxPgClientPreparedSql(this) to
                     data.map {
-                        // The statement is mutable and reused here for all data so the `map` should be parallelized.
+                        // The statement is mutable and reused here for all data so the `map` should not be parallelized.
                         statement.setStatementArgs(it)
                         statement.getVertxSqlClientArgTuple()
                     }
         }
         return vertxSqlClient.preparedQuery(sql)
-            .beforeExecution()
+            .transformQuery()
             .executeBatch(argTuples).await()
     }
 
-    suspend fun <StatementT : Statement<*>, E> batchExecuteForVertxSqlClientRowSet(
+    suspend fun <StatementT : Statement<*>, E> executeBatchForVertxSqlClientRowSet(
         statement: StatementT, data: List<E>, setStatementArgs: StatementT.(E) -> Unit
     ): RowSet<Row> =
-        doBatchExecute(statement, data, setStatementArgs) { this }
+        doExecuteBatch(statement, data, setStatementArgs) { this }
 
-    suspend fun <E> batchExecuteQuery(
+    @Deprecated("It seems that queries can't be executed in batch by the Vert.x SQL client.")
+    suspend fun <E> executeBatchQuery(
         query: Query, data: List<E>, setStatementArgs: Query.(E) -> Unit
     ): RowSet<ResultRow> {
         val queryFieldSet = query.getFieldSet()
-        return doBatchExecute(query, data, setStatementArgs) {
+        return doExecuteBatch(query, data, setStatementArgs) {
             mapping { it.toExposedResultRow(queryFieldSet) }
         }
     }
@@ -237,10 +243,21 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
     /**
      * @see batchInsert
      */
-    suspend fun <E> batchExecuteUpdate(
+    suspend fun <E> executeBatchUpdate(
         statement: UpdateBuilder<Int>, data: List<E>, setStatementArgs: UpdateBuilder<Int>.(E) -> Unit
-    ): Int =
-        batchExecuteForVertxSqlClientRowSet(statement, data, setStatementArgs).rowCount()
+    ) {
+        executeBatchForVertxSqlClientRowSet(statement, data, setStatementArgs)
+    }
+
+    /**
+     * @see sortDataAndExecuteBatch
+     */
+    suspend fun <E, SelectorResultT : Comparable<SelectorResultT>> sortDataAndExecuteBatchUpdate(
+        statement: UpdateBuilder<Int>,
+        data: List<E>, selector: (E) -> SelectorResultT,
+        setStatementArgs: UpdateBuilder<Int>.(E) -> Unit
+    ) =
+        executeBatchUpdate(statement, data.sortedBy(selector), setStatementArgs)
 }
 
 
