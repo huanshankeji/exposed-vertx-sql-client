@@ -9,6 +9,7 @@ import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig.UnixDomainSocketW
 import com.huanshankeji.exposedvertxsqlclient.classpropertymapping.ClassPropertyIndexReadMapper
 import com.huanshankeji.os.isOSLinux
 import com.huanshankeji.vertx.kotlin.coroutines.coroutineToFuture
+import com.huanshankeji.vertx.kotlin.sqlclient.executeBatchAwaitForSqlResultSequence
 import com.huanshankeji.vertx.sqlclient.sortDataAndExecuteBatch
 import io.vertx.core.Vertx
 import io.vertx.core.buffer.Buffer
@@ -27,6 +28,7 @@ import org.jetbrains.exposed.sql.statements.UpdateBuilder
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.function.Function
 import kotlin.reflect.KClass
+import kotlin.sequences.Sequence
 import org.jetbrains.exposed.sql.Transaction as ExposedTransaction
 
 typealias ExposedArgs = Iterable<Pair<IColumnType, Any?>>
@@ -132,25 +134,6 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
     suspend fun <U> executeWithMapping(statement: Statement<*>, mapper: Function<Row, U>): RowSet<U> =
         doExecute(statement) { mapping(mapper) }
 
-    fun Row.toExposedResultRow(queryFieldSet: Set<Expression<*>>) =
-        ResultRow.createAndFillValues(
-            queryFieldSet.asSequence().mapIndexed { index, expression ->
-                expression to getValue(index).let {
-                    when (it) {
-                        is Buffer -> it.bytes
-                        else -> it
-                    }
-                }
-            }.toMap()
-        )
-
-    fun Query.getFieldSet() =
-        /** [org.jetbrains.exposed.sql.AbstractQuery.ResultIterator.fieldsIndex] */
-        set.realFields.toSet()
-
-    fun Row.toExposedResultRow(query: Query) =
-        toExposedResultRow(query.getFieldSet())
-
     suspend fun executeQuery(query: Query): RowSet<ResultRow> =
         executeWithMapping(query) { row -> row.toExposedResultRow(query) }
 
@@ -170,14 +153,8 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
     suspend fun executeUpdate(statement: Statement<Int>): Int =
         executeForVertxSqlClientRowSet(statement).rowCount()
 
-    class SingleUpdateException(rowCount: Int) : Exception("update row count: $rowCount")
-
     suspend fun executeSingleOrNoUpdate(statement: Statement<Int>): Boolean =
-        when (val rowCount = executeUpdate(statement)) {
-            0 -> false
-            1 -> true
-            else -> throw SingleUpdateException(rowCount)
-        }
+        executeUpdate(statement).singleOrNoUpdateCountToIsUpdated()
 
     suspend fun executeSingleUpdate(statement: Statement<Int>): Unit =
         require(executeUpdate(statement) == 1)
@@ -211,29 +188,29 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
         data: List<E>,
         setStatementArgs: StatementT.(E) -> Unit,
         transformQuery: PreparedQuery<RowSet<Row>>.() -> PreparedQuery<SqlResultT>
-    ): SqlResultT {
+    ): Sequence<SqlResultT> {
         val (sql, argTuples) = exposedTransaction {
             statement.getVertxPgClientPreparedSql(this) to
                     data.map {
                         // The statement is mutable and reused here for all data so the `map` should not be parallelized.
                         statement.setStatementArgs(it)
                         statement.getVertxSqlClientArgTuple()
+                            ?: throw IllegalArgumentException("the prepared query should have arguments")
                     }
         }
         return vertxSqlClient.preparedQuery(sql)
             .transformQuery()
-            .executeBatch(argTuples).await()
+            .executeBatchAwaitForSqlResultSequence(argTuples)
     }
 
-    suspend fun <StatementT : Statement<*>, E> executeBatchForVertxSqlClientRowSet(
+    suspend fun <StatementT : Statement<*>, E> executeBatchForVertxSqlClientRowSetSequence(
         statement: StatementT, data: List<E>, setStatementArgs: StatementT.(E) -> Unit
-    ): RowSet<Row> =
+    ): Sequence<RowSet<Row>> =
         doExecuteBatch(statement, data, setStatementArgs) { this }
 
-    @Deprecated("It seems that queries can't be executed in batch by the Vert.x SQL client.")
     suspend fun <E> executeBatchQuery(
         query: Query, data: List<E>, setStatementArgs: Query.(E) -> Unit
-    ): RowSet<ResultRow> {
+    ): Sequence<RowSet<ResultRow>> {
         val queryFieldSet = query.getFieldSet()
         return doExecuteBatch(query, data, setStatementArgs) {
             mapping { it.toExposedResultRow(queryFieldSet) }
@@ -242,12 +219,20 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
 
     /**
      * @see batchInsert
+     * @return a sequence of the update counts of the the update statements in the batch.
      */
     suspend fun <E> executeBatchUpdate(
         statement: UpdateBuilder<Int>, data: List<E>, setStatementArgs: UpdateBuilder<Int>.(E) -> Unit
-    ) {
-        executeBatchForVertxSqlClientRowSet(statement, data, setStatementArgs)
-    }
+    ): Sequence<Int> =
+        executeBatchForVertxSqlClientRowSetSequence(statement, data, setStatementArgs).map { it.rowCount() }
+
+    /**
+     * @return a sequence indicating whether each update statement is updated in the batch.
+     */
+    suspend fun <E> executeBatchSingleOrNoUpdate(
+        statement: UpdateBuilder<Int>, data: List<E>, setStatementArgs: UpdateBuilder<Int>.(E) -> Unit
+    ): Sequence<Boolean> =
+        executeBatchUpdate(statement, data, setStatementArgs).map { it.singleOrNoUpdateCountToIsUpdated() }
 
     /**
      * @see sortDataAndExecuteBatch
@@ -267,6 +252,34 @@ fun <R> RowSet<R>.singleResult(): R =
 /** "single or no" means differently here from [Iterable.singleOrNull]. */
 fun <R> RowSet<R>.singleOrNoResult(): R? =
     if (none()) null else single()
+
+fun Row.toExposedResultRow(queryFieldSet: Set<Expression<*>>) =
+    ResultRow.createAndFillValues(
+        queryFieldSet.asSequence().mapIndexed { index, expression ->
+            expression to getValue(index).let {
+                when (it) {
+                    is Buffer -> it.bytes
+                    else -> it
+                }
+            }
+        }.toMap()
+    )
+
+fun Query.getFieldSet() =
+    /** [org.jetbrains.exposed.sql.AbstractQuery.ResultIterator.fieldsIndex] */
+    set.realFields.toSet()
+
+fun Row.toExposedResultRow(query: Query) =
+    toExposedResultRow(query.getFieldSet())
+
+class SingleUpdateException(rowCount: Int) : Exception("update row count: $rowCount")
+
+fun Int.singleOrNoUpdateCountToIsUpdated() =
+    when (this) {
+        0 -> false
+        1 -> true
+        else -> throw SingleUpdateException(this)
+    }
 
 
 suspend fun <T> DatabaseClient<PgPool>.withTransaction(function: suspend (DatabaseClient<SqlConnection>) -> T): T =
