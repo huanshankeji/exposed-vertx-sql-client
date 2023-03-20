@@ -145,7 +145,7 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
     ): RowSet<Data> =
         executeWithMapping(query, classPropertyIndexReadMapper::rowToData)
 
-    suspend fun <Data : Any> executeSelectQuery(
+    suspend fun <Data : Any> executeSelectQueryWithDataMapper(
         columnSet: ColumnSet, dataMapper: DataMapper<Data>, buildQuery: FieldSet.() -> Query
     ) =
         executeQuery(columnSet.slice(dataMapper.neededColumns).buildQuery(), dataMapper)
