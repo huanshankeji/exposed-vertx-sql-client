@@ -1,15 +1,13 @@
 package com.huanshankeji.exposedvertxsqlclient
 
-import arrow.core.None
-import arrow.core.Option
-import arrow.core.Some
-import com.huanshankeji.exposed.datamapping.DataMapper
+import arrow.core.*
+import com.huanshankeji.exposed.datamapping.DataQueryMapper
 import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig.Socket
 import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig.UnixDomainSocketWithPeerAuthentication
-import com.huanshankeji.exposedvertxsqlclient.classpropertymapping.ClassPropertyIndexReadMapper
 import com.huanshankeji.os.isOSLinux
 import com.huanshankeji.vertx.kotlin.coroutines.coroutineToFuture
 import com.huanshankeji.vertx.kotlin.sqlclient.executeBatchAwaitForSqlResultSequence
+import com.huanshankeji.vertx.sqlclient.datamapping.RowDataQueryMapper
 import com.huanshankeji.vertx.sqlclient.sortDataAndExecuteBatch
 import io.vertx.core.Vertx
 import io.vertx.core.buffer.Buffer
@@ -131,24 +129,39 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
     suspend fun executeForVertxSqlClientRowSet(statement: Statement<*>): RowSet<Row> =
         doExecute(statement) { this }
 
-    suspend fun <U> executeWithMapping(statement: Statement<*>, mapper: Function<Row, U>): RowSet<U> =
-        doExecute(statement) { mapping(mapper) }
+    suspend fun <U> executeWithMapping(statement: Statement<*>, RowMapper: Function<Row, U>): RowSet<U> =
+        doExecute(statement) { mapping(RowMapper) }
+
+    suspend inline fun <Data> executeQuery(
+        query: Query, crossinline resultRowMapper: ResultRow.() -> Data
+    ): RowSet<Data> =
+        executeWithMapping(query) { row -> row.toExposedResultRow(query).resultRowMapper() }
 
     suspend fun executeQuery(query: Query): RowSet<ResultRow> =
-        executeWithMapping(query) { row -> row.toExposedResultRow(query) }
+        executeQuery(query) { this }
 
-    suspend fun <Data : Any> executeQuery(query: Query, dataMapper: DataMapper<Data>): RowSet<Data> =
-        executeWithMapping(query) { row -> dataMapper.resultRowToData(row.toExposedResultRow(query)) }
+    suspend fun <Data : Any> executeQuery(query: Query, dataQueryMapper: DataQueryMapper<Data>): RowSet<Data> =
+        executeWithMapping(query) { row -> dataQueryMapper.resultRowToData(row.toExposedResultRow(query)) }
 
-    suspend fun <Data : Any> executeQuery(
-        query: Query, classPropertyIndexReadMapper: ClassPropertyIndexReadMapper<Data>
+    suspend fun <Data : Any> executeVertxSqlClientRowQuery(
+        query: Query, rowDataQueryMapper: RowDataQueryMapper<Data>
     ): RowSet<Data> =
-        executeWithMapping(query, classPropertyIndexReadMapper::rowToData)
+        executeWithMapping(query, rowDataQueryMapper::rowToData)
+
+    suspend inline fun <T, R> executeSingleColumnSelectQuery(
+        columnSet: ColumnSet, column: Column<T>, buildQuery: FieldSet.() -> Query, crossinline mapper: T.() -> R
+    ): RowSet<R> =
+        executeQuery(columnSet.slice(column).buildQuery()) { this[column].mapper() }
+
+    suspend fun <T> executeSingleColumnSelectQuery(
+        columnSet: ColumnSet, column: Column<T>, buildQuery: FieldSet.() -> Query
+    ): RowSet<T> =
+        executeSingleColumnSelectQuery(columnSet, column, buildQuery) { this }
 
     suspend fun <Data : Any> executeSelectQuery(
-        columnSet: ColumnSet, dataMapper: DataMapper<Data>, buildQuery: FieldSet.() -> Query
+        columnSet: ColumnSet, dataQueryMapper: DataQueryMapper<Data>, buildQuery: FieldSet.() -> Query
     ) =
-        executeQuery(columnSet.slice(dataMapper.neededColumns).buildQuery(), dataMapper)
+        executeQuery(columnSet.slice(dataQueryMapper.neededColumns).buildQuery(), dataQueryMapper)
 
     suspend fun executeUpdate(statement: Statement<Int>): Int =
         executeForVertxSqlClientRowSet(statement).rowCount()
@@ -312,29 +325,49 @@ suspend fun <T> DatabaseClient<SqlConnection>.withTransactionCommitOrRollback(fu
 
 val savepointNameRegex = Regex("\\w+")
 
-// for PostgreSQL
-// A savepoint destroys one with the same name so be careful.
-suspend fun <T> DatabaseClient<PgConnection>.withSavepointMayRollbackToIt(
-    savepointName: String, function: suspend (DatabaseClient<PgConnection>) -> Option<T>
-): Option<T> {
+private suspend fun DatabaseClient<PgConnection>.savepoint(savepointName: String) =
+    executePlainSqlUpdate("SAVEPOINT \"$savepointName\"").also { dbAssert(it == 0) }
+
+private suspend fun DatabaseClient<PgConnection>.rollbackToSavepoint(savepointName: String) =
+    executePlainSqlUpdate("ROLLBACK TO SAVEPOINT \"$savepointName\"").also { dbAssert(it == 0) }
+
+private suspend fun DatabaseClient<PgConnection>.releaseSavepoint(savepointName: String) =
+    executePlainSqlUpdate("RELEASE SAVEPOINT \"$savepointName\"").also { dbAssert(it == 0) }
+
+/**
+ * Currently only available for PostgreSQL.
+ * A savepoint destroys one with the same name so be careful.
+ */
+suspend fun <RollbackT, ReleaseT> DatabaseClient<PgConnection>.withSavepointAndRollbackIfThrowsOrLeft(
+    savepointName: String, function: suspend (DatabaseClient<PgConnection>) -> Either<RollbackT, ReleaseT>
+): Either<RollbackT, ReleaseT> {
     // Prepared query seems not to work here.
 
     require(savepointName.matches(savepointNameRegex))
-    executePlainSqlUpdate("SAVEPOINT \"$savepointName\"").also { dbAssert(it == 0) }
-
-    suspend fun rollbackToSavepoint() =
-        executePlainSqlUpdate("ROLLBACK TO SAVEPOINT \"$savepointName\"").also { dbAssert(it == 0) }
+    savepoint(savepointName)
 
     return try {
         val result = function(this)
-        if (result.isEmpty()) rollbackToSavepoint()
-        else executePlainSqlUpdate("RELEASE SAVEPOINT \"$savepointName\"").also { dbAssert(it == 0) }
+        when (result) {
+            is Either.Left -> rollbackToSavepoint(savepointName)
+            is Either.Right -> releaseSavepoint(savepointName)
+        }
         result
     } catch (e: Exception) {
-        rollbackToSavepoint()
+        rollbackToSavepoint(savepointName)
         throw e
     }
 }
+
+suspend fun <T> DatabaseClient<PgConnection>.withSavepointAndRollbackIfThrows(
+    savepointName: String, function: suspend (DatabaseClient<PgConnection>) -> T
+): T =
+    withSavepointAndRollbackIfThrowsOrLeft(savepointName) { function(it).right() }.getOrElse { throw AssertionError() }
+
+suspend fun <T> DatabaseClient<PgConnection>.withSavepointAndRollbackIfThrowsOrNone(
+    savepointName: String, function: suspend (DatabaseClient<PgConnection>) -> Option<T>
+): Option<T> =
+    withSavepointAndRollbackIfThrowsOrLeft(savepointName) { function(it).toEither { } }.orNone()
 
 enum class ConnectionType {
     Socket, UnixDomainSocketWithPeerAuthentication

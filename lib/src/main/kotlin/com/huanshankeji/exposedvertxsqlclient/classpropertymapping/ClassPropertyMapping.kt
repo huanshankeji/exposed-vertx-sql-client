@@ -2,6 +2,7 @@ package com.huanshankeji.exposedvertxsqlclient.classpropertymapping
 
 import com.huanshankeji.exposed.datamapping.classproperty.ClassPropertyColumnMappings
 import com.huanshankeji.exposed.datamapping.classproperty.ReflectionBasedClassPropertyDataMapper
+import com.huanshankeji.vertx.sqlclient.datamapping.RowDataQueryMapper
 import io.vertx.sqlclient.Row
 import kotlin.reflect.KClass
 
@@ -10,17 +11,15 @@ import kotlin.reflect.KClass
  */
 typealias ClassPropertyColumnIndexMappings<Data> = Nothing // TODO
 
-fun interface ClassPropertyIndexReadMapper<Data : Any> {
-    fun rowToData(row: Row): Data
-}
+typealias VertxSqlClientRowDataQueryMapper<Data> = RowDataQueryMapper<Data>
 
 /**
  * @see ReflectionBasedClassPropertyDataMapper
  */
-class ReflectionBasedClassPropertyIndexReadMapper<Data : Any>(
+class ReflectionBasedClassPropertyIndexVertxSqlClientRowDataQueryMapper<Data : Any>(
     val clazz: KClass<Data>,
     val classPropertyColumnIndexMappings: ClassPropertyColumnIndexMappings<Data>
-) : ClassPropertyIndexReadMapper<Data> {
+) : RowDataQueryMapper<Data> {
     override fun rowToData(row: Row): Data =
         TODO()
 
