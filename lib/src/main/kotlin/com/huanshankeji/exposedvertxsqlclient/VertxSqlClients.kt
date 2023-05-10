@@ -1,5 +1,6 @@
 package com.huanshankeji.exposedvertxsqlclient
 
+import com.huanshankeji.Untested
 import io.vertx.core.Vertx
 import io.vertx.kotlin.coroutines.await
 import io.vertx.kotlin.sqlclient.poolOptionsOf
@@ -69,7 +70,7 @@ fun createSocketPgPool(
         vertx, host, database, user, password, extraPgConnectOptions, poolOptions, PgPool::pool
     )
 
-// TODO: @Untested
+@Untested
 suspend fun createSocketPgConnection(
     vertx: Vertx?,
     host: String, database: String, user: String, password: String,
@@ -144,18 +145,14 @@ fun createPeerAuthenticationUnixDomainSocketPgPoolAndSetRole(
             }
         }
 
-// TODO: @Untested
+@Untested
 suspend fun createPeerAuthenticationUnixDomainSocketPgConnectionAndSetRole(
     vertx: Vertx?,
     host: String, database: String, role: String,
     extraPgConnectOptions: PgConnectOptions.() -> Unit = {}
 ): PgConnection =
     createPeerAuthenticationUnixDomainSocketGenericPgClient(
-        vertx,
-        host,
-        database,
-        extraPgConnectOptions,
-        null
+        vertx, host, database, extraPgConnectOptions, null
     ) { vertx, pgConnectOptions, _ ->
         PgConnection.connect(vertx, pgConnectOptions).await().apply {
             executeSetRole(role)
