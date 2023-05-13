@@ -369,6 +369,11 @@ suspend fun <T> DatabaseClient<PgConnection>.withSavepointAndRollbackIfThrowsOrN
 ): Option<T> =
     withSavepointAndRollbackIfThrowsOrLeft(savepointName) { function(it).toEither { } }.orNone()
 
+suspend fun DatabaseClient<PgConnection>.withSavepointAndRollbackIfThrowsOrFalse(
+    savepointName: String, function: suspend (DatabaseClient<PgConnection>) -> Boolean
+): Boolean =
+    withSavepointAndRollbackIfThrowsOrLeft(savepointName) { if (function(it)) Unit.right() else Unit.left() }.isRight()
+
 enum class ConnectionType {
     Socket, UnixDomainSocketWithPeerAuthentication
 }
