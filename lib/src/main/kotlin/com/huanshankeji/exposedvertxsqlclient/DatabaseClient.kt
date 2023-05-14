@@ -384,6 +384,7 @@ sealed interface ConnectionConfig {
 
     class Socket(
         val host: String,
+        val port: Int? = null, // `null` for the default port
         val user: String,
         val password: String,
         override val database: String
@@ -400,6 +401,8 @@ sealed interface ConnectionConfig {
     }
 }
 
+// TODO: use `ConnectionConfig` as the argument directly
+
 // can be used for a shared Exposed `Database` among `DatabaseClient`s
 fun createPgPoolDatabaseClient(
     vertx: Vertx?,
@@ -411,7 +414,7 @@ fun createPgPoolDatabaseClient(
         with(vertxSqlClientConnectionConfig) {
             when (this) {
                 is Socket ->
-                    createSocketPgPool(vertx, host, database, user, password, extraPgConnectOptions, poolOptions)
+                    createSocketPgPool(vertx, host, port, database, user, password, extraPgConnectOptions, poolOptions)
 
                 is UnixDomainSocketWithPeerAuthentication ->
                     createPeerAuthenticationUnixDomainSocketPgPoolAndSetRole(

@@ -9,7 +9,7 @@ class LocalConnectionConfig(val database: String, val user: String, val socketCo
     }
 
     val socketConnectionConfig =
-        ConnectionConfig.Socket(SOCKET_HOST, user, socketConnectionPassword, database)
+        ConnectionConfig.Socket(SOCKET_HOST, null, user, socketConnectionPassword, database)
 
     val unixDomainSocketWithPeerAuthenticationConnectionConfig =
         ConnectionConfig.UnixDomainSocketWithPeerAuthentication(UNIX_DOMAIN_SOCKET_PATH, user, database)

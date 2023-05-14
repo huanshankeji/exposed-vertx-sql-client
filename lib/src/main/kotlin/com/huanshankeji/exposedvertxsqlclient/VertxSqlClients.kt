@@ -35,15 +35,17 @@ private val pgConnectionConnect: suspend (Vertx?, PgConnectOptions, Nothing?) ->
 suspend fun SqlConnection.executeSetRole(role: String) =
     query("SET ROLE $role").execute().await()
 
+// TODO: use `ConnectionConfig` as the argument directly in all the following functions
 
 inline fun <Client, PoolOptionsT : PoolOptions?> createSocketGenericPgClient(
     vertx: Vertx?,
-    host: String, database: String, user: String, password: String,
+    host: String, port: Int?, database: String, user: String, password: String,
     extraPgConnectOptions: PgConnectOptions.() -> Unit = {}, poolOptions: PoolOptionsT,
     create: (Vertx?, PgConnectOptions, PoolOptionsT) -> Client
 ): Client {
     val pgConnectOptions = createPgConnectOptions({
         this.host = host
+        port?.let { this.port = it }
         this.database = database
         this.user = user
         this.password = password
@@ -54,30 +56,30 @@ inline fun <Client, PoolOptionsT : PoolOptions?> createSocketGenericPgClient(
 
 fun createSocketPgSqlClient(
     vertx: Vertx?,
-    host: String, database: String, user: String, password: String,
+    host: String, port: Int?, database: String, user: String, password: String,
     extraPgConnectOptions: PgConnectOptions.() -> Unit = {}, poolOptions: PoolOptions = poolOptionsOf()
 ): SqlClient =
     createSocketGenericPgClient<SqlClient, PoolOptions>(
-        vertx, host, database, user, password, extraPgConnectOptions, poolOptions, PgPool::client
+        vertx, host, port, database, user, password, extraPgConnectOptions, poolOptions, PgPool::client
     )
 
 fun createSocketPgPool(
     vertx: Vertx?,
-    host: String, database: String, user: String, password: String,
+    host: String, port: Int?, database: String, user: String, password: String,
     extraPgConnectOptions: PgConnectOptions.() -> Unit = {}, poolOptions: PoolOptions = poolOptionsOf()
 ): PgPool =
     createSocketGenericPgClient<PgPool, PoolOptions>(
-        vertx, host, database, user, password, extraPgConnectOptions, poolOptions, PgPool::pool
+        vertx, host, port, database, user, password, extraPgConnectOptions, poolOptions, PgPool::pool
     )
 
 @Untested
 suspend fun createSocketPgConnection(
     vertx: Vertx?,
-    host: String, database: String, user: String, password: String,
+    host: String, port: Int?, database: String, user: String, password: String,
     extraPgConnectOptions: PgConnectOptions.() -> Unit = {}
 ): PgConnection =
     createSocketGenericPgClient(
-        vertx, host, database, user, password, extraPgConnectOptions, null
+        vertx, host, port, database, user, password, extraPgConnectOptions, null
     ) { vertx, pgConnectOptions, _ ->
         PgConnection.connect(vertx, pgConnectOptions).await()
     }
