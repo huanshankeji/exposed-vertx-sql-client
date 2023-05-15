@@ -15,7 +15,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-/*private*/ inline fun createPgConnectOptions(
+@PublishedApi
+internal inline fun createPgConnectOptions(
     mainPgConnectOptions: PgConnectOptions.() -> Unit = {},
     extraPgConnectOptions: PgConnectOptions.() -> Unit = {},
 ): PgConnectOptions =
