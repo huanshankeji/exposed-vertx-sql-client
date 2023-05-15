@@ -16,7 +16,7 @@ repositories {
 }
 repositoriesAddTeamGithubPackagesMavenRegistry("kotlin-common")
 
-val commonVersions = CommonVersions(kotlinCommon = "0.3.0-generic-exposed-class-property-mapping-SNAPSHOT")
+val commonVersions = CommonVersions(kotlinCommon = "0.3.0")
 val commonDependencies = CommonDependencies(commonVersions)
 
 kotlin.jvmToolchain(8)
