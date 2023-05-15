@@ -16,12 +16,14 @@ repositories {
 }
 repositoriesAddTeamGithubPackagesMavenRegistry("kotlin-common")
 
-val commonVersions = CommonVersions(kotlinCommon = "0.2.4")
+val commonVersions = CommonVersions(kotlinCommon = "0.3.0")
 val commonDependencies = CommonDependencies(commonVersions)
+
+kotlin.jvmToolchain(8)
 
 dependencies {
     api(commonDependencies.exposed.core()) // TODO: use `implementation` when possible
-    // TODO: remove the Exposed JDBC dependency and the PostgresSQL dependency when there is no need to have an exposed transaction to generate SQLs
+    // TODO: remove the Exposed JDBC dependency and the PostgresSQL dependency when there is no need to to generate SQLs with an Exposed transaction
     runtimeOnly(commonDependencies.exposed.module("jdbc"))
     api(commonDependencies.kotlinCommon.exposed())
 
@@ -45,7 +47,7 @@ dependencies {
     implementation(commonDependencies.vertx.moduleWithoutVersion("pg-client"))
 }
 
-version = "0.1.3"
+version = "0.2.0"
 
 publishing.publications.getByName<MavenPublication>("maven") {
     artifactId = rootProject.name + "-postgresql"
