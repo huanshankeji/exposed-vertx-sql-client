@@ -1,12 +1,14 @@
 package com.huanshankeji.exposedvertxsqlclient
 
-import arrow.core.None
-import arrow.core.Option
-import arrow.core.Some
+import arrow.core.*
+import com.huanshankeji.exposed.datamapping.DataQueryMapper
 import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig.Socket
 import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig.UnixDomainSocketWithPeerAuthentication
 import com.huanshankeji.os.isOSLinux
 import com.huanshankeji.vertx.kotlin.coroutines.coroutineToFuture
+import com.huanshankeji.vertx.kotlin.sqlclient.executeBatchAwaitForSqlResultSequence
+import com.huanshankeji.vertx.sqlclient.datamapping.RowDataQueryMapper
+import com.huanshankeji.vertx.sqlclient.sortDataAndExecuteBatch
 import io.vertx.core.Vertx
 import io.vertx.core.buffer.Buffer
 import io.vertx.kotlin.coroutines.await
@@ -20,10 +22,14 @@ import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.Query
 import org.jetbrains.exposed.sql.statements.Statement
+import org.jetbrains.exposed.sql.statements.UpdateBuilder
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.function.Function
 import kotlin.reflect.KClass
+import kotlin.sequences.Sequence
 import org.jetbrains.exposed.sql.Transaction as ExposedTransaction
+
+typealias ExposedArgs = Iterable<Pair<IColumnType, Any?>>
 
 /**
  * A wrapper client around Vert.x [SqlClient] for queries and an Exposed [Database] to generate SQLs working around the limitations of Exposed.
@@ -37,6 +43,10 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
         // How to close The Exposed `Database`?
     }
 
+    fun dbAssert(b: Boolean) {
+        if (!b)
+            throw AssertionError()
+    }
 
     fun <T> exposedTransaction(statement: ExposedTransaction.() -> T) =
         transaction(exposedDatabase, statement)
@@ -73,17 +83,31 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
             table.dropStatement().joinSqls()
         })
 
-    private suspend inline fun <U> doExecute(
+
+    // TODO: context receivers
+    fun Statement<*>.getVertxPgClientPreparedSql(transaction: ExposedTransaction) =
+        prepareSQL(transaction).toVertxPgClientPreparedSql()
+
+    /**
+     * This method has to be called within an [ExposedTransaction].
+     */
+    fun Statement<*>.getVertxSqlClientArgTuple() =
+        arguments().firstOrNull()?.toVertxTuple()
+
+    /**
+     * @param transformQuery transform the query by calling [PreparedQuery.mapping] and [PreparedQuery.collecting].
+     */
+    private suspend inline fun <SqlResultT : SqlResult<*>> doExecute(
         statement: Statement<*>,
-        beforeExecution: PreparedQuery<RowSet<Row>>.() -> PreparedQuery<RowSet<U>>
-    ): RowSet<U> {
-        val (sql, args) = exposedTransaction {
-            statement.prepareSQL(this).toVertxPgClientPreparedSql() to
-                    statement.arguments().firstOrNull()?.toVertxTuple()
+        transformQuery: PreparedQuery<RowSet<Row>>.() -> PreparedQuery<SqlResultT>
+    ): SqlResultT {
+        val (sql, argTuple) = exposedTransaction {
+            statement.getVertxPgClientPreparedSql(this) to
+                    statement.getVertxSqlClientArgTuple()
         }
         return vertxSqlClient.preparedQuery(sql)
-            .beforeExecution()
-            .run { if (args === null) execute() else execute(args) }
+            .transformQuery()
+            .run { if (argTuple === null) execute() else execute(argTuple) }
             .await()
     }
 
@@ -96,7 +120,7 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
         return stringBuilder.toString()
     }
 
-    fun Iterable<Pair<IColumnType, Any?>>.toVertxTuple(): Tuple =
+    fun ExposedArgs.toVertxTuple(): Tuple =
         Tuple.wrap(map {
             val value = it.second
             if (value is EntityID<*>) value.value else value
@@ -105,44 +129,47 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
     suspend fun executeForVertxSqlClientRowSet(statement: Statement<*>): RowSet<Row> =
         doExecute(statement) { this }
 
-    suspend fun <U> executeWithMapping(statement: Statement<*>, mapper: Function<Row, U>): RowSet<U> =
-        doExecute(statement) { mapping(mapper) }
+    suspend fun <U> executeWithMapping(statement: Statement<*>, RowMapper: Function<Row, U>): RowSet<U> =
+        doExecute(statement) { mapping(RowMapper) }
+
+    suspend inline fun <Data> executeQuery(
+        query: Query, crossinline resultRowMapper: ResultRow.() -> Data
+    ): RowSet<Data> =
+        executeWithMapping(query) { row -> row.toExposedResultRow(query).resultRowMapper() }
 
     suspend fun executeQuery(query: Query): RowSet<ResultRow> =
-        executeWithMapping(query) { row ->
-            /** [org.jetbrains.exposed.sql.AbstractQuery.ResultIterator.fieldsIndex] */
-            ResultRow.createAndFillValues(
-                query.set.realFields
-                    .toSet().mapIndexed { index, expression ->
-                        expression to row.getValue(index).let {
-                            when (it) {
-                                is Buffer -> it.bytes
-                                else -> it
-                            }
-                        }
-                    }.toMap()
-            )
-        }
+        executeQuery(query) { this }
 
-    suspend fun executeSingleOrNullQuery(query: Query): ResultRow? =
-        executeQuery(query).run { if (none()) null else single() }
+    suspend fun <Data : Any> executeQuery(query: Query, dataQueryMapper: DataQueryMapper<Data>): RowSet<Data> =
+        executeWithMapping(query) { row -> dataQueryMapper.resultRowToData(row.toExposedResultRow(query)) }
 
-    suspend fun executeSingleQuery(query: Query): ResultRow =
-        executeQuery(query).single()
+    suspend fun <Data : Any> executeVertxSqlClientRowQuery(
+        query: Query, rowDataQueryMapper: RowDataQueryMapper<Data>
+    ): RowSet<Data> =
+        executeWithMapping(query, rowDataQueryMapper::rowToData)
 
-    suspend fun executeUpdate(statement: Statement<*>): Int =
+    suspend inline fun <T, R> executeSingleColumnSelectQuery(
+        columnSet: ColumnSet, column: Column<T>, buildQuery: FieldSet.() -> Query, crossinline mapper: T.() -> R
+    ): RowSet<R> =
+        executeQuery(columnSet.slice(column).buildQuery()) { this[column].mapper() }
+
+    suspend fun <T> executeSingleColumnSelectQuery(
+        columnSet: ColumnSet, column: Column<T>, buildQuery: FieldSet.() -> Query
+    ): RowSet<T> =
+        executeSingleColumnSelectQuery(columnSet, column, buildQuery) { this }
+
+    suspend fun <Data : Any> executeSelectQuery(
+        columnSet: ColumnSet, dataQueryMapper: DataQueryMapper<Data>, buildQuery: FieldSet.() -> Query
+    ) =
+        executeQuery(columnSet.slice(dataQueryMapper.neededColumns).buildQuery(), dataQueryMapper)
+
+    suspend fun executeUpdate(statement: Statement<Int>): Int =
         executeForVertxSqlClientRowSet(statement).rowCount()
 
-    class SingleUpdateException(rowCount: Int) : Exception("update row count: $rowCount")
+    suspend fun executeSingleOrNoUpdate(statement: Statement<Int>): Boolean =
+        executeUpdate(statement).singleOrNoUpdateCountToIsUpdated()
 
-    suspend fun executeSingleOrNoUpdate(statement: Statement<*>): Boolean =
-        when (val rowCount = executeUpdate(statement)) {
-            0 -> false
-            1 -> true
-            else -> throw SingleUpdateException(rowCount)
-        }
-
-    suspend fun executeSingleUpdate(statement: Statement<*>): Unit =
+    suspend fun executeSingleUpdate(statement: Statement<Int>): Unit =
         require(executeUpdate(statement) == 1)
 
     // see: https://github.com/JetBrains/Exposed/issues/621
@@ -160,7 +187,113 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
         } catch (e: IllegalArgumentException) {
             false
         }
+
+
+    /**
+     * @param statement a statement with dummy arguments set that can be mutated with different arguments.
+     * @see batchInsert
+     * @see PreparedQuery.executeBatch
+     * @see doExecute
+     */
+    // TODO: check that all arguments are set once before being reset by every data element to make sure that the generated prepared SQL is correct.
+    suspend fun <SqlResultT : SqlResult<*>, StatementT : Statement<*>, E> doExecuteBatch(
+        statement: StatementT,
+        data: List<E>,
+        setStatementArgs: StatementT.(E) -> Unit,
+        transformQuery: PreparedQuery<RowSet<Row>>.() -> PreparedQuery<SqlResultT>
+    ): Sequence<SqlResultT> {
+        val (sql, argTuples) = exposedTransaction {
+            statement.getVertxPgClientPreparedSql(this) to
+                    data.map {
+                        // The statement is mutable and reused here for all data so the `map` should not be parallelized.
+                        statement.setStatementArgs(it)
+                        statement.getVertxSqlClientArgTuple()
+                            ?: throw IllegalArgumentException("the prepared query should have arguments")
+                    }
+        }
+        return vertxSqlClient.preparedQuery(sql)
+            .transformQuery()
+            .executeBatchAwaitForSqlResultSequence(argTuples)
+    }
+
+    suspend fun <StatementT : Statement<*>, E> executeBatchForVertxSqlClientRowSetSequence(
+        statement: StatementT, data: List<E>, setStatementArgs: StatementT.(E) -> Unit
+    ): Sequence<RowSet<Row>> =
+        doExecuteBatch(statement, data, setStatementArgs) { this }
+
+    suspend fun <E> executeBatchQuery(
+        query: Query, data: List<E>, setStatementArgs: Query.(E) -> Unit
+    ): Sequence<RowSet<ResultRow>> {
+        val queryFieldSet = query.getFieldSet()
+        return doExecuteBatch(query, data, setStatementArgs) {
+            mapping { it.toExposedResultRow(queryFieldSet) }
+        }
+    }
+
+    /**
+     * @see batchInsert
+     * @return a sequence of the update counts of the the update statements in the batch.
+     */
+    suspend fun <E> executeBatchUpdate(
+        statement: UpdateBuilder<Int>, data: List<E>, setStatementArgs: UpdateBuilder<Int>.(E) -> Unit
+    ): Sequence<Int> =
+        executeBatchForVertxSqlClientRowSetSequence(statement, data, setStatementArgs).map { it.rowCount() }
+
+    /**
+     * @return a sequence indicating whether each update statement is updated in the batch.
+     */
+    suspend fun <E> executeBatchSingleOrNoUpdate(
+        statement: UpdateBuilder<Int>, data: List<E>, setStatementArgs: UpdateBuilder<Int>.(E) -> Unit
+    ): Sequence<Boolean> =
+        executeBatchUpdate(statement, data, setStatementArgs).map { it.singleOrNoUpdateCountToIsUpdated() }
+
+    /**
+     * @see sortDataAndExecuteBatch
+     */
+    suspend fun <E, SelectorResultT : Comparable<SelectorResultT>> sortDataAndExecuteBatchUpdate(
+        statement: UpdateBuilder<Int>,
+        data: List<E>, selector: (E) -> SelectorResultT,
+        setStatementArgs: UpdateBuilder<Int>.(E) -> Unit
+    ) =
+        executeBatchUpdate(statement, data.sortedBy(selector), setStatementArgs)
 }
+
+
+fun <R> RowSet<R>.singleResult(): R =
+    single()
+
+/** "single or no" means differently here from [Iterable.singleOrNull]. */
+fun <R> RowSet<R>.singleOrNoResult(): R? =
+    if (none()) null else single()
+
+fun Row.toExposedResultRow(queryFieldSet: Set<Expression<*>>) =
+    ResultRow.createAndFillValues(
+        queryFieldSet.asSequence().mapIndexed { index, expression ->
+            expression to getValue(index).let {
+                when (it) {
+                    is Buffer -> it.bytes
+                    else -> it
+                }
+            }
+        }.toMap()
+    )
+
+fun Query.getFieldSet() =
+    /** [org.jetbrains.exposed.sql.AbstractQuery.ResultIterator.fieldsIndex] */
+    set.realFields.toSet()
+
+fun Row.toExposedResultRow(query: Query) =
+    toExposedResultRow(query.getFieldSet())
+
+class SingleUpdateException(rowCount: Int) : Exception("update row count: $rowCount")
+
+fun Int.singleOrNoUpdateCountToIsUpdated() =
+    when (this) {
+        0 -> false
+        1 -> true
+        else -> throw SingleUpdateException(this)
+    }
+
 
 suspend fun <T> DatabaseClient<PgPool>.withTransaction(function: suspend (DatabaseClient<SqlConnection>) -> T): T =
     coroutineScope {
@@ -192,35 +325,54 @@ suspend fun <T> DatabaseClient<SqlConnection>.withTransactionCommitOrRollback(fu
 
 val savepointNameRegex = Regex("\\w+")
 
-// for PostgreSQL
-// A savepoint destroys one with the same name so be careful.
-suspend fun <T> DatabaseClient<PgConnection>.withSavepointMayRollbackToIt(
-    savepointName: String, function: suspend (DatabaseClient<PgConnection>) -> Option<T>
-): Option<T> {
+private suspend fun DatabaseClient<PgConnection>.savepoint(savepointName: String) =
+    executePlainSqlUpdate("SAVEPOINT \"$savepointName\"").also { dbAssert(it == 0) }
+
+private suspend fun DatabaseClient<PgConnection>.rollbackToSavepoint(savepointName: String) =
+    executePlainSqlUpdate("ROLLBACK TO SAVEPOINT \"$savepointName\"").also { dbAssert(it == 0) }
+
+private suspend fun DatabaseClient<PgConnection>.releaseSavepoint(savepointName: String) =
+    executePlainSqlUpdate("RELEASE SAVEPOINT \"$savepointName\"").also { dbAssert(it == 0) }
+
+/**
+ * Currently only available for PostgreSQL.
+ * A savepoint destroys one with the same name so be careful.
+ */
+suspend fun <RollbackT, ReleaseT> DatabaseClient<PgConnection>.withSavepointAndRollbackIfThrowsOrLeft(
+    savepointName: String, function: suspend (DatabaseClient<PgConnection>) -> Either<RollbackT, ReleaseT>
+): Either<RollbackT, ReleaseT> {
     // Prepared query seems not to work here.
 
     require(savepointName.matches(savepointNameRegex))
-    executePlainSqlUpdate("SAVEPOINT \"$savepointName\"").also {
-        if (it != 0) throw IllegalStateException()
-    }
-
-    suspend fun rollbackToSavepoint() =
-        executePlainSqlUpdate("ROLLBACK TO SAVEPOINT \"$savepointName\"").also {
-            if (it != 0) throw IllegalStateException()
-        }
+    savepoint(savepointName)
 
     return try {
         val result = function(this)
-        if (result.isEmpty()) rollbackToSavepoint()
-        else executePlainSqlUpdate("RELEASE SAVEPOINT \"$savepointName\"").also {
-            if (it != 0) throw IllegalStateException()
+        when (result) {
+            is Either.Left -> rollbackToSavepoint(savepointName)
+            is Either.Right -> releaseSavepoint(savepointName)
         }
         result
     } catch (e: Exception) {
-        rollbackToSavepoint()
+        rollbackToSavepoint(savepointName)
         throw e
     }
 }
+
+suspend fun <T> DatabaseClient<PgConnection>.withSavepointAndRollbackIfThrows(
+    savepointName: String, function: suspend (DatabaseClient<PgConnection>) -> T
+): T =
+    withSavepointAndRollbackIfThrowsOrLeft(savepointName) { function(it).right() }.getOrElse { throw AssertionError() }
+
+suspend fun <T> DatabaseClient<PgConnection>.withSavepointAndRollbackIfThrowsOrNone(
+    savepointName: String, function: suspend (DatabaseClient<PgConnection>) -> Option<T>
+): Option<T> =
+    withSavepointAndRollbackIfThrowsOrLeft(savepointName) { function(it).toEither { } }.orNone()
+
+suspend fun DatabaseClient<PgConnection>.withSavepointAndRollbackIfThrowsOrFalse(
+    savepointName: String, function: suspend (DatabaseClient<PgConnection>) -> Boolean
+): Boolean =
+    withSavepointAndRollbackIfThrowsOrLeft(savepointName) { if (function(it)) Unit.right() else Unit.left() }.isRight()
 
 enum class ConnectionType {
     Socket, UnixDomainSocketWithPeerAuthentication
@@ -232,6 +384,7 @@ sealed interface ConnectionConfig {
 
     class Socket(
         val host: String,
+        val port: Int? = null, // `null` for the default port
         val user: String,
         val password: String,
         override val database: String
@@ -248,6 +401,8 @@ sealed interface ConnectionConfig {
     }
 }
 
+// TODO: use `ConnectionConfig` as the argument directly
+
 // can be used for a shared Exposed `Database` among `DatabaseClient`s
 fun createPgPoolDatabaseClient(
     vertx: Vertx?,
@@ -259,7 +414,7 @@ fun createPgPoolDatabaseClient(
         with(vertxSqlClientConnectionConfig) {
             when (this) {
                 is Socket ->
-                    createSocketPgPool(vertx, host, database, user, password, extraPgConnectOptions, poolOptions)
+                    createSocketPgPool(vertx, host, port, database, user, password, extraPgConnectOptions, poolOptions)
 
                 is UnixDomainSocketWithPeerAuthentication ->
                     createPeerAuthenticationUnixDomainSocketPgPoolAndSetRole(
