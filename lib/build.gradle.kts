@@ -16,7 +16,8 @@ repositories {
 }
 repositoriesAddTeamGithubPackagesMavenRegistry("kotlin-common")
 
-val commonVersions = CommonVersions(kotlinCommon = "0.3.0")
+val commonVersions =
+    CommonVersions(kotlinCommon = "0.3.0", vertx = "4.4.2") // TODO: use the default version when it's bumped
 val commonDependencies = CommonDependencies(commonVersions)
 
 kotlin.jvmToolchain(8)
