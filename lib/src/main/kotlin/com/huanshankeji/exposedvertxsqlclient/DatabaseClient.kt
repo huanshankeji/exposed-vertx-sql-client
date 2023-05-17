@@ -2,6 +2,7 @@ package com.huanshankeji.exposedvertxsqlclient
 
 import arrow.core.*
 import com.huanshankeji.exposed.datamapping.DataQueryMapper
+import com.huanshankeji.exposed.insertIgnoreStatement
 import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig.Socket
 import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig.UnixDomainSocketWithPeerAuthentication
 import com.huanshankeji.os.isOSLinux
@@ -21,6 +22,7 @@ import kotlinx.coroutines.coroutineScope
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.Query
+import org.jetbrains.exposed.sql.statements.InsertStatement
 import org.jetbrains.exposed.sql.statements.Statement
 import org.jetbrains.exposed.sql.statements.UpdateBuilder
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -168,6 +170,10 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
 
     suspend fun executeSingleOrNoUpdate(statement: Statement<Int>): Boolean =
         executeUpdate(statement).singleOrNoUpdateCountToIsUpdated()
+
+    @ExperimentalEvscApi
+    suspend fun <T : Table> executeInsertIgnore(table: T, body: T.(InsertStatement<Number>) -> Unit): Boolean =
+        executeSingleOrNoUpdate(table.insertIgnoreStatement(body))
 
     suspend fun executeSingleUpdate(statement: Statement<Int>): Unit =
         require(executeUpdate(statement) == 1)
