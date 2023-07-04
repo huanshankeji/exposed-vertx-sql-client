@@ -1,5 +1,7 @@
 plugins {
     conventions
+    with(commonGradleClasspathDependencies.kotlinx.benchmark) { applyPluginWithVersion() }
+    kotlin("plugin.allopen") version commonVersions.kotlin
 }
 
 dependencies {
@@ -23,8 +25,34 @@ dependencies {
     implementation(commonDependencies.kotlinCommon.net())
 }
 
+
 // for PostgreSQL
 dependencies {
     runtimeOnly(commonDependencies.postgreSql())
     implementation(commonDependencies.vertx.moduleWithoutVersion("pg-client"))
+}
+
+
+private val BENCHMAKRS = "benchmarks"
+
+sourceSets.create(BENCHMAKRS)
+
+dependencies {
+    "benchmarksImplementation"(sourceSets.main.get().output + sourceSets.main.get().runtimeClasspath)
+    "benchmarksImplementation"(commonDependencies.kotlinx.benchmark.runtime())
+    with(commonDependencies.testContainers) {
+        "benchmarksImplementation"(platformBom())
+        "benchmarksImplementation"(postgreSql)
+    }
+    "benchmarksImplementation"(commonDependencies.slf4j.simple())
+}
+
+benchmark {
+    targets {
+        register(BENCHMAKRS)
+    }
+}
+
+allOpen {
+    annotation("org.openjdk.jmh.annotations.State")
 }

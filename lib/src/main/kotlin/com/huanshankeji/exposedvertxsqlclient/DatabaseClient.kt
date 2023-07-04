@@ -1,15 +1,12 @@
 package com.huanshankeji.exposedvertxsqlclient
 
 import arrow.core.*
-import com.huanshankeji.exposed.datamapping.DataQueryMapper
-import com.huanshankeji.exposed.insertIgnoreStatement
 import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig.Socket
 import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig.UnixDomainSocketWithPeerAuthentication
+import com.huanshankeji.exposedvertxsqlclient.sql.selectExpression
 import com.huanshankeji.os.isOSLinux
 import com.huanshankeji.vertx.kotlin.coroutines.coroutineToFuture
 import com.huanshankeji.vertx.kotlin.sqlclient.executeBatchAwaitForSqlResultSequence
-import com.huanshankeji.vertx.sqlclient.datamapping.RowDataQueryMapper
-import com.huanshankeji.vertx.sqlclient.sortDataAndExecuteBatch
 import io.vertx.core.Vertx
 import io.vertx.core.buffer.Buffer
 import io.vertx.kotlin.coroutines.await
@@ -24,37 +21,84 @@ import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.Query
 import org.jetbrains.exposed.sql.statements.InsertStatement
 import org.jetbrains.exposed.sql.statements.Statement
-import org.jetbrains.exposed.sql.statements.UpdateBuilder
+import org.jetbrains.exposed.sql.statements.UpdateStatement
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.function.Function
 import kotlin.reflect.KClass
 import kotlin.sequences.Sequence
 import org.jetbrains.exposed.sql.Transaction as ExposedTransaction
 
-typealias ExposedArgs = Iterable<Pair<IColumnType, Any?>>
+@ExperimentalEvscApi
+typealias ExposedArguments = Iterable<Pair<IColumnType, Any?>>
+
+@ExperimentalEvscApi
+fun Statement<*>.singleStatementArguments() =
+    arguments().singleOrNull()
+
+
+@ExperimentalEvscApi
+fun ExposedArguments.toVertxTuple(): Tuple =
+    Tuple.wrap(map {
+        val value = it.second
+        if (value is EntityID<*>) value.value else value
+    })
+
+@ExperimentalEvscApi
+fun ExposedArguments.types() =
+    map { it.first }
+
+/**
+ * This method has to be called within an [ExposedTransaction].
+ */
+@ExperimentalEvscApi
+fun Statement<*>.getVertxSqlClientArgTuple() =
+    singleStatementArguments()?.toVertxTuple()
+
+
+@ExperimentalEvscApi
+fun String.toVertxPgClientPreparedSql(): String {
+    val stringBuilder = StringBuilder(length * 2)
+    var i = 1
+    for (c in this)
+        if (c == '?') stringBuilder.append('$').append(i++)
+        else stringBuilder.append(c)
+    return stringBuilder.toString()
+}
+
+// TODO: context receivers
+@ExperimentalEvscApi
+fun Statement<*>.getVertxPgClientPreparedSql(transaction: ExposedTransaction) =
+    prepareSQL(transaction).toVertxPgClientPreparedSql()
+
+
+internal fun dbAssert(b: Boolean) {
+    if (!b)
+        throw AssertionError()
+}
+
 
 /**
  * A wrapper client around Vert.x [SqlClient] for queries and an Exposed [Database] to generate SQLs working around the limitations of Exposed.
+ *
+ * @param validateBatch whether to validate whether the batch statements have the same generated prepared SQL.
  */
+@OptIn(ExperimentalEvscApi::class)
 class DatabaseClient<out VertxSqlClient : SqlClient>(
     val vertxSqlClient: VertxSqlClient,
-    val exposedDatabase: Database
+    val exposedDatabase: Database,
+    val validateBatch: Boolean = true
 ) {
     suspend fun close() {
         vertxSqlClient.close().await()
         // How to close The Exposed `Database`?
     }
 
-    fun dbAssert(b: Boolean) {
-        if (!b)
-            throw AssertionError()
-    }
-
     fun <T> exposedTransaction(statement: ExposedTransaction.() -> T) =
         transaction(exposedDatabase, statement)
 
     suspend fun executePlainSql(sql: String): RowSet<Row> =
-        vertxSqlClient.query(sql).execute().await()
+        /** Use [SqlClient.preparedQuery] here because of [PgConnectOptions.setCachePreparedStatements]. */
+        vertxSqlClient.preparedQuery(sql).execute().await()
 
     suspend fun executePlainSqlUpdate(sql: String): Int =
         executePlainSql(sql).rowCount()
@@ -67,7 +111,7 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
      * @see SchemaUtils.create
      */
     @Deprecated(
-        "This function does not support analyzing dependencies among tables. Since this action is not frequently needed we can adopt the blocking approach. Use Exposed SchemaUtils and create multiple tables in batch instead, temporarily.",
+        "This function does not support analyzing dependencies among tables. Since this action is not frequently needed we can adopt the blocking approach. Use Exposed `SchemaUtils` and create multiple tables in batch instead, temporarily.",
         ReplaceWith("exposedTransaction { SchemaUtils.create(table) }", "org.jetbrains.exposed.sql.SchemaUtils")
     )
     suspend fun createTable(table: Table) =
@@ -77,7 +121,7 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
         })
 
     @Deprecated(
-        "This function does not support analyzing dependencies among tables. Since this action is not frequently needed we can adopt the blocking approach. Use Exposed SchemaUtils and drop multiple tables in batch instead, temporarily.",
+        "This function does not support analyzing dependencies among tables. Since this action is not frequently needed we can adopt the blocking approach. Use Exposed `SchemaUtils` and drop multiple tables in batch instead, temporarily.",
         ReplaceWith("exposedTransaction { SchemaUtils.drop(table) }", "org.jetbrains.exposed.sql.SchemaUtils")
     )
     suspend fun dropTable(table: Table) =
@@ -86,20 +130,11 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
         })
 
 
-    // TODO: context receivers
-    fun Statement<*>.getVertxPgClientPreparedSql(transaction: ExposedTransaction) =
-        prepareSQL(transaction).toVertxPgClientPreparedSql()
-
-    /**
-     * This method has to be called within an [ExposedTransaction].
-     */
-    fun Statement<*>.getVertxSqlClientArgTuple() =
-        arguments().firstOrNull()?.toVertxTuple()
-
     /**
      * @param transformQuery transform the query by calling [PreparedQuery.mapping] and [PreparedQuery.collecting].
      */
-    private suspend inline fun <SqlResultT : SqlResult<*>> doExecute(
+    @ExperimentalEvscApi
+    suspend inline fun <SqlResultT : SqlResult<*>> doExecute(
         statement: Statement<*>,
         transformQuery: PreparedQuery<RowSet<Row>>.() -> PreparedQuery<SqlResultT>
     ): SqlResultT {
@@ -112,21 +147,6 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
             .run { if (argTuple === null) execute() else execute(argTuple) }
             .await()
     }
-
-    fun String.toVertxPgClientPreparedSql(): String {
-        val stringBuilder = StringBuilder(length * 2)
-        var i = 1
-        for (c in this)
-            if (c == '?') stringBuilder.append('$').append(i++)
-            else stringBuilder.append(c)
-        return stringBuilder.toString()
-    }
-
-    fun ExposedArgs.toVertxTuple(): Tuple =
-        Tuple.wrap(map {
-            val value = it.second
-            if (value is EntityID<*>) value.value else value
-        })
 
     suspend fun executeForVertxSqlClientRowSet(statement: Statement<*>): RowSet<Row> =
         doExecute(statement) { this }
@@ -142,50 +162,31 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
     suspend fun executeQuery(query: Query): RowSet<ResultRow> =
         executeQuery(query) { this }
 
-    suspend fun <Data : Any> executeQuery(query: Query, dataQueryMapper: DataQueryMapper<Data>): RowSet<Data> =
-        executeWithMapping(query) { row -> dataQueryMapper.resultRowToData(row.toExposedResultRow(query)) }
-
-    suspend fun <Data : Any> executeVertxSqlClientRowQuery(
-        query: Query, rowDataQueryMapper: RowDataQueryMapper<Data>
-    ): RowSet<Data> =
-        executeWithMapping(query, rowDataQueryMapper::rowToData)
-
-    suspend inline fun <T, R> executeSingleColumnSelectQuery(
-        columnSet: ColumnSet, column: Column<T>, buildQuery: FieldSet.() -> Query, crossinline mapper: T.() -> R
-    ): RowSet<R> =
-        executeQuery(columnSet.slice(column).buildQuery()) { this[column].mapper() }
-
-    suspend fun <T> executeSingleColumnSelectQuery(
-        columnSet: ColumnSet, column: Column<T>, buildQuery: FieldSet.() -> Query
-    ): RowSet<T> =
-        executeSingleColumnSelectQuery(columnSet, column, buildQuery) { this }
-
-    suspend fun <Data : Any> executeSelectQuery(
-        columnSet: ColumnSet, dataQueryMapper: DataQueryMapper<Data>, buildQuery: FieldSet.() -> Query
-    ) =
-        executeQuery(columnSet.slice(dataQueryMapper.neededColumns).buildQuery(), dataQueryMapper)
-
     suspend fun executeUpdate(statement: Statement<Int>): Int =
         executeForVertxSqlClientRowSet(statement).rowCount()
 
     suspend fun executeSingleOrNoUpdate(statement: Statement<Int>): Boolean =
-        executeUpdate(statement).singleOrNoUpdateCountToIsUpdated()
+        executeUpdate(statement).singleOrNoUpdate()
 
-    @ExperimentalEvscApi
-    suspend fun <T : Table> executeInsertIgnore(table: T, body: T.(InsertStatement<Number>) -> Unit): Boolean =
-        executeSingleOrNoUpdate(table.insertIgnoreStatement(body))
-
-    suspend fun executeSingleUpdate(statement: Statement<Int>): Unit =
+    suspend fun executeSingleUpdate(statement: Statement<Int>) =
         require(executeUpdate(statement) == 1)
 
-    // see: https://github.com/JetBrains/Exposed/issues/621
-    suspend fun <T : Any> executeExpression(clazz: KClass<T>, expression: Expression<T?>): T? =
-        executeForVertxSqlClientRowSet(Table.Dual.slice(expression).selectAll())
-            .single()[clazz.java, 0]
 
+    @Deprecated(
+        "Use `selectExpression` instead`",
+        ReplaceWith(
+            "selectExpression<T>(clazz, expression)", "com.huanshankeji.exposedvertxsqlclient.sql.selectExpression"
+        )
+    )
+    suspend fun <T : Any> executeExpression(clazz: KClass<T>, expression: Expression<T?>): T? =
+        selectExpression(clazz, expression)
+
+    @Deprecated(
+        "Use `selectExpression` instead`",
+        ReplaceWith("selectExpression<T>(expression)", "com.huanshankeji.exposedvertxsqlclient.sql.selectExpression")
+    )
     suspend inline fun <reified T> executeExpression(expression: Expression<T>): T =
-        @Suppress("UNCHECKED_CAST")
-        executeExpression(T::class as KClass<Any>, expression as Expression<Any?>) as T
+        selectExpression(expression)
 
     suspend fun isWorking(): Boolean =
         try {
@@ -196,72 +197,119 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
 
 
     /**
-     * @param statement a statement with dummy arguments set that can be mutated with different arguments.
-     * @see batchInsert
+     * @param statement a new statement.
+     * @see org.jetbrains.exposed.sql.batchInsert
+     * @see org.jetbrains.exposed.sql.executeBatch
+     * @see org.jetbrains.exposed.sql.statements.BatchUpdateStatement.addBatch though this function seems never used in Exposed
      * @see PreparedQuery.executeBatch
      * @see doExecute
      */
     // TODO: check that all arguments are set once before being reset by every data element to make sure that the generated prepared SQL is correct.
-    suspend fun <SqlResultT : SqlResult<*>, StatementT : Statement<*>, E> doExecuteBatch(
-        statement: StatementT,
-        data: List<E>,
-        setStatementArgs: StatementT.(E) -> Unit,
+    private suspend fun <InitialStatementT : Statement<*>?, StatementT : InitialStatementT & Any, E, SqlResultT : SqlResult<*>> doExecuteBatch(
+        statement: InitialStatementT,
+        setUpOrCreateStatement: InitialStatementT.(E) -> StatementT,
+        clearStatement: StatementT.() -> Unit,
+        data: Iterable<E>,
         transformQuery: PreparedQuery<RowSet<Row>>.() -> PreparedQuery<SqlResultT>
     ): Sequence<SqlResultT> {
+        //if (data.none()) return emptySequence() // This causes "java.lang.IllegalStateException: This sequence can be consumed only once." when `data` is a `ConstrainedOnceSequence`.
+
+        var statement = statement
         val (sql, argTuples) = exposedTransaction {
-            statement.getVertxPgClientPreparedSql(this) to
-                    data.map {
-                        // The statement is mutable and reused here for all data so the `map` should not be parallelized.
-                        statement.setStatementArgs(it)
-                        statement.getVertxSqlClientArgTuple()
-                            ?: throw IllegalArgumentException("the prepared query should have arguments")
+            var sql: String? = null
+            //var argumentTypes: List<IColumnType>? = null
+
+            val argTuples = data.map { element ->
+                // The statement is mutable and reused here for all data so the `map` should not be parallelized.
+                val currentStatement = statement.setUpOrCreateStatement(element)
+                statement = currentStatement
+                // TODO: to work around a compiler bug
+                val currentStatementHelper = currentStatement as Statement<*>
+
+                val arguments = currentStatementHelper.singleStatementArguments()
+                    ?: throw IllegalArgumentException("the prepared query of a batch statement should have arguments")
+                if (sql === null) {
+                    sql = currentStatementHelper.prepareSQL(this)
+                    //argumentTypes = arguments.types()
+                } else if (validateBatch) {
+                    val currentSql = currentStatementHelper.prepareSQL(this)
+                    require(currentSql == sql!!) {
+                        "The statement after set by `setUpStatement` each time should generate the same prepared SQL statement. " +
+                                "However, we have got SQL statement \"$sql\" set by each previous element" +
+                                "and SQL statement \"$currentSql\" set by the current element $element."
                     }
+                    /*
+                    val currentElementArgumentTypes = arguments.types()
+                    require(currentElementArgumentTypes == argumentTypes!!) {
+                        "The statement after set by `setUpStatement` each time should generate the same arguments. " +
+                                "However we have got argument types $argumentTypes set by each previous element" +
+                                "and argument types $currentElementArgumentTypes set by the current element $element"
+                    }
+                    */
+                }
+
+                currentStatement.clearStatement()
+
+                arguments.toVertxTuple()
+            }
+
+            sql to argTuples
         }
-        return vertxSqlClient.preparedQuery(sql)
+
+        if (sql === null)
+            return emptySequence()
+
+        val pgSql = sql.toVertxPgClientPreparedSql()
+        return vertxSqlClient.preparedQuery(pgSql)
             .transformQuery()
             .executeBatchAwaitForSqlResultSequence(argTuples)
     }
 
-    suspend fun <StatementT : Statement<*>, E> executeBatchForVertxSqlClientRowSetSequence(
-        statement: StatementT, data: List<E>, setStatementArgs: StatementT.(E) -> Unit
-    ): Sequence<RowSet<Row>> =
-        doExecuteBatch(statement, data, setStatementArgs) { this }
-
-    suspend fun <E> executeBatchQuery(
-        query: Query, data: List<E>, setStatementArgs: Query.(E) -> Unit
-    ): Sequence<RowSet<ResultRow>> {
-        val queryFieldSet = query.getFieldSet()
-        return doExecuteBatch(query, data, setStatementArgs) {
-            mapping { it.toExposedResultRow(queryFieldSet) }
-        }
-    }
-
-    /**
-     * @see batchInsert
-     * @return a sequence of the update counts of the the update statements in the batch.
-     */
-    suspend fun <E> executeBatchUpdate(
-        statement: UpdateBuilder<Int>, data: List<E>, setStatementArgs: UpdateBuilder<Int>.(E) -> Unit
-    ): Sequence<Int> =
-        executeBatchForVertxSqlClientRowSetSequence(statement, data, setStatementArgs).map { it.rowCount() }
-
-    /**
-     * @return a sequence indicating whether each update statement is updated in the batch.
-     */
-    suspend fun <E> executeBatchSingleOrNoUpdate(
-        statement: UpdateBuilder<Int>, data: List<E>, setStatementArgs: UpdateBuilder<Int>.(E) -> Unit
-    ): Sequence<Boolean> =
-        executeBatchUpdate(statement, data, setStatementArgs).map { it.singleOrNoUpdateCountToIsUpdated() }
-
-    /**
-     * @see sortDataAndExecuteBatch
-     */
-    suspend fun <E, SelectorResultT : Comparable<SelectorResultT>> sortDataAndExecuteBatchUpdate(
-        statement: UpdateBuilder<Int>,
-        data: List<E>, selector: (E) -> SelectorResultT,
-        setStatementArgs: UpdateBuilder<Int>.(E) -> Unit
+    // TODO: remove
+    @Deprecated("This is not necessary as creating statements have very little overhead.")
+    @ExperimentalEvscApi
+    suspend fun <SqlResultT : SqlResult<*>, StatementT : Statement<*>, E> doExecuteBatchReusingStatement(
+        statement: StatementT,
+        setUpStatement: StatementT.(E) -> Unit,
+        clearStatement: StatementT.() -> Unit,
+        data: Iterable<E>,
+        transformQuery: PreparedQuery<RowSet<Row>>.() -> PreparedQuery<SqlResultT>
     ) =
-        executeBatchUpdate(statement, data.sortedBy(selector), setStatementArgs)
+        doExecuteBatch(statement, { apply { setUpStatement(it) } }, clearStatement, data, transformQuery)
+
+    @ExperimentalEvscApi
+    suspend fun <StatementT : Statement<*>, E, SqlResultT : SqlResult<*>> doExecuteBatchCreatingStatementForEachElement(
+        createStatement: (E) -> StatementT,
+        data: Iterable<E>,
+        transformQuery: PreparedQuery<RowSet<Row>>.() -> PreparedQuery<SqlResultT>
+    ) =
+        // type inference doesn't work here
+        doExecuteBatch<StatementT?, StatementT, E, SqlResultT>(null, { createStatement(it) }, {}, data, transformQuery)
+
+    @ExperimentalEvscApi
+    suspend fun <SqlResultT : SqlResult<*>> doExecuteBatch(
+        statements: Iterable<Statement<*>>,
+        transformQuery: PreparedQuery<RowSet<Row>>.() -> PreparedQuery<SqlResultT>
+    ): Sequence<SqlResultT> =
+        // TODO: put the implementation in this function and remove others
+        doExecuteBatchCreatingStatementForEachElement({ it }, statements, transformQuery)
+
+    @Deprecated("This function is not really useful and kind of redundant here.")
+    @ExperimentalEvscApi
+    suspend fun <StatementT : Statement<*>, E> executeBatchForVertxSqlClientRowSetSequence(
+        statement: StatementT, data: Iterable<E>, setUpStatement: StatementT.(E) -> Unit
+    ): Sequence<RowSet<Row>> =
+        doExecuteBatchReusingStatement(statement, setUpStatement, {}, data) { this }
+
+    /**
+     * Executes a batch of update statements, including [InsertStatement] and [UpdateStatement].
+     * @see org.jetbrains.exposed.sql.batchInsert
+     * @return a sequence of the update counts of the update statements in the batch.
+     */
+    suspend fun executeBatchUpdate(
+        statements: Iterable<Statement<Int>>,
+    ): Sequence<Int> =
+        doExecuteBatch(statements) { this }.map { it.rowCount() }
 }
 
 
@@ -272,9 +320,9 @@ fun <R> RowSet<R>.singleResult(): R =
 fun <R> RowSet<R>.singleOrNoResult(): R? =
     if (none()) null else single()
 
-fun Row.toExposedResultRow(queryFieldSet: Set<Expression<*>>) =
+fun Row.toExposedResultRow(fieldExpressionSet: Set<Expression<*>>) =
     ResultRow.createAndFillValues(
-        queryFieldSet.asSequence().mapIndexed { index, expression ->
+        fieldExpressionSet.asSequence().mapIndexed { index, expression ->
             expression to getValue(index).let {
                 when (it) {
                     is Buffer -> it.bytes
@@ -284,16 +332,19 @@ fun Row.toExposedResultRow(queryFieldSet: Set<Expression<*>>) =
         }.toMap()
     )
 
-fun Query.getFieldSet() =
+fun FieldSet.getFieldExpressionSet() =
     /** [org.jetbrains.exposed.sql.AbstractQuery.ResultIterator.fieldsIndex] */
-    set.realFields.toSet()
+    realFields.toSet()
+
+fun Query.getFieldExpressionSet() =
+    set.getFieldExpressionSet()
 
 fun Row.toExposedResultRow(query: Query) =
-    toExposedResultRow(query.getFieldSet())
+    toExposedResultRow(query.getFieldExpressionSet())
 
 class SingleUpdateException(rowCount: Int) : Exception("update row count: $rowCount")
 
-fun Int.singleOrNoUpdateCountToIsUpdated() =
+fun Int.singleOrNoUpdate() =
     when (this) {
         0 -> false
         1 -> true
@@ -373,7 +424,7 @@ suspend fun <T> DatabaseClient<PgConnection>.withSavepointAndRollbackIfThrows(
 suspend fun <T> DatabaseClient<PgConnection>.withSavepointAndRollbackIfThrowsOrNone(
     savepointName: String, function: suspend (DatabaseClient<PgConnection>) -> Option<T>
 ): Option<T> =
-    withSavepointAndRollbackIfThrowsOrLeft(savepointName) { function(it).toEither { } }.orNone()
+    withSavepointAndRollbackIfThrowsOrLeft(savepointName) { function(it).toEither { } }.getOrNone()
 
 suspend fun DatabaseClient<PgConnection>.withSavepointAndRollbackIfThrowsOrFalse(
     savepointName: String, function: suspend (DatabaseClient<PgConnection>) -> Boolean
