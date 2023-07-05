@@ -3,7 +3,10 @@
 package com.huanshankeji.exposedvertxsqlclient.sql
 
 import com.huanshankeji.exposed.*
-import com.huanshankeji.exposedvertxsqlclient.*
+import com.huanshankeji.exposedvertxsqlclient.DatabaseClient
+import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
+import com.huanshankeji.exposedvertxsqlclient.dbAssert
+import com.huanshankeji.exposedvertxsqlclient.singleOrNoUpdate
 import com.huanshankeji.vertx.sqlclient.sortDataAndExecuteBatch
 import io.vertx.sqlclient.RowSet
 import org.jetbrains.exposed.dao.id.EntityID
@@ -14,11 +17,19 @@ import org.jetbrains.exposed.sql.statements.UpdateStatement
 import kotlin.reflect.KClass
 import kotlin.sequences.Sequence
 
+suspend inline fun <Data> DatabaseClient<*>.select(
+    columnSet: ColumnSet, buildQuery: ColumnSet.() -> Query, crossinline resultRowMapper: ResultRow.() -> Data
+): RowSet<Data> =
+    executeQuery(columnSet.buildQuery(), resultRowMapper)
+
 // This function with `mapper` is not really useful
 @ExperimentalEvscApi
-suspend inline fun <T, R> DatabaseClient<*>.selectSingleColumn(
-    columnSet: ColumnSet, column: Column<T>, buildQuery: FieldSet.() -> Query, crossinline mapper: T.() -> R
-): RowSet<R> =
+suspend inline fun <ColumnT, DataT> DatabaseClient<*>.selectSingleColumn(
+    columnSet: ColumnSet,
+    column: Column<ColumnT>,
+    buildQuery: FieldSet.() -> Query,
+    crossinline mapper: ColumnT.() -> DataT
+): RowSet<DataT> =
     executeQuery(columnSet.slice(column).buildQuery()) { this[column].mapper() }
 
 
@@ -101,12 +112,8 @@ suspend fun <T : Table> DatabaseClient<*>.update(
 @ExperimentalEvscApi
 suspend fun <E> DatabaseClient<*>.selectBatch(
     fieldSet: FieldSet, buildQuery: FieldSet.(E) -> Query, data: Iterable<E>
-): Sequence<RowSet<ResultRow>> {
-    val fieldExpressionSet = fieldSet.getFieldExpressionSet()
-    return doExecuteBatchCreatingStatementForEachElement({ fieldSet.buildQuery(it) }, data) {
-        mapping { it.toExposedResultRow(fieldExpressionSet) }
-    }
-}
+): Sequence<RowSet<ResultRow>> =
+    executeBatchQuery(fieldSet, data.asSequence().map { fieldSet.buildQuery(it) }.asIterable())
 
 
 suspend fun <T : Table, E> DatabaseClient<*>.batchInsert(

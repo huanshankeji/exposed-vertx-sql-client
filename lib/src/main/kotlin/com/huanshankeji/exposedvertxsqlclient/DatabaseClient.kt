@@ -129,12 +129,18 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
             table.dropStatement().joinSqls()
         })
 
+    @Deprecated("Use `execute`.", ReplaceWith("execute<SqlResultT>(statement, transformQuery)"))
+    suspend fun <SqlResultT : SqlResult<*>> doExecute(
+        statement: Statement<*>,
+        transformQuery: PreparedQuery<RowSet<Row>>.() -> PreparedQuery<SqlResultT>
+    ) =
+        execute(statement, transformQuery)
 
     /**
      * @param transformQuery transform the query by calling [PreparedQuery.mapping] and [PreparedQuery.collecting].
      */
     @ExperimentalEvscApi
-    suspend inline fun <SqlResultT : SqlResult<*>> doExecute(
+    suspend /*inline*/ fun <SqlResultT : SqlResult<*>> execute(
         statement: Statement<*>,
         transformQuery: PreparedQuery<RowSet<Row>>.() -> PreparedQuery<SqlResultT>
     ): SqlResultT {
@@ -149,10 +155,11 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
     }
 
     suspend fun executeForVertxSqlClientRowSet(statement: Statement<*>): RowSet<Row> =
-        doExecute(statement) { this }
+        execute(statement) { this }
 
+    @ExperimentalEvscApi
     suspend fun <U> executeWithMapping(statement: Statement<*>, RowMapper: Function<Row, U>): RowSet<U> =
-        doExecute(statement) { mapping(RowMapper) }
+        execute(statement) { mapping(RowMapper) }
 
     suspend inline fun <Data> executeQuery(
         query: Query, crossinline resultRowMapper: ResultRow.() -> Data
@@ -197,46 +204,37 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
 
 
     /**
-     * @param statement a new statement.
      * @see org.jetbrains.exposed.sql.batchInsert
      * @see org.jetbrains.exposed.sql.executeBatch
      * @see org.jetbrains.exposed.sql.statements.BatchUpdateStatement.addBatch though this function seems never used in Exposed
      * @see PreparedQuery.executeBatch
-     * @see doExecute
+     * @see execute
      */
-    // TODO: check that all arguments are set once before being reset by every data element to make sure that the generated prepared SQL is correct.
-    private suspend fun <InitialStatementT : Statement<*>?, StatementT : InitialStatementT & Any, E, SqlResultT : SqlResult<*>> doExecuteBatch(
-        statement: InitialStatementT,
-        setUpOrCreateStatement: InitialStatementT.(E) -> StatementT,
-        clearStatement: StatementT.() -> Unit,
-        data: Iterable<E>,
+    @ExperimentalEvscApi
+    suspend /*inline*/ fun <SqlResultT : SqlResult<*>> executeBatch(
+        statements: Iterable<Statement<*>>,
         transformQuery: PreparedQuery<RowSet<Row>>.() -> PreparedQuery<SqlResultT>
     ): Sequence<SqlResultT> {
         //if (data.none()) return emptySequence() // This causes "java.lang.IllegalStateException: This sequence can be consumed only once." when `data` is a `ConstrainedOnceSequence`.
 
-        var statement = statement
         val (sql, argTuples) = exposedTransaction {
             var sql: String? = null
             //var argumentTypes: List<IColumnType>? = null
 
-            val argTuples = data.map { element ->
-                // The statement is mutable and reused here for all data so the `map` should not be parallelized.
-                val currentStatement = statement.setUpOrCreateStatement(element)
-                statement = currentStatement
-                // TODO: to work around a compiler bug
-                val currentStatementHelper = currentStatement as Statement<*>
+            val argTuples = statements.map { statement ->
+                // The `map` is currently not parallelized.
 
-                val arguments = currentStatementHelper.singleStatementArguments()
+                val arguments = statement.singleStatementArguments()
                     ?: throw IllegalArgumentException("the prepared query of a batch statement should have arguments")
                 if (sql === null) {
-                    sql = currentStatementHelper.prepareSQL(this)
+                    sql = statement.prepareSQL(this)
                     //argumentTypes = arguments.types()
                 } else if (validateBatch) {
-                    val currentSql = currentStatementHelper.prepareSQL(this)
+                    val currentSql = statement.prepareSQL(this)
                     require(currentSql == sql!!) {
                         "The statement after set by `setUpStatement` each time should generate the same prepared SQL statement. " +
                                 "However, we have got SQL statement \"$sql\" set by each previous element" +
-                                "and SQL statement \"$currentSql\" set by the current element $element."
+                                "and SQL statement \"$currentSql\" set by the current statement $statement."
                     }
                     /*
                     val currentElementArgumentTypes = arguments.types()
@@ -247,8 +245,6 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
                     }
                     */
                 }
-
-                currentStatement.clearStatement()
 
                 arguments.toVertxTuple()
             }
@@ -265,41 +261,22 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
             .executeBatchAwaitForSqlResultSequence(argTuples)
     }
 
-    // TODO: remove
-    @Deprecated("This is not necessary as creating statements have very little overhead.")
     @ExperimentalEvscApi
-    suspend fun <SqlResultT : SqlResult<*>, StatementT : Statement<*>, E> doExecuteBatchReusingStatement(
-        statement: StatementT,
-        setUpStatement: StatementT.(E) -> Unit,
-        clearStatement: StatementT.() -> Unit,
-        data: Iterable<E>,
-        transformQuery: PreparedQuery<RowSet<Row>>.() -> PreparedQuery<SqlResultT>
-    ) =
-        doExecuteBatch(statement, { apply { setUpStatement(it) } }, clearStatement, data, transformQuery)
+    suspend fun executeBatchForVertxSqlClientRowSetSequence(statements: Iterable<Statement<*>>): Sequence<RowSet<Row>> =
+        executeBatch(statements) { this }
 
     @ExperimentalEvscApi
-    suspend fun <StatementT : Statement<*>, E, SqlResultT : SqlResult<*>> doExecuteBatchCreatingStatementForEachElement(
-        createStatement: (E) -> StatementT,
-        data: Iterable<E>,
-        transformQuery: PreparedQuery<RowSet<Row>>.() -> PreparedQuery<SqlResultT>
-    ) =
-        // type inference doesn't work here
-        doExecuteBatch<StatementT?, StatementT, E, SqlResultT>(null, { createStatement(it) }, {}, data, transformQuery)
+    suspend inline fun <Data> executeBatchQuery(
+        fieldSet: FieldSet, queries: Iterable<Query>, crossinline resultRowMapper: ResultRow.() -> Data
+    ): Sequence<RowSet<Data>> {
+        val fieldExpressionSet = fieldSet.getFieldExpressionSet()
+        return executeBatch(queries) {
+            mapping { row -> row.toExposedResultRow(fieldExpressionSet).resultRowMapper() }
+        }
+    }
 
-    @ExperimentalEvscApi
-    suspend fun <SqlResultT : SqlResult<*>> doExecuteBatch(
-        statements: Iterable<Statement<*>>,
-        transformQuery: PreparedQuery<RowSet<Row>>.() -> PreparedQuery<SqlResultT>
-    ): Sequence<SqlResultT> =
-        // TODO: put the implementation in this function and remove others
-        doExecuteBatchCreatingStatementForEachElement({ it }, statements, transformQuery)
-
-    @Deprecated("This function is not really useful and kind of redundant here.")
-    @ExperimentalEvscApi
-    suspend fun <StatementT : Statement<*>, E> executeBatchForVertxSqlClientRowSetSequence(
-        statement: StatementT, data: Iterable<E>, setUpStatement: StatementT.(E) -> Unit
-    ): Sequence<RowSet<Row>> =
-        doExecuteBatchReusingStatement(statement, setUpStatement, {}, data) { this }
+    suspend fun executeBatchQuery(fieldSet: FieldSet, queries: Iterable<Query>): Sequence<RowSet<ResultRow>> =
+        executeBatchQuery(fieldSet, queries) { this }
 
     /**
      * Executes a batch of update statements, including [InsertStatement] and [UpdateStatement].
@@ -309,7 +286,7 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
     suspend fun executeBatchUpdate(
         statements: Iterable<Statement<Int>>,
     ): Sequence<Int> =
-        doExecuteBatch(statements) { this }.map { it.rowCount() }
+        executeBatch(statements) { this }.map { it.rowCount() }
 }
 
 
