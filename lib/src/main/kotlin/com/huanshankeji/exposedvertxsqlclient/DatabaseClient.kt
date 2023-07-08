@@ -19,10 +19,12 @@ import kotlinx.coroutines.coroutineScope
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.Query
+import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.statements.InsertStatement
 import org.jetbrains.exposed.sql.statements.Statement
 import org.jetbrains.exposed.sql.statements.UpdateStatement
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.slf4j.LoggerFactory
 import java.util.function.Function
 import kotlin.reflect.KClass
 import kotlin.sequences.Sequence
@@ -77,6 +79,8 @@ internal fun dbAssert(b: Boolean) {
 }
 
 
+internal val logger = LoggerFactory.getLogger(DatabaseClient::class.java)
+
 /**
  * A wrapper client around Vert.x [SqlClient] for queries and an Exposed [Database] to generate SQLs working around the limitations of Exposed.
  *
@@ -86,7 +90,8 @@ internal fun dbAssert(b: Boolean) {
 class DatabaseClient<out VertxSqlClient : SqlClient>(
     val vertxSqlClient: VertxSqlClient,
     val exposedDatabase: Database,
-    val validateBatch: Boolean = true
+    val validateBatch: Boolean = true,
+    val logSql: Boolean = false
 ) {
     suspend fun close() {
         vertxSqlClient.close().await()
@@ -96,6 +101,11 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
     fun <T> exposedTransaction(statement: ExposedTransaction.() -> T) =
         transaction(exposedDatabase, statement)
 
+    private fun Statement<*>.prepareSqlAndLogIfNeeded(transaction: Transaction) =
+        prepareSQL(transaction).also {
+            if (logSql) logger.info("Prepared SQL: $it.")
+        }
+
     suspend fun executePlainSql(sql: String): RowSet<Row> =
         /** Use [SqlClient.preparedQuery] here because of [PgConnectOptions.setCachePreparedStatements]. */
         vertxSqlClient.preparedQuery(sql).execute().await()
@@ -104,7 +114,7 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
         executePlainSql(sql).rowCount()
 
 
-    fun List<String>.joinSqls(): String =
+    private fun List<String>.joinSqls(): String =
         joinToString(";\n", postfix = ";")
 
     /**
@@ -145,7 +155,7 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
         transformQuery: PreparedQuery<RowSet<Row>>.() -> PreparedQuery<SqlResultT>
     ): SqlResultT {
         val (sql, argTuple) = exposedTransaction {
-            statement.getVertxPgClientPreparedSql(this) to
+            statement.prepareSqlAndLogIfNeeded(this).toVertxPgClientPreparedSql() to
                     statement.getVertxSqlClientArgTuple()
         }
         return vertxSqlClient.preparedQuery(sql)
@@ -227,7 +237,7 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
                 val arguments = statement.singleStatementArguments()
                     ?: throw IllegalArgumentException("the prepared query of a batch statement should have arguments")
                 if (sql === null) {
-                    sql = statement.prepareSQL(this)
+                    sql = statement.prepareSqlAndLogIfNeeded(this)
                     //argumentTypes = arguments.types()
                 } else if (validateBatch) {
                     val currentSql = statement.prepareSQL(this)
