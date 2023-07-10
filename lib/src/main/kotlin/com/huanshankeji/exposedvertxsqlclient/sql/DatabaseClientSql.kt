@@ -22,6 +22,22 @@ suspend inline fun <Data> DatabaseClient<*>.select(
 ): RowSet<Data> =
     executeQuery(columnSet.buildQuery(), resultRowMapper)
 
+suspend inline fun DatabaseClient<*>.select(
+    columnSet: ColumnSet, buildQuery: ColumnSet.() -> Query
+): RowSet<ResultRow> =
+    @Suppress("MoveLambdaOutsideParentheses")
+    select(columnSet, buildQuery, { this })
+
+/**
+ * SQL: `SELECT <expression> FROM <table>;`.
+ * Examples: `SELECT COUNT(*) FROM <table>;`, `SELECT COUNT(*) FROM <table>;`.
+ */
+@ExperimentalEvscApi
+suspend fun <T> DatabaseClient<*>.selectTableExpression(
+    columnSet: ColumnSet, expression: Expression<T>, buildQuery: FieldSet.() -> Query
+): RowSet<T> =
+    select(columnSet, { slice(expression).buildQuery() }, { this[expression] })
+
 // This function with `mapper` is not really useful
 @ExperimentalEvscApi
 suspend inline fun <ColumnT, DataT> DatabaseClient<*>.selectSingleColumn(
@@ -30,7 +46,7 @@ suspend inline fun <ColumnT, DataT> DatabaseClient<*>.selectSingleColumn(
     buildQuery: FieldSet.() -> Query,
     crossinline mapper: ColumnT.() -> DataT
 ): RowSet<DataT> =
-    executeQuery(columnSet.slice(column).buildQuery()) { this[column].mapper() }
+    select(columnSet, { slice(column).buildQuery() }, { this[column].mapper() })
 
 
 @Deprecated("Use `selectSingleColumn`.", ReplaceWith("selectSingleColumn<T, R>(columnSet, column, buildQuery, mapper)"))
@@ -43,7 +59,7 @@ suspend inline fun <T, R> DatabaseClient<*>.executeSingleColumnSelectQuery(
 suspend fun <T> DatabaseClient<*>.selectSingleColumn(
     columnSet: ColumnSet, column: Column<T>, buildQuery: FieldSet.() -> Query
 ): RowSet<T> =
-    selectSingleColumn(columnSet, column, buildQuery) { this }
+    selectTableExpression(columnSet, column, buildQuery)
 
 @Deprecated("Use `selectSingleColumn`.", ReplaceWith("selectSingleColumn<T>(columnSet, column, buildQuery)"))
 suspend fun <T> DatabaseClient<*>.executeSingleColumnSelectQuery(
@@ -57,6 +73,10 @@ suspend fun <T : Comparable<T>> DatabaseClient<*>.selectSingleEntityIdColumn(
     selectSingleColumn(columnSet, column, buildQuery) { value }
 
 
+/**
+ * SQL: `SELECT <expression>;`.
+ * Example: `SELECT EXISTS(<query>)`.
+ */
 // see: https://github.com/JetBrains/Exposed/issues/621
 suspend fun <T : Any> DatabaseClient<*>.selectExpression(clazz: KClass<T>, expression: Expression<T?>): T? =
     executeForVertxSqlClientRowSet(Table.Dual.slice(expression).selectAll())
@@ -66,25 +86,34 @@ suspend inline fun <reified T> DatabaseClient<*>.selectExpression(expression: Ex
     @Suppress("UNCHECKED_CAST")
     (selectExpression(T::class as KClass<Any>, expression as Expression<Any?>)) as T
 
-
 @ExperimentalEvscApi
-suspend fun <T : Table> DatabaseClient<*>.insertSingle(table: T, body: T.(InsertStatement<Number>) -> Unit) =
+suspend fun <T : Table> DatabaseClient<*>.insert(table: T, body: T.(InsertStatement<Number>) -> Unit) =
     executeSingleUpdate(table.insertStatement(body))
 
 @ExperimentalEvscApi
-suspend fun <T : Table> DatabaseClient<*>.insertIgnoreSingle(
-    table: T,
-    body: T.(InsertStatement<Number>) -> Unit
+@Deprecated("Use `insert`", ReplaceWith("this.insert<T>(table, body)"))
+suspend fun <T : Table> DatabaseClient<*>.insertSingle(table: T, body: T.(InsertStatement<Number>) -> Unit) =
+    insert(table, body)
+
+@ExperimentalEvscApi
+suspend fun <T : Table> DatabaseClient<*>.insertIgnore(
+    table: T, body: T.(InsertStatement<Number>) -> Unit
 ): Boolean =
     executeSingleOrNoUpdate(table.insertIgnoreStatement(body))
 
 @ExperimentalEvscApi
-@Deprecated("Use `insertIgnoreSingle`", ReplaceWith("this.insertIgnoreSingle<T>(table, body)"))
-suspend fun <T : Table> DatabaseClient<*>.executeInsertIgnore(
-    table: T,
-    body: T.(InsertStatement<Number>) -> Unit
+@Deprecated("Use `insertIgnore`", ReplaceWith("this.insertIgnore<T>(table, body)"))
+suspend fun <T : Table> DatabaseClient<*>.insertIgnoreSingle(
+    table: T, body: T.(InsertStatement<Number>) -> Unit
 ): Boolean =
-    insertIgnoreSingle(table, body)
+    insertIgnore(table, body)
+
+@ExperimentalEvscApi
+@Deprecated("Use `insertIgnore`", ReplaceWith("this.insertIgnore<T>(table, body)"))
+suspend fun <T : Table> DatabaseClient<*>.executeInsertIgnore(
+    table: T, body: T.(InsertStatement<Number>) -> Unit
+): Boolean =
+    insertIgnore(table, body)
 
 
 suspend fun <T : Table> DatabaseClient<*>.insertSelect(
@@ -130,6 +159,7 @@ suspend fun <T : Table, E> DatabaseClient<*>.batchInsertIgnore(
     executeBatchUpdate(data.asSequence().map { element ->
         table.insertIgnoreStatement { body(it, element) }
     }.asIterable())
+        .map { it.singleOrNoUpdate() }
 
 
 /**
