@@ -339,6 +339,10 @@ fun Int.singleOrNoUpdate() =
     }
 
 
+/**
+ * When using this function, it's recommended to name the lambda parameter the same as the outer receiver so that the outer [DatabaseClient] is shadowed,
+ * and so that you don't call the outer [DatabaseClient] without a transaction by accident.
+ */
 suspend fun <T> DatabaseClient<PgPool>.withTransaction(function: suspend (DatabaseClient<SqlConnection>) -> T): T =
     coroutineScope {
         vertxSqlClient.withTransaction {
