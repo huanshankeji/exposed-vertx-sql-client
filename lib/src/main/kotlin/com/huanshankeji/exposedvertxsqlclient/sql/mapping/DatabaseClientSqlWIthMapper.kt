@@ -1,14 +1,12 @@
 package com.huanshankeji.exposedvertxsqlclient.sql.mapping
 
+import com.huanshankeji.exposed.BuildWhere
 import com.huanshankeji.exposed.datamapping.DataQueryMapper
 import com.huanshankeji.exposed.datamapping.DataUpdateMapper
 import com.huanshankeji.exposed.datamapping.updateBuilderSetter
 import com.huanshankeji.exposedvertxsqlclient.DatabaseClient
 import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
-import com.huanshankeji.exposedvertxsqlclient.sql.batchInsert
-import com.huanshankeji.exposedvertxsqlclient.sql.batchInsertIgnore
-import com.huanshankeji.exposedvertxsqlclient.sql.insert
-import com.huanshankeji.exposedvertxsqlclient.sql.insertIgnore
+import com.huanshankeji.exposedvertxsqlclient.sql.*
 import com.huanshankeji.exposedvertxsqlclient.toExposedResultRow
 import com.huanshankeji.vertx.sqlclient.datamapping.RowDataQueryMapper
 import io.vertx.sqlclient.RowSet
@@ -17,6 +15,8 @@ import org.jetbrains.exposed.sql.FieldSet
 import org.jetbrains.exposed.sql.Query
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.statements.UpdateBuilder
+
+// TODO move to a separate module
 
 @ExperimentalEvscApi
 suspend fun <Data : Any> DatabaseClient<*>.executeQuery(
@@ -67,3 +67,13 @@ suspend fun <Data : Any> DatabaseClient<*>.batchInsertIgnore(
     table: Table, data: Iterable<Data>, dataUpdateMapper: DataUpdateMapper<Data>
 ) =
     batchInsertIgnore(table, data, dataUpdateMapper.batchUpdateBuilderSetter())
+
+
+/**
+ * In most cases you should specify the fields to update in a more detailed way instead of using this function.
+ */
+@ExperimentalEvscApi
+suspend fun <Data : Any> DatabaseClient<*>.update(
+    table: Table, where: BuildWhere? = null, limit: Int? = null, data: Data, dataUpdateMapper: DataUpdateMapper<Data>
+) =
+    update(table, where, limit, dataUpdateMapper.updateBuilderSetter(data))
