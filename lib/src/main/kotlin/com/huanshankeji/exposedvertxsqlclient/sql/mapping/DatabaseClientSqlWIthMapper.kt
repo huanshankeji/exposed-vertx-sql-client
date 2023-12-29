@@ -4,19 +4,19 @@ import com.huanshankeji.exposed.BuildWhere
 import com.huanshankeji.exposed.datamapping.DataQueryMapper
 import com.huanshankeji.exposed.datamapping.DataUpdateMapper
 import com.huanshankeji.exposed.datamapping.updateBuilderSetter
+import com.huanshankeji.exposed.deleteIgnoreWhereStatement
+import com.huanshankeji.exposed.deleteWhereStatement
 import com.huanshankeji.exposedvertxsqlclient.DatabaseClient
 import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
 import com.huanshankeji.exposedvertxsqlclient.sql.*
 import com.huanshankeji.exposedvertxsqlclient.toExposedResultRow
 import com.huanshankeji.vertx.sqlclient.datamapping.RowDataQueryMapper
 import io.vertx.sqlclient.RowSet
-import org.jetbrains.exposed.sql.ColumnSet
-import org.jetbrains.exposed.sql.FieldSet
-import org.jetbrains.exposed.sql.Query
-import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.statements.UpdateBuilder
 
 // TODO move to a separate module
+// TODO Note that using these DSLs reduces the composability of statements, for example, when moving a query into a subquery. (this statement can be moved into docs some day)
 
 @ExperimentalEvscApi
 suspend fun <Data : Any> DatabaseClient<*>.executeQuery(
@@ -77,3 +77,13 @@ suspend fun <Data : Any> DatabaseClient<*>.update(
     table: Table, where: BuildWhere? = null, limit: Int? = null, data: Data, dataUpdateMapper: DataUpdateMapper<Data>
 ) =
     update(table, where, limit, dataUpdateMapper.updateBuilderSetter(data))
+
+suspend fun <T : Table> DatabaseClient<*>.deleteWhere(
+    table: T, limit: Int? = null, offset: Long? = null, op: T.(ISqlExpressionBuilder) -> Op<Boolean>
+) =
+    executeUpdate(table.deleteWhereStatement(limit, offset, op))
+
+suspend fun <T : Table> DatabaseClient<*>.deleteIgnoreWhere(
+    table: T, limit: Int? = null, offset: Long? = null, op: T.(ISqlExpressionBuilder) -> Op<Boolean>
+) =
+    executeUpdate(table.deleteIgnoreWhereStatement(limit, offset, op))

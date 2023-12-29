@@ -299,7 +299,7 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
         executeBatch(statements) { this }.map { it.rowCount() }
 }
 
-
+@Deprecated("Just use `single`.", ReplaceWith("this.single()"))
 fun <R> RowSet<R>.singleResult(): R =
     single()
 

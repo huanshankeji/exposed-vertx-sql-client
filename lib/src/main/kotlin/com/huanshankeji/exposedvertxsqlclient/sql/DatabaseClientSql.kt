@@ -17,8 +17,8 @@ import org.jetbrains.exposed.sql.statements.UpdateStatement
 import kotlin.reflect.KClass
 import kotlin.sequences.Sequence
 
-// TODO Consider moving these to a separate non-compulsory module because there are too many kinds of different [Statement]s.
-//  Supporting all of them may be difficult and pose an extra cognitive burden on a user.
+/* TODO Consider moving these to a separate non-compulsory module because there are too many kinds of different [Statement]s.
+    Supporting all of them may be difficult and pose an extra cognitive burden on a user. */
 
 suspend inline fun <Data> DatabaseClient<*>.select(
     columnSet: ColumnSet, buildQuery: ColumnSet.() -> Query, crossinline resultRowMapper: ResultRow.() -> Data
