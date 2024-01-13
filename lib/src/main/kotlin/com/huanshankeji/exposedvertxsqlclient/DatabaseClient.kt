@@ -338,6 +338,7 @@ fun Int.singleOrNoUpdate() =
         else -> throw SingleUpdateException(this)
     }
 
+// TODO these functions related to transactions and savepoints should be moved to kotlin-common and can possibly be contributed to Vert.x
 
 /**
  * When using this function, it's recommended to name the lambda parameter the same as the outer receiver so that the outer [DatabaseClient] is shadowed,
