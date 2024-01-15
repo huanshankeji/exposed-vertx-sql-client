@@ -303,6 +303,7 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
 fun <R> RowSet<R>.singleResult(): R =
     single()
 
+// TODO consider moving into "kotlin-common" and renaming to "singleOrZero"
 /** "single or no" means differently here from [Iterable.singleOrNull]. */
 fun <R> RowSet<R>.singleOrNoResult(): R? =
     if (none()) null else single()
