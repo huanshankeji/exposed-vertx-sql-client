@@ -31,11 +31,13 @@ dependencies {
     implementation(commonDependencies.vertx.moduleWithoutVersion("pg-client"))
 }
 
+afterEvaluate {
 // for the benchmarks
-dependencies {
-    with(commonDependencies.testContainers) {
-        "benchmarksImplementation"(platformBom())
-        "benchmarksImplementation"(postgreSql)
+    dependencies {
+        with(commonDependencies.testContainers) {
+            "benchmarksImplementation"(platformBom())
+            "benchmarksImplementation"(postgreSql)
+        }
+        "benchmarksImplementation"(commonDependencies.slf4j.simple())
     }
-    "benchmarksImplementation"(commonDependencies.slf4j.simple())
 }
