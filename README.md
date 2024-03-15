@@ -6,6 +6,8 @@
 
 ## Note
 
+This project currently serves our own use and there are temporarily no guides or docs. See [DatabaseClient.kt](lib/src/main/kotlin/com/huanshankeji/exposedvertxsqlclient/DatabaseClient.kt) and [DatabaseClientSql.kt](lib/src/main/kotlin/com/huanshankeji/exposedvertxsqlclient/sql/DatabaseClientSql.kt) for the major APIs.
+
 Only PostgreSQL with [Reactive PostgreSQL Client](https://vertx.io/docs/vertx-pg-client/java/) is currently supported.
 
 ## Maven coordinate
