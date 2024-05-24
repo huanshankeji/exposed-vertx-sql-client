@@ -9,7 +9,7 @@ import com.huanshankeji.vertx.kotlin.coroutines.coroutineToFuture
 import com.huanshankeji.vertx.kotlin.sqlclient.executeBatchAwaitForSqlResultSequence
 import io.vertx.core.Vertx
 import io.vertx.core.buffer.Buffer
-import io.vertx.kotlin.coroutines.await
+import io.vertx.kotlin.coroutines.coAwait
 import io.vertx.kotlin.sqlclient.poolOptionsOf
 import io.vertx.pgclient.PgConnectOptions
 import io.vertx.pgclient.PgConnection
@@ -31,7 +31,7 @@ import kotlin.sequences.Sequence
 import org.jetbrains.exposed.sql.Transaction as ExposedTransaction
 
 @ExperimentalEvscApi
-typealias ExposedArguments = Iterable<Pair<IColumnType, Any?>>
+typealias ExposedArguments = Iterable<Pair<IColumnType<*>, Any?>>
 
 @ExperimentalEvscApi
 fun Statement<*>.singleStatementArguments() =
@@ -94,7 +94,7 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
     val logSql: Boolean = false
 ) {
     suspend fun close() {
-        vertxSqlClient.close().await()
+        vertxSqlClient.close().coAwait()
         // How to close The Exposed `Database`?
     }
 
@@ -108,7 +108,7 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
 
     suspend fun executePlainSql(sql: String): RowSet<Row> =
         /** Use [SqlClient.preparedQuery] here because of [PgConnectOptions.setCachePreparedStatements]. */
-        vertxSqlClient.preparedQuery(sql).execute().await()
+        vertxSqlClient.preparedQuery(sql).execute().coAwait()
 
     suspend fun executePlainSqlUpdate(sql: String): Int =
         executePlainSql(sql).rowCount()
@@ -161,7 +161,7 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
         return vertxSqlClient.preparedQuery(sql)
             .transformQuery()
             .run { if (argTuple === null) execute() else execute(argTuple) }
-            .await()
+            .coAwait()
     }
 
     suspend fun executeForVertxSqlClientRowSet(statement: Statement<*>): RowSet<Row> =
@@ -348,8 +348,8 @@ fun Int.singleOrNoUpdate() =
 suspend fun <T> DatabaseClient<PgPool>.withTransaction(function: suspend (DatabaseClient<SqlConnection>) -> T): T =
     coroutineScope {
         vertxSqlClient.withTransaction {
-            coroutineToFuture { function(DatabaseClient(it, exposedDatabase)) }
-        }.await()
+                coroutineToFuture { function(DatabaseClient(it, exposedDatabase)) }
+            }.coAwait()
     }
 
 suspend fun <T> DatabaseClient<PgPool>.withPgTransaction(function: suspend (DatabaseClient<PgConnection>) -> T): T =
@@ -359,7 +359,7 @@ suspend fun <T> DatabaseClient<PgPool>.withPgTransaction(function: suspend (Data
     }
 
 suspend fun <T> DatabaseClient<SqlConnection>.withTransactionCommitOrRollback(function: suspend (DatabaseClient<SqlConnection>) -> Option<T>): Option<T> {
-    val transaction = vertxSqlClient.begin().await()
+    val transaction = vertxSqlClient.begin().coAwait()
     return try {
         val result = function(this)
         when (result) {
