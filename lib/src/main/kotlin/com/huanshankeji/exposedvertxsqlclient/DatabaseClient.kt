@@ -348,8 +348,8 @@ fun Int.singleOrNoUpdate() =
 suspend fun <T> DatabaseClient<PgPool>.withTransaction(function: suspend (DatabaseClient<SqlConnection>) -> T): T =
     coroutineScope {
         vertxSqlClient.withTransaction {
-                coroutineToFuture { function(DatabaseClient(it, exposedDatabase)) }
-            }.coAwait()
+            coroutineToFuture { function(DatabaseClient(it, exposedDatabase)) }
+        }.coAwait()
     }
 
 suspend fun <T> DatabaseClient<PgPool>.withPgTransaction(function: suspend (DatabaseClient<PgConnection>) -> T): T =
