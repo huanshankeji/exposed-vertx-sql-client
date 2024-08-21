@@ -19,3 +19,11 @@ class LocalConnectionConfig(val database: String, val user: String, val socketCo
     val unixDomainSocketWithPeerAuthenticationConnectionConfig =
         ConnectionConfig.UnixDomainSocketWithPeerAuthentication(UNIX_DOMAIN_SOCKET_PATH, user, database)
 }
+
+@ExperimentalEvscApi
+fun LocalConnectionConfig.toPerformantUnixEvscConfig() =
+    EvscConfig(socketConnectionConfig, unixDomainSocketWithPeerAuthenticationConnectionConfig)
+
+@ExperimentalEvscApi
+fun LocalConnectionConfig.toUniversalEvscConfig() =
+    EvscConfig(socketConnectionConfig, socketConnectionConfig)

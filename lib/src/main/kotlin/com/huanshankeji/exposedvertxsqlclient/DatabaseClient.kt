@@ -424,33 +424,6 @@ suspend fun DatabaseClient<PgConnection>.withSavepointAndRollbackIfThrowsOrFalse
 ): Boolean =
     withSavepointAndRollbackIfThrowsOrLeft(savepointName) { if (function(it)) Unit.right() else Unit.left() }.isRight()
 
-enum class ConnectionType {
-    Socket, UnixDomainSocketWithPeerAuthentication
-}
-
-sealed interface ConnectionConfig {
-    val userAndRole: String
-    val database: String
-
-    class Socket(
-        val host: String,
-        val port: Int? = null, // `null` for the default port
-        val user: String,
-        val password: String,
-        override val database: String
-    ) : ConnectionConfig {
-        override val userAndRole: String get() = user
-    }
-
-    class UnixDomainSocketWithPeerAuthentication(
-        val path: String,
-        val role: String,
-        override val database: String
-    ) : ConnectionConfig {
-        override val userAndRole: String get() = role
-    }
-}
-
 // TODO: use `ConnectionConfig` as the argument directly
 
 // can be used for a shared Exposed `Database` among `DatabaseClient`s
