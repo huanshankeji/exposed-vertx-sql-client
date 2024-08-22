@@ -35,7 +35,7 @@ suspend inline fun DatabaseClient<*>.select(
 // TODO adapt to the new SELECT DSL or deprecate
 /**
  * SQL: `SELECT <expression> FROM <table>;`.
- * Examples: `SELECT COUNT(*) FROM <table>;`, `SELECT COUNT(*) FROM <table>;`.
+ * Examples: `SELECT COUNT(*) FROM <table>;`, `SELECT SUM(<column>) FROM <table>;`.
  */
 @ExperimentalEvscApi
 suspend fun <T> DatabaseClient<*>.selectTableExpression(
