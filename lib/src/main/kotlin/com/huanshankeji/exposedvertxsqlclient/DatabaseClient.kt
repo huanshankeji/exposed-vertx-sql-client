@@ -289,6 +289,11 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
     suspend fun executeBatchQuery(fieldSet: FieldSet, queries: Iterable<Query>): Sequence<RowSet<ResultRow>> =
         executeBatchQuery(fieldSet, queries) { this }
 
+    /*
+    TODO Consider basing it on `Sequence` instead of `Iterable` so there is less wrapping and conversion
+     when mapping as sequences, such as `asSequence` and `toIterable`.
+     Also consider adding both versions.
+     */
     /**
      * Executes a batch of update statements, including [InsertStatement] and [UpdateStatement].
      * @see org.jetbrains.exposed.sql.batchInsert
