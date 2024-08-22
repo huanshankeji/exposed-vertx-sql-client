@@ -25,6 +25,7 @@ suspend inline fun <Data> DatabaseClient<*>.select(
 ): RowSet<Data> =
     executeQuery(columnSet.buildQuery(), resultRowMapper)
 
+// TODO adapt to the new SELECT DSL or deprecate
 suspend inline fun DatabaseClient<*>.select(
     columnSet: ColumnSet, buildQuery: ColumnSet.() -> Query
 ): RowSet<ResultRow> =
