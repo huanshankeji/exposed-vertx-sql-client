@@ -80,7 +80,7 @@ databaseClient.executeSingleUpdate(Examples.deleteIgnoreWhereStatement { id eq 2
 
 #### Extension SQL DSL APIs
 
-With these core APIs, your code becomes more concise, but it might be more difficult when you need to compose statements or edit the code:
+With these extension APIs, your code becomes more concise, but it might be more difficult when you need to compose statements or edit the code:
 
 ```kotlin
 databaseClient.insert(Examples) { it[name] = "A" }
