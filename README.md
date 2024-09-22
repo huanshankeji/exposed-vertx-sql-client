@@ -51,7 +51,7 @@ withContext(Dispatchers.IO) {
 }
 ```
 
-### CRUD (DDL and DQL) operations with `DatabaseClient`
+### CRUD (DML and DQL) operations with `DatabaseClient`
 
 #### Core APIs
 
