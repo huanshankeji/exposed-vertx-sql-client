@@ -100,6 +100,29 @@ val deleteRowCount2 = databaseClient.deleteIgnoreWhere(Examples) { id eq 2 }
 assert(deleteRowCount2 == 1)
 ```
 
+#### APIs using [Exposed GADT mapping](https://github.com/huanshankeji/exposed-adt-mapping)
+
+Please read [that library's basic usage guide](https://github.com/huanshankeji/exposed-adt-mapping?tab=readme-ov-file#basic-usage-guide) first. Here are examples of this library that correspond to [that library's CRUD operations](https://github.com/huanshankeji/exposed-adt-mapping?tab=readme-ov-file#crud-operations).
+
+```kotlin
+val directorId = 1
+val director = Director(directorId, "George Lucas")
+databaseClient.insert(Directors, director, Mappers.director)
+
+val episodeIFilmDetails = FilmDetails(1, "Star Wars: Episode I – The Phantom Menace", directorId)
+// insert without the ID since it's `AUTO_INCREMENT`
+databaseClient.insert(Films, episodeIFilmDetails, Mappers.filmDetailsWithDirectorId)
+
+val filmId = 2
+val episodeIIFilmDetails = FilmDetails(2, "Star Wars: Episode II – Attack of the Clones", directorId)
+val filmWithDirectorId = FilmWithDirectorId(filmId, episodeIIFilmDetails)
+databaseClient.insert(Films, filmWithDirectorId, Mappers.filmWithDirectorId) // insert with the ID
+
+val fullFilms = databaseClient.select(filmsLeftJoinDirectors, Mappers.fullFilm) {
+    select(Films.filmId inList listOf(1, 2)) // This API still depends on the old SELECT DSL and will be refactored.
+}
+```
+
 ### About the code
 
 Also see <https://github.com/huanshankeji/kotlin-common/tree/main/exposed> for some dependency code which serves this library.
