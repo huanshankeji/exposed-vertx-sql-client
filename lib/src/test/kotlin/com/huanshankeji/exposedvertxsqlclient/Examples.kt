@@ -5,6 +5,8 @@ import com.huanshankeji.exposedvertxsqlclient.sql.*
 import com.huanshankeji.exposedvertxsqlclient.sql.mapping.deleteIgnoreWhere
 import com.huanshankeji.exposedvertxsqlclient.sql.mapping.deleteWhere
 import io.vertx.core.Vertx
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -25,8 +27,10 @@ suspend fun examples(vertx: Vertx) {
         vertx, socketConnectionConfig, exposedDatabase = exposedDatabase
     )
 
-    databaseClient.exposedTransaction {
-        SchemaUtils.create(*tables)
+    withContext(Dispatchers.IO) {
+        databaseClient.exposedTransaction {
+            SchemaUtils.create(*tables)
+        }
     }
 
     run {

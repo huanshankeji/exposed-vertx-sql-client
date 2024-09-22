@@ -44,8 +44,10 @@ val tables = arrayOf(Examples)
 For example, to create tables:
 
 ```kotlin
-databaseClient.exposedTransaction {
-    SchemaUtils.create(*tables)
+withContext(Dispatchers.IO) {
+    databaseClient.exposedTransaction {
+        SchemaUtils.create(*tables)
+    }
 }
 ```
 
