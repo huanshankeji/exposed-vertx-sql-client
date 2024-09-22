@@ -17,7 +17,7 @@ object Examples : IntIdTable("examples") {
 val tables = arrayOf(Examples)
 
 @OptIn(ExperimentalEvscApi::class)
-suspend fun example(vertx: Vertx) {
+suspend fun examples(vertx: Vertx) {
     val socketConnectionConfig =
         ConnectionConfig.Socket("localhost", user = "user", password = "password", database = "database")
     val exposedDatabase = exposedDatabaseConnectPostgreSql(socketConnectionConfig)
