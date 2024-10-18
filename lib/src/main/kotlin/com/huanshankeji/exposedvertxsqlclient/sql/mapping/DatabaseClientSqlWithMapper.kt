@@ -9,7 +9,6 @@ import com.huanshankeji.exposed.deleteWhereStatement
 import com.huanshankeji.exposedvertxsqlclient.DatabaseClient
 import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
 import com.huanshankeji.exposedvertxsqlclient.sql.*
-import com.huanshankeji.exposedvertxsqlclient.toExposedResultRow
 import com.huanshankeji.vertx.sqlclient.datamapping.RowDataQueryMapper
 import io.vertx.sqlclient.RowSet
 import org.jetbrains.exposed.sql.*
@@ -23,7 +22,7 @@ suspend fun <Data : Any> DatabaseClient<*>.executeQuery(
     query: Query,
     dataQueryMapper: DataQueryMapper<Data>
 ): RowSet<Data> =
-    executeWithMapping(query) { row -> dataQueryMapper.resultRowToData(row.toExposedResultRow(query)) }
+    executeWithMapping(query) { row -> dataQueryMapper.resultRowToData(row.toExposedResultRowWithTransaction(query)) }
 
 @ExperimentalEvscApi
 suspend fun <Data : Any> DatabaseClient<*>.executeVertxSqlClientRowQuery(
