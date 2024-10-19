@@ -1,6 +1,7 @@
 package com.huanshankeji.exposedvertxsqlclient
 
 import arrow.core.*
+import com.huanshankeji.collections.singleOrNullIfEmpty
 import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig.Socket
 import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig.UnixDomainSocketWithPeerAuthentication
 import com.huanshankeji.exposedvertxsqlclient.sql.selectExpression
@@ -171,10 +172,24 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
     suspend fun <U> executeWithMapping(statement: Statement<*>, RowMapper: Function<Row, U>): RowSet<U> =
         execute(statement) { mapping(RowMapper) }
 
+    // TODO call `getFieldExpressionSet` inside existing transactions (the ones used to prepare the query) to further optimize the performance
+    @ExperimentalEvscApi
+    fun FieldSet.getFieldExpressionSetWithTransaction() =
+        exposedTransaction { getFieldExpressionSet() }
+
+    @Deprecated("This function is called nowhere except `Row.toExposedResultRowWithTransaction`. Consider inlining and removing it.")
+    @ExperimentalEvscApi
+    fun Query.getFieldExpressionSetWithTransaction() =
+        set.getFieldExpressionSetWithTransaction()
+
+    @ExperimentalEvscApi
+    fun Row.toExposedResultRowWithTransaction(query: Query) =
+        toExposedResultRow(query.getFieldExpressionSetWithTransaction())
+
     suspend inline fun <Data> executeQuery(
         query: Query, crossinline resultRowMapper: ResultRow.() -> Data
     ): RowSet<Data> =
-        executeWithMapping(query) { row -> row.toExposedResultRow(query).resultRowMapper() }
+        executeWithMapping(query) { row -> row.toExposedResultRowWithTransaction(query).resultRowMapper() }
 
     suspend fun executeQuery(query: Query): RowSet<ResultRow> =
         executeQuery(query) { this }
@@ -279,7 +294,7 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
     suspend inline fun <Data> executeBatchQuery(
         fieldSet: FieldSet, queries: Iterable<Query>, crossinline resultRowMapper: ResultRow.() -> Data
     ): Sequence<RowSet<Data>> {
-        val fieldExpressionSet = fieldSet.getFieldExpressionSet()
+        val fieldExpressionSet = fieldSet.getFieldExpressionSetWithTransaction()
         return executeBatch(queries) {
             mapping { row -> row.toExposedResultRow(fieldExpressionSet).resultRowMapper() }
         }
@@ -288,6 +303,11 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
     suspend fun executeBatchQuery(fieldSet: FieldSet, queries: Iterable<Query>): Sequence<RowSet<ResultRow>> =
         executeBatchQuery(fieldSet, queries) { this }
 
+    /*
+    TODO Consider basing it on `Sequence` instead of `Iterable` so there is less wrapping and conversion
+     when mapping as sequences, such as `asSequence` and `toIterable`.
+     Also consider adding both versions.
+     */
     /**
      * Executes a batch of update statements, including [InsertStatement] and [UpdateStatement].
      * @see org.jetbrains.exposed.sql.batchInsert
@@ -303,10 +323,13 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
 fun <R> RowSet<R>.singleResult(): R =
     single()
 
-// TODO consider moving into "kotlin-common" and renaming to "singleOrZero"
 /** "single or no" means differently here from [Iterable.singleOrNull]. */
+@Deprecated(
+    "Just use `singleOrNullIfEmpty` from \"kotlin-common\".",
+    ReplaceWith("this.singleOrNullIfEmpty()", "com.huanshankeji.collections.singleOrNullIfEmpty")
+)
 fun <R> RowSet<R>.singleOrNoResult(): R? =
-    if (none()) null else single()
+    singleOrNullIfEmpty()
 
 fun Row.toExposedResultRow(fieldExpressionSet: Set<Expression<*>>) =
     ResultRow.createAndFillValues(
@@ -320,13 +343,29 @@ fun Row.toExposedResultRow(fieldExpressionSet: Set<Expression<*>>) =
         }.toMap()
     )
 
+private const val USE_THE_ONE_IN_DATABASE_CLIENT_BECAUSE_TRANSACTION_REQUIRED_MESSAGE =
+    "Use the one in `DatabaseClient` because a transaction may be required."
+
+/**
+ * An Exposed transaction is required if the [FieldSet] contains custom functions that depend on dialects.
+ */
+//@Deprecated(USE_THE_ONE_IN_DATABASE_CLIENT_BECAUSE_TRANSACTION_REQUIRED_MESSAGE)
 fun FieldSet.getFieldExpressionSet() =
     /** [org.jetbrains.exposed.sql.AbstractQuery.ResultIterator.fieldsIndex] */
     realFields.toSet()
 
+/**
+ * @see FieldSet.getFieldExpressionSet
+ */
+@Deprecated("This function is called nowhere except `Row.toExposedResultRow`. Consider inlining and removing it.")
+//@Deprecated(USE_THE_ONE_IN_DATABASE_CLIENT_BECAUSE_TRANSACTION_REQUIRED_MESSAGE)
 fun Query.getFieldExpressionSet() =
     set.getFieldExpressionSet()
 
+/**
+ * @see FieldSet.getFieldExpressionSet
+ */
+//@Deprecated(USE_THE_ONE_IN_DATABASE_CLIENT_BECAUSE_TRANSACTION_REQUIRED_MESSAGE)
 fun Row.toExposedResultRow(query: Query) =
     toExposedResultRow(query.getFieldExpressionSet())
 
