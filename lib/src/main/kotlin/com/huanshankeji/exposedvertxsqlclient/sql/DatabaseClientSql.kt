@@ -25,15 +25,18 @@ suspend inline fun <Data> DatabaseClient<*>.select(
 ): RowSet<Data> =
     executeQuery(columnSet.buildQuery(), resultRowMapper)
 
+// TODO adapt to the new SELECT DSL or deprecate
 suspend inline fun DatabaseClient<*>.select(
     columnSet: ColumnSet, buildQuery: ColumnSet.() -> Query
 ): RowSet<ResultRow> =
     @Suppress("MoveLambdaOutsideParentheses")
     select(columnSet, buildQuery, { this })
 
+
+// TODO adapt to the new SELECT DSL or deprecate
 /**
  * SQL: `SELECT <expression> FROM <table>;`.
- * Examples: `SELECT COUNT(*) FROM <table>;`, `SELECT COUNT(*) FROM <table>;`.
+ * Examples: `SELECT COUNT(*) FROM <table>;`, `SELECT SUM(<column>) FROM <table>;`.
  */
 @ExperimentalEvscApi
 suspend fun <T> DatabaseClient<*>.selectTableExpression(
@@ -59,6 +62,7 @@ suspend inline fun <T, R> DatabaseClient<*>.executeSingleColumnSelectQuery(
 ): RowSet<R> =
     selectSingleColumn(columnSet, column, buildQuery, mapper)
 
+// TODO adapt to the new SELECT DSL or deprecate
 suspend fun <T> DatabaseClient<*>.selectSingleColumn(
     columnSet: ColumnSet, column: Column<T>, buildQuery: FieldSet.() -> Query
 ): RowSet<T> =
@@ -70,6 +74,7 @@ suspend fun <T> DatabaseClient<*>.executeSingleColumnSelectQuery(
 ): RowSet<T> =
     selectSingleColumn(columnSet, column, buildQuery)
 
+// TODO adapt to the new SELECT DSL or deprecate
 suspend fun <T : Comparable<T>> DatabaseClient<*>.selectSingleEntityIdColumn(
     columnSet: ColumnSet, column: Column<EntityID<T>>, buildQuery: FieldSet.() -> Query
 ): RowSet<T> =

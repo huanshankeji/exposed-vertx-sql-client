@@ -1,6 +1,7 @@
 package com.huanshankeji.exposedvertxsqlclient
 
 import arrow.core.*
+import com.huanshankeji.collections.singleOrNullIfEmpty
 import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig.Socket
 import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig.UnixDomainSocketWithPeerAuthentication
 import com.huanshankeji.exposedvertxsqlclient.sql.selectExpression
@@ -9,7 +10,7 @@ import com.huanshankeji.vertx.kotlin.coroutines.coroutineToFuture
 import com.huanshankeji.vertx.kotlin.sqlclient.executeBatchAwaitForSqlResultSequence
 import io.vertx.core.Vertx
 import io.vertx.core.buffer.Buffer
-import io.vertx.kotlin.coroutines.await
+import io.vertx.kotlin.coroutines.coAwait
 import io.vertx.kotlin.sqlclient.poolOptionsOf
 import io.vertx.pgclient.PgConnectOptions
 import io.vertx.pgclient.PgConnection
@@ -31,7 +32,7 @@ import kotlin.sequences.Sequence
 import org.jetbrains.exposed.sql.Transaction as ExposedTransaction
 
 @ExperimentalEvscApi
-typealias ExposedArguments = Iterable<Pair<IColumnType, Any?>>
+typealias ExposedArguments = Iterable<Pair<IColumnType<*>, Any?>>
 
 @ExperimentalEvscApi
 fun Statement<*>.singleStatementArguments() =
@@ -94,7 +95,7 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
     val logSql: Boolean = false
 ) {
     suspend fun close() {
-        vertxSqlClient.close().await()
+        vertxSqlClient.close().coAwait()
         // How to close The Exposed `Database`?
     }
 
@@ -108,7 +109,7 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
 
     suspend fun executePlainSql(sql: String): RowSet<Row> =
         /** Use [SqlClient.preparedQuery] here because of [PgConnectOptions.setCachePreparedStatements]. */
-        vertxSqlClient.preparedQuery(sql).execute().await()
+        vertxSqlClient.preparedQuery(sql).execute().coAwait()
 
     suspend fun executePlainSqlUpdate(sql: String): Int =
         executePlainSql(sql).rowCount()
@@ -161,7 +162,7 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
         return vertxSqlClient.preparedQuery(sql)
             .transformQuery()
             .run { if (argTuple === null) execute() else execute(argTuple) }
-            .await()
+            .coAwait()
     }
 
     suspend fun executeForVertxSqlClientRowSet(statement: Statement<*>): RowSet<Row> =
@@ -171,10 +172,24 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
     suspend fun <U> executeWithMapping(statement: Statement<*>, RowMapper: Function<Row, U>): RowSet<U> =
         execute(statement) { mapping(RowMapper) }
 
+    // TODO call `getFieldExpressionSet` inside existing transactions (the ones used to prepare the query) to further optimize the performance
+    @ExperimentalEvscApi
+    fun FieldSet.getFieldExpressionSetWithTransaction() =
+        exposedTransaction { getFieldExpressionSet() }
+
+    @Deprecated("This function is called nowhere except `Row.toExposedResultRowWithTransaction`. Consider inlining and removing it.")
+    @ExperimentalEvscApi
+    fun Query.getFieldExpressionSetWithTransaction() =
+        set.getFieldExpressionSetWithTransaction()
+
+    @ExperimentalEvscApi
+    fun Row.toExposedResultRowWithTransaction(query: Query) =
+        toExposedResultRow(query.getFieldExpressionSetWithTransaction())
+
     suspend inline fun <Data> executeQuery(
         query: Query, crossinline resultRowMapper: ResultRow.() -> Data
     ): RowSet<Data> =
-        executeWithMapping(query) { row -> row.toExposedResultRow(query).resultRowMapper() }
+        executeWithMapping(query) { row -> row.toExposedResultRowWithTransaction(query).resultRowMapper() }
 
     suspend fun executeQuery(query: Query): RowSet<ResultRow> =
         executeQuery(query) { this }
@@ -279,7 +294,7 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
     suspend inline fun <Data> executeBatchQuery(
         fieldSet: FieldSet, queries: Iterable<Query>, crossinline resultRowMapper: ResultRow.() -> Data
     ): Sequence<RowSet<Data>> {
-        val fieldExpressionSet = fieldSet.getFieldExpressionSet()
+        val fieldExpressionSet = fieldSet.getFieldExpressionSetWithTransaction()
         return executeBatch(queries) {
             mapping { row -> row.toExposedResultRow(fieldExpressionSet).resultRowMapper() }
         }
@@ -288,6 +303,11 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
     suspend fun executeBatchQuery(fieldSet: FieldSet, queries: Iterable<Query>): Sequence<RowSet<ResultRow>> =
         executeBatchQuery(fieldSet, queries) { this }
 
+    /*
+    TODO Consider basing it on `Sequence` instead of `Iterable` so there is less wrapping and conversion
+     when mapping as sequences, such as `asSequence` and `toIterable`.
+     Also consider adding both versions.
+     */
     /**
      * Executes a batch of update statements, including [InsertStatement] and [UpdateStatement].
      * @see org.jetbrains.exposed.sql.batchInsert
@@ -303,10 +323,13 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
 fun <R> RowSet<R>.singleResult(): R =
     single()
 
-// TODO consider moving into "kotlin-common" and renaming to "singleOrZero"
 /** "single or no" means differently here from [Iterable.singleOrNull]. */
+@Deprecated(
+    "Just use `singleOrNullIfEmpty` from \"kotlin-common\".",
+    ReplaceWith("this.singleOrNullIfEmpty()", "com.huanshankeji.collections.singleOrNullIfEmpty")
+)
 fun <R> RowSet<R>.singleOrNoResult(): R? =
-    if (none()) null else single()
+    singleOrNullIfEmpty()
 
 fun Row.toExposedResultRow(fieldExpressionSet: Set<Expression<*>>) =
     ResultRow.createAndFillValues(
@@ -320,13 +343,29 @@ fun Row.toExposedResultRow(fieldExpressionSet: Set<Expression<*>>) =
         }.toMap()
     )
 
+private const val USE_THE_ONE_IN_DATABASE_CLIENT_BECAUSE_TRANSACTION_REQUIRED_MESSAGE =
+    "Use the one in `DatabaseClient` because a transaction may be required."
+
+/**
+ * An Exposed transaction is required if the [FieldSet] contains custom functions that depend on dialects.
+ */
+//@Deprecated(USE_THE_ONE_IN_DATABASE_CLIENT_BECAUSE_TRANSACTION_REQUIRED_MESSAGE)
 fun FieldSet.getFieldExpressionSet() =
     /** [org.jetbrains.exposed.sql.AbstractQuery.ResultIterator.fieldsIndex] */
     realFields.toSet()
 
+/**
+ * @see FieldSet.getFieldExpressionSet
+ */
+@Deprecated("This function is called nowhere except `Row.toExposedResultRow`. Consider inlining and removing it.")
+//@Deprecated(USE_THE_ONE_IN_DATABASE_CLIENT_BECAUSE_TRANSACTION_REQUIRED_MESSAGE)
 fun Query.getFieldExpressionSet() =
     set.getFieldExpressionSet()
 
+/**
+ * @see FieldSet.getFieldExpressionSet
+ */
+//@Deprecated(USE_THE_ONE_IN_DATABASE_CLIENT_BECAUSE_TRANSACTION_REQUIRED_MESSAGE)
 fun Row.toExposedResultRow(query: Query) =
     toExposedResultRow(query.getFieldExpressionSet())
 
@@ -349,7 +388,7 @@ suspend fun <T> DatabaseClient<PgPool>.withTransaction(function: suspend (Databa
     coroutineScope {
         vertxSqlClient.withTransaction {
             coroutineToFuture { function(DatabaseClient(it, exposedDatabase)) }
-        }.await()
+        }.coAwait()
     }
 
 suspend fun <T> DatabaseClient<PgPool>.withPgTransaction(function: suspend (DatabaseClient<PgConnection>) -> T): T =
@@ -359,7 +398,7 @@ suspend fun <T> DatabaseClient<PgPool>.withPgTransaction(function: suspend (Data
     }
 
 suspend fun <T> DatabaseClient<SqlConnection>.withTransactionCommitOrRollback(function: suspend (DatabaseClient<SqlConnection>) -> Option<T>): Option<T> {
-    val transaction = vertxSqlClient.begin().await()
+    val transaction = vertxSqlClient.begin().coAwait()
     return try {
         val result = function(this)
         when (result) {
@@ -423,33 +462,6 @@ suspend fun DatabaseClient<PgConnection>.withSavepointAndRollbackIfThrowsOrFalse
     savepointName: String, function: suspend (DatabaseClient<PgConnection>) -> Boolean
 ): Boolean =
     withSavepointAndRollbackIfThrowsOrLeft(savepointName) { if (function(it)) Unit.right() else Unit.left() }.isRight()
-
-enum class ConnectionType {
-    Socket, UnixDomainSocketWithPeerAuthentication
-}
-
-sealed interface ConnectionConfig {
-    val userAndRole: String
-    val database: String
-
-    class Socket(
-        val host: String,
-        val port: Int? = null, // `null` for the default port
-        val user: String,
-        val password: String,
-        override val database: String
-    ) : ConnectionConfig {
-        override val userAndRole: String get() = user
-    }
-
-    class UnixDomainSocketWithPeerAuthentication(
-        val path: String,
-        val role: String,
-        override val database: String
-    ) : ConnectionConfig {
-        override val userAndRole: String get() = role
-    }
-}
 
 // TODO: use `ConnectionConfig` as the argument directly
 

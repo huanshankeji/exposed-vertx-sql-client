@@ -9,7 +9,8 @@ import kotlin.reflect.KClass
 /**
  * @see ClassPropertyColumnMappings
  */
-typealias ClassPropertyColumnIndexMappings<Data> = Nothing // TODO
+// since Kotlin 2.0.0: "'Nothing' property type can't be specified with type alias."
+typealias ClassPropertyColumnIndexMappings<Data> = Unit // TODO
 
 typealias VertxSqlClientRowDataQueryMapper<Data> = RowDataQueryMapper<Data>
 
