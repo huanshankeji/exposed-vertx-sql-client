@@ -1,6 +1,7 @@
 plugins {
     conventions
     id("com.huanshankeji.benchmark.kotlinx-benchmark-jvm-conventions")
+    id("org.jetbrains.dokka")
 }
 
 dependencies {
@@ -39,5 +40,14 @@ afterEvaluate {
             "benchmarksImplementation"(postgreSql)
         }
         "benchmarksImplementation"(commonDependencies.slf4j.simple())
+    }
+}
+
+dokka {
+    dokkaSourceSets.all {
+        sourceLink {
+            remoteUrl("https://github.com/huanshankeji/exposed-vertx-sql-client/tree/v${version}/lib")
+            remoteLineSuffix.set("#L")
+        }
     }
 }
