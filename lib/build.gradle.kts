@@ -46,7 +46,7 @@ afterEvaluate {
 dokka {
     dokkaSourceSets.all {
         sourceLink {
-            remoteUrl("https://github.com/huanshankeji/exposed-vertx-sql-client/tree/v${version}/lib")
+            remoteUrl("https://github.com/huanshankeji/exposed-vertx-sql-client/tree/16aa23182656c7082297270361475648e003b28e/lib")
             remoteLineSuffix.set("#L")
         }
     }

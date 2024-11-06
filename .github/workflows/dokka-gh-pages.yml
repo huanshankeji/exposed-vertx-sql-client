@@ -2,7 +2,7 @@ name: Deploy the API documentation to GitHub Pages with Dokka
 
 on:
   push:
-    branches: [ "plugins-release" ]
+    branches: [ "*" ]
   pull_request:
     branches: [ "plugins-release" ]
 
