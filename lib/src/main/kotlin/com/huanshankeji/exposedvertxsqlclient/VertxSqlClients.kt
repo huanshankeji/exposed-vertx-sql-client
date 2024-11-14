@@ -2,7 +2,7 @@ package com.huanshankeji.exposedvertxsqlclient
 
 import com.huanshankeji.Untested
 import io.vertx.core.Vertx
-import io.vertx.kotlin.coroutines.await
+import io.vertx.kotlin.coroutines.coAwait
 import io.vertx.kotlin.sqlclient.poolOptionsOf
 import io.vertx.pgclient.PgConnectOptions
 import io.vertx.pgclient.PgConnection
@@ -34,7 +34,7 @@ private val pgConnectionConnect: suspend (Vertx?, PgConnectOptions, Nothing?) ->
 */
 
 suspend fun SqlConnection.executeSetRole(role: String) =
-    query("SET ROLE $role").execute().await()
+    query("SET ROLE $role").execute().coAwait()
 
 // TODO: use `ConnectionConfig` as the argument directly in all the following functions
 
@@ -82,7 +82,7 @@ suspend fun createSocketPgConnection(
     createSocketGenericPgClient(
         vertx, host, port, database, user, password, extraPgConnectOptions, null
     ) { vertx, pgConnectOptions, _ ->
-        PgConnection.connect(vertx, pgConnectOptions).await()
+        PgConnection.connect(vertx, pgConnectOptions).coAwait()
     }
 
 
@@ -121,7 +121,7 @@ suspend fun createUnixDomainSocketPgSqlClientAndSetRole(
         vertx, host, database, extraPgConnectOptions, poolOptions
     ).apply {
         // Is this done for all connections?
-        query("SET ROLE $role").execute().await()
+        query("SET ROLE $role").execute().coAwait()
     }
 
 fun createPeerAuthenticationUnixDomainSocketPgPool(
@@ -144,7 +144,7 @@ fun createPeerAuthenticationUnixDomainSocketPgPoolAndSetRole(
                 // TODO: are exceptions handled?
                 it.executeSetRole(role)
                 /** @see Pool.connectHandler */
-                it.close().await()
+                it.close().coAwait()
             }
         }
 
@@ -157,7 +157,7 @@ suspend fun createPeerAuthenticationUnixDomainSocketPgConnectionAndSetRole(
     createPeerAuthenticationUnixDomainSocketGenericPgClient(
         vertx, host, database, extraPgConnectOptions, null
     ) { vertx, pgConnectOptions, _ ->
-        PgConnection.connect(vertx, pgConnectOptions).await().apply {
+        PgConnection.connect(vertx, pgConnectOptions).coAwait().apply {
             executeSetRole(role)
         }
     }
