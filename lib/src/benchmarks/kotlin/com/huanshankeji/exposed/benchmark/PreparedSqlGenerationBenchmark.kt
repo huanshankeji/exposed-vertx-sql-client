@@ -16,7 +16,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 class PreparedSqlGenerationBenchmark : WithContainerizedDatabaseBenchmark() {
     enum class StatementEnum(val statement: Statement<*>) {
         SelectAll(VarcharTable.selectAll()),
-        SelectWhere(VarcharTable.select(VarcharTable.id eq 0L)),
+        SelectWhere(VarcharTable.selectAll().where(VarcharTable.id eq 0L)),
         Insert(VarcharTable.insertStatement { it[varcharColumn] = "string" }),
         Update(VarcharTable.updateStatement({ VarcharTable.id eq 0L }) {
             it[varcharColumn] = "string"

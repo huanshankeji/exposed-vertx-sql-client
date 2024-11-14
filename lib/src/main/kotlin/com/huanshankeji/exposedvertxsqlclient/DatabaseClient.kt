@@ -5,7 +5,7 @@ import com.huanshankeji.collections.singleOrNullIfEmpty
 import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig.Socket
 import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig.UnixDomainSocketWithPeerAuthentication
 import com.huanshankeji.exposedvertxsqlclient.sql.selectExpression
-import com.huanshankeji.os.isOSLinux
+import com.huanshankeji.os.isCurrentOsLinux
 import com.huanshankeji.vertx.kotlin.coroutines.coroutineToFuture
 import com.huanshankeji.vertx.kotlin.sqlclient.executeBatchAwaitForSqlResultSequence
 import io.vertx.core.Vertx
@@ -529,7 +529,7 @@ fun createBetterPgPoolDatabaseClient(
 ) =
     createPgPoolDatabaseClient(
         vertx,
-        if (isOSLinux()) ConnectionType.UnixDomainSocketWithPeerAuthentication else ConnectionType.Socket,
+        if (isCurrentOsLinux()) ConnectionType.UnixDomainSocketWithPeerAuthentication else ConnectionType.Socket,
         localConnectionConfig,
         extraPgConnectOptions, poolOptions,
         exposedDatabase
