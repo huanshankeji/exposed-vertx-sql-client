@@ -290,6 +290,9 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
     suspend fun executeBatchForVertxSqlClientRowSetSequence(statements: Iterable<Statement<*>>): Sequence<RowSet<Row>> =
         executeBatch(statements) { this }
 
+    /**
+     * @see executeBatch
+     */
     @ExperimentalEvscApi
     suspend inline fun <Data> executeBatchQuery(
         fieldSet: FieldSet, queries: Iterable<Query>, crossinline resultRowMapper: ResultRow.() -> Data
@@ -310,7 +313,7 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
      */
     /**
      * Executes a batch of update statements, including [InsertStatement] and [UpdateStatement].
-     * @see org.jetbrains.exposed.sql.batchInsert
+     * @see executeBatch
      * @return a sequence of the update counts of the update statements in the batch.
      */
     suspend fun executeBatchUpdate(

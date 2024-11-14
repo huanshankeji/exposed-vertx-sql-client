@@ -134,7 +134,9 @@ suspend fun <E> DatabaseClient<*>.selectBatch(
 ): Sequence<RowSet<ResultRow>> =
     executeBatchQuery(fieldSet, data.asSequence().map { fieldSet.buildQuery(it) }.asIterable())
 
-
+/**
+ * @see DatabaseClient.executeBatchUpdate
+ */
 suspend fun <T : Table, E> DatabaseClient<*>.batchInsert(
     table: T, data: Iterable<E>, body: T.(InsertStatement<Number>, E) -> Unit
 ) =
@@ -143,6 +145,9 @@ suspend fun <T : Table, E> DatabaseClient<*>.batchInsert(
     }.asIterable())
         .forEach { dbAssert(it == 1) }
 
+/**
+ * @see DatabaseClient.executeBatchUpdate
+ */
 suspend fun <T : Table, E> DatabaseClient<*>.batchInsertIgnore(
     table: T, data: Iterable<E>, body: T.(InsertStatement<Number>, E) -> Unit
 ) =
@@ -154,6 +159,7 @@ suspend fun <T : Table, E> DatabaseClient<*>.batchInsertIgnore(
 
 /**
  * This function is not conventional and it usages are likely to degrade performance.
+ * @see DatabaseClient.executeBatchUpdate
  */
 @ExperimentalEvscApi
 suspend fun DatabaseClient<*>.batchInsertSelect(
@@ -161,6 +167,10 @@ suspend fun DatabaseClient<*>.batchInsertSelect(
 ) =
     executeBatchUpdate(statements)
 
+/**
+ * @see DatabaseClient.executeBatchUpdate
+ * @see sortDataAndBatchUpdate
+ */
 suspend fun <T : Table, E> DatabaseClient<*>.batchUpdate(
     table: T, data: Iterable<E>, where: BuildWhere? = null, limit: Int? = null, body: T.(UpdateStatement, E) -> Unit
 ) =
@@ -170,6 +180,7 @@ suspend fun <T : Table, E> DatabaseClient<*>.batchUpdate(
 
 /**
  * @return a sequence indicating whether each update statement is updated in the batch.
+ * @see batchUpdate
  */
 suspend fun <T : Table, E> DatabaseClient<*>.batchSingleOrNoUpdate(
     table: T, data: Iterable<E>, where: BuildWhere? = null, limit: Int? = null, body: T.(UpdateStatement, E) -> Unit
@@ -178,6 +189,7 @@ suspend fun <T : Table, E> DatabaseClient<*>.batchSingleOrNoUpdate(
 
 /**
  * @see sortDataAndExecuteBatch
+ * @see batchUpdate
  */
 suspend fun <T : Table, E, SelectorResultT : Comparable<SelectorResultT>> DatabaseClient<*>.sortDataAndBatchUpdate(
     table: T,
