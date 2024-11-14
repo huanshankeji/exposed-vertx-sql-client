@@ -3,11 +3,10 @@ package com.huanshankeji.exposedvertxsqlclient
 import com.huanshankeji.exposed.datamapping.classproperty.PropertyColumnMappingConfig
 import com.huanshankeji.exposed.datamapping.classproperty.reflectionBasedClassPropertyDataMapper
 import com.huanshankeji.exposedvertxsqlclient.sql.mapping.insert
-import com.huanshankeji.exposedvertxsqlclient.sql.mapping.select
+import com.huanshankeji.exposedvertxsqlclient.sql.mapping.selectWithMapper
 import io.vertx.sqlclient.Pool
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
-import org.jetbrains.exposed.sql.select
 
 // copied and adapted from https://github.com/huanshankeji/exposed-adt-mapping/blob/main/lib/src/test/kotlin/com/huanshankeji/exposed/datamapping/classproperty/Examples.kt
 // Update accordingly to keep the code consistent.
@@ -95,7 +94,7 @@ suspend fun mappingExamples(databaseClient: DatabaseClient<Pool>) {
     val filmWithDirectorId = FilmWithDirectorId(filmId, episodeIIFilmDetails)
     databaseClient.insert(Films, filmWithDirectorId, Mappers.filmWithDirectorId) // insert with the ID
 
-    val fullFilms = databaseClient.select(filmsLeftJoinDirectors, Mappers.fullFilm) {
-        select(Films.filmId inList listOf(1, 2)) // This API still depends on the old SELECT DSL and will be refactored.
+    val fullFilms = databaseClient.selectWithMapper(filmsLeftJoinDirectors, Mappers.fullFilm) {
+        where(Films.filmId inList listOf(1, 2)) // This API still depends on the old SELECT DSL and will be refactored.
     }
 }

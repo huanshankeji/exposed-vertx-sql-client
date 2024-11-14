@@ -94,7 +94,7 @@ val exampleName1 =
     databaseClient.select(Examples) { select(Examples.name).where(Examples.id eq 1) }.single()[Examples.name]
 // This function still depends on the old SELECT DSL and will be updated.
 val exampleName2 =
-    databaseClient.selectSingleColumn(Examples, Examples.name) { selectAll().where(Examples.id eq 2) }.single()
+    databaseClient.selectSingleColumn(Examples, Examples.name) { where(Examples.id eq 2) }.single()
 
 val deleteRowCount1 = databaseClient.deleteWhere(Examples) { id eq 1 }
 assert(deleteRowCount1 == 1)
@@ -120,8 +120,8 @@ val episodeIIFilmDetails = FilmDetails(2, "Star Wars: Episode II – Attack of t
 val filmWithDirectorId = FilmWithDirectorId(filmId, episodeIIFilmDetails)
 databaseClient.insert(Films, filmWithDirectorId, Mappers.filmWithDirectorId) // insert with the ID
 
-val fullFilms = databaseClient.select(filmsLeftJoinDirectors, Mappers.fullFilm) {
-    select(Films.filmId inList listOf(1, 2)) // This API still depends on the old SELECT DSL and will be refactored.
+val fullFilms = databaseClient.selectWithMapper(filmsLeftJoinDirectors, Mappers.fullFilm) {
+    where(Films.filmId inList listOf(1, 2)) // This API still depends on the old SELECT DSL and will be refactored.
 }
 ```
 

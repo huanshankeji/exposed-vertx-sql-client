@@ -33,50 +33,33 @@ suspend inline fun DatabaseClient<*>.select(
     select(columnSet, buildQuery, { this })
 
 
-// TODO adapt to the new SELECT DSL or deprecate
 /**
  * SQL: `SELECT <expression> FROM <table>;`.
  * Examples: `SELECT COUNT(*) FROM <table>;`, `SELECT SUM(<column>) FROM <table>;`.
  */
 @ExperimentalEvscApi
-suspend fun <T> DatabaseClient<*>.selectTableExpression(
-    columnSet: ColumnSet, expression: Expression<T>, buildQuery: FieldSet.() -> Query
+suspend fun <T> DatabaseClient<*>.selectColumnSetExpression(
+    columnSet: ColumnSet, expression: Expression<T>, buildQuery: Query.() -> Query
 ): RowSet<T> =
-    select(columnSet, { slice(expression).buildQuery() }, { this[expression] })
+    select(columnSet, { select(expression).buildQuery() }, { this[expression] })
 
 // This function with `mapper` is not really useful
 @ExperimentalEvscApi
 suspend inline fun <ColumnT, DataT> DatabaseClient<*>.selectSingleColumn(
     columnSet: ColumnSet,
     column: Column<ColumnT>,
-    buildQuery: FieldSet.() -> Query,
+    buildQuery: Query.() -> Query,
     crossinline mapper: ColumnT.() -> DataT
 ): RowSet<DataT> =
-    select(columnSet, { slice(column).buildQuery() }, { this[column].mapper() })
+    select(columnSet, { select(column).buildQuery() }, { this[column].mapper() })
 
-
-@Deprecated("Use `selectSingleColumn`.", ReplaceWith("selectSingleColumn<T, R>(columnSet, column, buildQuery, mapper)"))
-@ExperimentalEvscApi
-suspend inline fun <T, R> DatabaseClient<*>.executeSingleColumnSelectQuery(
-    columnSet: ColumnSet, column: Column<T>, buildQuery: FieldSet.() -> Query, crossinline mapper: T.() -> R
-): RowSet<R> =
-    selectSingleColumn(columnSet, column, buildQuery, mapper)
-
-// TODO adapt to the new SELECT DSL or deprecate
 suspend fun <T> DatabaseClient<*>.selectSingleColumn(
-    columnSet: ColumnSet, column: Column<T>, buildQuery: FieldSet.() -> Query
+    columnSet: ColumnSet, column: Column<T>, buildQuery: Query.() -> Query
 ): RowSet<T> =
-    selectTableExpression(columnSet, column, buildQuery)
+    selectColumnSetExpression(columnSet, column, buildQuery)
 
-@Deprecated("Use `selectSingleColumn`.", ReplaceWith("selectSingleColumn<T>(columnSet, column, buildQuery)"))
-suspend fun <T> DatabaseClient<*>.executeSingleColumnSelectQuery(
-    columnSet: ColumnSet, column: Column<T>, buildQuery: FieldSet.() -> Query
-): RowSet<T> =
-    selectSingleColumn(columnSet, column, buildQuery)
-
-// TODO adapt to the new SELECT DSL or deprecate
 suspend fun <T : Comparable<T>> DatabaseClient<*>.selectSingleEntityIdColumn(
-    columnSet: ColumnSet, column: Column<EntityID<T>>, buildQuery: FieldSet.() -> Query
+    columnSet: ColumnSet, column: Column<EntityID<T>>, buildQuery: Query.() -> Query
 ): RowSet<T> =
     selectSingleColumn(columnSet, column, buildQuery) { value }
 
@@ -87,7 +70,7 @@ suspend fun <T : Comparable<T>> DatabaseClient<*>.selectSingleEntityIdColumn(
  */
 // see: https://github.com/JetBrains/Exposed/issues/621
 suspend fun <T : Any> DatabaseClient<*>.selectExpression(clazz: KClass<T>, expression: Expression<T?>): T? =
-    executeForVertxSqlClientRowSet(Table.Dual.slice(expression).selectAll())
+    executeForVertxSqlClientRowSet(Table.Dual.select(expression))
         .single()[clazz.java, 0]
 
 suspend inline fun <reified T> DatabaseClient<*>.selectExpression(expression: Expression<T>): T =

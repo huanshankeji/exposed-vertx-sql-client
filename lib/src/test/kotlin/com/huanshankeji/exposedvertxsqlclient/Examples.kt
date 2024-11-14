@@ -66,7 +66,7 @@ suspend fun examples(vertx: Vertx) {
             databaseClient.select(Examples) { select(Examples.name).where(Examples.id eq 1) }.single()[Examples.name]
         // This function still depends on the old SELECT DSL and will be updated.
         val exampleName2 =
-            databaseClient.selectSingleColumn(Examples, Examples.name) { selectAll().where(Examples.id eq 2) }.single()
+            databaseClient.selectSingleColumn(Examples, Examples.name) { where(Examples.id eq 2) }.single()
 
         val deleteRowCount1 = databaseClient.deleteWhere(Examples) { id eq 1 }
         assert(deleteRowCount1 == 1)

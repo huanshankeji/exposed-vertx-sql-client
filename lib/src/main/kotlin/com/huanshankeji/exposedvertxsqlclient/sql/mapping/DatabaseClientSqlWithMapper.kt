@@ -1,6 +1,10 @@
+@file:OptIn(InternalApi::class)
+
 package com.huanshankeji.exposedvertxsqlclient.sql.mapping
 
+import com.huanshankeji.InternalApi
 import com.huanshankeji.exposed.BuildWhere
+import com.huanshankeji.exposed.SELECT_DSL_DEPRECATION_MESSAGE
 import com.huanshankeji.exposed.datamapping.DataQueryMapper
 import com.huanshankeji.exposed.datamapping.DataUpdateMapper
 import com.huanshankeji.exposed.datamapping.updateBuilderSetter
@@ -30,11 +34,21 @@ suspend fun <Data : Any> DatabaseClient<*>.executeVertxSqlClientRowQuery(
 ): RowSet<Data> =
     executeWithMapping(query, rowDataQueryMapper::rowToData)
 
+@Deprecated(
+    SELECT_DSL_DEPRECATION_MESSAGE,
+    ReplaceWith("this.selectWithMapper<Data>(columnSet, dataQueryMapper, buildQuery)")
+)
 @ExperimentalEvscApi
 suspend fun <Data : Any> DatabaseClient<*>.select(
     columnSet: ColumnSet, dataQueryMapper: DataQueryMapper<Data>, buildQuery: FieldSet.() -> Query
 ) =
     executeQuery(columnSet.slice(dataQueryMapper.neededColumns).buildQuery(), dataQueryMapper)
+
+@ExperimentalEvscApi
+suspend fun <Data : Any> DatabaseClient<*>.selectWithMapper(
+    columnSet: ColumnSet, dataQueryMapper: DataQueryMapper<Data>, buildQuery: Query.() -> Query
+) =
+    executeQuery(columnSet.select(dataQueryMapper.neededColumns).buildQuery(), dataQueryMapper)
 
 @ExperimentalEvscApi
 suspend fun <Data : Any> DatabaseClient<*>.insert(
