@@ -185,3 +185,14 @@ suspend fun <T : Table, E, SelectorResultT : Comparable<SelectorResultT>> Databa
     where: BuildWhere? = null, limit: Int? = null, body: T.(UpdateStatement, E) -> Unit
 ) =
     batchUpdate(table, data.sortedBy(selector), where, limit, body)
+
+
+suspend fun <T : Table> DatabaseClient<*>.deleteWhere(
+    table: T, limit: Int? = null, offset: Long? = null, op: T.(ISqlExpressionBuilder) -> Op<Boolean>
+) =
+    executeUpdate(table.deleteWhereStatement(limit, offset, op))
+
+suspend fun <T : Table> DatabaseClient<*>.deleteIgnoreWhere(
+    table: T, limit: Int? = null, offset: Long? = null, op: T.(ISqlExpressionBuilder) -> Op<Boolean>
+) =
+    executeUpdate(table.deleteIgnoreWhereStatement(limit, offset, op))

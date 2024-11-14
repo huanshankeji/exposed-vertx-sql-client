@@ -2,15 +2,12 @@ package com.huanshankeji.exposedvertxsqlclient
 
 import com.huanshankeji.exposed.*
 import com.huanshankeji.exposedvertxsqlclient.sql.*
-import com.huanshankeji.exposedvertxsqlclient.sql.mapping.deleteIgnoreWhere
-import com.huanshankeji.exposedvertxsqlclient.sql.mapping.deleteWhere
 import io.vertx.core.Vertx
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.selectAll
 
 object Examples : IntIdTable("examples") {
     val name = varchar("name", 64)

@@ -55,7 +55,8 @@ withContext(Dispatchers.IO) {
 
 #### Core APIs
 
-With these core APIs, you create and execute Exposed `Statement`s. You don't need to learn many new APIs, and the `Statement`s are more composable and easily editable.
+With these core APIs, you create and execute Exposed `Statement`s. You don't need to learn many new APIs, and the
+`Statement`s are more composable and easily editable. For example, you can move a query into an adapted subquery.
 
 ```kotlin
 // The Exposed `Table` extension functions `insert`, `update`, and `delete` execute eagerly so `insertStatement`, `updateStatement`, `deleteStatement` have to be used.
@@ -109,16 +110,16 @@ Please read [that library's basic usage guide](https://github.com/huanshankeji/e
 ```kotlin
 val directorId = 1
 val director = Director(directorId, "George Lucas")
-databaseClient.insert(Directors, director, Mappers.director)
+databaseClient.insertWithMapper(Directors, director, Mappers.director)
 
 val episodeIFilmDetails = FilmDetails(1, "Star Wars: Episode I – The Phantom Menace", directorId)
 // insert without the ID since it's `AUTO_INCREMENT`
-databaseClient.insert(Films, episodeIFilmDetails, Mappers.filmDetailsWithDirectorId)
+databaseClient.insertWithMapper(Films, episodeIFilmDetails, Mappers.filmDetailsWithDirectorId)
 
 val filmId = 2
 val episodeIIFilmDetails = FilmDetails(2, "Star Wars: Episode II – Attack of the Clones", directorId)
 val filmWithDirectorId = FilmWithDirectorId(filmId, episodeIIFilmDetails)
-databaseClient.insert(Films, filmWithDirectorId, Mappers.filmWithDirectorId) // insert with the ID
+databaseClient.insertWithMapper(Films, filmWithDirectorId, Mappers.filmWithDirectorId) // insert with the ID
 
 val fullFilms = databaseClient.selectWithMapper(filmsLeftJoinDirectors, Mappers.fullFilm) {
     where(Films.filmId inList listOf(1, 2)) // This API still depends on the old SELECT DSL and will be refactored.
