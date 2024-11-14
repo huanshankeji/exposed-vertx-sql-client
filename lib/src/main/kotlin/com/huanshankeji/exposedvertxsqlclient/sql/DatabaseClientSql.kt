@@ -188,11 +188,11 @@ suspend fun <T : Table, E, SelectorResultT : Comparable<SelectorResultT>> Databa
 
 
 suspend fun <T : Table> DatabaseClient<*>.deleteWhere(
-    table: T, limit: Int? = null, offset: Long? = null, op: T.(ISqlExpressionBuilder) -> Op<Boolean>
+    table: T, limit: Int? = null, offset: Long? = null, op: TableAwareWithSqlExpressionBuilderBuildWhere<T>
 ) =
     executeUpdate(table.deleteWhereStatement(limit, offset, op))
 
 suspend fun <T : Table> DatabaseClient<*>.deleteIgnoreWhere(
-    table: T, limit: Int? = null, offset: Long? = null, op: T.(ISqlExpressionBuilder) -> Op<Boolean>
+    table: T, limit: Int? = null, offset: Long? = null, op: TableAwareWithSqlExpressionBuilderBuildWhere<T>
 ) =
     executeUpdate(table.deleteIgnoreWhereStatement(limit, offset, op))
