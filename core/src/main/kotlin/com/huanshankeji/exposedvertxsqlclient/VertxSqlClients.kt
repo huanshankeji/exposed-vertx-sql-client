@@ -55,11 +55,16 @@ inline fun <Client, PoolOptionsT : PoolOptions?> createSocketGenericPgClient(
     return create(vertx, pgConnectOptions, poolOptions)
 }
 
+private const val PG_CLIENT_DEPRECATED_MESSAGE =
+    "The dependent `PgPool` is deprecated. Just use `Pool` with `pipelined` enabled, which is the difference between `PgPool.client` and `PgPool.pool` as I have found out."
+
+@Deprecated(PG_CLIENT_DEPRECATED_MESSAGE, ReplaceWith("createSocketPgPool"))
 fun createSocketPgSqlClient(
     vertx: Vertx?,
     host: String, port: Int?, database: String, user: String, password: String,
     extraPgConnectOptions: PgConnectOptions.() -> Unit = {}, poolOptions: PoolOptions = poolOptionsOf()
 ): SqlClient =
+    @Suppress("DEPRECATION")
     createSocketGenericPgClient<SqlClient, PoolOptions>(
         vertx, host, port, database, user, password, extraPgConnectOptions, poolOptions, PgPool::client
     )
@@ -68,9 +73,9 @@ fun createSocketPgPool(
     vertx: Vertx?,
     host: String, port: Int?, database: String, user: String, password: String,
     extraPgConnectOptions: PgConnectOptions.() -> Unit = {}, poolOptions: PoolOptions = poolOptionsOf()
-): PgPool =
-    createSocketGenericPgClient<PgPool, PoolOptions>(
-        vertx, host, port, database, user, password, extraPgConnectOptions, poolOptions, PgPool::pool
+): Pool =
+    createSocketGenericPgClient<Pool, PoolOptions>(
+        vertx, host, port, database, user, password, extraPgConnectOptions, poolOptions, Pool::pool
     )
 
 @Untested
@@ -103,15 +108,18 @@ inline fun <Client, PoolOptionsT : PoolOptions?> createPeerAuthenticationUnixDom
     return create(vertx, pgConnectOptions, poolOptions)
 }
 
+@Deprecated(PG_CLIENT_DEPRECATED_MESSAGE, ReplaceWith("createPeerAuthenticationUnixDomainSocketPgPool"))
 fun createPeerAuthenticationUnixDomainSocketPgSqlClient(
     vertx: Vertx?,
     unixDomainSocketPath: String, database: String,
     extraPgConnectOptions: PgConnectOptions.() -> Unit = {}, poolOptions: PoolOptions = poolOptionsOf()
 ): SqlClient =
+    @Suppress("DEPRECATION")
     createPeerAuthenticationUnixDomainSocketGenericPgClient<SqlClient, PoolOptions>(
         vertx, unixDomainSocketPath, database, extraPgConnectOptions, poolOptions, PgPool::client
     )
 
+@Deprecated(PG_CLIENT_DEPRECATED_MESSAGE, ReplaceWith("createPeerAuthenticationUnixDomainSocketPgPoolAndSetRole"))
 suspend fun createUnixDomainSocketPgSqlClientAndSetRole(
     vertx: Vertx?,
     host: String, database: String, role: String,
@@ -128,16 +136,16 @@ fun createPeerAuthenticationUnixDomainSocketPgPool(
     vertx: Vertx?,
     unixDomainSocketPath: String, database: String,
     extraPgConnectOptions: PgConnectOptions.() -> Unit = {}, poolOptions: PoolOptions = poolOptionsOf()
-): PgPool =
-    createPeerAuthenticationUnixDomainSocketGenericPgClient<PgPool, PoolOptions>(
-        vertx, unixDomainSocketPath, database, extraPgConnectOptions, poolOptions, PgPool::pool
+): Pool =
+    createPeerAuthenticationUnixDomainSocketGenericPgClient<Pool, PoolOptions>(
+        vertx, unixDomainSocketPath, database, extraPgConnectOptions, poolOptions, Pool::pool
     )
 
 fun createPeerAuthenticationUnixDomainSocketPgPoolAndSetRole(
     vertx: Vertx?,
     host: String, database: String, role: String,
     extraPgConnectOptions: PgConnectOptions.() -> Unit = {}, poolOptions: PoolOptions = poolOptionsOf()
-): PgPool =
+): Pool =
     createPeerAuthenticationUnixDomainSocketPgPool(vertx, host, database, extraPgConnectOptions, poolOptions)
         .connectHandler {
             CoroutineScope(Dispatchers.Unconfined).launch {

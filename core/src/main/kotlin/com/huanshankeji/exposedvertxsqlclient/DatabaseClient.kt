@@ -13,7 +13,6 @@ import io.vertx.core.buffer.Buffer
 import io.vertx.kotlin.coroutines.coAwait
 import io.vertx.kotlin.sqlclient.poolOptionsOf
 import io.vertx.pgclient.PgConnectOptions
-import io.vertx.pgclient.PgPool
 import io.vertx.sqlclient.*
 import kotlinx.coroutines.coroutineScope
 import org.jetbrains.exposed.dao.id.EntityID
@@ -473,7 +472,7 @@ fun createPgPoolDatabaseClient(
     vertxSqlClientConnectionConfig: ConnectionConfig,
     extraPgConnectOptions: PgConnectOptions.() -> Unit = {}, poolOptions: PoolOptions = poolOptionsOf(),
     exposedDatabase: Database
-): DatabaseClient<PgPool> =
+): DatabaseClient<Pool> =
     DatabaseClient(
         with(vertxSqlClientConnectionConfig) {
             when (this) {
@@ -494,7 +493,7 @@ fun createPgPoolDatabaseClient(
     vertxSqlClientConnectionConfig: ConnectionConfig,
     extraPgConnectOptions: PgConnectOptions.() -> Unit = {}, poolOptions: PoolOptions = poolOptionsOf(),
     exposedSocketConnectionConfig: Socket
-): DatabaseClient<PgPool> =
+): DatabaseClient<Pool> =
     createPgPoolDatabaseClient(
         vertx, vertxSqlClientConnectionConfig, extraPgConnectOptions, poolOptions,
         exposedDatabaseConnectPostgreSql(exposedSocketConnectionConfig)
