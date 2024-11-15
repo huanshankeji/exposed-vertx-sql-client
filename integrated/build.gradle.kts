@@ -17,6 +17,8 @@ dependencies {
 afterEvaluate {
 // for the benchmarks
     dependencies {
+        // The benchmarks run and "check" passes but the code doesn't resolve without this dependency TODO remove if not needed one day
+        "benchmarksImplementation"(cpnProject(project, ":core"))
         "benchmarksImplementation"(cpnProject(project, ":postgresql"))
 
         with(commonDependencies.testContainers) {
