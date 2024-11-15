@@ -13,7 +13,6 @@ import io.vertx.core.buffer.Buffer
 import io.vertx.kotlin.coroutines.coAwait
 import io.vertx.kotlin.sqlclient.poolOptionsOf
 import io.vertx.pgclient.PgConnectOptions
-import io.vertx.pgclient.PgConnection
 import io.vertx.pgclient.PgPool
 import io.vertx.sqlclient.*
 import kotlinx.coroutines.coroutineScope
@@ -387,20 +386,20 @@ fun Int.singleOrNoUpdate() =
  * When using this function, it's recommended to name the lambda parameter the same as the outer receiver so that the outer [DatabaseClient] is shadowed,
  * and so that you don't call the outer [DatabaseClient] without a transaction by accident.
  */
-suspend fun <T> DatabaseClient<PgPool>.withTransaction(function: suspend (DatabaseClient<SqlConnection>) -> T): T =
+suspend fun <T> DatabaseClient<Pool>.withTransaction(function: suspend (DatabaseClient<SqlConnection>) -> T): T =
     coroutineScope {
         vertxSqlClient.withTransaction {
             coroutineToFuture { function(DatabaseClient(it, exposedDatabase)) }
         }.coAwait()
     }
 
-suspend fun <T> DatabaseClient<PgPool>.withPgTransaction(function: suspend (DatabaseClient<PgConnection>) -> T): T =
+suspend fun <SqlConnectionT : SqlConnection, T> DatabaseClient<Pool>.withTypedTransaction(function: suspend (DatabaseClient<SqlConnectionT>) -> T): T =
     withTransaction {
         @Suppress("UNCHECKED_CAST")
-        function(it as DatabaseClient<PgConnection>)
+        function(it as DatabaseClient<SqlConnectionT>)
     }
 
-suspend fun <T> DatabaseClient<SqlConnection>.withTransactionCommitOrRollback(function: suspend (DatabaseClient<SqlConnection>) -> Option<T>): Option<T> {
+suspend fun <SqlConnectionT : SqlConnection, T> DatabaseClient<SqlConnectionT>.withTransactionCommitOrRollback(function: suspend (DatabaseClient<SqlConnectionT>) -> Option<T>): Option<T> {
     val transaction = vertxSqlClient.begin().coAwait()
     return try {
         val result = function(this)
@@ -417,21 +416,21 @@ suspend fun <T> DatabaseClient<SqlConnection>.withTransactionCommitOrRollback(fu
 
 val savepointNameRegex = Regex("\\w+")
 
-private suspend fun DatabaseClient<PgConnection>.savepoint(savepointName: String) =
+private suspend fun DatabaseClient<SqlConnection>.savepoint(savepointName: String) =
     executePlainSqlUpdate("SAVEPOINT \"$savepointName\"").also { dbAssert(it == 0) }
 
-private suspend fun DatabaseClient<PgConnection>.rollbackToSavepoint(savepointName: String) =
+private suspend fun DatabaseClient<SqlConnection>.rollbackToSavepoint(savepointName: String) =
     executePlainSqlUpdate("ROLLBACK TO SAVEPOINT \"$savepointName\"").also { dbAssert(it == 0) }
 
-private suspend fun DatabaseClient<PgConnection>.releaseSavepoint(savepointName: String) =
+private suspend fun DatabaseClient<SqlConnection>.releaseSavepoint(savepointName: String) =
     executePlainSqlUpdate("RELEASE SAVEPOINT \"$savepointName\"").also { dbAssert(it == 0) }
 
 /**
- * Currently only available for PostgreSQL.
+ * Not tested yet on DBs other than PostgreSQL.
  * A savepoint destroys one with the same name so be careful.
  */
-suspend fun <RollbackT, ReleaseT> DatabaseClient<PgConnection>.withSavepointAndRollbackIfThrowsOrLeft(
-    savepointName: String, function: suspend (DatabaseClient<PgConnection>) -> Either<RollbackT, ReleaseT>
+suspend fun <SqlConnectionT : SqlConnection, RollbackT, ReleaseT> DatabaseClient<SqlConnectionT>.withSavepointAndRollbackIfThrowsOrLeft(
+    savepointName: String, function: suspend (DatabaseClient<SqlConnectionT>) -> Either<RollbackT, ReleaseT>
 ): Either<RollbackT, ReleaseT> {
     // Prepared query seems not to work here.
 
@@ -451,18 +450,18 @@ suspend fun <RollbackT, ReleaseT> DatabaseClient<PgConnection>.withSavepointAndR
     }
 }
 
-suspend fun <T> DatabaseClient<PgConnection>.withSavepointAndRollbackIfThrows(
-    savepointName: String, function: suspend (DatabaseClient<PgConnection>) -> T
+suspend fun <SqlConnectionT : SqlConnection, T> DatabaseClient<SqlConnectionT>.withSavepointAndRollbackIfThrows(
+    savepointName: String, function: suspend (DatabaseClient<SqlConnectionT>) -> T
 ): T =
     withSavepointAndRollbackIfThrowsOrLeft(savepointName) { function(it).right() }.getOrElse { throw AssertionError() }
 
-suspend fun <T> DatabaseClient<PgConnection>.withSavepointAndRollbackIfThrowsOrNone(
-    savepointName: String, function: suspend (DatabaseClient<PgConnection>) -> Option<T>
+suspend fun <SqlConnectionT : SqlConnection, T> DatabaseClient<SqlConnectionT>.withSavepointAndRollbackIfThrowsOrNone(
+    savepointName: String, function: suspend (DatabaseClient<SqlConnectionT>) -> Option<T>
 ): Option<T> =
     withSavepointAndRollbackIfThrowsOrLeft(savepointName) { function(it).toEither { } }.getOrNone()
 
-suspend fun DatabaseClient<PgConnection>.withSavepointAndRollbackIfThrowsOrFalse(
-    savepointName: String, function: suspend (DatabaseClient<PgConnection>) -> Boolean
+suspend fun <SqlConnectionT : SqlConnection> DatabaseClient<SqlConnectionT>.withSavepointAndRollbackIfThrowsOrFalse(
+    savepointName: String, function: suspend (DatabaseClient<SqlConnectionT>) -> Boolean
 ): Boolean =
     withSavepointAndRollbackIfThrowsOrLeft(savepointName) { if (function(it)) Unit.right() else Unit.left() }.isRight()
 
