@@ -1,7 +1,5 @@
 plugins {
-    conventions
-    id("com.huanshankeji.benchmark.kotlinx-benchmark-jvm-conventions")
-    id("com.huanshankeji.team.dokka.github-dokka-convention")
+    `lib-conventions`
 }
 
 dependencies {
@@ -9,7 +7,7 @@ dependencies {
     // TODO: remove the Exposed JDBC dependency and the PostgresSQL dependency when there is no need to to generate SQLs with an Exposed transaction
     runtimeOnly(commonDependencies.exposed.module("jdbc"))
     api(commonDependencies.kotlinCommon.exposed())
-    implementation("com.huanshankeji:exposed-adt-mapping:${DependencyVersions.exposedAdtMapping}")
+    implementation("com.huanshankeji:exposed-adt-mapping:${DependencyVersions.exposedAdtMapping}") // TODO remove when code is moved out
 
     with(commonDependencies.vertx) {
         implementation(platformStackDepchain())
@@ -25,20 +23,9 @@ dependencies {
     implementation(commonDependencies.kotlinCommon.net())
 }
 
-
+// TODO remove when code is moved out
 // for PostgreSQL
 dependencies {
     runtimeOnly(commonDependencies.postgreSql())
     implementation(commonDependencies.vertx.moduleWithoutVersion("pg-client"))
-}
-
-afterEvaluate {
-// for the benchmarks
-    dependencies {
-        with(commonDependencies.testContainers) {
-            "benchmarksImplementation"(platformBom())
-            "benchmarksImplementation"(postgreSql)
-        }
-        "benchmarksImplementation"(commonDependencies.slf4j.simple())
-    }
 }
