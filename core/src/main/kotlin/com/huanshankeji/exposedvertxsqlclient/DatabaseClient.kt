@@ -3,7 +3,8 @@ package com.huanshankeji.exposedvertxsqlclient
 import arrow.core.*
 import com.huanshankeji.collections.singleOrNullIfEmpty
 import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig.Socket
-import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig.UnixDomainSocketWithPeerAuthentication
+import com.huanshankeji.exposedvertxsqlclient.local.LocalConnectionConfig
+import com.huanshankeji.exposedvertxsqlclient.postgresql.exposed.exposedDatabaseConnectPostgreSql
 import com.huanshankeji.exposedvertxsqlclient.sql.selectExpression
 import com.huanshankeji.os.isCurrentOsLinux
 import com.huanshankeji.vertx.kotlin.coroutines.coroutineToFuture
@@ -11,14 +12,13 @@ import com.huanshankeji.vertx.kotlin.sqlclient.executeBatchAwaitForSqlResultSequ
 import io.vertx.core.Vertx
 import io.vertx.core.buffer.Buffer
 import io.vertx.kotlin.coroutines.coAwait
-import io.vertx.kotlin.sqlclient.poolOptionsOf
 import io.vertx.pgclient.PgConnectOptions
+import io.vertx.pgclient.impl.PgPoolOptions
 import io.vertx.sqlclient.*
 import kotlinx.coroutines.coroutineScope
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.Query
-import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.statements.InsertStatement
 import org.jetbrains.exposed.sql.statements.Statement
 import org.jetbrains.exposed.sql.statements.UpdateStatement
@@ -100,7 +100,7 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
     fun <T> exposedTransaction(statement: ExposedTransaction.() -> T) =
         transaction(exposedDatabase, statement)
 
-    private fun Statement<*>.prepareSqlAndLogIfNeeded(transaction: Transaction) =
+    private fun Statement<*>.prepareSqlAndLogIfNeeded(transaction: ExposedTransaction) =
         prepareSQL(transaction).also {
             if (logSql) logger.info("Prepared SQL: $it.")
         }
@@ -464,38 +464,29 @@ suspend fun <SqlConnectionT : SqlConnection> DatabaseClient<SqlConnectionT>.with
 ): Boolean =
     withSavepointAndRollbackIfThrowsOrLeft(savepointName) { if (function(it)) Unit.right() else Unit.left() }.isRight()
 
-// TODO: use `ConnectionConfig` as the argument directly
+
+// TODO move to the `postgresql` package
 
 // can be used for a shared Exposed `Database` among `DatabaseClient`s
 fun createPgPoolDatabaseClient(
     vertx: Vertx?,
     vertxSqlClientConnectionConfig: ConnectionConfig,
-    extraPgConnectOptions: PgConnectOptions.() -> Unit = {}, poolOptions: PoolOptions = poolOptionsOf(),
+    extraPgConnectOptions: PgConnectOptions.() -> Unit = {}, extraPgPoolOptions: PgPoolOptions.() -> Unit = {},
     exposedDatabase: Database
 ): DatabaseClient<Pool> =
     DatabaseClient(
-        with(vertxSqlClientConnectionConfig) {
-            when (this) {
-                is Socket ->
-                    createSocketPgPool(vertx, host, port, database, user, password, extraPgConnectOptions, poolOptions)
-
-                is UnixDomainSocketWithPeerAuthentication ->
-                    createPeerAuthenticationUnixDomainSocketPgPoolAndSetRole(
-                        vertx, path, database, role, extraPgConnectOptions, poolOptions
-                    )
-            }
-        },
+        createPgPool(vertx, vertxSqlClientConnectionConfig, extraPgConnectOptions, extraPgPoolOptions),
         exposedDatabase
     )
 
 fun createPgPoolDatabaseClient(
     vertx: Vertx?,
     vertxSqlClientConnectionConfig: ConnectionConfig,
-    extraPgConnectOptions: PgConnectOptions.() -> Unit = {}, poolOptions: PoolOptions = poolOptionsOf(),
+    extraPgConnectOptions: PgConnectOptions.() -> Unit = {}, extraPgPoolOptions: PgPoolOptions.() -> Unit = {},
     exposedSocketConnectionConfig: Socket
 ): DatabaseClient<Pool> =
     createPgPoolDatabaseClient(
-        vertx, vertxSqlClientConnectionConfig, extraPgConnectOptions, poolOptions,
+        vertx, vertxSqlClientConnectionConfig, extraPgConnectOptions, extraPgPoolOptions,
         exposedDatabaseConnectPostgreSql(exposedSocketConnectionConfig)
     )
 
@@ -503,7 +494,7 @@ fun createPgPoolDatabaseClient(
 fun createPgPoolDatabaseClient(
     vertx: Vertx?,
     vertxSqlClientConnectionType: ConnectionType, localConnectionConfig: LocalConnectionConfig,
-    extraPgConnectOptions: PgConnectOptions.() -> Unit = {}, poolOptions: PoolOptions = poolOptionsOf(),
+    extraPgConnectOptions: PgConnectOptions.() -> Unit = {}, extraPgPoolOptions: PgPoolOptions.() -> Unit = {},
     exposedDatabase: Database? = null
 ) =
     with(localConnectionConfig) {
@@ -514,24 +505,24 @@ fun createPgPoolDatabaseClient(
 
         if (exposedDatabase === null)
             createPgPoolDatabaseClient(
-                vertx, connectionConfig, extraPgConnectOptions, poolOptions, socketConnectionConfig
+                vertx, connectionConfig, extraPgConnectOptions, extraPgPoolOptions, socketConnectionConfig
             )
         else
             createPgPoolDatabaseClient(
-                vertx, connectionConfig, extraPgConnectOptions, poolOptions, exposedDatabase
+                vertx, connectionConfig, extraPgConnectOptions, extraPgPoolOptions, exposedDatabase
             )
     }
 
 fun createBetterPgPoolDatabaseClient(
     vertx: Vertx?,
     localConnectionConfig: LocalConnectionConfig,
-    extraPgConnectOptions: PgConnectOptions.() -> Unit = {}, poolOptions: PoolOptions = poolOptionsOf(),
+    extraPgConnectOptions: PgConnectOptions.() -> Unit = {}, extraPgPoolOptions: PgPoolOptions.() -> Unit = {},
     exposedDatabase: Database? = null
 ) =
     createPgPoolDatabaseClient(
         vertx,
         if (isCurrentOsLinux()) ConnectionType.UnixDomainSocketWithPeerAuthentication else ConnectionType.Socket,
         localConnectionConfig,
-        extraPgConnectOptions, poolOptions,
+        extraPgConnectOptions, extraPgPoolOptions,
         exposedDatabase
     )

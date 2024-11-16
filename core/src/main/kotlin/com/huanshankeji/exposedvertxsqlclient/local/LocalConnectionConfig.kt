@@ -1,8 +1,12 @@
-package com.huanshankeji.exposedvertxsqlclient
+package com.huanshankeji.exposedvertxsqlclient.local
 
+import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig
+import com.huanshankeji.exposedvertxsqlclient.EvscConfig
+import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
 import com.huanshankeji.net.LOCALHOST
 
-// TODO: move to a separate package and consider adding a prefix word such as "default" or "conventional" as this class is not general enough
+// TODO consider adding a prefix word such as "conventional" as this class is not general enough
+// TODO consider refactoring this class into a function / functions to reduce the cognitive complexity
 /**
  * A kind of connection config that can produce both a [ConnectionConfig.Socket] and a [ConnectionConfig.UnixDomainSocketWithPeerAuthentication]
  * to connect to a local database server.

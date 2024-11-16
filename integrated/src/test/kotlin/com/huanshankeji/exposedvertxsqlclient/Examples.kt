@@ -1,6 +1,7 @@
 package com.huanshankeji.exposedvertxsqlclient
 
 import com.huanshankeji.exposed.*
+import com.huanshankeji.exposedvertxsqlclient.postgresql.exposed.exposedDatabaseConnectPostgreSql
 import com.huanshankeji.exposedvertxsqlclient.sql.*
 import io.vertx.core.Vertx
 import kotlinx.coroutines.Dispatchers

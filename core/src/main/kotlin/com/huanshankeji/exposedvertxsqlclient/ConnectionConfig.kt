@@ -1,5 +1,8 @@
 package com.huanshankeji.exposedvertxsqlclient
 
+import com.huanshankeji.exposedvertxsqlclient.vertx.sqlclient.setRole
+
+// TODO make it not sealed with some common methods, for example, `SqlConnectOptions.setFrom`
 sealed interface ConnectionConfig {
     val userAndRole: String
     val database: String
@@ -14,6 +17,9 @@ sealed interface ConnectionConfig {
         override val userAndRole: String get() = user
     }
 
+    /**
+     * @see setRole
+     */
     class UnixDomainSocketWithPeerAuthentication(
         val path: String,
         val role: String,

@@ -1,171 +1,134 @@
 package com.huanshankeji.exposedvertxsqlclient
 
 import com.huanshankeji.Untested
+import com.huanshankeji.exposedvertxsqlclient.vertx.sqlclient.connectHandler
+import com.huanshankeji.exposedvertxsqlclient.vertx.sqlclient.initConnection
+import com.huanshankeji.exposedvertxsqlclient.vertx.sqlclient.setFrom
 import io.vertx.core.Vertx
 import io.vertx.kotlin.coroutines.coAwait
-import io.vertx.kotlin.sqlclient.poolOptionsOf
+import io.vertx.pgclient.PgBuilder
 import io.vertx.pgclient.PgConnectOptions
 import io.vertx.pgclient.PgConnection
-import io.vertx.pgclient.PgPool
-import io.vertx.sqlclient.Pool
-import io.vertx.sqlclient.PoolOptions
-import io.vertx.sqlclient.SqlClient
-import io.vertx.sqlclient.SqlConnection
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import io.vertx.pgclient.impl.PgPoolOptions
+import io.vertx.sqlclient.*
 
-@PublishedApi
-internal inline fun createPgConnectOptions(
-    mainPgConnectOptions: PgConnectOptions.() -> Unit = {},
-    extraPgConnectOptions: PgConnectOptions.() -> Unit = {},
-): PgConnectOptions =
-    PgConnectOptions().apply {
-        cachePreparedStatements = true // This improves performance greatly so it's enabled by default.
-        mainPgConnectOptions()
+// TODO move into the `vertx.sqlclient` subpackage and rename to `SqlClients.kt`
+
+
+/**
+ * [SqlConnectOptions.cachePreparedStatements] improves performance greatly (tested on PostgreSQL) so it's enabled by default. TODO see below
+ */
+inline fun <SqlClientT : SqlClient, SqlConnectOptionsT : SqlConnectOptions, PoolOptionsT : PoolOptions?> createGenericSqlClient(
+    vertx: Vertx?,
+    connectionConfig: ConnectionConfig,
+    sqlConnectOptionsFromConstructor: SqlConnectOptionsT,
+    extraPgConnectOptions: SqlConnectOptionsT.() -> Unit = {},
+    poolOptionsFromConstructor: PoolOptionsT,
+    extraPoolOptions: PoolOptionsT.() -> Unit = {},
+    create: (Vertx?, SqlConnectOptionsT, PoolOptionsT) -> SqlClientT
+): SqlClientT {
+    val pgConnectOptions = sqlConnectOptionsFromConstructor.apply {
+        // TODO consider extracting this into a conventional config and move to "kotlin-common", decoupling it from this library
+        cachePreparedStatements = true
+        setFrom(connectionConfig)
         extraPgConnectOptions()
     }
 
-/*
-// An extracted common `create` argument for `PgConnection`, but a suspend function has an incompatible type.
-private val pgConnectionConnect: suspend (Vertx?, PgConnectOptions, Nothing?) -> PgConnection = { vertx, pgConnectOptions, _ ->
-    PgConnection.connect(vertx, pgConnectOptions).await()
-}
-*/
-
-suspend fun SqlConnection.executeSetRole(role: String) =
-    query("SET ROLE $role").execute().coAwait()
-
-// TODO: use `ConnectionConfig` as the argument directly in all the following functions
-
-inline fun <Client, PoolOptionsT : PoolOptions?> createSocketGenericPgClient(
-    vertx: Vertx?,
-    host: String, port: Int?, database: String, user: String, password: String,
-    extraPgConnectOptions: PgConnectOptions.() -> Unit = {}, poolOptions: PoolOptionsT,
-    create: (Vertx?, PgConnectOptions, PoolOptionsT) -> Client
-): Client {
-    val pgConnectOptions = createPgConnectOptions({
-        this.host = host
-        port?.let { this.port = it }
-        this.database = database
-        this.user = user
-        this.password = password
-    }, extraPgConnectOptions)
-
-    return create(vertx, pgConnectOptions, poolOptions)
+    return create(vertx, pgConnectOptions, poolOptionsFromConstructor.apply(extraPoolOptions))
 }
 
-private const val PG_CLIENT_DEPRECATED_MESSAGE =
-    "The dependent `PgPool` is deprecated. Just use `Pool` with `pipelined` enabled, which is the difference between `PgPool.client` and `PgPool.pool` as I have found out."
 
-@Deprecated(PG_CLIENT_DEPRECATED_MESSAGE, ReplaceWith("createSocketPgPool"))
-fun createSocketPgSqlClient(
+// TODO move to the `postgresql` package
+
+inline fun <SqlClientT : SqlClient, PgPoolOptionsT : PgPoolOptions?> createGenericPgClient(
     vertx: Vertx?,
-    host: String, port: Int?, database: String, user: String, password: String,
-    extraPgConnectOptions: PgConnectOptions.() -> Unit = {}, poolOptions: PoolOptions = poolOptionsOf()
+    connectionConfig: ConnectionConfig,
+    extraPgConnectOptions: PgConnectOptions.() -> Unit = {},
+    pgPoolOptionsFromConstructor: PgPoolOptionsT,
+    extraPgPoolOptions: PgPoolOptionsT.() -> Unit = {},
+    create: (Vertx?, PgConnectOptions, PgPoolOptionsT) -> SqlClientT
+): SqlClientT =
+    createGenericSqlClient(
+        vertx,
+        connectionConfig,
+        PgConnectOptions(),
+        extraPgConnectOptions,
+        pgPoolOptionsFromConstructor,
+        extraPgPoolOptions,
+        create
+    )
+
+fun createPgClient(
+    vertx: Vertx?,
+    connectionConfig: ConnectionConfig,
+    extraPgConnectOptions: PgConnectOptions.() -> Unit = {},
+    extraPoolOptions: PgPoolOptions.() -> Unit = {},
+    connectHandlerExtra: ((SqlConnection) -> Unit)? = null, // TODO add to `createGenericSqlClient`
 ): SqlClient =
-    @Suppress("DEPRECATION")
-    createSocketGenericPgClient<SqlClient, PoolOptions>(
-        vertx, host, port, database, user, password, extraPgConnectOptions, poolOptions, PgPool::client
-    )
-
-fun createSocketPgPool(
-    vertx: Vertx?,
-    host: String, port: Int?, database: String, user: String, password: String,
-    extraPgConnectOptions: PgConnectOptions.() -> Unit = {}, poolOptions: PoolOptions = poolOptionsOf()
-): Pool =
-    createSocketGenericPgClient<Pool, PoolOptions>(
-        vertx, host, port, database, user, password, extraPgConnectOptions, poolOptions, Pool::pool
-    )
-
-@Untested
-suspend fun createSocketPgConnection(
-    vertx: Vertx?,
-    host: String, port: Int?, database: String, user: String, password: String,
-    extraPgConnectOptions: PgConnectOptions.() -> Unit = {}
-): PgConnection =
-    createSocketGenericPgClient(
-        vertx, host, port, database, user, password, extraPgConnectOptions, null
-    ) { vertx, pgConnectOptions, _ ->
-        PgConnection.connect(vertx, pgConnectOptions).coAwait()
-    }
-
-
-inline fun <Client, PoolOptionsT : PoolOptions?> createPeerAuthenticationUnixDomainSocketGenericPgClient(
-    vertx: Vertx?,
-    unixDomainSocketPath: String, database: String,
-    extraPgConnectOptions: PgConnectOptions.() -> Unit = {}, poolOptions: PoolOptionsT,
-    create: (Vertx?, PgConnectOptions, PoolOptionsT) -> Client
-): Client {
-    val pgConnectOptions = createPgConnectOptions(
-        {
-            host = unixDomainSocketPath
-            this.database = database
-            user = System.getProperty("user.name")
-        }, extraPgConnectOptions
-    )
-
-    return create(vertx, pgConnectOptions, poolOptions)
-}
-
-@Deprecated(PG_CLIENT_DEPRECATED_MESSAGE, ReplaceWith("createPeerAuthenticationUnixDomainSocketPgPool"))
-fun createPeerAuthenticationUnixDomainSocketPgSqlClient(
-    vertx: Vertx?,
-    unixDomainSocketPath: String, database: String,
-    extraPgConnectOptions: PgConnectOptions.() -> Unit = {}, poolOptions: PoolOptions = poolOptionsOf()
-): SqlClient =
-    @Suppress("DEPRECATION")
-    createPeerAuthenticationUnixDomainSocketGenericPgClient<SqlClient, PoolOptions>(
-        vertx, unixDomainSocketPath, database, extraPgConnectOptions, poolOptions, PgPool::client
-    )
-
-@Deprecated(PG_CLIENT_DEPRECATED_MESSAGE, ReplaceWith("createPeerAuthenticationUnixDomainSocketPgPoolAndSetRole"))
-suspend fun createUnixDomainSocketPgSqlClientAndSetRole(
-    vertx: Vertx?,
-    host: String, database: String, role: String,
-    extraPgConnectOptions: PgConnectOptions.() -> Unit = {}, poolOptions: PoolOptions = poolOptionsOf()
-): SqlClient =
-    createPeerAuthenticationUnixDomainSocketPgSqlClient(
-        vertx, host, database, extraPgConnectOptions, poolOptions
-    ).apply {
-        // Is this done for all connections?
-        query("SET ROLE $role").execute().coAwait()
-    }
-
-fun createPeerAuthenticationUnixDomainSocketPgPool(
-    vertx: Vertx?,
-    unixDomainSocketPath: String, database: String,
-    extraPgConnectOptions: PgConnectOptions.() -> Unit = {}, poolOptions: PoolOptions = poolOptionsOf()
-): Pool =
-    createPeerAuthenticationUnixDomainSocketGenericPgClient<Pool, PoolOptions>(
-        vertx, unixDomainSocketPath, database, extraPgConnectOptions, poolOptions, Pool::pool
-    )
-
-fun createPeerAuthenticationUnixDomainSocketPgPoolAndSetRole(
-    vertx: Vertx?,
-    host: String, database: String, role: String,
-    extraPgConnectOptions: PgConnectOptions.() -> Unit = {}, poolOptions: PoolOptions = poolOptionsOf()
-): Pool =
-    createPeerAuthenticationUnixDomainSocketPgPool(vertx, host, database, extraPgConnectOptions, poolOptions)
-        .connectHandler {
-            CoroutineScope(Dispatchers.Unconfined).launch {
-                // TODO: are exceptions handled?
-                it.executeSetRole(role)
-                /** @see Pool.connectHandler */
-                it.close().coAwait()
+    createGenericPgClient(
+        vertx,
+        connectionConfig,
+        extraPgConnectOptions,
+        PgPoolOptions(),
+        extraPoolOptions
+    ) { vertx, database, options ->
+        PgBuilder.client()
+            .apply {
+                using(vertx)
+                connectingTo(database)
+                with(options)
+                // TODO move to an overload of `createGenericSqlClient`
+                val connectHandler = connectionConfig.connectHandler(connectHandlerExtra)
+                connectHandler?.let { withConnectHandler(it) }
             }
+            .build()
+    }
+
+/**
+ * [PgPoolOptions.pipelined] is enabled by default.
+ */
+fun createPgPool(
+    vertx: Vertx?,
+    connectionConfig: ConnectionConfig,
+    extraPgConnectOptions: PgConnectOptions.() -> Unit = {},
+    extraPoolOptions: PgPoolOptions.() -> Unit = {},
+    connectHandlerExtra: ((SqlConnection) -> Unit)? = null, // TODO add to `createGenericSqlClient`
+): Pool =
+    createGenericPgClient(
+        vertx,
+        connectionConfig,
+        extraPgConnectOptions,
+        PgPoolOptions(),
+        {
+            // TODO consider extracting this into a conventional config and move to "kotlin-common", decoupling it from this library
+            isPipelined = true
+            extraPoolOptions()
         }
+    ) { vertx, database, options ->
+        PgBuilder.pool()
+            .apply {
+                using(vertx)
+                connectingTo(database)
+                with(options)
+                // TODO move to an overload of `createGenericSqlClient`
+                val connectHandler = connectionConfig.connectHandler(connectHandlerExtra)
+                connectHandler?.let { withConnectHandler(it) }
+            }
+            .build()
+    }
+
+// TODO `createPgClient`
 
 @Untested
-suspend fun createPeerAuthenticationUnixDomainSocketPgConnectionAndSetRole(
+suspend fun createPgConnection(
     vertx: Vertx?,
-    host: String, database: String, role: String,
+    connectionConfig: ConnectionConfig.Socket,
     extraPgConnectOptions: PgConnectOptions.() -> Unit = {}
 ): PgConnection =
-    createPeerAuthenticationUnixDomainSocketGenericPgClient(
-        vertx, host, database, extraPgConnectOptions, null
+    createGenericPgClient(
+        vertx, connectionConfig, extraPgConnectOptions, null
     ) { vertx, pgConnectOptions, _ ->
-        PgConnection.connect(vertx, pgConnectOptions).coAwait().apply {
-            executeSetRole(role)
+        PgConnection.connect(vertx, pgConnectOptions).coAwait().also {
+            connectionConfig.initConnection(it)
         }
     }
