@@ -92,8 +92,6 @@ fun createPgPool(
             .build()
     }
 
-// TODO `createPgClient`
-
 @Untested
 suspend fun createPgConnection(
     vertx: Vertx?,
