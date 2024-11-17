@@ -1,9 +1,7 @@
-package com.huanshankeji.exposedvertxsqlclient
+package com.huanshankeji.exposedvertxsqlclient.vertx.sqlclient
 
 import com.huanshankeji.Untested
-import com.huanshankeji.exposedvertxsqlclient.vertx.sqlclient.connectHandler
-import com.huanshankeji.exposedvertxsqlclient.vertx.sqlclient.initConnection
-import com.huanshankeji.exposedvertxsqlclient.vertx.sqlclient.setFrom
+import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig
 import io.vertx.core.Vertx
 import io.vertx.kotlin.coroutines.coAwait
 import io.vertx.pgclient.PgBuilder
@@ -11,9 +9,6 @@ import io.vertx.pgclient.PgConnectOptions
 import io.vertx.pgclient.PgConnection
 import io.vertx.pgclient.impl.PgPoolOptions
 import io.vertx.sqlclient.*
-
-// TODO move into the `vertx.sqlclient` subpackage and rename to `SqlClients.kt`
-
 
 /**
  * [SqlConnectOptions.cachePreparedStatements] improves performance greatly (tested on PostgreSQL) so it's enabled by default. TODO see below

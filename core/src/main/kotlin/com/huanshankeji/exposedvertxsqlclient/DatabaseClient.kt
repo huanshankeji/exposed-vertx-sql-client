@@ -6,6 +6,7 @@ import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig.Socket
 import com.huanshankeji.exposedvertxsqlclient.local.LocalConnectionConfig
 import com.huanshankeji.exposedvertxsqlclient.postgresql.exposed.exposedDatabaseConnectPostgreSql
 import com.huanshankeji.exposedvertxsqlclient.sql.selectExpression
+import com.huanshankeji.exposedvertxsqlclient.vertx.sqlclient.createPgPool
 import com.huanshankeji.os.isCurrentOsLinux
 import com.huanshankeji.vertx.kotlin.coroutines.coroutineToFuture
 import com.huanshankeji.vertx.kotlin.sqlclient.executeBatchAwaitForSqlResultSequence
