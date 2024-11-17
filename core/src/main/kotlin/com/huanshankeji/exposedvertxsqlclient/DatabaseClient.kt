@@ -2,19 +2,12 @@ package com.huanshankeji.exposedvertxsqlclient
 
 import arrow.core.*
 import com.huanshankeji.collections.singleOrNullIfEmpty
-import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig.Socket
-import com.huanshankeji.exposedvertxsqlclient.local.LocalConnectionConfig
-import com.huanshankeji.exposedvertxsqlclient.postgresql.exposed.exposedDatabaseConnectPostgreSql
 import com.huanshankeji.exposedvertxsqlclient.sql.selectExpression
-import com.huanshankeji.exposedvertxsqlclient.vertx.sqlclient.createPgPool
-import com.huanshankeji.os.isCurrentOsLinux
 import com.huanshankeji.vertx.kotlin.coroutines.coroutineToFuture
 import com.huanshankeji.vertx.kotlin.sqlclient.executeBatchAwaitForSqlResultSequence
-import io.vertx.core.Vertx
 import io.vertx.core.buffer.Buffer
 import io.vertx.kotlin.coroutines.coAwait
 import io.vertx.pgclient.PgConnectOptions
-import io.vertx.pgclient.impl.PgPoolOptions
 import io.vertx.sqlclient.*
 import kotlinx.coroutines.coroutineScope
 import org.jetbrains.exposed.dao.id.EntityID
@@ -464,66 +457,3 @@ suspend fun <SqlConnectionT : SqlConnection> DatabaseClient<SqlConnectionT>.with
     savepointName: String, function: suspend (DatabaseClient<SqlConnectionT>) -> Boolean
 ): Boolean =
     withSavepointAndRollbackIfThrowsOrLeft(savepointName) { if (function(it)) Unit.right() else Unit.left() }.isRight()
-
-
-// TODO move to the `postgresql` package
-
-// can be used for a shared Exposed `Database` among `DatabaseClient`s
-fun createPgPoolDatabaseClient(
-    vertx: Vertx?,
-    vertxSqlClientConnectionConfig: ConnectionConfig,
-    extraPgConnectOptions: PgConnectOptions.() -> Unit = {}, extraPgPoolOptions: PgPoolOptions.() -> Unit = {},
-    exposedDatabase: Database
-): DatabaseClient<Pool> =
-    DatabaseClient(
-        createPgPool(vertx, vertxSqlClientConnectionConfig, extraPgConnectOptions, extraPgPoolOptions),
-        exposedDatabase
-    )
-
-fun createPgPoolDatabaseClient(
-    vertx: Vertx?,
-    vertxSqlClientConnectionConfig: ConnectionConfig,
-    extraPgConnectOptions: PgConnectOptions.() -> Unit = {}, extraPgPoolOptions: PgPoolOptions.() -> Unit = {},
-    exposedSocketConnectionConfig: Socket
-): DatabaseClient<Pool> =
-    createPgPoolDatabaseClient(
-        vertx, vertxSqlClientConnectionConfig, extraPgConnectOptions, extraPgPoolOptions,
-        exposedDatabaseConnectPostgreSql(exposedSocketConnectionConfig)
-    )
-
-/** It may be more efficient to use a single shared [Database] to generate SQLs for multiple [DatabaseClient]s/[SqlClient]s. */
-fun createPgPoolDatabaseClient(
-    vertx: Vertx?,
-    vertxSqlClientConnectionType: ConnectionType, localConnectionConfig: LocalConnectionConfig,
-    extraPgConnectOptions: PgConnectOptions.() -> Unit = {}, extraPgPoolOptions: PgPoolOptions.() -> Unit = {},
-    exposedDatabase: Database? = null
-) =
-    with(localConnectionConfig) {
-        val connectionConfig = when (vertxSqlClientConnectionType) {
-            ConnectionType.Socket -> socketConnectionConfig
-            ConnectionType.UnixDomainSocketWithPeerAuthentication -> unixDomainSocketWithPeerAuthenticationConnectionConfig
-        }
-
-        if (exposedDatabase === null)
-            createPgPoolDatabaseClient(
-                vertx, connectionConfig, extraPgConnectOptions, extraPgPoolOptions, socketConnectionConfig
-            )
-        else
-            createPgPoolDatabaseClient(
-                vertx, connectionConfig, extraPgConnectOptions, extraPgPoolOptions, exposedDatabase
-            )
-    }
-
-fun createBetterPgPoolDatabaseClient(
-    vertx: Vertx?,
-    localConnectionConfig: LocalConnectionConfig,
-    extraPgConnectOptions: PgConnectOptions.() -> Unit = {}, extraPgPoolOptions: PgPoolOptions.() -> Unit = {},
-    exposedDatabase: Database? = null
-) =
-    createPgPoolDatabaseClient(
-        vertx,
-        if (isCurrentOsLinux()) ConnectionType.UnixDomainSocketWithPeerAuthentication else ConnectionType.Socket,
-        localConnectionConfig,
-        extraPgConnectOptions, extraPgPoolOptions,
-        exposedDatabase
-    )
