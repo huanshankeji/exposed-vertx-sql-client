@@ -1,13 +1,13 @@
 package com.huanshankeji.exposed.benchmark
 
 import com.huanshankeji.kotlinx.coroutine.awaitAny
-import kotlinx.benchmark.Benchmark
-import kotlinx.benchmark.Scope
-import kotlinx.benchmark.State
+import kotlinx.benchmark.*
 import kotlinx.coroutines.*
+import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.experimental.suspendedTransactionAsync
 import org.jetbrains.exposed.sql.transactions.transaction
+import java.util.concurrent.Executors
 import kotlin.concurrent.thread
 
 @State(Scope.Benchmark)
@@ -32,17 +32,16 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
         }
 
     @Benchmark
-    fun singleThreadConcurrent10KTransactions() = runBlocking {
-        awaitAsync10KTransactions()
-    }
+    fun singleThreadConcurrent10KTransactions() =
+        @OptIn(ExperimentalCoroutinesApi::class, DelicateCoroutinesApi::class)
+        runBlocking(newSingleThreadContext("single thread")) {
+            awaitAsync10KTransactions()
+        }
 
 
     @Benchmark
-    fun multiThreadConcurrent10KTransactions() = runBlocking {
-        withContext(Dispatchers.Default) {
-            awaitAsync10KTransactions()
-        }
-    }
+    fun multiThreadConcurrent10KTransactionsWithSharedDatabase() =
+        runBlocking { awaitAsync10KTransactions() }
 
 
     @Benchmark
@@ -55,18 +54,54 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
         List(`10K`) { suspendedTransactionAsync(db = database) {} }.awaitAny()
     }
 
+    private fun numProcessors() =
+        Runtime.getRuntime().availableProcessors().also {
+            println("Number of processors: $it")
+        }
+
     @Benchmark
     fun multiThreadMultiConnectionEach10KLocalTransactions() {
         // Note that on a device with heterogeneous architecture some threads may finish earlier than others.
-        List(Runtime.getRuntime().availableProcessors().also {
-            println("Number of processors: $it")
-        }) {
+        List(numProcessors()) {
             thread {
                 val database = databaseConnect()
                 repeat(`10K`) { transaction(database) {} }
             }
         }.forEach {
             it.join()
+        }
+    }
+
+
+    val databaseThreadLocal = ThreadLocal<Database>()
+    lateinit var dispatcherWithThreadLocalDatabases: ExecutorCoroutineDispatcher
+
+    @Setup
+    fun setUpThreadLocalDatabases() {
+        dispatcherWithThreadLocalDatabases = Executors.newFixedThreadPool(numProcessors()) {
+            Thread {
+                it.run()
+                databaseThreadLocal.set(databaseConnect())
+            }
+        }.asCoroutineDispatcher()
+    }
+
+    @TearDown
+    fun teardownDispatcherWithThreadLocalDatabases() {
+        dispatcherWithThreadLocalDatabases.close()
+    }
+
+    @Benchmark
+    fun multiThreadConcurrent10KTransactionsWithThreadLocalDatabases() {
+        runBlocking(dispatcherWithThreadLocalDatabases) {
+            List(`10K`) { async { transaction(databaseThreadLocal.get()) {} } }.awaitAll()
+        }
+    }
+
+    @Benchmark
+    fun multiThreadConcurrent10KTransactionsWithImplicitThreadLocalDatabases() {
+        runBlocking(dispatcherWithThreadLocalDatabases) {
+            List(`10K`) { async { transaction {} } }.awaitAll()
         }
     }
 }
