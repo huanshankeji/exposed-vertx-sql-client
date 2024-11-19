@@ -19,10 +19,10 @@ inline fun <SqlClientT : SqlClient, SqlConnectOptionsT : SqlConnectOptions, Pool
     vertx: Vertx?,
     connectionConfig: ConnectionConfig,
     sqlConnectOptionsFromConstructor: SqlConnectOptionsT,
-    extraSqlConnectOptions: SqlConnectOptionsT.() -> Unit = {},
+    extraSqlConnectOptions: SqlConnectOptionsT.() -> Unit,
     poolOptionsFromConstructor: PoolOptionsT,
-    extraPoolOptions: PoolOptionsT.() -> Unit = {},
-    noinline connectHandlerExtra: ConnectHandlerExtra = null,
+    extraPoolOptions: PoolOptionsT.() -> Unit,
+    noinline connectHandlerExtra: ConnectHandlerExtra,
     create: (Vertx?, SqlConnectOptionsT, PoolOptionsT, ConnectHandlerExtra) -> SqlClientT
 ): SqlClientT {
     val sqlConnectOptions = sqlConnectOptionsFromConstructor.apply {
@@ -44,9 +44,9 @@ fun <SqlClientT : SqlClient, SqlConnectOptionsT : SqlConnectOptions, PoolOptions
     connectionConfig: ConnectionConfig,
     clientBuilder: ClientBuilderT,
     sqlConnectOptionsFromConstructor: SqlConnectOptionsT,
-    extraSqlConnectOptions: SqlConnectOptionsT.() -> Unit = {},
-    extraPoolOptions: PoolOptionsT.() -> Unit = {},
-    connectHandlerExtra: ConnectHandlerExtra = null,
+    extraSqlConnectOptions: SqlConnectOptionsT.() -> Unit,
+    extraPoolOptions: PoolOptionsT.() -> Unit,
+    connectHandlerExtra: ConnectHandlerExtra,
     poolOptionsFromConstructor: PoolOptionsT
 ): SqlClientT =
     @Suppress("NAME_SHADOWING")
@@ -78,8 +78,8 @@ suspend fun <SqlConnectionT : SqlConnection, SqlConnectOptionsT : SqlConnectOpti
     connectionConfig: ConnectionConfig,
     sqlConnectionConnect: (Vertx?, SqlConnectOptionsT) -> Future<SqlConnectionT>,
     sqlConnectOptionsFromConstructor: SqlConnectOptionsT,
-    extraSqlConnectOptions: SqlConnectOptionsT.() -> Unit = {},
-    connectHandlerExtra: ConnectHandlerExtra = null
+    extraSqlConnectOptions: SqlConnectOptionsT.() -> Unit,
+    connectHandlerExtra: ConnectHandlerExtra
 ): SqlConnectionT =
     @Suppress("NAME_SHADOWING")
     createGenericSqlClient(

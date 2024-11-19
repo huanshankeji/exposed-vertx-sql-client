@@ -28,9 +28,9 @@ fun <SqlClientT : SqlClient, ClientBuilderT : ClientBuilder<SqlClientT>> createG
     vertx: Vertx?,
     connectionConfig: ConnectionConfig,
     clientBuilder: ClientBuilderT,
-    extraPgConnectOptions: PgConnectOptions.() -> Unit = {},
-    extraPgPoolOptions: PgPoolOptions.() -> Unit = {},
-    connectHandlerExtra: ConnectHandlerExtra = null
+    extraPgConnectOptions: PgConnectOptions.() -> Unit,
+    extraPgPoolOptions: PgPoolOptions.() -> Unit,
+    connectHandlerExtra: ConnectHandlerExtra
 ): SqlClientT =
     createGenericSqlClientWithBuilder(
         vertx,
