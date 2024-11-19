@@ -25,10 +25,13 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
         repeat(`10K`) { transaction(database) {} }
     }
 
-    private suspend fun awaitAsync10KTransactions() =
-        coroutineScope {
-            List(`10K`) { async { transaction(database) {} } }.awaitAll()
-        }
+    @Suppress("SuspendFunctionOnCoroutineScope")
+    private suspend inline fun CoroutineScope.awaitAsync10K(crossinline block: () -> Unit) =
+        List(`10K`) { async { block() } }.awaitAll()
+
+    @Suppress("SuspendFunctionOnCoroutineScope")
+    private suspend fun CoroutineScope.awaitAsync10KTransactions() =
+        awaitAsync10K { transaction(database) {} }
 
     @Benchmark
     fun singleThreadConcurrent10KTransactions() =
@@ -93,14 +96,14 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
     @Benchmark
     fun multiThreadConcurrent10KTransactionsWithThreadLocalDatabases() {
         runBlocking(dispatcherWithThreadLocalDatabases) {
-            List(`10K`) { async { transaction(databaseThreadLocal.get()) {} } }.awaitAll()
+            awaitAsync10K { transaction(databaseThreadLocal.get()) {} }
         }
     }
 
     @Benchmark
     fun multiThreadConcurrent10KTransactionsWithImplicitThreadLocalDatabases() {
         runBlocking(dispatcherWithThreadLocalDatabases) {
-            List(`10K`) { async { transaction {} } }.awaitAll()
+            awaitAsync10K { transaction {} }
         }
     }
 }
