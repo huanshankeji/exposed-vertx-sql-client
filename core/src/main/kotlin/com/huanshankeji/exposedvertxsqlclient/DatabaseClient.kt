@@ -2,12 +2,10 @@ package com.huanshankeji.exposedvertxsqlclient
 
 import arrow.core.*
 import com.huanshankeji.collections.singleOrNullIfEmpty
-import com.huanshankeji.exposedvertxsqlclient.sql.selectExpression
 import com.huanshankeji.vertx.kotlin.coroutines.coroutineToFuture
 import com.huanshankeji.vertx.kotlin.sqlclient.executeBatchAwaitForSqlResultSequence
 import io.vertx.core.buffer.Buffer
 import io.vertx.kotlin.coroutines.coAwait
-import io.vertx.pgclient.PgConnectOptions
 import io.vertx.sqlclient.*
 import kotlinx.coroutines.coroutineScope
 import org.jetbrains.exposed.dao.id.EntityID
@@ -65,8 +63,8 @@ fun String.toVertxPgClientPreparedSql(): String {
 fun Statement<*>.getVertxPgClientPreparedSql(transaction: ExposedTransaction) =
     prepareSQL(transaction).toVertxPgClientPreparedSql()
 
-
-internal fun dbAssert(b: Boolean) {
+@InternalApi
+fun dbAssert(b: Boolean) {
     if (!b)
         throw AssertionError()
 }
@@ -103,7 +101,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
         }
 
     suspend fun executePlainSql(sql: String): RowSet<Row> =
-        /** Use [SqlClient.preparedQuery] here because of [PgConnectOptions.setCachePreparedStatements]. */
+        /** Use [SqlClient.preparedQuery] here because of [SqlConnectOptions.setCachePreparedStatements]. */
         vertxSqlClient.preparedQuery(sql).execute().coAwait()
 
     suspend fun executePlainSqlUpdate(sql: String): Int =
@@ -211,20 +209,20 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
 
 
     @Deprecated(
-        "Use `selectExpression` instead`",
+        "Use `selectExpression` in the \"sql-dsl\" module instead.",
         ReplaceWith(
             "selectExpression<T>(clazz, expression)", "com.huanshankeji.exposedvertxsqlclient.sql.selectExpression"
         )
     )
     suspend fun <T : Any> executeExpression(clazz: KClass<T>, expression: Expression<T?>): T? =
-        selectExpression(clazz, expression)
+        throw NotImplementedError()
 
     @Deprecated(
-        "Use `selectExpression` instead`",
+        "Use `selectExpression` in the \"sql-dsl\" module instead.",
         ReplaceWith("selectExpression<T>(expression)", "com.huanshankeji.exposedvertxsqlclient.sql.selectExpression")
     )
     suspend inline fun <reified T> executeExpression(expression: Expression<T>): T =
-        selectExpression(expression)
+        throw NotImplementedError()
 
     suspend fun isWorking(): Boolean =
         try {

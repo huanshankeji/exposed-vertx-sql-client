@@ -123,6 +123,8 @@ val exampleName1 =
 val exampleName2 =
     databaseClient.selectSingleColumn(Examples, Examples.name) { where(Examples.id eq 2) }.single()
 
+val examplesExist = databaseClient.selectExpression(exists(Examples.selectAll()))
+
 val deleteRowCount1 = databaseClient.deleteWhere(Examples) { id eq 1 }
 assert(deleteRowCount1 == 1)
 val deleteRowCount2 = databaseClient.deleteIgnoreWhere(Examples) { id eq 2 }
