@@ -1,6 +1,5 @@
 package com.huanshankeji.exposed.benchmark
 
-import com.huanshankeji.kotlinx.coroutine.awaitAny
 import kotlinx.benchmark.*
 import kotlinx.coroutines.*
 import org.jetbrains.exposed.sql.Database
@@ -51,7 +50,7 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
 
     @Benchmark
     fun _10KSuspendedTransactionAsyncs() = runBlocking {
-        List(`10K`) { suspendedTransactionAsync(db = database) {} }.awaitAny()
+        List(`10K`) { suspendedTransactionAsync(db = database) {} }.awaitAll()
     }
 
     private fun numProcessors() =
