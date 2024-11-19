@@ -57,7 +57,10 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
 
     @Benchmark
     fun multiThreadMultiConnectionEach10KLocalTransactions() {
-        List(Runtime.getRuntime().availableProcessors()) {
+        // Note that on a device with heterogeneous architecture some threads may finish earlier than others.
+        List(Runtime.getRuntime().availableProcessors().also {
+            println("Number of processors: $it")
+        }) {
             thread {
                 val database = databaseConnect()
                 repeat(`10K`) { transaction(database) {} }
