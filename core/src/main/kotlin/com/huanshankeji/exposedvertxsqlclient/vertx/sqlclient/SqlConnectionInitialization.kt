@@ -25,7 +25,6 @@ fun ConnectionConfig.getCoConnectHandler(extra: CoConnectHandler): CoConnectHand
         is ConnectionConfig.Socket -> extra
         is ConnectionConfig.UnixDomainSocketWithPeerAuthentication -> {
             {
-                // TODO: are exceptions handled?
                 it.setRole(role)
                 extra?.let { extra -> extra(it) }
             }

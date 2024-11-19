@@ -17,6 +17,7 @@ import kotlinx.coroutines.launch
 fun ClientBuilder<*>.withCoConnectHandler(handler: suspend (SqlConnection) -> Unit) =
     withConnectHandler {
         CoroutineScope(Dispatchers.Unconfined).launch {
+            // TODO What happens when there are exceptions in `handler`? Are they correctly propagated?
             handler(it)
             /** @see Pool.connectHandler */
             it.close().coAwait()
