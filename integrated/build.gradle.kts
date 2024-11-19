@@ -9,8 +9,8 @@ dependencies {
     with(commonDependencies.vertx) { implementation(platformStackDepchain()) } // needed
 
     implementation(cpnProject(project, ":core"))
-
-    // for the examples
+    implementation(cpnProject(project, ":postgresql"))
+    implementation(cpnProject(project, ":sql-dsl"))
     implementation("com.huanshankeji:exposed-adt-mapping:${DependencyVersions.exposedAdtMapping}")
     implementation(cpnProject(project, ":sql-dsl-with-mapper"))
 }
