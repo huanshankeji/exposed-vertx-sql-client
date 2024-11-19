@@ -9,17 +9,35 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-suspend fun ConnectionConfig.initConnection(sqlConnection: SqlConnection) {
+/**
+ * Extra initialization on [SqlConnection] in addition to [setRole] for [ConnectionConfig.UnixDomainSocketWithPeerAuthentication].
+ */
+typealias ConnectHandlerExtra = (suspend (SqlConnection) -> Unit)?
+typealias ExtensionConnectHandlerExtra = (suspend SqlConnection.() -> Unit)?
+
+fun ExtensionConnectHandlerExtra.toWithParameterFunction(): ConnectHandlerExtra =
+    this
+
+suspend fun ConnectionConfig.initConnection(sqlConnection: SqlConnection, extra: ConnectHandlerExtra) {
     when (this) {
         is ConnectionConfig.Socket -> Unit // do nothing
         is ConnectionConfig.UnixDomainSocketWithPeerAuthentication -> sqlConnection.setRole(role)
     }
+    extra?.let { it(sqlConnection) }
 }
 
-// TODO make `extra` `suspend`
-fun ConnectionConfig.connectHandler(extra: ((SqlConnection) -> Unit)?): Handler<SqlConnection>? =
+fun ConnectionConfig.getConnectHandler(extra: ConnectHandlerExtra): Handler<SqlConnection>? =
     when (this) {
-        is ConnectionConfig.Socket -> extra?.let { Handler { it(it) } }
+        is ConnectionConfig.Socket -> extra?.let {
+            // TODO extract a common `coConnectHandler`
+            Handler {
+                CoroutineScope(Dispatchers.Unconfined).launch {
+                    it(it)
+                    it.close().coAwait()
+                }
+            }
+        }
+
         is ConnectionConfig.UnixDomainSocketWithPeerAuthentication -> Handler {
             CoroutineScope(Dispatchers.Unconfined).launch {
                 // TODO: are exceptions handled?

@@ -77,12 +77,13 @@ internal val logger = LoggerFactory.getLogger(DatabaseClient::class.java)
 /**
  * A wrapper client around Vert.x [SqlClient] for queries and an Exposed [Database] to generate SQLs working around the limitations of Exposed.
  *
- * @param validateBatch whether to validate whether the batch statements have the same generated prepared SQL.
+ * @param validateBatch whether to validate whether the batch statements have the same generated prepared SQL. It's recommended to keep this enabled for tests but disabled for production.
  */
 @OptIn(ExperimentalEvscApi::class)
-class DatabaseClient<out VertxSqlClient : SqlClient>(
-    val vertxSqlClient: VertxSqlClient,
+class DatabaseClient<out VertxSqlClientT : SqlClient>(
+    val vertxSqlClient: VertxSqlClientT,
     val exposedDatabase: Database,
+    // TODO consider adding a `isProduction` parameter whose default depends on the runtime
     val validateBatch: Boolean = true,
     val logSql: Boolean = false
 ) {
@@ -91,6 +92,8 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
         // How to close The Exposed `Database`?
     }
 
+    // TODO consider splitting into 2, one with `readOnly` set to true and isolation level `NONE` / READ UNCOMMITED for SQL generation, and a normal one for Exposed execution
+    // TODO also consider adding the 2 parameters `transactionIsolation` and `readOnly` with default arguments
     fun <T> exposedTransaction(statement: ExposedTransaction.() -> T) =
         transaction(exposedDatabase, statement)
 
@@ -115,7 +118,12 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
      */
     @Deprecated(
         "This function does not support analyzing dependencies among tables. Since this action is not frequently needed we can adopt the blocking approach. Use Exposed `SchemaUtils` and create multiple tables in batch instead, temporarily.",
-        ReplaceWith("exposedTransaction { SchemaUtils.create(table) }", "org.jetbrains.exposed.sql.SchemaUtils")
+        ReplaceWith(
+            "withContext(Dispatchers.IO) { exposedTransaction { SchemaUtils.create(table) } }",
+            "kotlinx.coroutines.withContext",
+            "kotlinx.coroutines.Dispatchers",
+            "org.jetbrains.exposed.sql.SchemaUtils"
+        )
     )
     suspend fun createTable(table: Table) =
         executePlainSqlUpdate(exposedTransaction {
@@ -125,7 +133,13 @@ class DatabaseClient<out VertxSqlClient : SqlClient>(
 
     @Deprecated(
         "This function does not support analyzing dependencies among tables. Since this action is not frequently needed we can adopt the blocking approach. Use Exposed `SchemaUtils` and drop multiple tables in batch instead, temporarily.",
-        ReplaceWith("exposedTransaction { SchemaUtils.drop(table) }", "org.jetbrains.exposed.sql.SchemaUtils")
+        // TODO `Dispatchers.IO`
+        ReplaceWith(
+            "withContext(Dispatchers.IO) { exposedTransaction { SchemaUtils.drop(table) } }",
+            "kotlinx.coroutines.withContext",
+            "kotlinx.coroutines.Dispatchers",
+            "org.jetbrains.exposed.sql.SchemaUtils"
+        )
     )
     suspend fun dropTable(table: Table) =
         executePlainSqlUpdate(exposedTransaction {

@@ -1,7 +1,7 @@
 package com.huanshankeji.exposed.benchmark
 
 import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig
-import com.huanshankeji.exposedvertxsqlclient.postgresql.exposed.exposedDatabaseConnectPostgreSql
+import com.huanshankeji.exposedvertxsqlclient.postgresql.exposed.exposedDatabaseConnectPostgresql
 import kotlinx.benchmark.Scope
 import kotlinx.benchmark.Setup
 import kotlinx.benchmark.State
@@ -16,9 +16,8 @@ class WithContainerizedDatabaseBenchmark : AbstractBenchmark() {
     lateinit var database: Database
 
     fun databaseConnect() =
-        exposedDatabaseConnectPostgreSql(with(postgreSQLContainer) {
-            ConnectionConfig.Socket(host, firstMappedPort, username, password, databaseName)
-        })
+        with(postgreSQLContainer) { ConnectionConfig.Socket(host, firstMappedPort, username, password, databaseName) }
+            .exposedDatabaseConnectPostgresql()
 
     @Setup
     fun setUp() {

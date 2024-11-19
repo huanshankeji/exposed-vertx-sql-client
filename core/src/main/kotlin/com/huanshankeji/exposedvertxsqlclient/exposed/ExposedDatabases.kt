@@ -1,8 +1,8 @@
-package com.huanshankeji.exposedvertxsqlclient.postgresql.exposed
+package com.huanshankeji.exposedvertxsqlclient.exposed
 
 import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig
 import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
-import com.huanshankeji.exposedvertxsqlclient.exposed.exposedDatabaseConnect
+import com.huanshankeji.exposedvertxsqlclient.jdbc.jdbcUrl
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.DatabaseConfig
 import org.jetbrains.exposed.sql.transactions.ThreadLocalTransactionManager
@@ -10,24 +10,26 @@ import org.jetbrains.exposed.sql.transactions.TransactionManager
 import java.sql.Connection
 
 /**
- * @see exposedDatabaseConnect
+ * Further configurations such as [setupConnection], [databaseConfig], and [manager] are most likely not needed
+ * because the Exposed [Database] is mostly only used for table creation and SQL generation.
  */
 @ExperimentalEvscApi
-fun ConnectionConfig.Socket.exposedDatabaseConnectPostgresql(
+fun ConnectionConfig.Socket.exposedDatabaseConnect(
+    rdbms: String,
+    driver: String,
     setupConnection: (Connection) -> Unit = {},
     databaseConfig: DatabaseConfig? = null,
     manager: (Database) -> TransactionManager = { ThreadLocalTransactionManager(it) }
 ) =
-    exposedDatabaseConnect(
-        "postgresql", "org.postgresql.Driver", setupConnection, databaseConfig, manager
-    )
+    Database.connect(jdbcUrl(rdbms), driver, user, password, setupConnection, databaseConfig, manager)
 
 @ExperimentalEvscApi
-@JvmName("exposedDatabaseConnectPostgresqlWithParameterConnectionConfig")
-fun exposedDatabaseConnectPostgresql(
+fun exposedDatabaseConnect(
+    rdbms: String,
     socketConnectionConfig: ConnectionConfig.Socket,
+    driver: String,
     setupConnection: (Connection) -> Unit = {},
     databaseConfig: DatabaseConfig? = null,
     manager: (Database) -> TransactionManager = { ThreadLocalTransactionManager(it) }
 ) =
-    socketConnectionConfig.exposedDatabaseConnectPostgresql(setupConnection, databaseConfig, manager)
+    socketConnectionConfig.exposedDatabaseConnect(rdbms, driver, setupConnection, databaseConfig, manager)

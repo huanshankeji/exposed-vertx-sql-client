@@ -1,36 +1,46 @@
+@file:OptIn(ExperimentalEvscApi::class)
+
 package com.huanshankeji.exposedvertxsqlclient.postgresql.vertx.pgclient
 
 import com.huanshankeji.Untested
 import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig
-import com.huanshankeji.exposedvertxsqlclient.vertx.sqlclient.connectHandler
+import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
+import com.huanshankeji.exposedvertxsqlclient.vertx.sqlclient.ConnectHandlerExtra
 import com.huanshankeji.exposedvertxsqlclient.vertx.sqlclient.createGenericSqlClient
-import com.huanshankeji.exposedvertxsqlclient.vertx.sqlclient.initConnection
+import com.huanshankeji.exposedvertxsqlclient.vertx.sqlclient.createGenericSqlClientWithBuilder
+import com.huanshankeji.exposedvertxsqlclient.vertx.sqlclient.createGenericSqlConnection
+import com.huanshankeji.vertx.pgclient.setUpConventionally
 import io.vertx.core.Vertx
-import io.vertx.kotlin.coroutines.coAwait
 import io.vertx.pgclient.PgBuilder
 import io.vertx.pgclient.PgConnectOptions
 import io.vertx.pgclient.PgConnection
 import io.vertx.pgclient.impl.PgPoolOptions
+import io.vertx.sqlclient.ClientBuilder
 import io.vertx.sqlclient.Pool
 import io.vertx.sqlclient.SqlClient
-import io.vertx.sqlclient.SqlConnection
 
-inline fun <SqlClientT : SqlClient, PgPoolOptionsT : PgPoolOptions?> createGenericPgClient(
+/**
+ * @see createGenericSqlClient
+ */
+// made not inline anymore for easier debugging
+@ExperimentalEvscApi
+fun <SqlClientT : SqlClient, ClientBuilderT : ClientBuilder<SqlClientT>> createGenericPgClientWithBuilder(
     vertx: Vertx?,
     connectionConfig: ConnectionConfig,
+    clientBuilder: ClientBuilderT,
     extraPgConnectOptions: PgConnectOptions.() -> Unit = {},
-    pgPoolOptionsFromConstructor: PgPoolOptionsT,
-    extraPgPoolOptions: PgPoolOptionsT.() -> Unit = {},
-    create: (Vertx?, PgConnectOptions, PgPoolOptionsT) -> SqlClientT
+    extraPgPoolOptions: PgPoolOptions.() -> Unit = {},
+    connectHandlerExtra: ConnectHandlerExtra = null
 ): SqlClientT =
-    createGenericSqlClient(
+    createGenericSqlClientWithBuilder(
         vertx,
         connectionConfig,
+        clientBuilder,
         PgConnectOptions(),
         extraPgConnectOptions,
-        pgPoolOptionsFromConstructor,
         extraPgPoolOptions,
-        create
+        connectHandlerExtra,
+        PgPoolOptions()
     )
 
 fun createPgClient(
@@ -38,70 +48,56 @@ fun createPgClient(
     connectionConfig: ConnectionConfig,
     extraPgConnectOptions: PgConnectOptions.() -> Unit = {},
     extraPoolOptions: PgPoolOptions.() -> Unit = {},
-    connectHandlerExtra: ((SqlConnection) -> Unit)? = null, // TODO add to `createGenericSqlClient`
+    connectHandlerExtra: ConnectHandlerExtra = null,
 ): SqlClient =
-    createGenericPgClient(
+    createGenericPgClientWithBuilder(
         vertx,
         connectionConfig,
+        PgBuilder.client(),
         extraPgConnectOptions,
-        PgPoolOptions(),
-        extraPoolOptions
-    ) { vertx, database, options ->
-        PgBuilder.client()
-            .apply {
-                using(vertx)
-                connectingTo(database)
-                with(options)
-                // TODO move to an overload of `createGenericSqlClient`
-                val connectHandler = connectionConfig.connectHandler(connectHandlerExtra)
-                connectHandler?.let { withConnectHandler(it) }
-            }
-            .build()
-    }
+        extraPoolOptions,
+        connectHandlerExtra
+    )
 
 /**
  * [PgPoolOptions.pipelined] is enabled by default.
+ * @see PgPoolOptions.setUpConventionally
+ * @see createGenericSqlClient
  */
 fun createPgPool(
     vertx: Vertx?,
     connectionConfig: ConnectionConfig,
     extraPgConnectOptions: PgConnectOptions.() -> Unit = {},
     extraPoolOptions: PgPoolOptions.() -> Unit = {},
-    connectHandlerExtra: ((SqlConnection) -> Unit)? = null, // TODO add to `createGenericSqlClient`
+    connectHandlerExtra: ConnectHandlerExtra = null,
 ): Pool =
-    createGenericPgClient(
+    createGenericPgClientWithBuilder(
         vertx,
         connectionConfig,
+        PgBuilder.pool(),
         extraPgConnectOptions,
-        PgPoolOptions(),
         {
-            // TODO consider extracting this into a conventional config and move to "kotlin-common", decoupling it from this library
-            isPipelined = true
+            setUpConventionally()
             extraPoolOptions()
-        }
-    ) { vertx, database, options ->
-        PgBuilder.pool()
-            .apply {
-                using(vertx)
-                connectingTo(database)
-                with(options)
-                // TODO move to an overload of `createGenericSqlClient`
-                val connectHandler = connectionConfig.connectHandler(connectHandlerExtra)
-                connectHandler?.let { withConnectHandler(it) }
-            }
-            .build()
-    }
+        },
+        connectHandlerExtra
+    )
 
+/**
+ * @see createGenericSqlClient
+ */
 @Untested
 suspend fun createPgConnection(
     vertx: Vertx?,
-    connectionConfig: ConnectionConfig.Socket,
-    extraPgConnectOptions: PgConnectOptions.() -> Unit = {}
+    connectionConfig: ConnectionConfig,
+    extraPgConnectOptions: PgConnectOptions.() -> Unit = {},
+    connectHandlerExtra: ConnectHandlerExtra = null
 ): PgConnection =
-    createGenericPgClient(
-        vertx, connectionConfig, extraPgConnectOptions, null
-    ) { vertx, pgConnectOptions, _ ->
-        PgConnection.connect(vertx, pgConnectOptions).coAwait().also {
-            connectionConfig.initConnection(it)
-        }
-    }
+    createGenericSqlConnection(
+        vertx,
+        connectionConfig,
+        PgConnection::connect,
+        PgConnectOptions(),
+        extraPgConnectOptions,
+        connectHandlerExtra
+    )

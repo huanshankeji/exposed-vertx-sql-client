@@ -6,8 +6,9 @@ interface IEvscConfig {
     val vertxSqlClientConnectionConfig: ConnectionConfig
 }
 
+// TODO add a type parameter for `exposedConnectionConfig` to better support RDBMSs that don't support Unix domain sockets
 /**
- * This API is not used in the factory function parameter types yet. TODO
+ * This API is not used in the factory function parameter types yet.
  */
 @ExperimentalEvscApi
 class EvscConfig(

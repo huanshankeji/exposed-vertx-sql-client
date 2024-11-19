@@ -10,8 +10,9 @@ dependencies {
 
     implementation(cpnProject(project, ":core"))
 
-    testImplementation("com.huanshankeji:exposed-adt-mapping:${DependencyVersions.exposedAdtMapping}")
-    testImplementation(cpnProject(project, ":sql-dsl-with-mapper"))
+    // for the examples
+    implementation("com.huanshankeji:exposed-adt-mapping:${DependencyVersions.exposedAdtMapping}")
+    implementation(cpnProject(project, ":sql-dsl-with-mapper"))
 }
 
 afterEvaluate {

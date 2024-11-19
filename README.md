@@ -20,13 +20,39 @@ Here is a basic usage guide. This project currently serves our own use, therefor
 
 ### Create a `DatabaseClient`
 
+Create an `EvscConfig` as the single source of truth:
+
 ```kotlin
-val socketConnectionConfig =
-    ConnectionConfig.Socket("localhost", user = "user", password = "password", database = "database")
-val exposedDatabase = exposedDatabaseConnectPostgreSql(socketConnectionConfig)
-val databaseClient = createPgPoolDatabaseClient(
-    vertx, socketConnectionConfig, exposedDatabase = exposedDatabase
-)
+val evscConfig = ConnectionConfig.Socket("localhost", user = "user", password = "password", database = "database")
+    .toUniversalEvscConfig()
+```
+
+Local alternative with Unix domain socket:
+
+```kotlin
+val evscConfig = defaultPostgresqlLocalConnectionConfig(
+    user = "user",
+    socketConnectionPassword = "password",
+    database = "database"
+).toPerformantUnixEvscConfig()
+```
+
+Create an Exposed `Database` with the `ConnectionConfig`, which can be reused for multiple `Verticle`s:
+
+```kotlin
+val exposedDatabase = evscConfig.exposedConnectionConfig.exposedDatabaseConnectPostgresql()
+```
+
+Create a Vert.x `SqlClient` with the `ConnectionConfig`, preferably in a `Verticle`:
+
+```kotlin
+val vertxPool = createPgPool(vertx, evscConfig.vertxSqlClientConnectionConfig)
+```
+
+Create a `Database` with the provided Vert.x `SqlClient` and Exposed `Database`, preferably in a `Verticle`:
+
+```kotlin
+val databaseClient = DatabaseClient(vertxPool, exposedDatabase)
 ```
 
 ### Example table definitions

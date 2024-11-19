@@ -1,13 +1,20 @@
+@file:OptIn(ExperimentalEvscApi::class)
+
 package com.huanshankeji.exposedvertxsqlclient
 
 import com.huanshankeji.exposed.*
-import com.huanshankeji.exposedvertxsqlclient.postgresql.createPgPoolDatabaseClient
-import com.huanshankeji.exposedvertxsqlclient.postgresql.exposed.exposedDatabaseConnectPostgreSql
+import com.huanshankeji.exposedvertxsqlclient.local.toPerformantUnixEvscConfig
+import com.huanshankeji.exposedvertxsqlclient.postgresql.exposed.exposedDatabaseConnectPostgresql
+import com.huanshankeji.exposedvertxsqlclient.postgresql.local.defaultPostgresqlLocalConnectionConfig
+import com.huanshankeji.exposedvertxsqlclient.postgresql.vertx.pgclient.createPgPool
 import com.huanshankeji.exposedvertxsqlclient.sql.*
+import io.vertx.core.Verticle
 import io.vertx.core.Vertx
+import io.vertx.sqlclient.SqlClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.jetbrains.exposed.dao.id.IntIdTable
+import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 
@@ -17,14 +24,24 @@ object Examples : IntIdTable("examples") {
 
 val tables = arrayOf(Examples)
 
+val evscConfig = ConnectionConfig.Socket("localhost", user = "user", password = "password", database = "database")
+    .toUniversalEvscConfig()
+
+object Alternative {
+    // Unix domain socket alternative
+    val evscConfig = defaultPostgresqlLocalConnectionConfig(
+        user = "user",
+        socketConnectionPassword = "password",
+        database = "database"
+    ).toPerformantUnixEvscConfig()
+}
+
 @OptIn(ExperimentalEvscApi::class)
 suspend fun examples(vertx: Vertx) {
-    val socketConnectionConfig =
-        ConnectionConfig.Socket("localhost", user = "user", password = "password", database = "database")
-    val exposedDatabase = exposedDatabaseConnectPostgreSql(socketConnectionConfig)
-    val databaseClient = createPgPoolDatabaseClient(
-        vertx, socketConnectionConfig, exposedDatabase = exposedDatabase
-    )
+    /** It may be more efficient to use a single shared [Database] to generate SQLs for multiple [DatabaseClient]s/[SqlClient]s in respective [Verticle]s. */
+    val exposedDatabase = evscConfig.exposedConnectionConfig.exposedDatabaseConnectPostgresql()
+    val vertxPool = createPgPool(vertx, evscConfig.vertxSqlClientConnectionConfig)
+    val databaseClient = DatabaseClient(vertxPool, exposedDatabase)
 
     withContext(Dispatchers.IO) {
         databaseClient.exposedTransaction {

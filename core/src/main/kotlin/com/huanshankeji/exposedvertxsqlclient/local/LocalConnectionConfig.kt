@@ -11,17 +11,22 @@ import com.huanshankeji.net.LOCALHOST
  * A kind of connection config that can produce both a [ConnectionConfig.Socket] and a [ConnectionConfig.UnixDomainSocketWithPeerAuthentication]
  * to connect to a local database server.
  */
-class LocalConnectionConfig(val database: String, val user: String, val socketConnectionPassword: String) {
+class LocalConnectionConfig(
+    val socketConnectionPort: Int? = null,
+    val unixDomainSocketPath: String,
+    val user: String,
+    val socketConnectionPassword: String,
+    val database: String
+) {
     companion object {
-        const val UNIX_DOMAIN_SOCKET_PATH = "/var/run/postgresql"
         const val SOCKET_HOST = LOCALHOST
     }
 
     val socketConnectionConfig =
-        ConnectionConfig.Socket(SOCKET_HOST, null, user, socketConnectionPassword, database)
+        ConnectionConfig.Socket(SOCKET_HOST, socketConnectionPort, user, socketConnectionPassword, database)
 
     val unixDomainSocketWithPeerAuthenticationConnectionConfig =
-        ConnectionConfig.UnixDomainSocketWithPeerAuthentication(UNIX_DOMAIN_SOCKET_PATH, user, database)
+        ConnectionConfig.UnixDomainSocketWithPeerAuthentication(unixDomainSocketPath, user, database)
 }
 
 @ExperimentalEvscApi
