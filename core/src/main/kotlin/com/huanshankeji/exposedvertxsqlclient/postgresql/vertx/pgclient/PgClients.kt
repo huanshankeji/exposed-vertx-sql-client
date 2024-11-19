@@ -5,7 +5,7 @@ package com.huanshankeji.exposedvertxsqlclient.postgresql.vertx.pgclient
 import com.huanshankeji.Untested
 import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig
 import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
-import com.huanshankeji.exposedvertxsqlclient.vertx.sqlclient.ConnectHandlerExtra
+import com.huanshankeji.exposedvertxsqlclient.vertx.sqlclient.CoConnectHandler
 import com.huanshankeji.exposedvertxsqlclient.vertx.sqlclient.createGenericSqlClient
 import com.huanshankeji.exposedvertxsqlclient.vertx.sqlclient.createGenericSqlClientWithBuilder
 import com.huanshankeji.exposedvertxsqlclient.vertx.sqlclient.createGenericSqlConnection
@@ -30,7 +30,7 @@ fun <SqlClientT : SqlClient, ClientBuilderT : ClientBuilder<SqlClientT>> createG
     clientBuilder: ClientBuilderT,
     extraPgConnectOptions: PgConnectOptions.() -> Unit,
     extraPgPoolOptions: PgPoolOptions.() -> Unit,
-    connectHandlerExtra: ConnectHandlerExtra
+    connectHandlerExtra: CoConnectHandler
 ): SqlClientT =
     createGenericSqlClientWithBuilder(
         vertx,
@@ -48,7 +48,7 @@ fun createPgClient(
     connectionConfig: ConnectionConfig,
     extraPgConnectOptions: PgConnectOptions.() -> Unit = {},
     extraPoolOptions: PgPoolOptions.() -> Unit = {},
-    connectHandlerExtra: ConnectHandlerExtra = null,
+    connectHandlerExtra: CoConnectHandler = null,
 ): SqlClient =
     createGenericPgClientWithBuilder(
         vertx,
@@ -69,7 +69,7 @@ fun createPgPool(
     connectionConfig: ConnectionConfig,
     extraPgConnectOptions: PgConnectOptions.() -> Unit = {},
     extraPoolOptions: PgPoolOptions.() -> Unit = {},
-    connectHandlerExtra: ConnectHandlerExtra = null,
+    connectHandlerExtra: CoConnectHandler = null,
 ): Pool =
     createGenericPgClientWithBuilder(
         vertx,
@@ -91,7 +91,7 @@ suspend fun createPgConnection(
     vertx: Vertx?,
     connectionConfig: ConnectionConfig,
     extraPgConnectOptions: PgConnectOptions.() -> Unit = {},
-    connectHandlerExtra: ConnectHandlerExtra = null
+    connectHandlerExtra: CoConnectHandler = null
 ): PgConnection =
     createGenericSqlConnection(
         vertx,

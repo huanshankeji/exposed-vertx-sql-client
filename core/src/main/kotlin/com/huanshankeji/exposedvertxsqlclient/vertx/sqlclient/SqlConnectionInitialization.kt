@@ -1,24 +1,18 @@
 package com.huanshankeji.exposedvertxsqlclient.vertx.sqlclient
 
 import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig
-import io.vertx.core.Handler
-import io.vertx.kotlin.coroutines.coAwait
-import io.vertx.sqlclient.Pool
 import io.vertx.sqlclient.SqlConnection
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 /**
  * Extra initialization on [SqlConnection] in addition to [setRole] for [ConnectionConfig.UnixDomainSocketWithPeerAuthentication].
  */
-typealias ConnectHandlerExtra = (suspend (SqlConnection) -> Unit)?
-typealias ExtensionConnectHandlerExtra = (suspend SqlConnection.() -> Unit)?
+typealias CoConnectHandler = (suspend (SqlConnection) -> Unit)?
+typealias ExtensionCoConnectHandler = (suspend SqlConnection.() -> Unit)?
 
-fun ExtensionConnectHandlerExtra.toWithParameterFunction(): ConnectHandlerExtra =
+fun ExtensionCoConnectHandler.toWithParameterFunction(): CoConnectHandler =
     this
 
-suspend fun ConnectionConfig.initConnection(sqlConnection: SqlConnection, extra: ConnectHandlerExtra) {
+suspend fun ConnectionConfig.initConnection(sqlConnection: SqlConnection, extra: CoConnectHandler) {
     when (this) {
         is ConnectionConfig.Socket -> Unit // do nothing
         is ConnectionConfig.UnixDomainSocketWithPeerAuthentication -> sqlConnection.setRole(role)
@@ -26,25 +20,14 @@ suspend fun ConnectionConfig.initConnection(sqlConnection: SqlConnection, extra:
     extra?.let { it(sqlConnection) }
 }
 
-fun ConnectionConfig.getConnectHandler(extra: ConnectHandlerExtra): Handler<SqlConnection>? =
+fun ConnectionConfig.getCoConnectHandler(extra: CoConnectHandler): CoConnectHandler =
     when (this) {
-        is ConnectionConfig.Socket -> extra?.let {
-            // TODO extract a common `coConnectHandler`
-            Handler {
-                CoroutineScope(Dispatchers.Unconfined).launch {
-                    it(it)
-                    it.close().coAwait()
-                }
-            }
-        }
-
-        is ConnectionConfig.UnixDomainSocketWithPeerAuthentication -> Handler {
-            CoroutineScope(Dispatchers.Unconfined).launch {
+        is ConnectionConfig.Socket -> extra
+        is ConnectionConfig.UnixDomainSocketWithPeerAuthentication -> {
+            {
                 // TODO: are exceptions handled?
                 it.setRole(role)
                 extra?.let { extra -> extra(it) }
-                /** @see Pool.connectHandler */
-                it.close().coAwait()
             }
         }
     }

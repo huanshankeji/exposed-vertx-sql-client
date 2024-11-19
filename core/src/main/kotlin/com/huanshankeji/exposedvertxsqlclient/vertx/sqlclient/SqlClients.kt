@@ -3,6 +3,7 @@ package com.huanshankeji.exposedvertxsqlclient.vertx.sqlclient
 import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig
 import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
 import com.huanshankeji.vertx.sqlclient.setUpConventionally
+import com.huanshankeji.vertx.sqlclient.withCoConnectHandler
 import io.vertx.core.Future
 import io.vertx.core.Vertx
 import io.vertx.kotlin.coroutines.coAwait
@@ -22,8 +23,8 @@ inline fun <SqlClientT : SqlClient, SqlConnectOptionsT : SqlConnectOptions, Pool
     extraSqlConnectOptions: SqlConnectOptionsT.() -> Unit,
     poolOptionsFromConstructor: PoolOptionsT,
     extraPoolOptions: PoolOptionsT.() -> Unit,
-    noinline connectHandlerExtra: ConnectHandlerExtra,
-    create: (Vertx?, SqlConnectOptionsT, PoolOptionsT, ConnectHandlerExtra) -> SqlClientT
+    noinline connectHandlerExtra: CoConnectHandler,
+    create: (Vertx?, SqlConnectOptionsT, PoolOptionsT, CoConnectHandler) -> SqlClientT
 ): SqlClientT {
     val sqlConnectOptions = sqlConnectOptionsFromConstructor.apply {
         setUpConventionally()
@@ -46,7 +47,7 @@ fun <SqlClientT : SqlClient, SqlConnectOptionsT : SqlConnectOptions, PoolOptions
     sqlConnectOptionsFromConstructor: SqlConnectOptionsT,
     extraSqlConnectOptions: SqlConnectOptionsT.() -> Unit,
     extraPoolOptions: PoolOptionsT.() -> Unit,
-    connectHandlerExtra: ConnectHandlerExtra,
+    connectHandlerExtra: CoConnectHandler,
     poolOptionsFromConstructor: PoolOptionsT
 ): SqlClientT =
     @Suppress("NAME_SHADOWING")
@@ -63,8 +64,8 @@ fun <SqlClientT : SqlClient, SqlConnectOptionsT : SqlConnectOptions, PoolOptions
             using(vertx)
             connectingTo(database)
             with(options)
-            val connectHandler = connectionConfig.getConnectHandler(connectHandlerExtra)
-            connectHandler?.let { withConnectHandler(it) }
+            val connectHandler = connectionConfig.getCoConnectHandler(connectHandlerExtra)
+            connectHandler?.let { withCoConnectHandler(it) }
         }.build()
     }
 
@@ -79,7 +80,7 @@ suspend fun <SqlConnectionT : SqlConnection, SqlConnectOptionsT : SqlConnectOpti
     sqlConnectionConnect: (Vertx?, SqlConnectOptionsT) -> Future<SqlConnectionT>,
     sqlConnectOptionsFromConstructor: SqlConnectOptionsT,
     extraSqlConnectOptions: SqlConnectOptionsT.() -> Unit,
-    connectHandlerExtra: ConnectHandlerExtra
+    connectHandlerExtra: CoConnectHandler
 ): SqlConnectionT =
     @Suppress("NAME_SHADOWING")
     createGenericSqlClient(
