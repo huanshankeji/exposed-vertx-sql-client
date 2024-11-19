@@ -37,7 +37,7 @@ val evscConfig = defaultPostgresqlLocalConnectionConfig(
 ).toPerformantUnixEvscConfig()
 ```
 
-Create an Exposed `Database` with the `ConnectionConfig`, which can be reused for multiple `Verticle`s:
+Create an Exposed `Database` with the `ConnectionConfig.Socket`, which can be reused for multiple `Verticle`s:
 
 ```kotlin
 val exposedDatabase = evscConfig.exposedConnectionConfig.exposedDatabaseConnectPostgresql()
