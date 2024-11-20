@@ -13,21 +13,21 @@ import java.sql.Connection
  * @see exposedDatabaseConnect
  */
 @ExperimentalEvscApi
-fun ConnectionConfig.Socket.exposedDatabaseConnectPostgresql(
+fun ConnectionConfig.Socket.exposedDatabaseConnectMysql(
     setupConnection: (Connection) -> Unit = {},
     databaseConfig: DatabaseConfig? = null,
     manager: (Database) -> TransactionManager = { ThreadLocalTransactionManager(it) }
 ) =
     exposedDatabaseConnect(
-        "postgresql", "org.postgresql.Driver", setupConnection, databaseConfig, manager
+        "mysql", "com.mysql.cj.jdbc.Driver", setupConnection, databaseConfig, manager
     )
 
 @ExperimentalEvscApi
 @JvmName("exposedDatabaseConnectPostgresqlWithParameterConnectionConfig")
-fun exposedDatabaseConnectPostgresql(
+fun exposedDatabaseConnectMysql(
     socketConnectionConfig: ConnectionConfig.Socket,
     setupConnection: (Connection) -> Unit = {},
     databaseConfig: DatabaseConfig? = null,
     manager: (Database) -> TransactionManager = { ThreadLocalTransactionManager(it) }
 ) =
-    socketConnectionConfig.exposedDatabaseConnectPostgresql(setupConnection, databaseConfig, manager)
+    socketConnectionConfig.exposedDatabaseConnectMysql(setupConnection, databaseConfig, manager)
