@@ -10,8 +10,7 @@ Only PostgreSQL with [Reactive PostgreSQL Client](https://vertx.io/docs/vertx-pg
 
 ## Experimental
 
-This library is experimental now. The APIs are subject to change (especially those marked with
-`@ExperimentalEvscApi`), the tests are incomplete, and please expect bugs and report them.
+This library is experimental now. The APIs are subject to change (especially those marked with `@ExperimentalEvscApi`), the tests are incomplete, and please expect bugs and report them.
 
 ## Maven coordinate
 
