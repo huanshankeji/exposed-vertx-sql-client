@@ -8,25 +8,82 @@
 
 Only PostgreSQL with [Reactive PostgreSQL Client](https://vertx.io/docs/vertx-pg-client/java/) is currently supported.
 
+## Experimental
+
+This library is experimental now. The APIs are subject to change (especially those marked with
+`@ExperimentalEvscApi`), the tests are incomplete, and please expect bugs and report them.
+
 ## Maven coordinate
 
 ```kotlin
-"com.huanshankeji:exposed-vertx-sql-client-postgresql:$version"
+"com.huanshankeji:exposed-vertx-sql-client-$module:$evscVersion"
 ```
+
+## API documentation
+
+See the [hosted API documentation](https://huanshankeji.github.io/exposed-vertx-sql-client/) for the APIs.
 
 ## Basic usage guide
 
-Here is a basic usage guide. This project currently serves our own use, therefore, there are temporarily no detailed docs, APIs are experimental, tests are incomplete, and please expect bugs. To learn more in addition to the guide below, see the [hosted API documentation](https://huanshankeji.github.io/exposed-vertx-sql-client/), and see [DatabaseClient.kt](lib/src/main/kotlin/com/huanshankeji/exposedvertxsqlclient/DatabaseClient.kt) and [DatabaseClientSql.kt](lib/src/main/kotlin/com/huanshankeji/exposedvertxsqlclient/sql/DatabaseClientSql.kt) for the major APIs.
+Here is a basic usage guide.
+
+### Before v0.5.0
+
+Add the PostgreSQL module, which was the only module, to your dependencies with the Gradle build script:
+
+```kotlin
+implementation("com.huanshankeji:exposed-vertx-sql-client-postgresql:0.4.0")
+```
+
+### Since v0.5.0
+
+Add the core module to your dependencies with the Gradle build script:
+
+```kotlin
+implementation("com.huanshankeji:exposed-vertx-sql-client-core:$evscVersion")
+```
+
+And add an RDBMS module, for example, the PostgreSQL module:
+
+```kotlin
+implementation("com.huanshankeji:exposed-vertx-sql-client-postgresql:$evscVersion")
+```
 
 ### Create a `DatabaseClient`
 
+Create an `EvscConfig` as the single source of truth:
+
 ```kotlin
-val socketConnectionConfig =
-    ConnectionConfig.Socket("localhost", user = "user", password = "password", database = "database")
-val exposedDatabase = exposedDatabaseConnectPostgreSql(socketConnectionConfig)
-val databaseClient = createPgPoolDatabaseClient(
-    vertx, socketConnectionConfig, exposedDatabase = exposedDatabase
-)
+val evscConfig = ConnectionConfig.Socket("localhost", user = "user", password = "password", database = "database")
+    .toUniversalEvscConfig()
+```
+
+Local alternative with Unix domain socket:
+
+```kotlin
+val evscConfig = defaultPostgresqlLocalConnectionConfig(
+    user = "user",
+    socketConnectionPassword = "password",
+    database = "database"
+).toPerformantUnixEvscConfig()
+```
+
+Create an Exposed `Database` with the `ConnectionConfig.Socket`, which can be reused for multiple `Verticle`s:
+
+```kotlin
+val exposedDatabase = evscConfig.exposedConnectionConfig.exposedDatabaseConnectPostgresql()
+```
+
+Create a Vert.x `SqlClient` with the `ConnectionConfig`, preferably in a `Verticle`:
+
+```kotlin
+val vertxPool = createPgPool(vertx, evscConfig.vertxSqlClientConnectionConfig)
+```
+
+Create a `Database` with the provided Vert.x `SqlClient` and Exposed `Database`, preferably in a `Verticle`:
+
+```kotlin
+val databaseClient = DatabaseClient(vertxPool, exposedDatabase)
 ```
 
 ### Example table definitions
@@ -83,7 +140,15 @@ databaseClient.executeSingleUpdate(Examples.deleteIgnoreWhereStatement { id eq 2
 
 #### Extension SQL DSL APIs
 
-With these extension APIs, your code becomes more concise, but it might be more difficult when you need to compose statements or edit the code:
+With the extension SQL DSL APIs, your code becomes more concise, but it might be more difficult when you need to compose statements or edit the code.
+
+Gradle dependency configuration (only needed since v0.5.0):
+
+```kotlin
+implementation("com.huanshankeji:exposed-vertx-sql-client-sql-dsl:$evscVersion")
+```
+
+Example code:
 
 ```kotlin
 databaseClient.insert(Examples) { it[name] = "A" }
@@ -97,15 +162,25 @@ val exampleName1 =
 val exampleName2 =
     databaseClient.selectSingleColumn(Examples, Examples.name) { where(Examples.id eq 2) }.single()
 
+val examplesExist = databaseClient.selectExpression(exists(Examples.selectAll()))
+
 val deleteRowCount1 = databaseClient.deleteWhere(Examples) { id eq 1 }
 assert(deleteRowCount1 == 1)
 val deleteRowCount2 = databaseClient.deleteIgnoreWhere(Examples) { id eq 2 }
 assert(deleteRowCount2 == 1)
 ```
 
-#### APIs using [Exposed GADT mapping](https://github.com/huanshankeji/exposed-adt-mapping)
+#### Extension SQL DSL APIs with [Exposed GADT mapping](https://github.com/huanshankeji/exposed-adt-mapping)
 
 Please read [that library's basic usage guide](https://github.com/huanshankeji/exposed-adt-mapping?tab=readme-ov-file#basic-usage-guide) first. Here are examples of this library that correspond to [that library's CRUD operations](https://github.com/huanshankeji/exposed-adt-mapping?tab=readme-ov-file#crud-operations).
+
+Gradle dependency configuration (only needed since v0.5.0):
+
+```kotlin
+implementation("com.huanshankeji:exposed-vertx-sql-client-sql-dsl-with-mapper:$evscVersion")
+```
+
+Example code:
 
 ```kotlin
 val directorId = 1
