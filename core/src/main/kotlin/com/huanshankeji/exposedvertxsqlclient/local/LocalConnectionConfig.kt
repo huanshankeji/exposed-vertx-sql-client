@@ -1,6 +1,7 @@
 package com.huanshankeji.exposedvertxsqlclient.local
 
 import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig
+import com.huanshankeji.exposedvertxsqlclient.ConnectionType
 import com.huanshankeji.exposedvertxsqlclient.EvscConfig
 import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
 import com.huanshankeji.net.LOCALHOST
@@ -27,6 +28,12 @@ class LocalConnectionConfig(
 
     val unixDomainSocketWithPeerAuthenticationConnectionConfig =
         ConnectionConfig.UnixDomainSocketWithPeerAuthentication(unixDomainSocketPath, user, database)
+
+    fun getConnectionConfig(connectionType: ConnectionType) =
+        when (connectionType) {
+            ConnectionType.Socket -> socketConnectionConfig
+            ConnectionType.UnixDomainSocketWithPeerAuthentication -> unixDomainSocketWithPeerAuthenticationConnectionConfig
+        }
 }
 
 @ExperimentalEvscApi
