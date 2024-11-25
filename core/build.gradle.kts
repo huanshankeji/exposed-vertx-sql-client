@@ -18,4 +18,6 @@ dependencies {
     implementation(commonDependencies.arrow.core())
 
     implementation(commonDependencies.kotlinCommon.net())
+
+    api(commonDependencies.kotlinCommon.coroutines()) // Exposed the `use` function
 }
