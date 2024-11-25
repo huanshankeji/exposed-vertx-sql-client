@@ -34,10 +34,10 @@ public final class com/huanshankeji/exposedvertxsqlclient/ConnectionType : java/
 	public static fun values ()[Lcom/huanshankeji/exposedvertxsqlclient/ConnectionType;
 }
 
-public final class com/huanshankeji/exposedvertxsqlclient/DatabaseClient {
+public final class com/huanshankeji/exposedvertxsqlclient/DatabaseClient : com/huanshankeji/kotlinx/coroutine/CoroutineAutoCloseable {
 	public fun <init> (Lio/vertx/sqlclient/SqlClient;Lorg/jetbrains/exposed/sql/Database;ZZ)V
 	public synthetic fun <init> (Lio/vertx/sqlclient/SqlClient;Lorg/jetbrains/exposed/sql/Database;ZZILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun close (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun close (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun createTable (Lorg/jetbrains/exposed/sql/Table;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun doExecute (Lorg/jetbrains/exposed/sql/statements/Statement;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun dropTable (Lorg/jetbrains/exposed/sql/Table;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
@@ -130,6 +130,7 @@ public final class com/huanshankeji/exposedvertxsqlclient/local/LocalConnectionC
 	public static final field SOCKET_HOST Ljava/lang/String;
 	public fun <init> (Ljava/lang/Integer;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
 	public synthetic fun <init> (Ljava/lang/Integer;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getConnectionConfig (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionType;)Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig;
 	public final fun getDatabase ()Ljava/lang/String;
 	public final fun getSocketConnectionConfig ()Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;
 	public final fun getSocketConnectionPassword ()Ljava/lang/String;
