@@ -10,5 +10,5 @@ val commonDependencies = CommonDependencies(commonVersions)
 val commonGradleClasspathDependencies = CommonGradleClasspathDependencies(commonVersions)
 
 object DependencyVersions {
-    val exposedAdtMapping = "0.2.0"
+    val exposedAdtMapping = "0.3.0-SNAPSHOT" // TODO don't use a snapshot version in a main branch
 }

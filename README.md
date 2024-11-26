@@ -12,11 +12,17 @@ Only PostgreSQL with [Reactive PostgreSQL Client](https://vertx.io/docs/vertx-pg
 
 This library is experimental now. The APIs are subject to change (especially those marked with `@ExperimentalEvscApi`), the tests are incomplete, and please expect bugs and report them.
 
-## Maven coordinate
+## Add to your dependencies
+
+### The Maven coordinates
 
 ```kotlin
-"com.huanshankeji:exposed-vertx-sql-client-$module:$evscVersion"
+"com.huanshankeji:exposed-vertx-sql-client-$module:$libraryVersion"
 ```
+
+### **Important note**
+
+As Exposed is a library that has not reached stability yet and often has incompatible changes, you are recommended to stick to the same version of Exposed used by this library. The current version is v0.56.0.
 
 ## API documentation
 
@@ -31,7 +37,7 @@ Here is a basic usage guide.
 Add the PostgreSQL module, which was the only module, to your dependencies with the Gradle build script:
 
 ```kotlin
-implementation("com.huanshankeji:exposed-vertx-sql-client-postgresql:0.4.0")
+implementation("com.huanshankeji:exposed-vertx-sql-client-postgresql:$libraryVersion")
 ```
 
 ### Since v0.5.0
@@ -39,13 +45,13 @@ implementation("com.huanshankeji:exposed-vertx-sql-client-postgresql:0.4.0")
 Add the core module to your dependencies with the Gradle build script:
 
 ```kotlin
-implementation("com.huanshankeji:exposed-vertx-sql-client-core:$evscVersion")
+implementation("com.huanshankeji:exposed-vertx-sql-client-core:$libraryVersion")
 ```
 
 And add an RDBMS module, for example, the PostgreSQL module:
 
 ```kotlin
-implementation("com.huanshankeji:exposed-vertx-sql-client-postgresql:$evscVersion")
+implementation("com.huanshankeji:exposed-vertx-sql-client-postgresql:$libraryVersion")
 ```
 
 ### Create a `DatabaseClient`
@@ -144,7 +150,7 @@ With the extension SQL DSL APIs, your code becomes more concise, but it might be
 Gradle dependency configuration (only needed since v0.5.0):
 
 ```kotlin
-implementation("com.huanshankeji:exposed-vertx-sql-client-sql-dsl:$evscVersion")
+implementation("com.huanshankeji:exposed-vertx-sql-client-sql-dsl:$libraryVersion")
 ```
 
 Example code:
@@ -176,7 +182,7 @@ Please read [that library's basic usage guide](https://github.com/huanshankeji/e
 Gradle dependency configuration (only needed since v0.5.0):
 
 ```kotlin
-implementation("com.huanshankeji:exposed-vertx-sql-client-sql-dsl-with-mapper:$evscVersion")
+implementation("com.huanshankeji:exposed-vertx-sql-client-sql-dsl-with-mapper:$libraryVersion")
 ```
 
 Example code:
