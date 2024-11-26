@@ -1,6 +1,5 @@
 package com.huanshankeji.exposed.benchmark.coroutine
 
-import com.huanshankeji.exposed.benchmark.AbstractBenchmark
 import com.huanshankeji.exposed.benchmark.TransactionBenchmark
 import kotlinx.benchmark.Benchmark
 import kotlinx.benchmark.Param
