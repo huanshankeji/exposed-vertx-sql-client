@@ -1,4 +1,4 @@
-package com.huanshankeji.exposed.benchmark.coroutine
+package com.huanshankeji.kotlinx.coroutines.benchmark
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async

@@ -1,13 +1,9 @@
-package com.huanshankeji.exposed.benchmark.coroutine
+package com.huanshankeji.kotlinx.coroutines.benchmark
 
-import com.huanshankeji.exposed.benchmark.TransactionBenchmark
 import kotlinx.benchmark.Benchmark
 import kotlinx.benchmark.Param
 import kotlinx.coroutines.*
 
-/**
- * As a comparison for [TransactionBenchmark].
- */
 class ParameterizedRunBlockingAwaitAsyncsBenchmark : AbstractBenchmark() {
     enum class DispatcherArgumentEnum {
         Default, IO, SingleThread

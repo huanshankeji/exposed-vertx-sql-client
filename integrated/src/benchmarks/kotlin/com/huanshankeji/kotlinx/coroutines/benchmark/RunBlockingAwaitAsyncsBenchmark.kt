@@ -1,12 +1,8 @@
-package com.huanshankeji.exposed.benchmark.coroutine
+package com.huanshankeji.kotlinx.coroutines.benchmark
 
-import com.huanshankeji.exposed.benchmark.TransactionBenchmark
 import kotlinx.benchmark.Benchmark
 import kotlinx.coroutines.runBlocking
 
-/**
- * As a comparison for [TransactionBenchmark].
- */
 class RunBlockingAwaitAsyncsBenchmark : AbstractBenchmark() {
     @Benchmark
     fun runBlockingAwait1MAsyncs() =
