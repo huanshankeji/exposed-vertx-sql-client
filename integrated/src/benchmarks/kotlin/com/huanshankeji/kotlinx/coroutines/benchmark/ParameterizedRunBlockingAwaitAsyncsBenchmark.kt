@@ -6,7 +6,7 @@ import kotlinx.coroutines.*
 
 class ParameterizedRunBlockingAwaitAsyncsBenchmark : AbstractBenchmark() {
     enum class DispatcherArgumentEnum {
-        Default, IO, SingleThread
+        Default, /*Main,*/ Unconfined, IO, SingleThread
     }
 
     @Param
@@ -20,6 +20,8 @@ class ParameterizedRunBlockingAwaitAsyncsBenchmark : AbstractBenchmark() {
         runBlocking(
             when (dispatcherArgumentEnum) {
                 DispatcherArgumentEnum.Default -> Dispatchers.Default
+                //DispatcherArgumentEnum.Main -> Dispatchers.Main
+                DispatcherArgumentEnum.Unconfined -> Dispatchers.Unconfined
                 DispatcherArgumentEnum.IO -> Dispatchers.IO
                 DispatcherArgumentEnum.SingleThread -> singleThreadContext
             }
