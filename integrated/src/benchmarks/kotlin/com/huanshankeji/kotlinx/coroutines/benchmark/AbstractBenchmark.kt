@@ -1,5 +1,3 @@
-// TODO consider moving this package to a module in "kotlin-common"
-
 package com.huanshankeji.kotlinx.coroutines.benchmark
 
 import kotlinx.benchmark.Measurement
