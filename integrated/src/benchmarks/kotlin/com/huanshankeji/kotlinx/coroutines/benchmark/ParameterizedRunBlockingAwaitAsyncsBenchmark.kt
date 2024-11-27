@@ -4,7 +4,7 @@ import kotlinx.benchmark.Benchmark
 import kotlinx.benchmark.Param
 import kotlinx.coroutines.*
 
-class ParameterizedRunBlockingAwaitAsyncsBenchmark : AbstractBenchmark() {
+class ParameterizedRunBlockingAwaitAsyncsBenchmark : AbstractRunBlockingAwaitAsyncsBenchmark() {
     enum class DispatcherArgumentEnum {
         Default, /*Main,*/ Unconfined, IO, SingleThread
     }
@@ -14,18 +14,21 @@ class ParameterizedRunBlockingAwaitAsyncsBenchmark : AbstractBenchmark() {
 
     @OptIn(ExperimentalCoroutinesApi::class, DelicateCoroutinesApi::class)
     val singleThreadContext = newSingleThreadContext("single thread")
+    val dispatcher
+        get() = when (dispatcherArgumentEnum) {
+            DispatcherArgumentEnum.Default -> Dispatchers.Default
+            //DispatcherArgumentEnum.Main -> Dispatchers.Main
+            DispatcherArgumentEnum.Unconfined -> Dispatchers.Unconfined
+            DispatcherArgumentEnum.IO -> Dispatchers.IO
+            DispatcherArgumentEnum.SingleThread -> singleThreadContext
+        }
+
 
     @Benchmark
-    fun runBlockingAwait1MAsyncsWithDispatcherArgument() =
-        runBlocking(
-            when (dispatcherArgumentEnum) {
-                DispatcherArgumentEnum.Default -> Dispatchers.Default
-                //DispatcherArgumentEnum.Main -> Dispatchers.Main
-                DispatcherArgumentEnum.Unconfined -> Dispatchers.Unconfined
-                DispatcherArgumentEnum.IO -> Dispatchers.IO
-                DispatcherArgumentEnum.SingleThread -> singleThreadContext
-            }
-        ) {
-            await1MAasyncs()
-        }
+    override fun runBlockingAwait1mAsyncs() =
+        runBlocking(dispatcher) { await1mAsyncs() }
+
+    @Benchmark
+    override fun runBlockingAwait1KAsync1mSums() =
+        runBlocking(dispatcher) { await1kAsync1mSums() }
 }

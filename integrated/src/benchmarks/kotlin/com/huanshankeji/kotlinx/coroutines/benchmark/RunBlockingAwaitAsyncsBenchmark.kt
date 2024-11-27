@@ -3,8 +3,12 @@ package com.huanshankeji.kotlinx.coroutines.benchmark
 import kotlinx.benchmark.Benchmark
 import kotlinx.coroutines.runBlocking
 
-class RunBlockingAwaitAsyncsBenchmark : AbstractBenchmark() {
+class RunBlockingAwaitAsyncsBenchmark : AbstractRunBlockingAwaitAsyncsBenchmark() {
     @Benchmark
-    fun runBlockingAwait1MAsyncs() =
-        runBlocking { await1MAasyncs() }
+    override fun runBlockingAwait1mAsyncs() =
+        runBlocking { await1mAsyncs() }
+
+    @Benchmark
+    override fun runBlockingAwait1KAsync1mSums() =
+        runBlocking { await1kAsync1mSums() }
 }

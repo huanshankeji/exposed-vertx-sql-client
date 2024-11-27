@@ -6,6 +6,6 @@ import kotlinx.benchmark.State
 import kotlinx.benchmark.Warmup
 
 @State(Scope.Benchmark)
-@Warmup(time = 1, iterations = 8)
+@Warmup(time = 1, iterations = 8) // 4 seems not enough
 @Measurement(time = 1, iterations = 8)
 abstract class AbstractBenchmark
