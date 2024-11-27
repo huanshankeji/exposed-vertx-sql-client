@@ -6,6 +6,7 @@ import com.huanshankeji.exposed.*
 import com.huanshankeji.exposedvertxsqlclient.local.toPerformantUnixEvscConfig
 import com.huanshankeji.exposedvertxsqlclient.postgresql.exposed.exposedDatabaseConnectPostgresql
 import com.huanshankeji.exposedvertxsqlclient.postgresql.local.defaultPostgresqlLocalConnectionConfig
+import com.huanshankeji.exposedvertxsqlclient.postgresql.vertx.pgclient.createPgClient
 import com.huanshankeji.exposedvertxsqlclient.postgresql.vertx.pgclient.createPgPool
 import com.huanshankeji.exposedvertxsqlclient.sql.*
 import io.vertx.core.Verticle
@@ -40,10 +41,16 @@ object Alternative {
 
 @OptIn(ExperimentalEvscApi::class)
 suspend fun examples(vertx: Vertx) {
-    /** It may be more efficient to use a single shared [Database] to generate SQLs for multiple [DatabaseClient]s/[SqlClient]s in respective [Verticle]s. */
+    /** It may be more efficient to reuse a single shared [Database] to generate SQLs in multiple [DatabaseClient]s for [SqlClient]s in respective [Verticle]s. */
     val exposedDatabase = evscConfig.exposedConnectionConfig.exposedDatabaseConnectPostgresql()
-    val vertxPool = createPgPool(vertx, evscConfig.vertxSqlClientConnectionConfig)
-    val databaseClient = DatabaseClient(vertxPool, exposedDatabase)
+
+    val sqlClient = createPgClient(vertx, evscConfig.vertxSqlClientConnectionConfig)
+    val pool = createPgPool(vertx, evscConfig.vertxSqlClientConnectionConfig)
+    val sqlConnection = createPgClient(vertx, evscConfig.vertxSqlClientConnectionConfig)
+
+    val vertxSqlClient = sqlClient
+
+    val databaseClient = DatabaseClient(vertxSqlClient, exposedDatabase)
 
     withContext(Dispatchers.IO) {
         databaseClient.exposedTransaction {

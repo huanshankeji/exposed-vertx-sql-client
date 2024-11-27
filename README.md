@@ -73,7 +73,7 @@ val evscConfig = defaultPostgresqlLocalConnectionConfig(
 ).toPerformantUnixEvscConfig()
 ```
 
-Create an Exposed `Database` with the `ConnectionConfig.Socket`, which can be reused for multiple `Verticle`s:
+Create an Exposed `Database` with the `ConnectionConfig.Socket`, which can be shared and reused in multiple `Verticle`s:
 
 ```kotlin
 val exposedDatabase = evscConfig.exposedConnectionConfig.exposedDatabaseConnectPostgresql()
@@ -82,13 +82,15 @@ val exposedDatabase = evscConfig.exposedConnectionConfig.exposedDatabaseConnectP
 Create a Vert.x `SqlClient` with the `ConnectionConfig`, preferably in a `Verticle`:
 
 ```kotlin
-val vertxPool = createPgPool(vertx, evscConfig.vertxSqlClientConnectionConfig)
+val sqlClient = createPgClient(vertx, evscConfig.vertxSqlClientConnectionConfig)
+val pool = createPgPool(vertx, evscConfig.vertxSqlClientConnectionConfig)
+val sqlConnection = createPgClient(vertx, evscConfig.vertxSqlClientConnectionConfig)
 ```
 
 Create a `Database` with the provided Vert.x `SqlClient` and Exposed `Database`, preferably in a `Verticle`:
 
 ```kotlin
-val databaseClient = DatabaseClient(vertxPool, exposedDatabase)
+val databaseClient = DatabaseClient(vertxSqlClient, exposedDatabase)
 ```
 
 ### Example table definitions
