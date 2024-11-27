@@ -108,12 +108,12 @@ val tables = arrayOf(Examples)
 For example, to create tables:
 
 ```kotlin
-withContext(Dispatchers.IO) {
-    databaseClient.exposedTransaction {
-        SchemaUtils.create(*tables)
-    }
+databaseClient.exposedTransaction {
+    SchemaUtils.create(*tables)
 }
 ```
+
+If you execute blocking Exposed statements inside `Verticle`s or event loop threads that you shouldn't block, you should use Vert.x `Vertx.executeBlocking` or Coroutines `Dispatchers.IO`.
 
 ### CRUD (DML and DQL) operations with `DatabaseClient`
 

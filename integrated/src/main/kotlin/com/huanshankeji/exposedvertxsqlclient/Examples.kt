@@ -12,8 +12,6 @@ import com.huanshankeji.exposedvertxsqlclient.sql.*
 import io.vertx.core.Verticle
 import io.vertx.core.Vertx
 import io.vertx.sqlclient.SqlClient
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -52,10 +50,9 @@ suspend fun examples(vertx: Vertx) {
 
     val databaseClient = DatabaseClient(vertxSqlClient, exposedDatabase)
 
-    withContext(Dispatchers.IO) {
-        databaseClient.exposedTransaction {
-            SchemaUtils.create(*tables)
-        }
+    // put in `Vertx.executeBlocking` or `Dispatchers.IO` if needed
+    databaseClient.exposedTransaction {
+        SchemaUtils.create(*tables)
     }
 
     run {
