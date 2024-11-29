@@ -70,11 +70,11 @@ suspend fun examples(vertx: Vertx) {
             databaseClient.executeUpdate(Examples.updateStatement({ Examples.id eq 1 }) { it[name] = "AA" })
         assert(updateRowCount == 1)
 
-        // The Exposed `Table` extension function `select` doesn't execute eagerly so it can be used directly.
-        val exampleName = databaseClient.executeQuery(Examples.select(Examples.name).where(Examples.id eq 1))
+        // The Exposed `Table` extension function `select` doesn't execute eagerly so it can also be used directly.
+        val exampleName = databaseClient.executeQuery(Examples.selectStatement(Examples.name).where(Examples.id eq 1))
             .single()[Examples.name]
 
-        databaseClient.executeSingleUpdate(Examples.deleteWhereStatement { Examples.id eq 1 }) // The function `deleteWhereStatement` still depends on the old DSL and will be updated.
+        databaseClient.executeSingleUpdate(Examples.deleteWhereStatement { id eq 1 })
         databaseClient.executeSingleUpdate(Examples.deleteIgnoreWhereStatement { id eq 2 })
     }
 
@@ -86,7 +86,6 @@ suspend fun examples(vertx: Vertx) {
 
         val exampleName1 =
             databaseClient.select(Examples) { select(Examples.name).where(Examples.id eq 1) }.single()[Examples.name]
-        // This function still depends on the old SELECT DSL and will be updated.
         val exampleName2 =
             databaseClient.selectSingleColumn(Examples, Examples.name) { where(Examples.id eq 2) }.single()
 

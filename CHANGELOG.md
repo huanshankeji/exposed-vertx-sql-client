@@ -2,11 +2,36 @@
 
 ## v0.5.0 / 2024-11-29
 
-Because of [the Exposed SELECT DSL design changes](https://github.com/JetBrains/Exposed/pull/1916), and also because the old `DatabaseClient` creation APIs were poorly designed and too cumbersome, causing an additional cognitive burden on the users, this release has been completely overhauled. Some old APIs are removed directly because deprecating and delegating them to new ones fills the code base with unused code. Therefore, this release is not source-compatible or binary-compatible with v0.4.0. We are sorry for the inconvenience. From this version on, we will try to maintain source and binary compatibility, deprecating APIs instead of removing them in the foreseeable future.
+Because of [the Exposed SELECT DSL design changes](https://github.com/JetBrains/Exposed/pull/1916), and also because the old `DatabaseClient` creation APIs were poorly designed and too cumbersome, causing additional cognitive burdens on the users, this release has been completely overhauled. Some old APIs are removed directly because deprecating and delegating them to new ones fills the code base with unused code. Therefore, this release is **not source-compatible or binary-compatible** with v0.4.0. Please do not update unless you have time to adapt to the refactored changes. We are sorry for the inconvenience. From this version on, we will try to maintain source and binary compatibility, deprecating APIs instead of removing them in the foreseeable future.
+
+Please check out the [updated README](README.md) to upgrade to v0.5.0.
 
 Functional changes:
 
-* ...
+* adapt to [the Exposed SELECT DSL design changes](https://github.com/JetBrains/Exposed/pull/1916) (resolve #8)
+* rename the SQL DSL functions taking mapper parameters, adding "withMapper" prefixes (resolve #6)
+* split the library into multiple modules including "core", "postgresql", "sql-dsl", and "sql-dsl-with-mapper"
+* generalize the functions with the types `PgPool` and `PgConnection` to work with different RDBMSs, replacing them with `Pool` and `SqlConnection`
+* get rid of all usages of `PgPool` which was deprecated in Vert.x 4.5
+* extract some new APIs and move some existing APIs into finer-grained subpackages, including `jdbc`, `exposed`, `vertx.sqlclient`, and `local` in the "core" module, and `postgresql` in the "postgresql" module
+* overhaul the APIs related to the creation of Exposed `Database`s, Vert.x SQL clients, and `DatabaseClient`s
+
+  * remove the `create...andSetRole` functions to create Vert.x SQL Clients, with their functionalities merged into the `create...` functions to create Vert.x SQL Clients
+
+  * refactor the Exposed `Database` and Vert.x `SqlClient` creation APIs to be more configurable and straightforward
+
+  * remove the extra shortcut `DatabaseClient` creation APIs such as `createPgPoolDatabaseClient` as they were poorly designed and too cumbersome, causing additional cognitive burdens on the users
+
+     There are too many different combinations with different RDMBSs such as PostgreSQL and MySQL, and different Vert.x SQL Clients such as `SqlClient`, `Pool`, and `SqlConnection`. Therefore we don't provide such shortcut APIs anymore as they are just too cumbersome and cause additional cognitive burdens on the users, and we encourage the library users to create their own (see the updated guide in README.md for instructions). In this way, the Exposed `Databse`s and Vert.x SQL Clients are also more configurable.
+
+* adopt `EvscConfig` as the single-source-of-truth database client config and no longer prefer local connections
+
+   `LocalConnectionConfig` should be converted to `EvscConfig` or `ConnectionConfig` to be used.
+
+* mark some APIs as experimental as they are subject to change
+* make `DatabaseClient` implement our new `CoroutineAutoCloseable` interface
+* add a version of `selectWithMapper` without `buildQuery`
+* point out in the usage guide that you are encouraged to share/reuse an Exposed `Database` which generates SQLs among multiple `DatabaseClient`s in multiple verticles, which improves performance as shown in our benchmark results
 
 Miscellaneous changes:
 
