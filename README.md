@@ -8,25 +8,89 @@
 
 Only PostgreSQL with [Reactive PostgreSQL Client](https://vertx.io/docs/vertx-pg-client/java/) is currently supported.
 
-## Maven coordinate
+## Experimental
+
+This library is experimental now. The APIs are subject to change (especially those marked with `@ExperimentalEvscApi`), the tests are incomplete, and please expect bugs and report them.
+
+## Add to your dependencies
+
+### The Maven coordinates
 
 ```kotlin
-"com.huanshankeji:exposed-vertx-sql-client-postgresql:$version"
+"com.huanshankeji:exposed-vertx-sql-client-$module:$libraryVersion"
 ```
+
+### **Important note**
+
+As Exposed is a library that has not reached stability yet and often has incompatible changes, you are recommended to stick to the same version of Exposed used by this library. The current version is v0.56.0.
+
+## API documentation
+
+See the [hosted API documentation](https://huanshankeji.github.io/exposed-vertx-sql-client/) for the APIs.
 
 ## Basic usage guide
 
-Here is a basic usage guide. This project currently serves our own use, therefore, there are temporarily no detailed docs, APIs are experimental, tests are incomplete, and please expect bugs. To learn more in addition to the guide below, see the [hosted API documentation](https://huanshankeji.github.io/exposed-vertx-sql-client/), and see [DatabaseClient.kt](lib/src/main/kotlin/com/huanshankeji/exposedvertxsqlclient/DatabaseClient.kt) and [DatabaseClientSql.kt](lib/src/main/kotlin/com/huanshankeji/exposedvertxsqlclient/sql/DatabaseClientSql.kt) for the major APIs.
+Here is a basic usage guide.
+
+### Before v0.5.0
+
+Add the PostgreSQL module, which was the only module, to your dependencies with the Gradle build script:
+
+```kotlin
+implementation("com.huanshankeji:exposed-vertx-sql-client-postgresql:$libraryVersion")
+```
+
+### Since v0.5.0
+
+Add the core module to your dependencies with the Gradle build script:
+
+```kotlin
+implementation("com.huanshankeji:exposed-vertx-sql-client-core:$libraryVersion")
+```
+
+And add an RDBMS module, for example, the PostgreSQL module:
+
+```kotlin
+implementation("com.huanshankeji:exposed-vertx-sql-client-postgresql:$libraryVersion")
+```
 
 ### Create a `DatabaseClient`
 
+Create an `EvscConfig` as the single source of truth:
+
 ```kotlin
-val socketConnectionConfig =
-    ConnectionConfig.Socket("localhost", user = "user", password = "password", database = "database")
-val exposedDatabase = exposedDatabaseConnectPostgreSql(socketConnectionConfig)
-val databaseClient = createPgPoolDatabaseClient(
-    vertx, socketConnectionConfig, exposedDatabase = exposedDatabase
-)
+val evscConfig = ConnectionConfig.Socket("localhost", user = "user", password = "password", database = "database")
+    .toUniversalEvscConfig()
+```
+
+Local alternative with Unix domain socket:
+
+```kotlin
+val evscConfig = defaultPostgresqlLocalConnectionConfig(
+    user = "user",
+    socketConnectionPassword = "password",
+    database = "database"
+).toPerformantUnixEvscConfig()
+```
+
+Create an Exposed `Database` with the `ConnectionConfig.Socket`, which can be shared and reused in multiple `Verticle`s:
+
+```kotlin
+val exposedDatabase = evscConfig.exposedConnectionConfig.exposedDatabaseConnectPostgresql()
+```
+
+Create a Vert.x `SqlClient` with the `ConnectionConfig`, preferably in a `Verticle`:
+
+```kotlin
+val sqlClient = createPgClient(vertx, evscConfig.vertxSqlClientConnectionConfig)
+val pool = createPgPool(vertx, evscConfig.vertxSqlClientConnectionConfig)
+val sqlConnection = createPgClient(vertx, evscConfig.vertxSqlClientConnectionConfig)
+```
+
+Create a `Database` with the provided Vert.x `SqlClient` and Exposed `Database`, preferably in a `Verticle`:
+
+```kotlin
+val databaseClient = DatabaseClient(vertxSqlClient, exposedDatabase)
 ```
 
 ### Example table definitions
@@ -44,18 +108,19 @@ val tables = arrayOf(Examples)
 For example, to create tables:
 
 ```kotlin
-withContext(Dispatchers.IO) {
-    databaseClient.exposedTransaction {
-        SchemaUtils.create(*tables)
-    }
+databaseClient.exposedTransaction {
+    SchemaUtils.create(*tables)
 }
 ```
+
+If you execute blocking Exposed statements inside `Verticle`s or event loop threads that you shouldn't block, you should use Vert.x `Vertx.executeBlocking` or Coroutines `Dispatchers.IO`.
 
 ### CRUD (DML and DQL) operations with `DatabaseClient`
 
 #### Core APIs
 
-With these core APIs, you create and execute Exposed `Statement`s. You don't need to learn many new APIs, and the `Statement`s are more composable and easily editable.
+With these core APIs, you create and execute Exposed `Statement`s. You don't need to learn many new APIs, and the
+`Statement`s are more composable and easily editable. For example, you can move a query into an adapted subquery.
 
 ```kotlin
 // The Exposed `Table` extension functions `insert`, `update`, and `delete` execute eagerly so `insertStatement`, `updateStatement`, `deleteStatement` have to be used.
@@ -82,7 +147,15 @@ databaseClient.executeSingleUpdate(Examples.deleteIgnoreWhereStatement { id eq 2
 
 #### Extension SQL DSL APIs
 
-With these extension APIs, your code becomes more concise, but it might be more difficult when you need to compose statements or edit the code:
+With the extension SQL DSL APIs, your code becomes more concise, but it might be more difficult when you need to compose statements or edit the code.
+
+Gradle dependency configuration (only needed since v0.5.0):
+
+```kotlin
+implementation("com.huanshankeji:exposed-vertx-sql-client-sql-dsl:$libraryVersion")
+```
+
+Example code:
 
 ```kotlin
 databaseClient.insert(Examples) { it[name] = "A" }
@@ -94,7 +167,9 @@ val exampleName1 =
     databaseClient.select(Examples) { select(Examples.name).where(Examples.id eq 1) }.single()[Examples.name]
 // This function still depends on the old SELECT DSL and will be updated.
 val exampleName2 =
-    databaseClient.selectSingleColumn(Examples, Examples.name) { selectAll().where(Examples.id eq 2) }.single()
+    databaseClient.selectSingleColumn(Examples, Examples.name) { where(Examples.id eq 2) }.single()
+
+val examplesExist = databaseClient.selectExpression(exists(Examples.selectAll()))
 
 val deleteRowCount1 = databaseClient.deleteWhere(Examples) { id eq 1 }
 assert(deleteRowCount1 == 1)
@@ -102,26 +177,34 @@ val deleteRowCount2 = databaseClient.deleteIgnoreWhere(Examples) { id eq 2 }
 assert(deleteRowCount2 == 1)
 ```
 
-#### APIs using [Exposed GADT mapping](https://github.com/huanshankeji/exposed-adt-mapping)
+#### Extension SQL DSL APIs with [Exposed GADT mapping](https://github.com/huanshankeji/exposed-adt-mapping)
 
 Please read [that library's basic usage guide](https://github.com/huanshankeji/exposed-adt-mapping?tab=readme-ov-file#basic-usage-guide) first. Here are examples of this library that correspond to [that library's CRUD operations](https://github.com/huanshankeji/exposed-adt-mapping?tab=readme-ov-file#crud-operations).
+
+Gradle dependency configuration (only needed since v0.5.0):
+
+```kotlin
+implementation("com.huanshankeji:exposed-vertx-sql-client-sql-dsl-with-mapper:$libraryVersion")
+```
+
+Example code:
 
 ```kotlin
 val directorId = 1
 val director = Director(directorId, "George Lucas")
-databaseClient.insert(Directors, director, Mappers.director)
+databaseClient.insertWithMapper(Directors, director, Mappers.director)
 
 val episodeIFilmDetails = FilmDetails(1, "Star Wars: Episode I – The Phantom Menace", directorId)
 // insert without the ID since it's `AUTO_INCREMENT`
-databaseClient.insert(Films, episodeIFilmDetails, Mappers.filmDetailsWithDirectorId)
+databaseClient.insertWithMapper(Films, episodeIFilmDetails, Mappers.filmDetailsWithDirectorId)
 
 val filmId = 2
 val episodeIIFilmDetails = FilmDetails(2, "Star Wars: Episode II – Attack of the Clones", directorId)
 val filmWithDirectorId = FilmWithDirectorId(filmId, episodeIIFilmDetails)
-databaseClient.insert(Films, filmWithDirectorId, Mappers.filmWithDirectorId) // insert with the ID
+databaseClient.insertWithMapper(Films, filmWithDirectorId, Mappers.filmWithDirectorId) // insert with the ID
 
-val fullFilms = databaseClient.select(filmsLeftJoinDirectors, Mappers.fullFilm) {
-    select(Films.filmId inList listOf(1, 2)) // This API still depends on the old SELECT DSL and will be refactored.
+val fullFilms = databaseClient.selectWithMapper(filmsLeftJoinDirectors, Mappers.fullFilm) {
+    where(Films.filmId inList listOf(1, 2)) // This API still depends on the old SELECT DSL and will be refactored.
 }
 ```
 

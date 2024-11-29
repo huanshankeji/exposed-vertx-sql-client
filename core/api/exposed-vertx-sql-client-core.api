@@ -1,0 +1,172 @@
+public abstract interface class com/huanshankeji/exposedvertxsqlclient/ConnectionConfig {
+	public abstract fun getDatabase ()Ljava/lang/String;
+	public abstract fun getUserAndRole ()Ljava/lang/String;
+}
+
+public final class com/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket : com/huanshankeji/exposedvertxsqlclient/ConnectionConfig {
+	public fun <init> (Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun getDatabase ()Ljava/lang/String;
+	public final fun getHost ()Ljava/lang/String;
+	public final fun getPassword ()Ljava/lang/String;
+	public final fun getPort ()Ljava/lang/Integer;
+	public final fun getUser ()Ljava/lang/String;
+	public fun getUserAndRole ()Ljava/lang/String;
+}
+
+public final class com/huanshankeji/exposedvertxsqlclient/ConnectionConfig$UnixDomainSocketWithPeerAuthentication : com/huanshankeji/exposedvertxsqlclient/ConnectionConfig {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public fun getDatabase ()Ljava/lang/String;
+	public final fun getPath ()Ljava/lang/String;
+	public final fun getRole ()Ljava/lang/String;
+	public fun getUserAndRole ()Ljava/lang/String;
+}
+
+public final class com/huanshankeji/exposedvertxsqlclient/ConnectionConfigKt {
+	public static final fun toUniversalEvscConfig (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;)Lcom/huanshankeji/exposedvertxsqlclient/EvscConfig;
+}
+
+public final class com/huanshankeji/exposedvertxsqlclient/ConnectionType : java/lang/Enum {
+	public static final field Socket Lcom/huanshankeji/exposedvertxsqlclient/ConnectionType;
+	public static final field UnixDomainSocketWithPeerAuthentication Lcom/huanshankeji/exposedvertxsqlclient/ConnectionType;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcom/huanshankeji/exposedvertxsqlclient/ConnectionType;
+	public static fun values ()[Lcom/huanshankeji/exposedvertxsqlclient/ConnectionType;
+}
+
+public final class com/huanshankeji/exposedvertxsqlclient/DatabaseClient : com/huanshankeji/kotlinx/coroutine/CoroutineAutoCloseable {
+	public fun <init> (Lio/vertx/sqlclient/SqlClient;Lorg/jetbrains/exposed/sql/Database;ZZ)V
+	public synthetic fun <init> (Lio/vertx/sqlclient/SqlClient;Lorg/jetbrains/exposed/sql/Database;ZZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun close (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun createTable (Lorg/jetbrains/exposed/sql/Table;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun doExecute (Lorg/jetbrains/exposed/sql/statements/Statement;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun dropTable (Lorg/jetbrains/exposed/sql/Table;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun execute (Lorg/jetbrains/exposed/sql/statements/Statement;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun executeBatch (Ljava/lang/Iterable;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun executeBatchForVertxSqlClientRowSetSequence (Ljava/lang/Iterable;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun executeBatchQuery (Lorg/jetbrains/exposed/sql/FieldSet;Ljava/lang/Iterable;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun executeBatchQuery (Lorg/jetbrains/exposed/sql/FieldSet;Ljava/lang/Iterable;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun executeBatchUpdate (Ljava/lang/Iterable;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun executeExpression (Lkotlin/reflect/KClass;Lorg/jetbrains/exposed/sql/Expression;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun executeForVertxSqlClientRowSet (Lorg/jetbrains/exposed/sql/statements/Statement;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun executePlainSql (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun executePlainSqlUpdate (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun executeQuery (Lorg/jetbrains/exposed/sql/Query;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun executeQuery (Lorg/jetbrains/exposed/sql/Query;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun executeSingleOrNoUpdate (Lorg/jetbrains/exposed/sql/statements/Statement;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun executeSingleUpdate (Lorg/jetbrains/exposed/sql/statements/Statement;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun executeUpdate (Lorg/jetbrains/exposed/sql/statements/Statement;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun executeWithMapping (Lorg/jetbrains/exposed/sql/statements/Statement;Ljava/util/function/Function;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun exposedTransaction (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public final fun getExposedDatabase ()Lorg/jetbrains/exposed/sql/Database;
+	public final fun getFieldExpressionSetWithTransaction (Lorg/jetbrains/exposed/sql/FieldSet;)Ljava/util/Set;
+	public final fun getFieldExpressionSetWithTransaction (Lorg/jetbrains/exposed/sql/Query;)Ljava/util/Set;
+	public final fun getLogSql ()Z
+	public final fun getValidateBatch ()Z
+	public final fun getVertxSqlClient ()Lio/vertx/sqlclient/SqlClient;
+	public final fun isWorking (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun toExposedResultRowWithTransaction (Lio/vertx/sqlclient/Row;Lorg/jetbrains/exposed/sql/Query;)Lorg/jetbrains/exposed/sql/ResultRow;
+}
+
+public final class com/huanshankeji/exposedvertxsqlclient/DatabaseClientKt {
+	public static final fun dbAssert (Z)V
+	public static final fun getFieldExpressionSet (Lorg/jetbrains/exposed/sql/FieldSet;)Ljava/util/Set;
+	public static final fun getFieldExpressionSet (Lorg/jetbrains/exposed/sql/Query;)Ljava/util/Set;
+	public static final fun getSavepointNameRegex ()Lkotlin/text/Regex;
+	public static final fun getVertxPgClientPreparedSql (Lorg/jetbrains/exposed/sql/statements/Statement;Lorg/jetbrains/exposed/sql/Transaction;)Ljava/lang/String;
+	public static final fun getVertxSqlClientArgTuple (Lorg/jetbrains/exposed/sql/statements/Statement;)Lio/vertx/sqlclient/Tuple;
+	public static final fun singleOrNoResult (Lio/vertx/sqlclient/RowSet;)Ljava/lang/Object;
+	public static final fun singleOrNoUpdate (I)Z
+	public static final fun singleResult (Lio/vertx/sqlclient/RowSet;)Ljava/lang/Object;
+	public static final fun singleStatementArguments (Lorg/jetbrains/exposed/sql/statements/Statement;)Ljava/lang/Iterable;
+	public static final fun toExposedResultRow (Lio/vertx/sqlclient/Row;Ljava/util/Set;)Lorg/jetbrains/exposed/sql/ResultRow;
+	public static final fun toExposedResultRow (Lio/vertx/sqlclient/Row;Lorg/jetbrains/exposed/sql/Query;)Lorg/jetbrains/exposed/sql/ResultRow;
+	public static final fun toVertxPgClientPreparedSql (Ljava/lang/String;)Ljava/lang/String;
+	public static final fun toVertxTuple (Ljava/lang/Iterable;)Lio/vertx/sqlclient/Tuple;
+	public static final fun types (Ljava/lang/Iterable;)Ljava/util/List;
+	public static final fun withSavepointAndRollbackIfThrows (Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClient;Ljava/lang/String;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun withSavepointAndRollbackIfThrowsOrFalse (Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClient;Ljava/lang/String;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun withSavepointAndRollbackIfThrowsOrLeft (Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClient;Ljava/lang/String;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun withSavepointAndRollbackIfThrowsOrNone (Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClient;Ljava/lang/String;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun withTransaction (Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClient;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun withTransactionCommitOrRollback (Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClient;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun withTypedTransaction (Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClient;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/huanshankeji/exposedvertxsqlclient/EvscConfig : com/huanshankeji/exposedvertxsqlclient/IEvscConfig {
+	public fun <init> (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig;)V
+	public fun getExposedConnectionConfig ()Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;
+	public fun getVertxSqlClientConnectionConfig ()Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig;
+}
+
+public abstract interface annotation class com/huanshankeji/exposedvertxsqlclient/ExperimentalEvscApi : java/lang/annotation/Annotation {
+}
+
+public abstract interface class com/huanshankeji/exposedvertxsqlclient/IEvscConfig {
+	public abstract fun getExposedConnectionConfig ()Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;
+	public abstract fun getVertxSqlClientConnectionConfig ()Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig;
+}
+
+public abstract interface annotation class com/huanshankeji/exposedvertxsqlclient/InternalApi : java/lang/annotation/Annotation {
+}
+
+public final class com/huanshankeji/exposedvertxsqlclient/SingleUpdateException : java/lang/Exception {
+	public fun <init> (I)V
+}
+
+public final class com/huanshankeji/exposedvertxsqlclient/exposed/ExposedDatabasesKt {
+	public static final fun exposedDatabaseConnect (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/sql/DatabaseConfig;Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/exposed/sql/Database;
+	public static final fun exposedDatabaseConnect (Ljava/lang/String;Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/sql/DatabaseConfig;Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/exposed/sql/Database;
+	public static synthetic fun exposedDatabaseConnect$default (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/sql/DatabaseConfig;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lorg/jetbrains/exposed/sql/Database;
+	public static synthetic fun exposedDatabaseConnect$default (Ljava/lang/String;Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/sql/DatabaseConfig;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lorg/jetbrains/exposed/sql/Database;
+}
+
+public final class com/huanshankeji/exposedvertxsqlclient/jdbc/JdbcUrlsKt {
+	public static final fun jdbcUrl (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Ljava/lang/String;)Ljava/lang/String;
+}
+
+public final class com/huanshankeji/exposedvertxsqlclient/local/LocalConnectionConfig {
+	public static final field Companion Lcom/huanshankeji/exposedvertxsqlclient/local/LocalConnectionConfig$Companion;
+	public static final field SOCKET_HOST Ljava/lang/String;
+	public fun <init> (Ljava/lang/Integer;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/Integer;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getConnectionConfig (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionType;)Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig;
+	public final fun getDatabase ()Ljava/lang/String;
+	public final fun getSocketConnectionConfig ()Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;
+	public final fun getSocketConnectionPassword ()Ljava/lang/String;
+	public final fun getSocketConnectionPort ()Ljava/lang/Integer;
+	public final fun getUnixDomainSocketPath ()Ljava/lang/String;
+	public final fun getUnixDomainSocketWithPeerAuthenticationConnectionConfig ()Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$UnixDomainSocketWithPeerAuthentication;
+	public final fun getUser ()Ljava/lang/String;
+}
+
+public final class com/huanshankeji/exposedvertxsqlclient/local/LocalConnectionConfig$Companion {
+}
+
+public final class com/huanshankeji/exposedvertxsqlclient/local/LocalConnectionConfigKt {
+	public static final fun toPerformantUnixEvscConfig (Lcom/huanshankeji/exposedvertxsqlclient/local/LocalConnectionConfig;)Lcom/huanshankeji/exposedvertxsqlclient/EvscConfig;
+	public static final fun toUniversalEvscConfig (Lcom/huanshankeji/exposedvertxsqlclient/local/LocalConnectionConfig;)Lcom/huanshankeji/exposedvertxsqlclient/EvscConfig;
+}
+
+public final class com/huanshankeji/exposedvertxsqlclient/vertx/sqlclient/SqlClientsKt {
+	public static final fun createGenericSqlClient (Lio/vertx/core/Vertx;Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig;Lio/vertx/sqlclient/SqlConnectOptions;Lkotlin/jvm/functions/Function1;Lio/vertx/sqlclient/PoolOptions;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function4;)Lio/vertx/sqlclient/SqlClient;
+	public static final fun createGenericSqlClientWithBuilder (Lio/vertx/core/Vertx;Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig;Lio/vertx/sqlclient/ClientBuilder;Lio/vertx/sqlclient/SqlConnectOptions;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;Lio/vertx/sqlclient/PoolOptions;)Lio/vertx/sqlclient/SqlClient;
+	public static final fun createGenericSqlConnection (Lio/vertx/core/Vertx;Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig;Lkotlin/jvm/functions/Function2;Lio/vertx/sqlclient/SqlConnectOptions;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/huanshankeji/exposedvertxsqlclient/vertx/sqlclient/SqlConnectOptionsKt {
+	public static final fun setFrom (Lio/vertx/sqlclient/SqlConnectOptions;Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;)V
+	public static final fun setFrom (Lio/vertx/sqlclient/SqlConnectOptions;Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$UnixDomainSocketWithPeerAuthentication;)V
+	public static final fun setFrom (Lio/vertx/sqlclient/SqlConnectOptions;Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig;)V
+}
+
+public final class com/huanshankeji/exposedvertxsqlclient/vertx/sqlclient/SqlConnectionInitializationKt {
+	public static final fun getCoConnectHandler (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig;Lkotlin/jvm/functions/Function2;)Lkotlin/jvm/functions/Function2;
+	public static final fun initConnection (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig;Lio/vertx/sqlclient/SqlConnection;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun toWithParameterFunction (Lkotlin/jvm/functions/Function2;)Lkotlin/jvm/functions/Function2;
+}
+
+public final class com/huanshankeji/exposedvertxsqlclient/vertx/sqlclient/SqlConnectionKt {
+	public static final fun setRole (Lio/vertx/sqlclient/SqlConnection;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
