@@ -10,16 +10,14 @@ import com.huanshankeji.exposedvertxsqlclient.vertx.sqlclient.createGenericSqlCl
 import com.huanshankeji.exposedvertxsqlclient.vertx.sqlclient.createGenericSqlClientWithBuilder
 import com.huanshankeji.exposedvertxsqlclient.vertx.sqlclient.createGenericSqlConnection
 import io.vertx.core.Vertx
+import io.vertx.mysqlclient.MySQLBuilder
+import io.vertx.mysqlclient.MySQLConnectOptions
+import io.vertx.mysqlclient.MySQLConnection
+import io.vertx.mysqlclient.impl.MySQLPoolOptions
 import io.vertx.sqlclient.ClientBuilder
 import io.vertx.sqlclient.Pool
-import io.vertx.sqlclient.SqlClient
-import io.vertx.mysqlclient.MySQLBuilder
-import io.vertx.mysqlclient.MySQLConnection
-// import io.vertx.mysqlclient.MySQLPool --deprecated
-import io.vertx.mysqlclient.MySQLConnectOptions
-import io.vertx.mysqlclient.impl.MySQLPoolOptions
 import io.vertx.sqlclient.PoolOptions
-
+import io.vertx.sqlclient.SqlClient
 
 /**
  * @see createGenericSqlClient
@@ -79,9 +77,6 @@ fun createPgPool(
         extraPoolOptions,
         connectHandlerExtra
     )
-
-// temporarily added, maybe moved into kotlin-common
-public fun io.vertx.mysqlclient.impl.MySQLPoolOptions.setUpConventionally(): kotlin.Unit { /* compiled code */ }
 
 /**
  * @see createGenericSqlClient
