@@ -3,16 +3,16 @@ public final class com/huanshankeji/exposedvertxsqlclient/mysql/DatabaseClientKt
 }
 
 public final class com/huanshankeji/exposedvertxsqlclient/mysql/exposed/ExposedDatabasesKt {
-	public static final fun exposedDatabaseConnectMySQL (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/sql/DatabaseConfig;Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/exposed/sql/Database;
-	public static synthetic fun exposedDatabaseConnectMySQL$default (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/sql/DatabaseConfig;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lorg/jetbrains/exposed/sql/Database;
 	public static final fun exposedDatabaseConnectMySQLWithParameterConnectionConfig (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/sql/DatabaseConfig;Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/exposed/sql/Database;
 	public static synthetic fun exposedDatabaseConnectMySQLWithParameterConnectionConfig$default (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/sql/DatabaseConfig;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lorg/jetbrains/exposed/sql/Database;
+	public static final fun exposedDatabaseConnectMysql (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/sql/DatabaseConfig;Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/exposed/sql/Database;
+	public static synthetic fun exposedDatabaseConnectMysql$default (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/sql/DatabaseConfig;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lorg/jetbrains/exposed/sql/Database;
 }
 
 public final class com/huanshankeji/exposedvertxsqlclient/mysql/local/LocalConnectionConfigKt {
 	public static final field DEFAULT_MYSQL_UNIX_DOMAIN_SOCKET_PATH Ljava/lang/String;
-	public static final fun defaultMySQLLocalConnectionConfig (Ljava/lang/Integer;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/huanshankeji/exposedvertxsqlclient/local/LocalConnectionConfig;
-	public static synthetic fun defaultMySQLLocalConnectionConfig$default (Ljava/lang/Integer;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/huanshankeji/exposedvertxsqlclient/local/LocalConnectionConfig;
+	public static final fun defaultMysqlLocalConnectionConfig (Ljava/lang/Integer;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/huanshankeji/exposedvertxsqlclient/local/LocalConnectionConfig;
+	public static synthetic fun defaultMysqlLocalConnectionConfig$default (Ljava/lang/Integer;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/huanshankeji/exposedvertxsqlclient/local/LocalConnectionConfig;
 }
 
 public final class com/huanshankeji/exposedvertxsqlclient/mysql/vertx/mysqlclient/MySQLClientsKt {
