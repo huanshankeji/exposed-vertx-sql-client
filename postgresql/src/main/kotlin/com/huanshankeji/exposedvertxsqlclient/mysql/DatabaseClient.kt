@@ -1,4 +1,4 @@
-package com.huanshankeji.exposedvertxsqlclient.mysql
+package com.huanshankeji.exposedvertxsqlclient.postgresql
 
 import com.huanshankeji.exposedvertxsqlclient.DatabaseClient
 import com.huanshankeji.exposedvertxsqlclient.withTypedTransaction

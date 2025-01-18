@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalEvscApi::class)
 
-package com.huanshankeji.exposedvertxsqlclient.mysql.vertx.mysqlclient
+package com.huanshankeji.exposedvertxsqlclient.postgresql.vertx.pgclient
 
 import com.huanshankeji.Untested
 import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig
