@@ -1,7 +1,9 @@
 package com.huanshankeji.exposedvertxsqlclient
 
 import arrow.core.*
+import com.huanshankeji.ExperimentalApi
 import com.huanshankeji.collections.singleOrNullIfEmpty
+import com.huanshankeji.kotlinx.coroutine.CoroutineAutoCloseable
 import com.huanshankeji.vertx.kotlin.coroutines.coroutineToFuture
 import com.huanshankeji.vertx.kotlin.sqlclient.executeBatchAwaitForSqlResultSequence
 import io.vertx.core.buffer.Buffer
@@ -77,15 +79,15 @@ internal val logger = LoggerFactory.getLogger(DatabaseClient::class.java)
  *
  * @param validateBatch whether to validate whether the batch statements have the same generated prepared SQL. It's recommended to keep this enabled for tests but disabled for production.
  */
-@OptIn(ExperimentalEvscApi::class)
+@OptIn(ExperimentalApi::class)
 class DatabaseClient<out VertxSqlClientT : SqlClient>(
     val vertxSqlClient: VertxSqlClientT,
     val exposedDatabase: Database,
     // TODO consider adding a `isProduction` parameter whose default depends on the runtime
     val validateBatch: Boolean = true,
     val logSql: Boolean = false
-) {
-    suspend fun close() {
+) : CoroutineAutoCloseable {
+    override suspend fun close() {
         vertxSqlClient.close().coAwait()
         // How to close The Exposed `Database`?
     }

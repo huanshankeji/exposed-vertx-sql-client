@@ -36,6 +36,12 @@ suspend fun <Data : Any> DatabaseClient<*>.selectWithMapper(
     executeQueryWithMapper(columnSet.select(dataQueryMapper.neededColumns).buildQuery(), dataQueryMapper)
 
 @ExperimentalEvscApi
+suspend fun <Data : Any> DatabaseClient<*>.selectWithMapper(
+    columnSet: ColumnSet, dataQueryMapper: DataQueryMapper<Data>
+) =
+    selectWithMapper(columnSet, dataQueryMapper) { this }
+
+@ExperimentalEvscApi
 suspend fun <Data : Any> DatabaseClient<*>.insertWithMapper(
     table: Table, data: Data, dataUpdateMapper: DataUpdateMapper<Data>
 ) =

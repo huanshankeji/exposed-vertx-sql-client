@@ -95,6 +95,6 @@ suspend fun mappingExamples(databaseClient: DatabaseClient<Pool>) {
     databaseClient.insertWithMapper(Films, filmWithDirectorId, Mappers.filmWithDirectorId) // insert with the ID
 
     val fullFilms = databaseClient.selectWithMapper(filmsLeftJoinDirectors, Mappers.fullFilm) {
-        where(Films.filmId inList listOf(1, 2)) // This API still depends on the old SELECT DSL and will be refactored.
+        where(Films.filmId inList listOf(1, 2))
     }
 }

@@ -74,7 +74,7 @@ suspend fun <T : Any> DatabaseClient<*>.selectExpression(clazz: KClass<T>, expre
 
 suspend inline fun <reified T> DatabaseClient<*>.selectExpression(expression: Expression<T>): T =
     @Suppress("UNCHECKED_CAST")
-    (selectExpression(T::class as KClass<Any>, expression as Expression<Any?>)) as T
+    selectExpression(T::class as KClass<Any>, expression as Expression<Any?>) as T
 
 @ExperimentalEvscApi
 suspend fun <T : Table> DatabaseClient<*>.insert(table: T, body: T.(InsertStatement<Number>) -> Unit) =
