@@ -8,7 +8,7 @@ import com.huanshankeji.exposedvertxsqlclient.local.LocalConnectionConfig
 const val DEFAULT_MYSQL_UNIX_DOMAIN_SOCKET_PATH = "/var/run/mysql"
 
 @ExperimentalEvscApi
-fun defaultMySQLLocalConnectionConfig(
+fun defaultMysqlLocalConnectionConfig(
     socketConnectionPort: Int? = null, user: String, socketConnectionPassword: String, database: String
 ) =
     LocalConnectionConfig(

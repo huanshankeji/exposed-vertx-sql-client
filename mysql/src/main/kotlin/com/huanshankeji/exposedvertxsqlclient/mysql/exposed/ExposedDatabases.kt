@@ -13,7 +13,7 @@ import java.sql.Connection
  * @see exposedDatabaseConnect
  */
 @ExperimentalEvscApi
-fun ConnectionConfig.Socket.exposedDatabaseConnectMySQL(
+fun ConnectionConfig.Socket.exposedDatabaseConnectMysql(
     setupConnection: (Connection) -> Unit = {},
     databaseConfig: DatabaseConfig? = null,
     manager: (Database) -> TransactionManager = { ThreadLocalTransactionManager(it) }
@@ -30,4 +30,4 @@ fun exposedDatabaseConnectMysql(
     databaseConfig: DatabaseConfig? = null,
     manager: (Database) -> TransactionManager = { ThreadLocalTransactionManager(it) }
 ) =
-    socketConnectionConfig.exposedDatabaseConnectMySQL(setupConnection, databaseConfig, manager)
+    socketConnectionConfig.exposedDatabaseConnectMysql(setupConnection, databaseConfig, manager)
