@@ -1,5 +1,7 @@
 package com.huanshankeji.exposed.benchmark
 
+import com.huanshankeji.kotlinx.coroutines.benchmark.ParameterizedRunBlockingAwaitAsyncsBenchmark
+import com.huanshankeji.kotlinx.coroutines.benchmark.RunBlockingAwaitAsyncsBenchmark
 import kotlinx.benchmark.*
 import kotlinx.coroutines.*
 import org.jetbrains.exposed.sql.Database
@@ -33,6 +35,9 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
     private suspend fun CoroutineScope.awaitAsync10KTransactions() =
         awaitAsync10K { transaction(database) {} }
 
+    /**
+     * Compare with [RunBlockingAwaitAsyncsBenchmark].
+     */
     @Benchmark
     fun singleThreadConcurrent10KTransactions() =
         @OptIn(ExperimentalCoroutinesApi::class, DelicateCoroutinesApi::class)
@@ -41,6 +46,9 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
         }
 
 
+    /**
+     * Compare with [ParameterizedRunBlockingAwaitAsyncsBenchmark].
+     */
     @Benchmark
     fun multiThreadConcurrent10KTransactionsWithSharedDatabase() =
         runBlocking { awaitAsync10KTransactions() }

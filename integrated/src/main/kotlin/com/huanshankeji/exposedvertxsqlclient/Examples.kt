@@ -4,15 +4,14 @@ package com.huanshankeji.exposedvertxsqlclient
 
 import com.huanshankeji.exposed.*
 import com.huanshankeji.exposedvertxsqlclient.local.toPerformantUnixEvscConfig
-import com.huanshankeji.exposedvertxsqlclient.mysql.exposed.exposedDatabaseConnectPostgresql
-import com.huanshankeji.exposedvertxsqlclient.mysql.local.defaultPostgresqlLocalConnectionConfig
-import com.huanshankeji.exposedvertxsqlclient.mysql.vertx.mysqlclient.createPgPool
+import com.huanshankeji.exposedvertxsqlclient.postgresql.exposed.exposedDatabaseConnectPostgresql
+import com.huanshankeji.exposedvertxsqlclient.postgresql.local.defaultPostgresqlLocalConnectionConfig
+import com.huanshankeji.exposedvertxsqlclient.postgresql.vertx.pgclient.createPgClient
+import com.huanshankeji.exposedvertxsqlclient.postgresql.vertx.pgclient.createPgPool
 import com.huanshankeji.exposedvertxsqlclient.sql.*
 import io.vertx.core.Verticle
 import io.vertx.core.Vertx
 import io.vertx.sqlclient.SqlClient
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -40,15 +39,20 @@ object Alternative {
 
 @OptIn(ExperimentalEvscApi::class)
 suspend fun examples(vertx: Vertx) {
-    /** It may be more efficient to use a single shared [Database] to generate SQLs for multiple [DatabaseClient]s/[SqlClient]s in respective [Verticle]s. */
+    /** It may be more efficient to reuse a single shared [Database] to generate SQLs in multiple [DatabaseClient]s for [SqlClient]s in respective [Verticle]s. */
     val exposedDatabase = evscConfig.exposedConnectionConfig.exposedDatabaseConnectPostgresql()
-    val vertxPool = createPgPool(vertx, evscConfig.vertxSqlClientConnectionConfig)
-    val databaseClient = DatabaseClient(vertxPool, exposedDatabase)
 
-    withContext(Dispatchers.IO) {
-        databaseClient.exposedTransaction {
-            SchemaUtils.create(*tables)
-        }
+    val sqlClient = createPgClient(vertx, evscConfig.vertxSqlClientConnectionConfig)
+    val pool = createPgPool(vertx, evscConfig.vertxSqlClientConnectionConfig)
+    val sqlConnection = createPgClient(vertx, evscConfig.vertxSqlClientConnectionConfig)
+
+    val vertxSqlClient = sqlClient
+
+    val databaseClient = DatabaseClient(vertxSqlClient, exposedDatabase)
+
+    // put in `Vertx.executeBlocking` or `Dispatchers.IO` if needed
+    databaseClient.exposedTransaction {
+        SchemaUtils.create(*tables)
     }
 
     run {
@@ -66,11 +70,11 @@ suspend fun examples(vertx: Vertx) {
             databaseClient.executeUpdate(Examples.updateStatement({ Examples.id eq 1 }) { it[name] = "AA" })
         assert(updateRowCount == 1)
 
-        // The Exposed `Table` extension function `select` doesn't execute eagerly so it can be used directly.
-        val exampleName = databaseClient.executeQuery(Examples.select(Examples.name).where(Examples.id eq 1))
+        // The Exposed `Table` extension function `select` doesn't execute eagerly so it can also be used directly.
+        val exampleName = databaseClient.executeQuery(Examples.selectStatement(Examples.name).where(Examples.id eq 1))
             .single()[Examples.name]
 
-        databaseClient.executeSingleUpdate(Examples.deleteWhereStatement { Examples.id eq 1 }) // The function `deleteWhereStatement` still depends on the old DSL and will be updated.
+        databaseClient.executeSingleUpdate(Examples.deleteWhereStatement { id eq 1 })
         databaseClient.executeSingleUpdate(Examples.deleteIgnoreWhereStatement { id eq 2 })
     }
 
@@ -82,7 +86,6 @@ suspend fun examples(vertx: Vertx) {
 
         val exampleName1 =
             databaseClient.select(Examples) { select(Examples.name).where(Examples.id eq 1) }.single()[Examples.name]
-        // This function still depends on the old SELECT DSL and will be updated.
         val exampleName2 =
             databaseClient.selectSingleColumn(Examples, Examples.name) { where(Examples.id eq 2) }.single()
 
