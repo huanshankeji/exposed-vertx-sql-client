@@ -9,7 +9,6 @@ import com.huanshankeji.exposedvertxsqlclient.vertx.sqlclient.CoConnectHandler
 import com.huanshankeji.exposedvertxsqlclient.vertx.sqlclient.createGenericSqlClient
 import com.huanshankeji.exposedvertxsqlclient.vertx.sqlclient.createGenericSqlClientWithBuilder
 import com.huanshankeji.exposedvertxsqlclient.vertx.sqlclient.createGenericSqlConnection
-import com.huanshankeji.vertx.pgclient.setUpConventionally
 import io.vertx.core.Vertx
 import io.vertx.pgclient.PgBuilder
 import io.vertx.pgclient.PgConnectOptions
@@ -60,8 +59,6 @@ fun createPgClient(
     )
 
 /**
- * [PgPoolOptions.pipelined] is enabled by default.
- * @see PgPoolOptions.setUpConventionally
  * @see createGenericSqlClient
  */
 fun createPgPool(
@@ -76,10 +73,7 @@ fun createPgPool(
         connectionConfig,
         PgBuilder.pool(),
         extraPgConnectOptions,
-        {
-            setUpConventionally()
-            extraPoolOptions()
-        },
+        extraPoolOptions,
         connectHandlerExtra
     )
 
