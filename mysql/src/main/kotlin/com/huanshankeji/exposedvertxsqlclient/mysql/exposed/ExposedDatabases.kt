@@ -1,4 +1,4 @@
-package com.huanshankeji.exposedvertxsqlclient.postgresql.exposed
+package com.huanshankeji.exposedvertxsqlclient.mysql.exposed
 
 import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig
 import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
@@ -13,7 +13,7 @@ import java.sql.Connection
  * @see exposedDatabaseConnect
  */
 @ExperimentalEvscApi
-fun ConnectionConfig.Socket.exposedDatabaseConnectMysql(
+fun ConnectionConfig.Socket.exposedDatabaseConnectMySQL(
     setupConnection: (Connection) -> Unit = {},
     databaseConfig: DatabaseConfig? = null,
     manager: (Database) -> TransactionManager = { ThreadLocalTransactionManager(it) }
@@ -23,11 +23,11 @@ fun ConnectionConfig.Socket.exposedDatabaseConnectMysql(
     )
 
 @ExperimentalEvscApi
-@JvmName("exposedDatabaseConnectPostgresqlWithParameterConnectionConfig")
+@JvmName("exposedDatabaseConnectMySQLWithParameterConnectionConfig")
 fun exposedDatabaseConnectMysql(
     socketConnectionConfig: ConnectionConfig.Socket,
     setupConnection: (Connection) -> Unit = {},
     databaseConfig: DatabaseConfig? = null,
     manager: (Database) -> TransactionManager = { ThreadLocalTransactionManager(it) }
 ) =
-    socketConnectionConfig.exposedDatabaseConnectMysql(setupConnection, databaseConfig, manager)
+    socketConnectionConfig.exposedDatabaseConnectMySQL(setupConnection, databaseConfig, manager)

@@ -1,7 +1,7 @@
 package com.huanshankeji.exposed.benchmark
 
 import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig
-import com.huanshankeji.exposedvertxsqlclient.postgresql.exposed.exposedDatabaseConnectPostgresql
+import com.huanshankeji.exposedvertxsqlclient.mysql.exposed.exposedDatabaseConnectPostgresql
 import kotlinx.benchmark.Scope
 import kotlinx.benchmark.Setup
 import kotlinx.benchmark.State

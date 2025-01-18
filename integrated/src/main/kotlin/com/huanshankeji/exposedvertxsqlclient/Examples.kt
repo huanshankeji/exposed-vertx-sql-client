@@ -4,9 +4,9 @@ package com.huanshankeji.exposedvertxsqlclient
 
 import com.huanshankeji.exposed.*
 import com.huanshankeji.exposedvertxsqlclient.local.toPerformantUnixEvscConfig
-import com.huanshankeji.exposedvertxsqlclient.postgresql.exposed.exposedDatabaseConnectPostgresql
-import com.huanshankeji.exposedvertxsqlclient.postgresql.local.defaultPostgresqlLocalConnectionConfig
-import com.huanshankeji.exposedvertxsqlclient.postgresql.vertx.pgclient.createPgPool
+import com.huanshankeji.exposedvertxsqlclient.mysql.exposed.exposedDatabaseConnectPostgresql
+import com.huanshankeji.exposedvertxsqlclient.mysql.local.defaultPostgresqlLocalConnectionConfig
+import com.huanshankeji.exposedvertxsqlclient.mysql.vertx.mysqlclient.createPgPool
 import com.huanshankeji.exposedvertxsqlclient.sql.*
 import io.vertx.core.Verticle
 import io.vertx.core.Vertx
