@@ -1,4 +1,4 @@
-package com.huanshankeji.exposedvertxsqlclient.mysql.exposed
+package com.huanshankeji.exposedvertxsqlclient.postgresql.exposed
 
 import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig
 import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi

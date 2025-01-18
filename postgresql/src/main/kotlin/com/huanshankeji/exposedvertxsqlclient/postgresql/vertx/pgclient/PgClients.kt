@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalEvscApi::class)
 
-package com.huanshankeji.exposedvertxsqlclient.mysql.vertx.mysqlclient
+package com.huanshankeji.exposedvertxsqlclient.postgresql.vertx.pgclient
 
 import com.huanshankeji.Untested
 import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig
@@ -11,16 +11,13 @@ import com.huanshankeji.exposedvertxsqlclient.vertx.sqlclient.createGenericSqlCl
 import com.huanshankeji.exposedvertxsqlclient.vertx.sqlclient.createGenericSqlConnection
 import com.huanshankeji.vertx.pgclient.setUpConventionally
 import io.vertx.core.Vertx
+import io.vertx.pgclient.PgBuilder
+import io.vertx.pgclient.PgConnectOptions
+import io.vertx.pgclient.PgConnection
+import io.vertx.pgclient.impl.PgPoolOptions
 import io.vertx.sqlclient.ClientBuilder
 import io.vertx.sqlclient.Pool
 import io.vertx.sqlclient.SqlClient
-import io.vertx.mysqlclient.MySQLBuilder
-import io.vertx.mysqlclient.MySQLConnection
-// import io.vertx.mysqlclient.MySQLPool --deprecated
-import io.vertx.mysqlclient.MySQLConnectOptions
-import io.vertx.mysqlclient.impl.MySQLPoolOptions
-import io.vertx.sqlclient.PoolOptions
-
 
 /**
  * @see createGenericSqlClient
@@ -31,32 +28,32 @@ fun <SqlClientT : SqlClient, ClientBuilderT : ClientBuilder<SqlClientT>> createG
     vertx: Vertx?,
     connectionConfig: ConnectionConfig,
     clientBuilder: ClientBuilderT,
-    extraPgConnectOptions: MySQLConnectOptions.() -> Unit,
-    extraPgPoolOptions: MySQLPoolOptions.() -> Unit,
+    extraPgConnectOptions: PgConnectOptions.() -> Unit,
+    extraPgPoolOptions: PgPoolOptions.() -> Unit,
     connectHandlerExtra: CoConnectHandler
 ): SqlClientT =
     createGenericSqlClientWithBuilder(
         vertx,
         connectionConfig,
         clientBuilder,
-        MySQLConnectOptions(),
+        PgConnectOptions(),
         extraPgConnectOptions,
         extraPgPoolOptions,
         connectHandlerExtra,
-        MySQLPoolOptions(PoolOptions()) // remain to verify
+        PgPoolOptions()
     )
 
 fun createPgClient(
     vertx: Vertx?,
     connectionConfig: ConnectionConfig,
-    extraPgConnectOptions: MySQLConnectOptions.() -> Unit = {},
-    extraPoolOptions: MySQLPoolOptions.() -> Unit = {},
+    extraPgConnectOptions: PgConnectOptions.() -> Unit = {},
+    extraPoolOptions: PgPoolOptions.() -> Unit = {},
     connectHandlerExtra: CoConnectHandler = null,
 ): SqlClient =
     createGenericPgClientWithBuilder(
         vertx,
         connectionConfig,
-        MySQLBuilder.client(),
+        PgBuilder.client(),
         extraPgConnectOptions,
         extraPoolOptions,
         connectHandlerExtra
@@ -70,14 +67,14 @@ fun createPgClient(
 fun createPgPool(
     vertx: Vertx?,
     connectionConfig: ConnectionConfig,
-    extraPgConnectOptions: MySQLConnectOptions.() -> Unit = {},
-    extraPoolOptions: MySQLPoolOptions.() -> Unit = {},
+    extraPgConnectOptions: PgConnectOptions.() -> Unit = {},
+    extraPoolOptions: PgPoolOptions.() -> Unit = {},
     connectHandlerExtra: CoConnectHandler = null,
 ): Pool =
     createGenericPgClientWithBuilder(
         vertx,
         connectionConfig,
-        MySQLBuilder.pool(),
+        PgBuilder.pool(),
         extraPgConnectOptions,
         {
             setUpConventionally()
@@ -86,9 +83,6 @@ fun createPgPool(
         connectHandlerExtra
     )
 
-// temporarily added, maybe moved into kotlin-common
-public fun io.vertx.mysqlclient.impl.MySQLPoolOptions.setUpConventionally(): kotlin.Unit { /* compiled code */ }
-
 /**
  * @see createGenericSqlClient
  */
@@ -96,14 +90,14 @@ public fun io.vertx.mysqlclient.impl.MySQLPoolOptions.setUpConventionally(): kot
 suspend fun createPgConnection(
     vertx: Vertx?,
     connectionConfig: ConnectionConfig,
-    extraPgConnectOptions: MySQLConnectOptions.() -> Unit = {},
+    extraPgConnectOptions: PgConnectOptions.() -> Unit = {},
     connectHandlerExtra: CoConnectHandler = null
-): MySQLConnection =
+): PgConnection =
     createGenericSqlConnection(
         vertx,
         connectionConfig,
-        MySQLConnection::connect,
-        MySQLConnectOptions(),
+        PgConnection::connect,
+        PgConnectOptions(),
         extraPgConnectOptions,
         connectHandlerExtra
     )
