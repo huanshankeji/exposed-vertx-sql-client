@@ -51,14 +51,13 @@ fun Statement<*>.getVertxSqlClientArgTuple() =
 
 
 @ExperimentalEvscApi
-fun String.toVertxPgClientPreparedSql(): String {
-    val stringBuilder = StringBuilder(length * 2)
-    var i = 1
-    for (c in this)
-        if (c == '?') stringBuilder.append('$').append(i++)
-        else stringBuilder.append(c)
-    return stringBuilder.toString()
-}
+fun String.toVertxPgClientPreparedSql(): String =
+    buildString(length * 2) {
+        var i = 1
+        for (c in this)
+            if (c == '?') append('$').append(i++)
+            else append(c)
+    }
 
 // TODO: context receivers
 @ExperimentalEvscApi
