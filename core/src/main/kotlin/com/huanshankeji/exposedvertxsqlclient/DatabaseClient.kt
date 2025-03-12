@@ -50,20 +50,6 @@ fun Statement<*>.getVertxSqlClientArgTuple() =
     singleStatementArguments()?.toVertxTuple()
 
 
-@ExperimentalEvscApi
-fun String.toVertxPgClientPreparedSql(): String =
-    buildString(length * 2) {
-        var i = 1
-        for (c in this)
-            if (c == '?') append('$').append(i++)
-            else append(c)
-    }
-
-// TODO: context receivers
-@ExperimentalEvscApi
-fun Statement<*>.getVertxPgClientPreparedSql(transaction: ExposedTransaction) =
-    prepareSQL(transaction).toVertxPgClientPreparedSql()
-
 @InternalApi
 fun dbAssert(b: Boolean) {
     if (!b)
@@ -79,7 +65,7 @@ internal val logger = LoggerFactory.getLogger(DatabaseClient::class.java)
  * @param validateBatch whether to validate whether the batch statements have the same generated prepared SQL. It's recommended to keep this enabled for tests but disabled for production.
  */
 @OptIn(ExperimentalApi::class)
-class DatabaseClient<out VertxSqlClientT : SqlClient>(
+abstract class DatabaseClient<out VertxSqlClientT : SqlClient>(
     val vertxSqlClient: VertxSqlClientT,
     val exposedDatabase: Database,
     // TODO consider adding a `isProduction` parameter whose default depends on the runtime
@@ -152,6 +138,8 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     ) =
         execute(statement, transformQuery)
 
+    abstract fun String.toVertxSqlClientPreparedSql(): String
+
     /**
      * @param transformQuery transform the query by calling [PreparedQuery.mapping] and [PreparedQuery.collecting].
      */
@@ -161,7 +149,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
         transformQuery: PreparedQuery<RowSet<Row>>.() -> PreparedQuery<SqlResultT>
     ): SqlResultT {
         val (sql, argTuple) = exposedTransaction {
-            statement.prepareSqlAndLogIfNeeded(this).toVertxPgClientPreparedSql() to
+            statement.prepareSqlAndLogIfNeeded(this).toVertxSqlClientPreparedSql() to
                     statement.getVertxSqlClientArgTuple()
         }
         return vertxSqlClient.preparedQuery(sql)
@@ -285,8 +273,8 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
         if (sql === null)
             return emptySequence()
 
-        val pgSql = sql.toVertxPgClientPreparedSql()
-        return vertxSqlClient.preparedQuery(pgSql)
+        val vertxSqlClientSql = sql.toVertxSqlClientPreparedSql()
+        return vertxSqlClient.preparedQuery(vertxSqlClientSql)
             .transformQuery()
             .executeBatchAwaitForSqlResultSequence(argTuples)
     }
@@ -388,17 +376,34 @@ fun Int.singleOrNoUpdate() =
 
 // TODO these functions related to transactions and savepoints should be moved to kotlin-common and can possibly be contributed to Vert.x
 
+typealias CreateDatabaseClient<VertxSqlClientT, DatabaseClientT /*: DatabaseClient<VertxSqlClientT>*/> =
+            (vertxSqlClient: VertxSqlClientT, exposedDatabase: Database, validateBatch: Boolean, logSql: Boolean) ->
+        DatabaseClientT
+
+// These functions are kind of cumbersome as HKT is not supported in Kotlin.
+
 /**
  * When using this function, it's recommended to name the lambda parameter the same as the outer receiver so that the outer [DatabaseClient] is shadowed,
  * and so that you don't call the outer [DatabaseClient] without a transaction by accident.
  */
-suspend fun <T> DatabaseClient<Pool>.withTransaction(function: suspend (DatabaseClient<SqlConnection>) -> T): T =
+suspend fun <SqlConnectionT : SqlConnection, DatabaseClientT : DatabaseClient<SqlConnectionT>, T> DatabaseClient<Pool>.withTransaction(
+    createDatabaseClient: CreateDatabaseClient<SqlConnectionT, DatabaseClientT>,
+    function: suspend (DatabaseClientT) -> T
+): T =
     coroutineScope {
         vertxSqlClient.withTransaction {
-            coroutineToFuture { function(DatabaseClient(it, exposedDatabase)) }
+            coroutineToFuture {
+                @Suppress("UNCHECKED_CAST")
+                function(createDatabaseClient(it as SqlConnectionT, exposedDatabase, validateBatch, logSql))
+            }
         }.coAwait()
     }
 
+@Deprecated("Use `withTransaction` in the specific RDMBS's package instead.")
+suspend fun <T> DatabaseClient<Pool>.withTransaction(function: suspend (DatabaseClient<SqlConnection>) -> T): T =
+    throw AssertionError()
+
+@Deprecated("Use `withTransaction` in the specific RDMBS's package instead.")
 suspend fun <SqlConnectionT : SqlConnection, T> DatabaseClient<Pool>.withTypedTransaction(function: suspend (DatabaseClient<SqlConnectionT>) -> T): T =
     withTransaction {
         @Suppress("UNCHECKED_CAST")
