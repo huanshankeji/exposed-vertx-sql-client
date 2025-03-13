@@ -1,0 +1,22 @@
+package build.`sql-dsl`
+
+import $file.BaseModule
+import mill._
+import mill.javalib._
+import mill.javalib.publish._
+
+object `package` extends RootModule with BaseModule {
+
+  def artifactName = "exposed-vertx-sql-client-sql-dsl"
+
+  def ivyDeps = super.ivyDeps() ++ Agg(
+    ivy"io.vertx:vertx-stack-depchain:4.5.11",
+    ivy"org.jetbrains.kotlin:kotlin-stdlib:2.1.10"
+  )
+
+  def moduleDeps = super.moduleDeps ++ Seq(build.core)
+
+  def compileIvyDeps = super.compileIvyDeps() ++
+    Agg(ivy"com.huanshankeji:kotlin-common-vertx:0.6.1")
+
+}

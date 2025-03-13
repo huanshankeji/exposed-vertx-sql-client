@@ -1,0 +1,24 @@
+package build.integrated
+
+import $file.BaseModule
+import mill._
+import mill.javalib._
+import mill.javalib.publish._
+
+object `package` extends RootModule with BaseModule {
+
+  def artifactName = "exposed-vertx-sql-client-integrated"
+
+  def ivyDeps = super.ivyDeps() ++ Agg(
+    ivy"com.huanshankeji:exposed-adt-mapping:0.3.0",
+    ivy"io.vertx:vertx-stack-depchain:4.5.11"
+  )
+
+  def moduleDeps = super.moduleDeps ++ Seq(
+    build.`sql-dsl-with-mapper`,
+    build.`sql-dsl`,
+    build.core,
+    build.postgresql
+  )
+
+}

@@ -1,0 +1,49 @@
+package build
+
+import $packages._
+import mill._
+import mill.javalib._
+import mill.javalib.publish._
+
+object `package` extends RootModule {
+
+  def artifactName = "exposed-vertx-sql-client"
+
+}
+
+trait BaseModule extends MavenModule with PublishModule {
+
+  def pomSettings = PomSettings(
+    "Exposed on top of Vert.x Reactive SQL Client",
+    "com.huanshankeji",
+    "https://github.com/huanshankeji/exposed-vertx-sql-client",
+    Seq(License(
+      "The Apache License, Version 2.0",
+      "The Apache License, Version 2.0",
+      "http://www.apache.org/licenses/LICENSE-2.0.txt",
+      false,
+      false,
+      "repo"
+    )),
+    VersionControl(
+      Some("https://github.com/huanshankeji/exposed-vertx-sql-client"),
+      Some(
+        "scm:git:https://github.com/huanshankeji/exposed-vertx-sql-client.git"
+      ),
+      Some(
+        "scm:git:https://github.com/huanshankeji/exposed-vertx-sql-client.git"
+      ),
+      None
+    ),
+    Seq(Developer("ShreckYe", "Shreck Ye", "", None, None))
+  )
+
+  def publishVersion = "0.5.1-SNAPSHOT"
+
+  def repositoriesTask = Task.Anon {
+    super.repositoriesTask() ++ Seq(coursier.maven.MavenRepository(
+      "https://maven.pkg.github.com/huanshankeji/kotlin-common"
+    ))
+  }
+
+}

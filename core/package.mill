@@ -1,0 +1,27 @@
+package build.core
+
+import $file.BaseModule
+import mill._
+import mill.javalib._
+import mill.javalib.publish._
+
+object `package` extends RootModule with BaseModule {
+
+  def artifactName = "exposed-vertx-sql-client-core"
+
+  def ivyDeps = super.ivyDeps() ++ Agg(
+    ivy"com.huanshankeji:kotlin-common-core:0.6.1",
+    ivy"com.huanshankeji:kotlin-common-coroutines:0.6.1",
+    ivy"com.huanshankeji:kotlin-common-exposed:0.6.1",
+    ivy"com.huanshankeji:kotlin-common-net:0.6.1",
+    ivy"com.huanshankeji:kotlin-common-vertx:0.6.1",
+    ivy"io.arrow-kt:arrow-core:2.0.0-rc.1",
+    ivy"io.vertx:vertx-lang-kotlin",
+    ivy"io.vertx:vertx-lang-kotlin-coroutines",
+    ivy"io.vertx:vertx-sql-client",
+    ivy"io.vertx:vertx-stack-depchain:4.5.11",
+    ivy"org.jetbrains.exposed:exposed-core:0.56.0",
+    ivy"org.jetbrains.kotlin:kotlin-stdlib:2.1.10"
+  )
+
+}

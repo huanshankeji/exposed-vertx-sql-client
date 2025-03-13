@@ -2,3 +2,5 @@
 .kotlin
 build
 .idea
+
+out/
