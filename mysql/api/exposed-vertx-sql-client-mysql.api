@@ -3,10 +3,10 @@ public final class com/huanshankeji/exposedvertxsqlclient/mysql/DatabaseClientKt
 }
 
 public final class com/huanshankeji/exposedvertxsqlclient/mysql/exposed/ExposedDatabasesKt {
-	public static final fun exposedDatabaseConnectMySQLWithParameterConnectionConfig (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/sql/DatabaseConfig;Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/exposed/sql/Database;
-	public static synthetic fun exposedDatabaseConnectMySQLWithParameterConnectionConfig$default (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/sql/DatabaseConfig;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lorg/jetbrains/exposed/sql/Database;
 	public static final fun exposedDatabaseConnectMysql (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/sql/DatabaseConfig;Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/exposed/sql/Database;
 	public static synthetic fun exposedDatabaseConnectMysql$default (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/sql/DatabaseConfig;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lorg/jetbrains/exposed/sql/Database;
+	public static final fun exposedDatabaseConnectMysqlWithParameterConnectionConfig (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/sql/DatabaseConfig;Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/exposed/sql/Database;
+	public static synthetic fun exposedDatabaseConnectMysqlWithParameterConnectionConfig$default (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/sql/DatabaseConfig;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lorg/jetbrains/exposed/sql/Database;
 }
 
 public final class com/huanshankeji/exposedvertxsqlclient/mysql/local/LocalConnectionConfigKt {
