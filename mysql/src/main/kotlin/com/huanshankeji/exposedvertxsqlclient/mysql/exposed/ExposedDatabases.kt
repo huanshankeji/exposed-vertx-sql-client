@@ -23,7 +23,7 @@ fun ConnectionConfig.Socket.exposedDatabaseConnectMysql(
     )
 
 @ExperimentalEvscApi
-@JvmName("exposedDatabaseConnectMySQLWithParameterConnectionConfig")
+@JvmName("exposedDatabaseConnectMysqlWithParameterConnectionConfig")
 fun exposedDatabaseConnectMysql(
     socketConnectionConfig: ConnectionConfig.Socket,
     setupConnection: (Connection) -> Unit = {},
