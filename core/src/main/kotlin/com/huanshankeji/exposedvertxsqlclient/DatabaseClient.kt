@@ -50,21 +50,6 @@ fun Statement<*>.getVertxSqlClientArgTuple() =
     singleStatementArguments()?.toVertxTuple()
 
 
-@ExperimentalEvscApi
-fun String.toVertxPgClientPreparedSql(): String {
-    val stringBuilder = StringBuilder(length * 2)
-    var i = 1
-    for (c in this)
-        if (c == '?') stringBuilder.append('$').append(i++)
-        else stringBuilder.append(c)
-    return stringBuilder.toString()
-}
-
-// TODO: context receivers
-@ExperimentalEvscApi
-fun Statement<*>.getVertxPgClientPreparedSql(transaction: ExposedTransaction) =
-    prepareSQL(transaction).toVertxPgClientPreparedSql()
-
 @InternalApi
 fun dbAssert(b: Boolean) {
     if (!b)
@@ -80,12 +65,11 @@ internal val logger = LoggerFactory.getLogger(DatabaseClient::class.java)
  * @param validateBatch whether to validate whether the batch statements have the same generated prepared SQL. It's recommended to keep this enabled for tests but disabled for production.
  */
 @OptIn(ExperimentalApi::class)
+// TODO also consider adding `DatabaseClientConfig` as a type parameter and `PgDatabaseClientConfig` a subtype for specific dialect operations.
 class DatabaseClient<out VertxSqlClientT : SqlClient>(
     val vertxSqlClient: VertxSqlClientT,
     val exposedDatabase: Database,
-    // TODO consider adding a `isProduction` parameter whose default depends on the runtime
-    val validateBatch: Boolean = true,
-    val logSql: Boolean = false
+    val config : DatabaseClientConfig
 ) : CoroutineAutoCloseable {
     override suspend fun close() {
         vertxSqlClient.close().coAwait()
@@ -99,7 +83,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
 
     private fun Statement<*>.prepareSqlAndLogIfNeeded(transaction: ExposedTransaction) =
         prepareSQL(transaction).also {
-            if (logSql) logger.info("Prepared SQL: $it.")
+            if (config.logSql) logger.info("Prepared SQL: $it.")
         }
 
     suspend fun executePlainSql(sql: String): RowSet<Row> =
@@ -162,7 +146,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
         transformQuery: PreparedQuery<RowSet<Row>>.() -> PreparedQuery<SqlResultT>
     ): SqlResultT {
         val (sql, argTuple) = exposedTransaction {
-            statement.prepareSqlAndLogIfNeeded(this).toVertxPgClientPreparedSql() to
+            config.transformPreparedSql(statement.prepareSqlAndLogIfNeeded(this)) to
                     statement.getVertxSqlClientArgTuple()
         }
         return vertxSqlClient.preparedQuery(sql)
@@ -260,9 +244,9 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
                 if (sql === null) {
                     sql = statement.prepareSqlAndLogIfNeeded(this)
                     //argumentTypes = arguments.types()
-                } else if (validateBatch) {
+                } else if (config.validateBatch) {
                     val currentSql = statement.prepareSQL(this)
-                    require(currentSql == sql!!) {
+                    require(currentSql == sql) {
                         "The statement after set by `setUpStatement` each time should generate the same prepared SQL statement. " +
                                 "However, we have got SQL statement \"$sql\" set by each previous element" +
                                 "and SQL statement \"$currentSql\" set by the current statement $statement."
@@ -286,8 +270,8 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
         if (sql === null)
             return emptySequence()
 
-        val pgSql = sql.toVertxPgClientPreparedSql()
-        return vertxSqlClient.preparedQuery(pgSql)
+        val vertxSqlClientSql = config.transformPreparedSql(sql)
+        return vertxSqlClient.preparedQuery(vertxSqlClientSql)
             .transformQuery()
             .executeBatchAwaitForSqlResultSequence(argTuples)
     }
@@ -387,6 +371,7 @@ fun Int.singleOrNoUpdate() =
         else -> throw SingleUpdateException(this)
     }
 
+// TODO move to separate `TransactionsAndRollbacks.kt`, `Transactions.kt`, and `Rollbacks.kt` files
 // TODO these functions related to transactions and savepoints should be moved to kotlin-common and can possibly be contributed to Vert.x
 
 /**
@@ -396,7 +381,7 @@ fun Int.singleOrNoUpdate() =
 suspend fun <T> DatabaseClient<Pool>.withTransaction(function: suspend (DatabaseClient<SqlConnection>) -> T): T =
     coroutineScope {
         vertxSqlClient.withTransaction {
-            coroutineToFuture { function(DatabaseClient(it, exposedDatabase)) }
+            coroutineToFuture { function(DatabaseClient(it, exposedDatabase, config)) }
         }.coAwait()
     }
 
