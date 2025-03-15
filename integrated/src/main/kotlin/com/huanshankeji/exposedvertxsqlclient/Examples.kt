@@ -4,7 +4,7 @@ package com.huanshankeji.exposedvertxsqlclient
 
 import com.huanshankeji.exposed.*
 import com.huanshankeji.exposedvertxsqlclient.local.toPerformantUnixEvscConfig
-import com.huanshankeji.exposedvertxsqlclient.postgresql.PgDatabaseClient
+import com.huanshankeji.exposedvertxsqlclient.postgresql.PgDatabaseClientConfig
 import com.huanshankeji.exposedvertxsqlclient.postgresql.exposed.exposedDatabaseConnectPostgresql
 import com.huanshankeji.exposedvertxsqlclient.postgresql.local.defaultPostgresqlLocalConnectionConfig
 import com.huanshankeji.exposedvertxsqlclient.postgresql.vertx.pgclient.createPgClient
@@ -49,7 +49,7 @@ suspend fun examples(vertx: Vertx) {
 
     val vertxSqlClient = sqlClient
 
-    val databaseClient = PgDatabaseClient(vertxSqlClient, exposedDatabase)
+    val databaseClient = DatabaseClient(vertxSqlClient, exposedDatabase, PgDatabaseClientConfig())
 
     // put in `Vertx.executeBlocking` or `Dispatchers.IO` if needed
     databaseClient.exposedTransaction {

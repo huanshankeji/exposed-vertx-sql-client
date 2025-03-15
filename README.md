@@ -90,7 +90,7 @@ val sqlConnection = createPgClient(vertx, evscConfig.vertxSqlClientConnectionCon
 Create a `Database` with the provided Vert.x `SqlClient` and Exposed `Database`, preferably in a `Verticle`:
 
 ```kotlin
-val databaseClient = PgDatabaseClient(vertxSqlClient, exposedDatabase)
+val databaseClient = DatabaseClient(vertxSqlClient, exposedDatabase, PgDatabaseClientConfig())
 ```
 
 ### Example table definitions
