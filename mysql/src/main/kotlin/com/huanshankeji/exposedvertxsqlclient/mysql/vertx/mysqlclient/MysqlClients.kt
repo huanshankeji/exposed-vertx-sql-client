@@ -24,12 +24,12 @@ import io.vertx.sqlclient.SqlClient
  */
 // made not inline anymore for easier debugging
 @ExperimentalEvscApi
-fun <SqlClientT : SqlClient, ClientBuilderT : ClientBuilder<SqlClientT>> createGenericPgClientWithBuilder(
+fun <SqlClientT : SqlClient, ClientBuilderT : ClientBuilder<SqlClientT>> createGenericMysqlClientWithBuilder(
     vertx: Vertx?,
     connectionConfig: ConnectionConfig,
     clientBuilder: ClientBuilderT,
-    extraPgConnectOptions: MySQLConnectOptions.() -> Unit,
-    extraPgPoolOptions: MySQLPoolOptions.() -> Unit,
+    extraMysqlConnectOptions: MySQLConnectOptions.() -> Unit,
+    extraMysqlPoolOptions: MySQLPoolOptions.() -> Unit,
     connectHandlerExtra: CoConnectHandler
 ): SqlClientT =
     createGenericSqlClientWithBuilder(
@@ -37,24 +37,24 @@ fun <SqlClientT : SqlClient, ClientBuilderT : ClientBuilder<SqlClientT>> createG
         connectionConfig,
         clientBuilder,
         MySQLConnectOptions(),
-        extraPgConnectOptions,
-        extraPgPoolOptions,
+        extraMysqlConnectOptions,
+        extraMysqlPoolOptions,
         connectHandlerExtra,
         MySQLPoolOptions(PoolOptions()) // remain to verify
     )
 
-fun createPgClient(
+fun createMysqlClient(
     vertx: Vertx?,
     connectionConfig: ConnectionConfig,
-    extraPgConnectOptions: MySQLConnectOptions.() -> Unit = {},
+    extraMysqlConnectOptions: MySQLConnectOptions.() -> Unit = {},
     extraPoolOptions: MySQLPoolOptions.() -> Unit = {},
     connectHandlerExtra: CoConnectHandler = null,
 ): SqlClient =
-    createGenericPgClientWithBuilder(
+    createGenericMysqlClientWithBuilder(
         vertx,
         connectionConfig,
         MySQLBuilder.client(),
-        extraPgConnectOptions,
+        extraMysqlConnectOptions,
         extraPoolOptions,
         connectHandlerExtra
     )
@@ -62,18 +62,18 @@ fun createPgClient(
 /**
  * @see createGenericSqlClient
  */
-fun createPgPool(
+fun createMysqlPool(
     vertx: Vertx?,
     connectionConfig: ConnectionConfig,
-    extraPgConnectOptions: MySQLConnectOptions.() -> Unit = {},
+    extraMysqlConnectOptions: MySQLConnectOptions.() -> Unit = {},
     extraPoolOptions: MySQLPoolOptions.() -> Unit = {},
     connectHandlerExtra: CoConnectHandler = null,
 ): Pool =
-    createGenericPgClientWithBuilder(
+    createGenericMysqlClientWithBuilder(
         vertx,
         connectionConfig,
         MySQLBuilder.pool(),
-        extraPgConnectOptions,
+        extraMysqlConnectOptions,
         extraPoolOptions,
         connectHandlerExtra
     )
@@ -82,10 +82,10 @@ fun createPgPool(
  * @see createGenericSqlClient
  */
 @Untested
-suspend fun createPgConnection(
+suspend fun createMysqlConnection(
     vertx: Vertx?,
     connectionConfig: ConnectionConfig,
-    extraPgConnectOptions: MySQLConnectOptions.() -> Unit = {},
+    extraMysqlConnectOptions: MySQLConnectOptions.() -> Unit = {},
     connectHandlerExtra: CoConnectHandler = null
 ): MySQLConnection =
     createGenericSqlConnection(
@@ -93,6 +93,6 @@ suspend fun createPgConnection(
         connectionConfig,
         MySQLConnection::connect,
         MySQLConnectOptions(),
-        extraPgConnectOptions,
+        extraMysqlConnectOptions,
         connectHandlerExtra
     )
