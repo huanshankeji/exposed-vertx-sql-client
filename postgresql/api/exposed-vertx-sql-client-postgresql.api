@@ -1,5 +1,15 @@
+public final class com/huanshankeji/exposedvertxsqlclient/postgresql/DatabaseClientConfigKt {
+	public static final fun PgDatabaseClientConfig (ZZ)Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClientConfig;
+	public static synthetic fun PgDatabaseClientConfig$default (ZZILjava/lang/Object;)Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClientConfig;
+}
+
 public final class com/huanshankeji/exposedvertxsqlclient/postgresql/DatabaseClientKt {
 	public static final fun withPgTransaction (Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClient;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/huanshankeji/exposedvertxsqlclient/postgresql/SqlTransformationKt {
+	public static final fun getVertxPgClientPreparedSql (Lorg/jetbrains/exposed/sql/statements/Statement;Lorg/jetbrains/exposed/sql/Transaction;)Ljava/lang/String;
+	public static final fun transformPgPreparedSql (Ljava/lang/String;)Ljava/lang/String;
 }
 
 public final class com/huanshankeji/exposedvertxsqlclient/postgresql/exposed/ExposedDatabasesKt {
