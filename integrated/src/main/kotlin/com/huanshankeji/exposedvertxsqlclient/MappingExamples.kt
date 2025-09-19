@@ -8,9 +8,9 @@ import io.vertx.sqlclient.Pool
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
 
-// copied and adapted from https://github.com/huanshankeji/exposed-adt-mapping/blob/main/lib/src/test/kotlin/com/huanshankeji/exposed/datamapping/classproperty/Examples.kt
+// copied and adapted from https://github.com/huanshankeji/exposed-gadt-mapping/blob/main/lib/src/test/kotlin/com/huanshankeji/exposed/datamapping/classproperty/Examples.kt
 // Update accordingly to keep the code consistent.
-// TODO also consider publishing the "exposed-adt-mapping" example code as a library and depend on it
+// TODO also consider publishing the "exposed-gadt-mapping" example code as a library and depend on it
 
 object Directors : IntIdTable("directors") {
     val directorId = id

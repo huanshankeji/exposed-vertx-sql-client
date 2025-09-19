@@ -13,7 +13,7 @@ dependencies {
     implementation(cpnProject(project, ":core"))
     implementation(cpnProject(project, ":postgresql"))
     implementation(cpnProject(project, ":sql-dsl"))
-    implementation("com.huanshankeji:exposed-adt-mapping:${DependencyVersions.exposedAdtMapping}")
+    implementation("com.huanshankeji:exposed-gadt-mapping:${DependencyVersions.exposedAdtMapping}")
     implementation(cpnProject(project, ":sql-dsl-with-mapper"))
 }
 

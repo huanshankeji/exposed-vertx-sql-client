@@ -9,5 +9,5 @@ dependencies {
     implementation(cpnProject(project, ":core"))
     implementation(cpnProject(project, ":sql-dsl"))
 
-    implementation("com.huanshankeji:exposed-adt-mapping:${DependencyVersions.exposedAdtMapping}") // for `updateBuilderSetter`, `DataQueryMapper` and `DataUpdateMapper`
+    implementation("com.huanshankeji:exposed-gadt-mapping:${DependencyVersions.exposedAdtMapping}") // for `updateBuilderSetter`, `DataQueryMapper` and `DataUpdateMapper`
 }

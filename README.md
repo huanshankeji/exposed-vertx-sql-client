@@ -176,9 +176,9 @@ val deleteRowCount2 = databaseClient.deleteIgnoreWhere(Examples) { id eq 2 }
 assert(deleteRowCount2 == 1)
 ```
 
-#### Extension SQL DSL APIs with [Exposed GADT mapping](https://github.com/huanshankeji/exposed-adt-mapping)
+#### Extension SQL DSL APIs with [Exposed GADT mapping](https://github.com/huanshankeji/exposed-gadt-mapping)
 
-Please read [that library's basic usage guide](https://github.com/huanshankeji/exposed-adt-mapping?tab=readme-ov-file#basic-usage-guide) first. Here are examples of this library that correspond to [that library's CRUD operations](https://github.com/huanshankeji/exposed-adt-mapping?tab=readme-ov-file#crud-operations).
+Please read [that library's basic usage guide](https://github.com/huanshankeji/exposed-gadt-mapping?tab=readme-ov-file#basic-usage-guide) first. Here are examples of this library that correspond to [that library's CRUD operations](https://github.com/huanshankeji/exposed-gadt-mapping?tab=readme-ov-file#crud-operations).
 
 Gradle dependency configuration (only needed since v0.5.0):
 

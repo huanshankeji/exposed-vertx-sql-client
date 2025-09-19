@@ -4,11 +4,12 @@ import com.huanshankeji.CommonVersions
 
 val projectVersion = "0.5.1-SNAPSHOT"
 
-// don't use a snapshot version in a main branch
-val commonVersions = CommonVersions(kotlinCommon = "0.6.1")
+// TODO don't use a snapshot version in a main branch
+// TODO remove Exposed's explicit version when migration to Exposed 1.0.0 is complete
+val commonVersions = CommonVersions(kotlinCommon = "0.7.0-SNAPSHOT", exposed = "0.61.0")
 val commonDependencies = CommonDependencies(commonVersions)
 val commonGradleClasspathDependencies = CommonGradleClasspathDependencies(commonVersions)
 
 object DependencyVersions {
-    val exposedAdtMapping = "0.3.1-SNAPSHOT" // TODO don't use a snapshot version in a main branch
+    val exposedAdtMapping = "0.4.0-SNAPSHOT" // TODO don't use a snapshot version in a main branch
 }
