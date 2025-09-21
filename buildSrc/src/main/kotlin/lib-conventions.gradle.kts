@@ -1,4 +1,4 @@
-import com.huanshankeji.team.`Shreck Ye`
+import com.huanshankeji.team.ShreckYe
 import com.huanshankeji.team.pomForTeamDefaultOpenSource
 
 plugins {
@@ -10,6 +10,6 @@ plugins {
 
 publishing.publications.getByName<MavenPublication>("maven") {
     pomForTeamDefaultOpenSource(project, "Exposed Vert.x SQL Client", "Exposed on top of Vert.x Reactive SQL Client") {
-        `Shreck Ye`()
+        ShreckYe()
     }
 }
