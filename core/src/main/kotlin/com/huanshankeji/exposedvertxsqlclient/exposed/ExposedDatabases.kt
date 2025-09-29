@@ -19,9 +19,10 @@ fun ConnectionConfig.Socket.exposedDatabaseConnect(
     driver: String,
     setupConnection: (Connection) -> Unit = {},
     databaseConfig: DatabaseConfig? = null,
+    //connectionAutoRegistration: DatabaseConnectionAutoRegistration = connectionInstanceImpl, // `connectionInstanceImpl` is `private`
     manager: (Database) -> TransactionManager = { ThreadLocalTransactionManager(it) }
 ) =
-    Database.connect(jdbcUrl(rdbms), driver, user, password, setupConnection, databaseConfig, manager)
+    Database.connect(jdbcUrl(rdbms), driver, user, password, setupConnection, databaseConfig, manager = manager)
 
 @ExperimentalEvscApi
 fun exposedDatabaseConnect(
