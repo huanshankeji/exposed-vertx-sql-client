@@ -10,7 +10,8 @@ repositories {
     mavenLocal()
     mavenCentral()
 }
-repositoriesAddTeamGithubPackagesMavenRegistry("kotlin-common")
+// commented out as it may slow down the build, especially when the GitHub token is incorrect and authentication fails
+//repositoriesAddTeamGithubPackagesMavenRegistry("kotlin-common")
 
 kotlin.jvmToolchain(8)
 

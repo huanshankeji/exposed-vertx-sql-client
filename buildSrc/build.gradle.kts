@@ -5,6 +5,8 @@ plugins {
 repositories {
     mavenLocal()
     gradlePluginPortal()
+    // commented out as it may slow down the build, especially when the GitHub token is incorrect and authentication fails
+    /*
     maven {
         url = uri("https://maven.pkg.github.com/huanshankeji/gradle-common")
         credentials {
@@ -12,6 +14,7 @@ repositories {
             password = project.findProperty("gpr.key") as String? ?: System.getenv("TOKEN")
         }
     }
+    */
 }
 
 dependencies {
