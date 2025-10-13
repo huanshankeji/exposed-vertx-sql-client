@@ -8,7 +8,7 @@ import org.jetbrains.exposed.sql.Transaction as ExposedTransaction
 fun String.transformPgPreparedSql(): String =
     buildString(length * 2) {
         var i = 1
-        for (c in this)
+        for (c in this@transformPgPreparedSql)
             if (c == '?') append('$').append(i++)
             else append(c)
     }
