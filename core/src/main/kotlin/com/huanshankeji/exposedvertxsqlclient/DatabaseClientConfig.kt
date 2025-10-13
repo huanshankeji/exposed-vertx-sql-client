@@ -15,11 +15,10 @@ inline fun DatabaseClientConfig(
     validateBatch: Boolean = true,
     logSql: Boolean = false,
     crossinline exposedPreparedSqlToVertxSqlClientPreparedSql: (preparedSql: String) -> String
-): DatabaseClientConfig {
-    return object : DatabaseClientConfig {
+) =
+    object : DatabaseClientConfig {
         override val validateBatch: Boolean = validateBatch
         override val logSql: Boolean = logSql
         override fun transformPreparedSql(exposedPreparedSql: String): String =
             exposedPreparedSqlToVertxSqlClientPreparedSql(exposedPreparedSql)
     }
-}
