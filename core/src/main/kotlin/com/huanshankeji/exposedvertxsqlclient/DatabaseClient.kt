@@ -69,7 +69,7 @@ internal val logger = LoggerFactory.getLogger(DatabaseClient::class.java)
 class DatabaseClient<out VertxSqlClientT : SqlClient>(
     val vertxSqlClient: VertxSqlClientT,
     val exposedDatabase: Database,
-    val config : DatabaseClientConfig
+    val config: DatabaseClientConfig
 ) : CoroutineAutoCloseable {
     override suspend fun close() {
         vertxSqlClient.close().coAwait()
