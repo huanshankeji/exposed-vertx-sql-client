@@ -1,18 +1,18 @@
 package com.huanshankeji.exposedvertxsqlclient.sql.mapping
 
-import com.huanshankeji.exposed.BuildWhere
 import com.huanshankeji.exposed.datamapping.DataQueryMapper
 import com.huanshankeji.exposed.datamapping.DataUpdateMapper
 import com.huanshankeji.exposed.datamapping.updateBuilderSetter
+import com.huanshankeji.exposed.v1.core.BuildWhere
 import com.huanshankeji.exposedvertxsqlclient.DatabaseClient
 import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
 import com.huanshankeji.exposedvertxsqlclient.sql.*
 import com.huanshankeji.vertx.sqlclient.datamapping.RowDataQueryMapper
 import io.vertx.sqlclient.RowSet
-import org.jetbrains.exposed.sql.ColumnSet
-import org.jetbrains.exposed.sql.Query
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.statements.UpdateBuilder
+import org.jetbrains.exposed.v1.core.ColumnSet
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.core.statements.UpdateBuilder
+import org.jetbrains.exposed.v1.jdbc.Query
 
 // TODO move to a separate module
 

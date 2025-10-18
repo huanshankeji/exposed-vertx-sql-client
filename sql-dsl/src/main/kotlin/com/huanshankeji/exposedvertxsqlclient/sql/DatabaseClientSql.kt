@@ -2,18 +2,22 @@
 
 package com.huanshankeji.exposedvertxsqlclient.sql
 
-import com.huanshankeji.exposed.*
+import com.huanshankeji.exposed.v1.core.BuildWhere
+import com.huanshankeji.exposed.v1.core.TableAwareWithSqlExpressionBuilderBuildWhere
+import com.huanshankeji.exposed.v1.jdbc.*
 import com.huanshankeji.exposedvertxsqlclient.DatabaseClient
 import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
 import com.huanshankeji.exposedvertxsqlclient.dbAssert
 import com.huanshankeji.exposedvertxsqlclient.singleOrNoUpdate
 import com.huanshankeji.vertx.sqlclient.sortDataAndExecuteBatch
 import io.vertx.sqlclient.RowSet
-import org.jetbrains.exposed.dao.id.EntityID
-import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.statements.InsertSelectStatement
-import org.jetbrains.exposed.sql.statements.InsertStatement
-import org.jetbrains.exposed.sql.statements.UpdateStatement
+import org.jetbrains.exposed.v1.core.*
+import org.jetbrains.exposed.v1.core.dao.id.EntityID
+import org.jetbrains.exposed.v1.core.statements.InsertSelectStatement
+import org.jetbrains.exposed.v1.core.statements.InsertStatement
+import org.jetbrains.exposed.v1.core.statements.UpdateStatement
+import org.jetbrains.exposed.v1.jdbc.Query
+import org.jetbrains.exposed.v1.jdbc.select
 import kotlin.reflect.KClass
 import kotlin.sequences.Sequence
 

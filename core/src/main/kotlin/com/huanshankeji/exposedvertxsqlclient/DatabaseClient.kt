@@ -10,18 +10,42 @@ import io.vertx.core.buffer.Buffer
 import io.vertx.kotlin.coroutines.coAwait
 import io.vertx.sqlclient.*
 import kotlinx.coroutines.coroutineScope
-import org.jetbrains.exposed.dao.id.EntityID
-import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.Query
-import org.jetbrains.exposed.sql.statements.InsertStatement
-import org.jetbrains.exposed.sql.statements.Statement
-import org.jetbrains.exposed.sql.statements.UpdateStatement
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.core.*
+import org.jetbrains.exposed.v1.core.dao.id.EntityID
+import org.jetbrains.exposed.v1.core.statements.InsertStatement
+import org.jetbrains.exposed.v1.core.statements.Statement
+import org.jetbrains.exposed.v1.core.statements.UpdateStatement
+import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.Query
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.slf4j.LoggerFactory
 import java.util.function.Function
+import kotlin.Any
+import kotlin.AssertionError
+import kotlin.Boolean
+import kotlin.Deprecated
+import kotlin.Exception
+import kotlin.IllegalArgumentException
+import kotlin.Int
+import kotlin.NotImplementedError
+import kotlin.OptIn
+import kotlin.Pair
+import kotlin.ReplaceWith
+import kotlin.String
+import kotlin.Suppress
+import kotlin.Unit
+import kotlin.also
+import kotlin.collections.map
+import kotlin.let
 import kotlin.reflect.KClass
+import kotlin.require
+import kotlin.run
 import kotlin.sequences.Sequence
-import org.jetbrains.exposed.sql.Transaction as ExposedTransaction
+import kotlin.sequences.map
+import kotlin.text.Regex
+import kotlin.text.matches
+import kotlin.to
+import org.jetbrains.exposed.v1.core.Transaction as ExposedTransaction
 
 @ExperimentalEvscApi
 typealias ExposedArguments = Iterable<Pair<IColumnType<*>, Any?>>
