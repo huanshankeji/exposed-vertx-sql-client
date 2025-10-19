@@ -13,6 +13,7 @@ import org.jetbrains.exposed.v1.core.ColumnSet
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.statements.UpdateBuilder
 import org.jetbrains.exposed.v1.jdbc.Query
+import org.jetbrains.exposed.v1.jdbc.select
 
 // TODO move to a separate module
 

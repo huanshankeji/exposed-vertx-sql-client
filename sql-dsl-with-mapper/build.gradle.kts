@@ -9,7 +9,5 @@ dependencies {
     implementation(cpnProject(project, ":core"))
     implementation(cpnProject(project, ":sql-dsl"))
 
-    implementation(commonDependencies.exposed.module("jdbc"))
-
     implementation("com.huanshankeji:exposed-gadt-mapping:${DependencyVersions.exposedAdtMapping}") // for `updateBuilderSetter`, `DataQueryMapper` and `DataUpdateMapper`
 }

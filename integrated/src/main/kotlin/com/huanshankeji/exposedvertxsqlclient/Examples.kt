@@ -2,7 +2,7 @@
 
 package com.huanshankeji.exposedvertxsqlclient
 
-import com.huanshankeji.exposed.*
+import com.huanshankeji.exposed.v1.jdbc.*
 import com.huanshankeji.exposedvertxsqlclient.local.toPerformantUnixEvscConfig
 import com.huanshankeji.exposedvertxsqlclient.postgresql.PgDatabaseClientConfig
 import com.huanshankeji.exposedvertxsqlclient.postgresql.exposed.exposedDatabaseConnectPostgresql
@@ -13,12 +13,13 @@ import com.huanshankeji.exposedvertxsqlclient.sql.*
 import io.vertx.core.Verticle
 import io.vertx.core.Vertx
 import io.vertx.sqlclient.SqlClient
-import org.jetbrains.exposed.dao.id.IntIdTable
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.exists
-import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.exists
+import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.SchemaUtils
+import org.jetbrains.exposed.v1.jdbc.select
+import org.jetbrains.exposed.v1.jdbc.selectAll
 
 object Examples : IntIdTable("examples") {
     val name = varchar("name", 64)

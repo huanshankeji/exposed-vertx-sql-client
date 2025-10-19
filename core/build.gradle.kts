@@ -4,7 +4,7 @@ plugins {
 
 dependencies {
     api(commonDependencies.exposed.core()) // TODO: use `implementation` when possible
-    implementation(commonDependencies.exposed.module("jdbc"))
+    api(commonDependencies.exposed.module("jdbc"))
     api(commonDependencies.kotlinCommon.exposed())
 
     with(commonDependencies.vertx) {
