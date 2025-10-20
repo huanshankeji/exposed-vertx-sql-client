@@ -17,6 +17,7 @@ import org.jetbrains.exposed.v1.core.statements.Statement
 import org.jetbrains.exposed.v1.core.statements.UpdateStatement
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.Query
+import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.slf4j.LoggerFactory
 import java.util.function.Function
@@ -128,7 +129,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
             "withContext(Dispatchers.IO) { exposedTransaction { SchemaUtils.create(table) } }",
             "kotlinx.coroutines.withContext",
             "kotlinx.coroutines.Dispatchers",
-            "org.jetbrains.exposed.sql.SchemaUtils"
+            "org.jetbrains.exposed.v1.jdbc.SchemaUtils"
         )
     )
     suspend fun createTable(table: Table) =
@@ -144,7 +145,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
             "withContext(Dispatchers.IO) { exposedTransaction { SchemaUtils.drop(table) } }",
             "kotlinx.coroutines.withContext",
             "kotlinx.coroutines.Dispatchers",
-            "org.jetbrains.exposed.sql.SchemaUtils"
+            "org.jetbrains.exposed.v1.jdbc.SchemaUtils"
         )
     )
     suspend fun dropTable(table: Table) =
@@ -241,9 +242,9 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
 
 
     /**
-     * @see org.jetbrains.exposed.sql.batchInsert
-     * @see org.jetbrains.exposed.sql.executeBatch
-     * @see org.jetbrains.exposed.sql.statements.BatchUpdateStatement.addBatch though this function seems never used in Exposed
+     * @see org.jetbrains.exposed.v1.jdbc.batchInsert
+     * @see org.jetbrains.exposed.v1.jdbc.executeBatch
+     * @see org.jetbrains.exposed.v1.core.statements.BatchUpdateStatement.addBatch though this function seems never used in Exposed
      * @see PreparedQuery.executeBatch
      * @see execute
      */
@@ -366,7 +367,7 @@ private const val USE_THE_ONE_IN_DATABASE_CLIENT_BECAUSE_TRANSACTION_REQUIRED_ME
  */
 //@Deprecated(USE_THE_ONE_IN_DATABASE_CLIENT_BECAUSE_TRANSACTION_REQUIRED_MESSAGE)
 fun FieldSet.getFieldExpressionSet() =
-    /** [org.jetbrains.exposed.sql.AbstractQuery.ResultIterator.fieldsIndex] */
+    /** [org.jetbrains.exposed.v1.jdbc.Query.ResultIterator.fieldIndex] */
     realFields.toSet()
 
 /**
