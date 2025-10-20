@@ -164,9 +164,7 @@ suspend fun <T : Table, E> DatabaseClient<*>.batchInsertIgnore(
  * @see DatabaseClient.executeBatchUpdate
  */
 @ExperimentalEvscApi
-suspend fun DatabaseClient<*>.batchInsertSelect(
-    statements: Iterable<InsertSelectStatement>
-) =
+suspend fun DatabaseClient<*>.batchInsertSelect(statements: Iterable<InsertSelectStatement>) =
     executeBatchUpdate(statements)
 
 /**
