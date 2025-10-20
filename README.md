@@ -145,14 +145,17 @@ databaseClient.executeSingleUpdate(Examples.deleteWhereStatement { id eq 1 })
 databaseClient.executeSingleUpdate(Examples.deleteIgnoreWhereStatement { id eq 2 })
 ```
 
-#### Extension SQL DSL APIs
+#### Extension CRUD operations
 
-With the extension SQL DSL APIs, your code becomes more concise, but it might be more difficult when you need to compose statements or edit the code.
+the extension CRUD APIs are similar
+to [those in Exposed](https://www.jetbrains.com/help/exposed/dsl-crud-operations.html). With them, your code becomes
+more concise compared to using `buildStatement`, but it might be more difficult when you need to compose statements or
+edit the code.
 
 Gradle dependency configuration (only needed since v0.5.0):
 
 ```kotlin
-implementation("com.huanshankeji:exposed-vertx-sql-client-sql-dsl:$libraryVersion")
+implementation("com.huanshankeji:exposed-vertx-sql-client-crud:$libraryVersion")
 ```
 
 Example code:
@@ -176,14 +179,14 @@ val deleteRowCount2 = databaseClient.deleteIgnoreWhere(Examples) { id eq 2 }
 assert(deleteRowCount2 == 1)
 ```
 
-#### Extension SQL DSL APIs with [Exposed GADT mapping](https://github.com/huanshankeji/exposed-gadt-mapping)
+#### Extension CRUD APIs with [Exposed GADT mapping](https://github.com/huanshankeji/exposed-gadt-mapping)
 
 Please read [that library's basic usage guide](https://github.com/huanshankeji/exposed-gadt-mapping?tab=readme-ov-file#basic-usage-guide) first. Here are examples of this library that correspond to [that library's CRUD operations](https://github.com/huanshankeji/exposed-gadt-mapping?tab=readme-ov-file#crud-operations).
 
 Gradle dependency configuration (only needed since v0.5.0):
 
 ```kotlin
-implementation("com.huanshankeji:exposed-vertx-sql-client-sql-dsl-with-mapper:$libraryVersion")
+implementation("com.huanshankeji:exposed-vertx-sql-client-crud-with-mapper:$libraryVersion")
 ```
 
 Example code:

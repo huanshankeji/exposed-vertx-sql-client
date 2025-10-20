@@ -10,7 +10,7 @@ Functional changes:
 
 * adapt to [the Exposed SELECT DSL design changes](https://github.com/JetBrains/Exposed/pull/1916) (resolve #8)
 * rename the SQL DSL functions taking mapper parameters, adding "withMapper" prefixes (resolve #6)
-* split the library into multiple modules including "core", "postgresql", "sql-dsl", and "sql-dsl-with-mapper"
+* split the library into multiple modules including "core", "postgresql", "crud", and "crud-with-mapper"
 * generalize the functions with the types `PgPool` and `PgConnection` to work with different RDBMSs, replacing them with `Pool` and `SqlConnection`
 * get rid of all usages of `PgPool` which was deprecated in Vert.x 4.5
 * extract some new APIs and move some existing APIs into finer-grained subpackages, including `jdbc`, `exposed`, `vertx.sqlclient`, and `local` in the "core" module, and `postgresql` in the "postgresql" module
