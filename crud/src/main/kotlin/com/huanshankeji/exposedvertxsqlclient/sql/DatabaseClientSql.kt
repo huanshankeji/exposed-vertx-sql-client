@@ -2,8 +2,6 @@
 
 package com.huanshankeji.exposedvertxsqlclient.sql
 
-import com.huanshankeji.exposed.defaultColumnsForInsertSelect
-import com.huanshankeji.exposed.insertSelectStatement
 import com.huanshankeji.exposed.v1.core.BuildWhere
 import com.huanshankeji.exposedvertxsqlclient.DatabaseClient
 import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
@@ -109,16 +107,12 @@ suspend fun <T : Table> DatabaseClient<*>.executeInsertIgnore(
 
 
 suspend fun <T : Table> DatabaseClient<*>.insertSelect(
-    table: T,
-    selectQuery: AbstractQuery<*>,
-    columns: List<Column<*>> = table.defaultColumnsForInsertSelect()
-) =
-    executeUpdate(table.insertSelectStatement(selectQuery, columns))
+    table: T, selectQuery: AbstractQuery<*>, columns: List<Column<*>>? = null
+) = executeUpdate(buildStatement { table.insert(selectQuery, columns) })
 
 suspend fun <T : Table> DatabaseClient<*>.insertIgnoreSelect(
-    table: T, selectQuery: AbstractQuery<*>, columns: List<Column<*>> = table.defaultColumnsForInsertSelect()
-) =
-    executeUpdate(table.insertSelectStatement(selectQuery, columns, true))
+    table: T, selectQuery: AbstractQuery<*>, columns: List<Column<*>>? = null
+) = executeUpdate(buildStatement { table.insertIgnore(selectQuery, columns) })
 
 
 suspend fun <T : Table> DatabaseClient<*>.update(
