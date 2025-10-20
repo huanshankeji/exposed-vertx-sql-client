@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalEvscApi::class)
 
-package com.huanshankeji.exposedvertxsqlclient.sql
+package com.huanshankeji.exposedvertxsqlclient.crud
 
 import com.huanshankeji.exposed.v1.core.BuildWhere
 import com.huanshankeji.exposedvertxsqlclient.DatabaseClient
