@@ -1,16 +1,13 @@
 package com.huanshankeji.exposed.benchmark
 
 import com.huanshankeji.exposed.benchmark.table.VarcharTable
-import com.huanshankeji.exposed.deleteAllStatement
-import com.huanshankeji.exposed.deleteWhereStatement
-import com.huanshankeji.exposed.insertStatement
-import com.huanshankeji.exposed.updateStatement
 import kotlinx.benchmark.Benchmark
 import kotlinx.benchmark.Param
 import kotlinx.benchmark.Scope
 import kotlinx.benchmark.State
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.statements.Statement
+import org.jetbrains.exposed.v1.core.statements.buildStatement
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
@@ -19,12 +16,10 @@ class PreparedSqlGenerationBenchmark : WithContainerizedDatabaseBenchmark() {
     enum class StatementEnum(val statement: Statement<*>) {
         SelectAll(VarcharTable.selectAll()),
         SelectWhere(VarcharTable.selectAll().where(VarcharTable.id eq 0L)),
-        Insert(VarcharTable.insertStatement { it[varcharColumn] = "string" }),
-        Update(VarcharTable.updateStatement({ VarcharTable.id eq 0L }) {
-            it[varcharColumn] = "string"
-        }),
-        DeleteAll(VarcharTable.deleteAllStatement()),
-        DeleteStatement(VarcharTable.deleteWhereStatement { VarcharTable.id eq 0L })
+        Insert(buildStatement { VarcharTable.insert { it[varcharColumn] = "string" } }),
+        Update(buildStatement { VarcharTable.update({ VarcharTable.id eq 0L }) { it[varcharColumn] = "string" } }),
+        DeleteAll(buildStatement { VarcharTable.deleteAll() }),
+        DeleteStatement(buildStatement { VarcharTable.deleteWhere { VarcharTable.id eq 0L } })
     }
 
     @Param("SelectAll", "SelectWhere", "Insert", "Update", "DeleteAll", "DeleteStatement")

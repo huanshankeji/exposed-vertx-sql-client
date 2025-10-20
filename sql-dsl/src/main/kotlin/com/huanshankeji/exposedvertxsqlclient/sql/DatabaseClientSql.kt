@@ -2,9 +2,9 @@
 
 package com.huanshankeji.exposedvertxsqlclient.sql
 
-import com.huanshankeji.exposed.*
+import com.huanshankeji.exposed.defaultColumnsForInsertSelect
+import com.huanshankeji.exposed.insertSelectStatement
 import com.huanshankeji.exposed.v1.core.BuildWhere
-import com.huanshankeji.exposed.v1.core.TableAwareWithSqlExpressionBuilderBuildWhere
 import com.huanshankeji.exposedvertxsqlclient.DatabaseClient
 import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
 import com.huanshankeji.exposedvertxsqlclient.dbAssert
@@ -13,9 +13,7 @@ import com.huanshankeji.vertx.sqlclient.sortDataAndExecuteBatch
 import io.vertx.sqlclient.RowSet
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.core.dao.id.EntityID
-import org.jetbrains.exposed.v1.core.statements.InsertSelectStatement
-import org.jetbrains.exposed.v1.core.statements.InsertStatement
-import org.jetbrains.exposed.v1.core.statements.UpdateStatement
+import org.jetbrains.exposed.v1.core.statements.*
 import org.jetbrains.exposed.v1.jdbc.Query
 import org.jetbrains.exposed.v1.jdbc.select
 import kotlin.reflect.KClass
@@ -82,7 +80,7 @@ suspend inline fun <reified T> DatabaseClient<*>.selectExpression(expression: Ex
 
 @ExperimentalEvscApi
 suspend fun <T : Table> DatabaseClient<*>.insert(table: T, body: T.(InsertStatement<Number>) -> Unit) =
-    executeSingleUpdate(table.insertStatement(body))
+    executeSingleUpdate(buildStatement { table.insert(body) })
 
 @ExperimentalEvscApi
 @Deprecated("Use `insert`", ReplaceWith("this.insert<T>(table, body)"))
@@ -91,21 +89,21 @@ suspend fun <T : Table> DatabaseClient<*>.insertSingle(table: T, body: T.(Insert
 
 @ExperimentalEvscApi
 suspend fun <T : Table> DatabaseClient<*>.insertIgnore(
-    table: T, body: T.(InsertStatement<Number>) -> Unit
+    table: T, body: T.(UpdateBuilder<*>) -> Unit
 ): Boolean =
-    executeSingleOrNoUpdate(table.insertIgnoreStatement(body))
+    executeSingleOrNoUpdate(buildStatement { table.insertIgnore(body) })
 
 @ExperimentalEvscApi
 @Deprecated("Use `insertIgnore`", ReplaceWith("this.insertIgnore<T>(table, body)"))
 suspend fun <T : Table> DatabaseClient<*>.insertIgnoreSingle(
-    table: T, body: T.(InsertStatement<Number>) -> Unit
+    table: T, body: T.(UpdateBuilder<*>) -> Unit
 ): Boolean =
     insertIgnore(table, body)
 
 @ExperimentalEvscApi
 @Deprecated("Use `insertIgnore`", ReplaceWith("this.insertIgnore<T>(table, body)"))
 suspend fun <T : Table> DatabaseClient<*>.executeInsertIgnore(
-    table: T, body: T.(InsertStatement<Number>) -> Unit
+    table: T, body: T.(UpdateBuilder<*>) -> Unit
 ): Boolean =
     insertIgnore(table, body)
 
@@ -126,7 +124,7 @@ suspend fun <T : Table> DatabaseClient<*>.insertIgnoreSelect(
 suspend fun <T : Table> DatabaseClient<*>.update(
     table: T, where: BuildWhere? = null, limit: Int? = null, body: T.(UpdateStatement) -> Unit
 ) =
-    executeUpdate(table.updateStatement(where, limit, body))
+    executeUpdate(buildStatement { table.update(where, limit, body) })
 
 
 /**
@@ -145,7 +143,7 @@ suspend fun <T : Table, E> DatabaseClient<*>.batchInsert(
     table: T, data: Iterable<E>, body: T.(InsertStatement<Number>, E) -> Unit
 ) =
     executeBatchUpdate(data.asSequence().map { element ->
-        table.insertStatement { body(it, element) }
+        buildStatement { table.insert { body(it, element) } }
     }.asIterable())
         .forEach { dbAssert(it == 1) }
 
@@ -153,10 +151,10 @@ suspend fun <T : Table, E> DatabaseClient<*>.batchInsert(
  * @see DatabaseClient.executeBatchUpdate
  */
 suspend fun <T : Table, E> DatabaseClient<*>.batchInsertIgnore(
-    table: T, data: Iterable<E>, body: T.(InsertStatement<Number>, E) -> Unit
+    table: T, data: Iterable<E>, body: T.(UpdateBuilder<*>, E) -> Unit
 ) =
     executeBatchUpdate(data.asSequence().map { element ->
-        table.insertIgnoreStatement { body(it, element) }
+        buildStatement { table.insertIgnore { body(it, element) } }
     }.asIterable())
         .map { it.singleOrNoUpdate() }
 
@@ -179,7 +177,7 @@ suspend fun <T : Table, E> DatabaseClient<*>.batchUpdate(
     table: T, data: Iterable<E>, where: BuildWhere? = null, limit: Int? = null, body: T.(UpdateStatement, E) -> Unit
 ) =
     executeBatchUpdate(data.asSequence().map { element ->
-        table.updateStatement(where, limit) { body(it, element) }
+        buildStatement { table.update(where, limit) { body(it, element) } }
     }.asIterable())
 
 /**
@@ -204,11 +202,11 @@ suspend fun <T : Table, E, SelectorResultT : Comparable<SelectorResultT>> Databa
 
 
 suspend fun <T : Table> DatabaseClient<*>.deleteWhere(
-    table: T, limit: Int? = null, offset: Long? = null, op: TableAwareWithSqlExpressionBuilderBuildWhere<T>
+    table: T, limit: Int? = null, offset: Long? = null, op: T.() -> Op<Boolean>
 ) =
-    executeUpdate(table.deleteWhereStatement(limit, offset, op))
+    executeUpdate(buildStatement { table.deleteWhere(limit, op) })
 
 suspend fun <T : Table> DatabaseClient<*>.deleteIgnoreWhere(
-    table: T, limit: Int? = null, offset: Long? = null, op: TableAwareWithSqlExpressionBuilderBuildWhere<T>
+    table: T, limit: Int? = null, offset: Long? = null, op: T.() -> Op<Boolean>
 ) =
-    executeUpdate(table.deleteIgnoreWhereStatement(limit, offset, op))
+    executeUpdate(buildStatement { table.deleteIgnoreWhere(limit, op) })
