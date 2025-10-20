@@ -2,9 +2,9 @@
 
 package com.huanshankeji.exposedvertxsqlclient.sql
 
+import com.huanshankeji.exposed.*
 import com.huanshankeji.exposed.v1.core.BuildWhere
 import com.huanshankeji.exposed.v1.core.TableAwareWithSqlExpressionBuilderBuildWhere
-import com.huanshankeji.exposed.v1.jdbc.*
 import com.huanshankeji.exposedvertxsqlclient.DatabaseClient
 import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
 import com.huanshankeji.exposedvertxsqlclient.dbAssert
