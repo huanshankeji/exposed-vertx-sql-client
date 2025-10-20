@@ -35,35 +35,35 @@ public final class com/huanshankeji/exposedvertxsqlclient/ConnectionType : java/
 }
 
 public final class com/huanshankeji/exposedvertxsqlclient/DatabaseClient : com/huanshankeji/kotlinx/coroutine/CoroutineAutoCloseable {
-	public fun <init> (Lio/vertx/sqlclient/SqlClient;Lorg/jetbrains/exposed/sql/Database;Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClientConfig;)V
+	public fun <init> (Lio/vertx/sqlclient/SqlClient;Lorg/jetbrains/exposed/v1/jdbc/Database;Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClientConfig;)V
 	public fun close (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun createTable (Lorg/jetbrains/exposed/sql/Table;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun doExecute (Lorg/jetbrains/exposed/sql/statements/Statement;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun dropTable (Lorg/jetbrains/exposed/sql/Table;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun execute (Lorg/jetbrains/exposed/sql/statements/Statement;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun createTable (Lorg/jetbrains/exposed/v1/core/Table;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun doExecute (Lorg/jetbrains/exposed/v1/core/statements/Statement;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun dropTable (Lorg/jetbrains/exposed/v1/core/Table;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun execute (Lorg/jetbrains/exposed/v1/core/statements/Statement;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun executeBatch (Ljava/lang/Iterable;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun executeBatchForVertxSqlClientRowSetSequence (Ljava/lang/Iterable;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun executeBatchQuery (Lorg/jetbrains/exposed/sql/FieldSet;Ljava/lang/Iterable;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun executeBatchQuery (Lorg/jetbrains/exposed/sql/FieldSet;Ljava/lang/Iterable;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun executeBatchQuery (Lorg/jetbrains/exposed/v1/core/FieldSet;Ljava/lang/Iterable;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun executeBatchQuery (Lorg/jetbrains/exposed/v1/core/FieldSet;Ljava/lang/Iterable;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun executeBatchUpdate (Ljava/lang/Iterable;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun executeExpression (Lkotlin/reflect/KClass;Lorg/jetbrains/exposed/sql/Expression;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun executeForVertxSqlClientRowSet (Lorg/jetbrains/exposed/sql/statements/Statement;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun executeExpression (Lkotlin/reflect/KClass;Lorg/jetbrains/exposed/v1/core/Expression;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun executeForVertxSqlClientRowSet (Lorg/jetbrains/exposed/v1/core/statements/Statement;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun executePlainSql (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun executePlainSqlUpdate (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun executeQuery (Lorg/jetbrains/exposed/sql/Query;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun executeQuery (Lorg/jetbrains/exposed/sql/Query;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun executeSingleOrNoUpdate (Lorg/jetbrains/exposed/sql/statements/Statement;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun executeSingleUpdate (Lorg/jetbrains/exposed/sql/statements/Statement;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun executeUpdate (Lorg/jetbrains/exposed/sql/statements/Statement;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun executeWithMapping (Lorg/jetbrains/exposed/sql/statements/Statement;Ljava/util/function/Function;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun executeQuery (Lorg/jetbrains/exposed/v1/jdbc/Query;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun executeQuery (Lorg/jetbrains/exposed/v1/jdbc/Query;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun executeSingleOrNoUpdate (Lorg/jetbrains/exposed/v1/core/statements/Statement;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun executeSingleUpdate (Lorg/jetbrains/exposed/v1/core/statements/Statement;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun executeUpdate (Lorg/jetbrains/exposed/v1/core/statements/Statement;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun executeWithMapping (Lorg/jetbrains/exposed/v1/core/statements/Statement;Ljava/util/function/Function;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun exposedTransaction (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
 	public final fun getConfig ()Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClientConfig;
-	public final fun getExposedDatabase ()Lorg/jetbrains/exposed/sql/Database;
-	public final fun getFieldExpressionSetWithTransaction (Lorg/jetbrains/exposed/sql/FieldSet;)Ljava/util/Set;
-	public final fun getFieldExpressionSetWithTransaction (Lorg/jetbrains/exposed/sql/Query;)Ljava/util/Set;
+	public final fun getExposedDatabase ()Lorg/jetbrains/exposed/v1/jdbc/Database;
+	public final fun getFieldExpressionSetWithTransaction (Lorg/jetbrains/exposed/v1/core/FieldSet;)Ljava/util/Set;
+	public final fun getFieldExpressionSetWithTransaction (Lorg/jetbrains/exposed/v1/jdbc/Query;)Ljava/util/Set;
 	public final fun getVertxSqlClient ()Lio/vertx/sqlclient/SqlClient;
 	public final fun isWorking (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun toExposedResultRowWithTransaction (Lio/vertx/sqlclient/Row;Lorg/jetbrains/exposed/sql/Query;)Lorg/jetbrains/exposed/sql/ResultRow;
+	public final fun toExposedResultRowWithTransaction (Lio/vertx/sqlclient/Row;Lorg/jetbrains/exposed/v1/jdbc/Query;)Lorg/jetbrains/exposed/v1/core/ResultRow;
 }
 
 public abstract interface class com/huanshankeji/exposedvertxsqlclient/DatabaseClientConfig {
@@ -79,16 +79,16 @@ public final class com/huanshankeji/exposedvertxsqlclient/DatabaseClientConfigKt
 
 public final class com/huanshankeji/exposedvertxsqlclient/DatabaseClientKt {
 	public static final fun dbAssert (Z)V
-	public static final fun getFieldExpressionSet (Lorg/jetbrains/exposed/sql/FieldSet;)Ljava/util/Set;
-	public static final fun getFieldExpressionSet (Lorg/jetbrains/exposed/sql/Query;)Ljava/util/Set;
+	public static final fun getFieldExpressionSet (Lorg/jetbrains/exposed/v1/core/FieldSet;)Ljava/util/Set;
+	public static final fun getFieldExpressionSet (Lorg/jetbrains/exposed/v1/jdbc/Query;)Ljava/util/Set;
 	public static final fun getSavepointNameRegex ()Lkotlin/text/Regex;
-	public static final fun getVertxSqlClientArgTuple (Lorg/jetbrains/exposed/sql/statements/Statement;)Lio/vertx/sqlclient/Tuple;
+	public static final fun getVertxSqlClientArgTuple (Lorg/jetbrains/exposed/v1/core/statements/Statement;)Lio/vertx/sqlclient/Tuple;
 	public static final fun singleOrNoResult (Lio/vertx/sqlclient/RowSet;)Ljava/lang/Object;
 	public static final fun singleOrNoUpdate (I)Z
 	public static final fun singleResult (Lio/vertx/sqlclient/RowSet;)Ljava/lang/Object;
-	public static final fun singleStatementArguments (Lorg/jetbrains/exposed/sql/statements/Statement;)Ljava/lang/Iterable;
-	public static final fun toExposedResultRow (Lio/vertx/sqlclient/Row;Ljava/util/Set;)Lorg/jetbrains/exposed/sql/ResultRow;
-	public static final fun toExposedResultRow (Lio/vertx/sqlclient/Row;Lorg/jetbrains/exposed/sql/Query;)Lorg/jetbrains/exposed/sql/ResultRow;
+	public static final fun singleStatementArguments (Lorg/jetbrains/exposed/v1/core/statements/Statement;)Ljava/lang/Iterable;
+	public static final fun toExposedResultRow (Lio/vertx/sqlclient/Row;Ljava/util/Set;)Lorg/jetbrains/exposed/v1/core/ResultRow;
+	public static final fun toExposedResultRow (Lio/vertx/sqlclient/Row;Lorg/jetbrains/exposed/v1/jdbc/Query;)Lorg/jetbrains/exposed/v1/core/ResultRow;
 	public static final fun toVertxTuple (Ljava/lang/Iterable;)Lio/vertx/sqlclient/Tuple;
 	public static final fun types (Ljava/lang/Iterable;)Ljava/util/List;
 	public static final fun withSavepointAndRollbackIfThrows (Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClient;Ljava/lang/String;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
@@ -122,10 +122,10 @@ public final class com/huanshankeji/exposedvertxsqlclient/SingleUpdateException 
 }
 
 public final class com/huanshankeji/exposedvertxsqlclient/exposed/ExposedDatabasesKt {
-	public static final fun exposedDatabaseConnect (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/sql/DatabaseConfig;Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/exposed/sql/Database;
-	public static final fun exposedDatabaseConnect (Ljava/lang/String;Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/sql/DatabaseConfig;Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/exposed/sql/Database;
-	public static synthetic fun exposedDatabaseConnect$default (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/sql/DatabaseConfig;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lorg/jetbrains/exposed/sql/Database;
-	public static synthetic fun exposedDatabaseConnect$default (Ljava/lang/String;Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/sql/DatabaseConfig;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lorg/jetbrains/exposed/sql/Database;
+	public static final fun exposedDatabaseConnect (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/v1/core/DatabaseConfig;Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/exposed/v1/jdbc/Database;
+	public static final fun exposedDatabaseConnect (Ljava/lang/String;Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/v1/core/DatabaseConfig;Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/exposed/v1/jdbc/Database;
+	public static synthetic fun exposedDatabaseConnect$default (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/v1/core/DatabaseConfig;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lorg/jetbrains/exposed/v1/jdbc/Database;
+	public static synthetic fun exposedDatabaseConnect$default (Ljava/lang/String;Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/v1/core/DatabaseConfig;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lorg/jetbrains/exposed/v1/jdbc/Database;
 }
 
 public final class com/huanshankeji/exposedvertxsqlclient/jdbc/JdbcUrlsKt {
