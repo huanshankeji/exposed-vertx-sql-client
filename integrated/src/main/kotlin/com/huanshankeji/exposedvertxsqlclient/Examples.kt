@@ -8,6 +8,7 @@ import com.huanshankeji.exposedvertxsqlclient.postgresql.PgDatabaseClientConfig
 import com.huanshankeji.exposedvertxsqlclient.postgresql.exposed.exposedDatabaseConnectPostgresql
 import com.huanshankeji.exposedvertxsqlclient.postgresql.local.defaultPostgresqlLocalConnectionConfig
 import com.huanshankeji.exposedvertxsqlclient.postgresql.vertx.pgclient.createPgClient
+import com.huanshankeji.exposedvertxsqlclient.postgresql.vertx.pgclient.createPgConnection
 import com.huanshankeji.exposedvertxsqlclient.postgresql.vertx.pgclient.createPgPool
 import io.vertx.core.Verticle
 import io.vertx.core.Vertx
@@ -46,7 +47,7 @@ suspend fun examples(vertx: Vertx) {
 
     val sqlClient = createPgClient(vertx, evscConfig.vertxSqlClientConnectionConfig)
     val pool = createPgPool(vertx, evscConfig.vertxSqlClientConnectionConfig)
-    val sqlConnection = createPgClient(vertx, evscConfig.vertxSqlClientConnectionConfig)
+    val sqlConnection = createPgConnection(vertx, evscConfig.vertxSqlClientConnectionConfig)
 
     val vertxSqlClient = sqlClient
 
