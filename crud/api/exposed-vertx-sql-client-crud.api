@@ -1,4 +1,4 @@
-public final class com/huanshankeji/exposedvertxsqlclient/sql/DatabaseClientSqlKt {
+public final class com/huanshankeji/exposedvertxsqlclient/crud/QueriesKt {
 	public static final fun batchInsert (Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClient;Lorg/jetbrains/exposed/v1/core/Table;Ljava/lang/Iterable;Lkotlin/jvm/functions/Function3;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static final fun batchInsertIgnore (Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClient;Lorg/jetbrains/exposed/v1/core/Table;Ljava/lang/Iterable;Lkotlin/jvm/functions/Function3;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static final fun batchInsertSelect (Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClient;Ljava/lang/Iterable;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
