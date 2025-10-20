@@ -2,7 +2,7 @@
 
 package com.huanshankeji.exposedvertxsqlclient
 
-import com.huanshankeji.exposed.v1.jdbc.*
+import com.huanshankeji.exposed.*
 import com.huanshankeji.exposedvertxsqlclient.local.toPerformantUnixEvscConfig
 import com.huanshankeji.exposedvertxsqlclient.postgresql.PgDatabaseClientConfig
 import com.huanshankeji.exposedvertxsqlclient.postgresql.exposed.exposedDatabaseConnectPostgresql
