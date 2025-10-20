@@ -252,6 +252,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     @ExperimentalEvscApi
     suspend /*inline*/ fun <SqlResultT : SqlResult<*>> executeBatch(
         statements: Iterable<Statement<*>>,
+        validateBatch: Boolean,
         transformQuery: PreparedQuery<RowSet<Row>>.() -> PreparedQuery<SqlResultT>
     ): Sequence<SqlResultT> {
         //if (data.none()) return emptySequence() // This causes "java.lang.IllegalStateException: This sequence can be consumed only once." when `data` is a `ConstrainedOnceSequence`.
@@ -268,7 +269,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
                 if (sql === null) {
                     sql = statement.prepareSqlAndLogIfNeeded(this)
                     //argumentTypes = arguments.types()
-                } else if (config.validateBatch) {
+                } else if (validateBatch) {
                     val currentSql = statement.prepareSQL(this)
                     require(currentSql == sql) {
                         "The statement after set by `setUpStatement` each time should generate the same prepared SQL statement. " +
@@ -301,24 +302,32 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     }
 
     @ExperimentalEvscApi
-    suspend fun executeBatchForVertxSqlClientRowSetSequence(statements: Iterable<Statement<*>>): Sequence<RowSet<Row>> =
-        executeBatch(statements) { this }
+    suspend fun executeBatchForVertxSqlClientRowSetSequence(
+        statements: Iterable<Statement<*>>,
+        validateBatch: Boolean
+    ): Sequence<RowSet<Row>> =
+        executeBatch(statements, validateBatch) { this }
 
     /**
      * @see executeBatch
      */
     @ExperimentalEvscApi
     suspend inline fun <Data> executeBatchQuery(
-        fieldSet: FieldSet, queries: Iterable<Query>, crossinline resultRowMapper: ResultRow.() -> Data
+        fieldSet: FieldSet,
+        queries: Iterable<Query>,
+        validateBatch: Boolean,
+        crossinline resultRowMapper: ResultRow.() -> Data
     ): Sequence<RowSet<Data>> {
         val fieldExpressionSet = fieldSet.getFieldExpressionSetWithTransaction()
-        return executeBatch(queries) {
+        return executeBatch(queries, validateBatch) {
             mapping { row -> row.toExposedResultRow(fieldExpressionSet).resultRowMapper() }
         }
     }
 
-    suspend fun executeBatchQuery(fieldSet: FieldSet, queries: Iterable<Query>): Sequence<RowSet<ResultRow>> =
-        executeBatchQuery(fieldSet, queries) { this }
+    suspend fun executeBatchQuery(
+        fieldSet: FieldSet, queries: Iterable<Query>, validateBatch: Boolean
+    ): Sequence<RowSet<ResultRow>> =
+        executeBatchQuery(fieldSet, queries, validateBatch) { this }
 
     /*
     TODO Consider basing it on `Sequence` instead of `Iterable` so there is less wrapping and conversion
@@ -330,10 +339,8 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
      * @see executeBatch
      * @return a sequence of the update counts of the update statements in the batch.
      */
-    suspend fun executeBatchUpdate(
-        statements: Iterable<Statement<Int>>,
-    ): Sequence<Int> =
-        executeBatch(statements) { this }.map { it.rowCount() }
+    suspend fun executeBatchUpdate(statements: Iterable<Statement<Int>>, validateBatch: Boolean): Sequence<Int> =
+        executeBatch(statements, validateBatch) { this }.map { it.rowCount() }
 }
 
 @Deprecated("Just use `single`.", ReplaceWith("this.single()"))
