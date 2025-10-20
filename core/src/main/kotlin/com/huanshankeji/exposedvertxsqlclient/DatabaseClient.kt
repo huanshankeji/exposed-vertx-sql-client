@@ -220,7 +220,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     @Deprecated(
         "Use `selectExpression` in the `crud` module instead.",
         ReplaceWith(
-            "selectExpression<T>(clazz, expression)", "com.huanshankeji.exposedvertxsqlclient.sql.selectExpression"
+            "selectExpression<T>(clazz, expression)", "com.huanshankeji.exposedvertxsqlclient.crud.selectExpression"
         )
     )
     suspend fun <T : Any> executeExpression(clazz: KClass<T>, expression: Expression<T?>): T? =
@@ -228,7 +228,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
 
     @Deprecated(
         "Use `selectExpression` in the `crud` module instead.",
-        ReplaceWith("selectExpression<T>(expression)", "com.huanshankeji.exposedvertxsqlclient.sql.selectExpression")
+        ReplaceWith("selectExpression<T>(expression)", "com.huanshankeji.exposedvertxsqlclient.crud.selectExpression")
     )
     suspend inline fun <reified T> executeExpression(expression: Expression<T>): T =
         throw NotImplementedError()
