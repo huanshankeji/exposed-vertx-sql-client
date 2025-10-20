@@ -84,7 +84,7 @@ Create a Vert.x `SqlClient` with the `ConnectionConfig`, preferably in a `Vertic
 ```kotlin
 val sqlClient = createPgClient(vertx, evscConfig.vertxSqlClientConnectionConfig)
 val pool = createPgPool(vertx, evscConfig.vertxSqlClientConnectionConfig)
-val sqlConnection = createPgClient(vertx, evscConfig.vertxSqlClientConnectionConfig)
+val sqlConnection = createPgConnection(vertx, evscConfig.vertxSqlClientConnectionConfig)
 ```
 
 Create a `Database` with the provided Vert.x `SqlClient` and Exposed `Database`, preferably in a `Verticle`:
@@ -125,24 +125,25 @@ With these core APIs, you create and execute Exposed `Statement`s. You don't nee
 ```kotlin
 // The Exposed `Table` extension functions `insert`, `update`, and `delete` execute eagerly so `insertStatement`, `updateStatement`, `deleteStatement` have to be used.
 
-val insertRowCount = databaseClient.executeUpdate(Examples.insertStatement { it[name] = "A" })
+val insertRowCount = databaseClient.executeUpdate(buildStatement { Examples.insert { it[name] = "A" } })
 assert(insertRowCount == 1)
 // `executeSingleUpdate` function requires that there is only 1 row updated and returns `Unit`.
-databaseClient.executeSingleUpdate(Examples.insertStatement { it[name] = "B" })
+databaseClient.executeSingleUpdate(buildStatement { Examples.insert { it[name] = "B" } })
 // `executeSingleOrNoUpdate` requires that there is 0 or 1 row updated and returns `Boolean`.
-val isInserted = databaseClient.executeSingleOrNoUpdate(Examples.insertIgnoreStatement { it[name] = "B" })
+val isInserted =
+    databaseClient.executeSingleOrNoUpdate(buildStatement { Examples.insertIgnore { it[name] = "B" } })
 assert(isInserted)
 
 val updateRowCount =
-    databaseClient.executeUpdate(Examples.updateStatement({ Examples.id eq 1 }) { it[name] = "AA" })
+    databaseClient.executeUpdate(buildStatement { Examples.update({ Examples.id eq 1 }) { it[name] = "AA" } })
 assert(updateRowCount == 1)
 
 // The Exposed `Table` extension function `select` doesn't execute eagerly so it can also be used directly.
-val exampleName = databaseClient.executeQuery(Examples.selectStatement(Examples.name).where(Examples.id eq 1))
+val exampleName = databaseClient.executeQuery(Examples.select(Examples.name).where(Examples.id eq 1))
     .single()[Examples.name]
 
-databaseClient.executeSingleUpdate(Examples.deleteWhereStatement { id eq 1 })
-databaseClient.executeSingleUpdate(Examples.deleteIgnoreWhereStatement { id eq 2 })
+databaseClient.executeSingleUpdate(buildStatement { Examples.deleteWhere { id eq 1 } })
+databaseClient.executeSingleUpdate(buildStatement { Examples.deleteIgnoreWhere { id eq 2 } })
 ```
 
 #### Extension CRUD operations
