@@ -5,12 +5,14 @@ import com.huanshankeji.exposed.deleteAllStatement
 import com.huanshankeji.exposed.deleteWhereStatement
 import com.huanshankeji.exposed.insertStatement
 import com.huanshankeji.exposed.updateStatement
-import kotlinx.benchmark.*
-import kotlinx.coroutines.*
-import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.statements.Statement
-import org.jetbrains.exposed.sql.transactions.transaction
+import kotlinx.benchmark.Benchmark
+import kotlinx.benchmark.Param
+import kotlinx.benchmark.Scope
+import kotlinx.benchmark.State
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.statements.Statement
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 @State(Scope.Benchmark)
 class PreparedSqlGenerationBenchmark : WithContainerizedDatabaseBenchmark() {

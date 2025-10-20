@@ -10,9 +10,9 @@ import kotlinx.benchmark.Benchmark
 import kotlinx.benchmark.Param
 import kotlinx.benchmark.Scope
 import kotlinx.benchmark.State
-import org.jetbrains.exposed.sql.Op
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.v1.core.Op
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.jdbc.selectAll
 
 @State(Scope.Benchmark)
 class StatementBenchmark : AbstractBenchmark() {
