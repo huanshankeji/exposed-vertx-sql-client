@@ -31,6 +31,7 @@ import kotlin.Int
 import kotlin.NotImplementedError
 import kotlin.OptIn
 import kotlin.Pair
+import kotlin.PublishedApi
 import kotlin.ReplaceWith
 import kotlin.String
 import kotlin.Suppress
@@ -188,12 +189,13 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     // TODO consider calling `getFieldExpressionSet` inside existing transactions (the ones used to prepare the query) to further optimize the performance
     // TODO consider removing this and letting the user call `exposedTransaction` themself
     @ExperimentalEvscApi
-    fun FieldSet.getFieldExpressionSetWithTransaction() =
+    @PublishedApi
+    internal fun FieldSet.getFieldExpressionSetWithTransaction() =
         exposedTransaction { getFieldExpressionSet() }
 
     @Deprecated("This function is called nowhere except `Row.toExposedResultRowWithTransaction`. Consider inlining and removing it.")
     @ExperimentalEvscApi
-    fun Query.getFieldExpressionSetWithTransaction() =
+    private fun Query.getFieldExpressionSetWithTransaction() =
         set.getFieldExpressionSetWithTransaction()
 
     @ExperimentalEvscApi
