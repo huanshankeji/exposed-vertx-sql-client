@@ -218,6 +218,7 @@ val fullFilms = databaseClient.selectWithMapper(filmsLeftJoinDirectors, Mappers.
 If you encounter
 `java.lang.IllegalStateException: No transaction in context.` in your code, wrap the call with `databaseClient.exposedTransaction { ... }`.
 For example, this can happen if you call `Query.forUpdate()` without a transaction.
+In such a case, you can use our `Query.forUpdateWithTransaction()` instead.
 
 As some Exposed APIs implicitly require a transaction and the requirement sometimes change between versions,
 we do not always provide APIs to completely avoid this exception, for which there are 2 reasons:
