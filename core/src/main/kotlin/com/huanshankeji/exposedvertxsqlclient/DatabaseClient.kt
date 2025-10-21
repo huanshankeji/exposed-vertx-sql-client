@@ -61,7 +61,11 @@ fun Statement<*>.singleStatementArguments() =
 fun ExposedArguments.toVertxTuple(): Tuple =
     Tuple.wrap(map {
         val value = it.second
-        if (value is EntityID<*>) value.value else value
+        when (value) {
+            is EntityID<*> -> value.value
+            is List<*> -> value.toTypedArray()
+            else -> value
+        }
     })
 
 @ExperimentalEvscApi
