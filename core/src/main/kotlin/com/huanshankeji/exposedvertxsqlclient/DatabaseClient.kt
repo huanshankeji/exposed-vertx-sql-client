@@ -199,13 +199,30 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     fun Row.toExposedResultRowWithTransaction(query: Query) =
         toExposedResultRow(query.getFieldExpressionSetWithTransaction())
 
+    /* TODO Consider deprecating this variant taking a `resultRowMapper: ResultRow.() -> Data` parameter
+        as the Vert.x `RowSet` stores all the results in a `List` rather fetch as needed.
+        Just map the `RowSet` to a `List` or `Sequence`. */
     suspend inline fun <Data> executeQuery(
         query: Query, crossinline resultRowMapper: ResultRow.() -> Data
     ): RowSet<Data> =
         executeWithMapping(query) { row -> row.toExposedResultRowWithTransaction(query).resultRowMapper() }
 
+    /**
+     * A variant that creates the [Query] inside an Exposed transaction. [Query.forUpdate], for example, requires an Exposed transaction since v1 (https://github.com/JetBrains/Exposed/pull/2474).
+     */
+    suspend inline fun <Data> executeQuery(
+        crossinline buildQuery: () -> Query, crossinline resultRowMapper: ResultRow.() -> Data
+    ): RowSet<Data> =
+        executeQuery(exposedTransaction { buildQuery() }, resultRowMapper)
+
     suspend fun executeQuery(query: Query): RowSet<ResultRow> =
         executeQuery(query) { this }
+
+    /**
+     * A variant that creates the [Query] inside an Exposed transaction. [Query.forUpdate], for example, requires an Exposed transaction since v1 (https://github.com/JetBrains/Exposed/pull/2474).
+     */
+    suspend inline fun executeQuery(crossinline buildQuery: () -> Query): RowSet<ResultRow> =
+        executeQuery(exposedTransaction { buildQuery() })
 
     suspend fun executeUpdate(statement: Statement<Int>): Int =
         executeForVertxSqlClientRowSet(statement).rowCount()
@@ -316,8 +333,12 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
         }
     }
 
+    // TODO the variant
+
     suspend fun executeBatchQuery(fieldSet: FieldSet, queries: Iterable<Query>): Sequence<RowSet<ResultRow>> =
         executeBatchQuery(fieldSet, queries) { this }
+
+    // TODO the variant
 
     /*
     TODO Consider basing it on `Sequence` instead of `Iterable` so there is less wrapping and conversion
