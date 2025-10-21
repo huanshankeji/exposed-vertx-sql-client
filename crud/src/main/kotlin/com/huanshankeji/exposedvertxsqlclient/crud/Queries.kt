@@ -2,7 +2,6 @@
 
 package com.huanshankeji.exposedvertxsqlclient.crud
 
-import com.huanshankeji.exposed.v1.core.BuildWhere
 import com.huanshankeji.exposedvertxsqlclient.DatabaseClient
 import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
 import com.huanshankeji.exposedvertxsqlclient.dbAssert
@@ -116,7 +115,7 @@ suspend fun <T : Table> DatabaseClient<*>.insertIgnoreSelect(
 
 
 suspend fun <T : Table> DatabaseClient<*>.update(
-    table: T, where: BuildWhere? = null, limit: Int? = null, body: T.(UpdateStatement) -> Unit
+    table: T, where: (() -> Op<Boolean>)? = null, limit: Int? = null, body: T.(UpdateStatement) -> Unit
 ) =
     executeUpdate(buildStatement { table.update(where, limit, body) })
 
@@ -166,7 +165,11 @@ suspend fun DatabaseClient<*>.batchInsertSelect(statements: Iterable<InsertSelec
  * @see sortDataAndBatchUpdate
  */
 suspend fun <T : Table, E> DatabaseClient<*>.batchUpdate(
-    table: T, data: Iterable<E>, where: BuildWhere? = null, limit: Int? = null, body: T.(UpdateStatement, E) -> Unit
+    table: T,
+    data: Iterable<E>,
+    where: (() -> Op<Boolean>)? = null,
+    limit: Int? = null,
+    body: T.(UpdateStatement, E) -> Unit
 ) =
     executeBatchUpdate(data.asSequence().map { element ->
         buildStatement { table.update(where, limit) { body(it, element) } }
@@ -177,7 +180,11 @@ suspend fun <T : Table, E> DatabaseClient<*>.batchUpdate(
  * @see batchUpdate
  */
 suspend fun <T : Table, E> DatabaseClient<*>.batchSingleOrNoUpdate(
-    table: T, data: Iterable<E>, where: BuildWhere? = null, limit: Int? = null, body: T.(UpdateStatement, E) -> Unit
+    table: T,
+    data: Iterable<E>,
+    where: (() -> Op<Boolean>)? = null,
+    limit: Int? = null,
+    body: T.(UpdateStatement, E) -> Unit
 ): Sequence<Boolean> =
     batchUpdate(table, data, where, limit, body).map { it.singleOrNoUpdate() }
 
@@ -188,7 +195,7 @@ suspend fun <T : Table, E> DatabaseClient<*>.batchSingleOrNoUpdate(
 suspend fun <T : Table, E, SelectorResultT : Comparable<SelectorResultT>> DatabaseClient<*>.sortDataAndBatchUpdate(
     table: T,
     data: Iterable<E>, selector: (E) -> SelectorResultT,
-    where: BuildWhere? = null, limit: Int? = null, body: T.(UpdateStatement, E) -> Unit
+    where: (() -> Op<Boolean>)? = null, limit: Int? = null, body: T.(UpdateStatement, E) -> Unit
 ) =
     batchUpdate(table, data.sortedBy(selector), where, limit, body)
 
