@@ -199,6 +199,9 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     fun Row.toExposedResultRowWithTransaction(query: Query) =
         toExposedResultRow(query.getFieldExpressionSetWithTransaction())
 
+    /* TODO Consider deprecating this variant taking a `resultRowMapper: ResultRow.() -> Data` parameter
+        as the Vert.x `RowSet` stores all the results in a `List` rather fetch as needed.
+        Just map the `RowSet` to a `List` or `Sequence`. */
     suspend inline fun <Data> executeQuery(
         query: Query, crossinline resultRowMapper: ResultRow.() -> Data
     ): RowSet<Data> =
