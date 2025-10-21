@@ -210,7 +210,3 @@ val fullFilms = databaseClient.selectWithMapper(filmsLeftJoinDirectors, Mappers.
     where(Films.filmId inList listOf(1, 2))
 }
 ```
-
-### About the code
-
-Also see <https://github.com/huanshankeji/kotlin-common/tree/main/exposed> for some dependency code which serves this library.
