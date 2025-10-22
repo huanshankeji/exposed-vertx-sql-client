@@ -60,7 +60,6 @@ public final class com/huanshankeji/exposedvertxsqlclient/DatabaseClient : com/h
 	public final fun getConfig ()Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClientConfig;
 	public final fun getExposedDatabase ()Lorg/jetbrains/exposed/v1/jdbc/Database;
 	public final fun getFieldExpressionSetWithTransaction (Lorg/jetbrains/exposed/v1/core/FieldSet;)Ljava/util/Set;
-	public final fun getFieldExpressionSetWithTransaction (Lorg/jetbrains/exposed/v1/jdbc/Query;)Ljava/util/Set;
 	public final fun getVertxSqlClient ()Lio/vertx/sqlclient/SqlClient;
 	public final fun isWorking (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun toExposedResultRowWithTransaction (Lio/vertx/sqlclient/Row;Lorg/jetbrains/exposed/v1/jdbc/Query;)Lorg/jetbrains/exposed/v1/core/ResultRow;
@@ -126,6 +125,10 @@ public final class com/huanshankeji/exposedvertxsqlclient/exposed/ExposedDatabas
 	public static final fun exposedDatabaseConnect (Ljava/lang/String;Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/v1/core/DatabaseConfig;Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/exposed/v1/jdbc/Database;
 	public static synthetic fun exposedDatabaseConnect$default (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/v1/core/DatabaseConfig;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lorg/jetbrains/exposed/v1/jdbc/Database;
 	public static synthetic fun exposedDatabaseConnect$default (Ljava/lang/String;Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/v1/core/DatabaseConfig;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lorg/jetbrains/exposed/v1/jdbc/Database;
+}
+
+public final class com/huanshankeji/exposedvertxsqlclient/exposed/QueryKt {
+	public static final fun forUpdateWithTransaction (Lorg/jetbrains/exposed/v1/jdbc/Query;)Lorg/jetbrains/exposed/v1/jdbc/Query;
 }
 
 public final class com/huanshankeji/exposedvertxsqlclient/jdbc/JdbcUrlsKt {
