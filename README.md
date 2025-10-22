@@ -6,7 +6,7 @@
 
 ## Note
 
-Only PostgreSQL with [Reactive PostgreSQL Client](https://vertx.io/docs/vertx-pg-client/java/) is currently supported.
+Only PostgreSQL with [Reactive PostgreSQL Client](https://vertx.io/docs/vertx-pg-client/java/) is currently supported. MySQL support will be implemented in v0.6.0 but not tested yet.
 
 ## Experimental
 
