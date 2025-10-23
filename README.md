@@ -222,5 +222,5 @@ In such a case, you can use our `Query.forUpdateWithTransaction()` instead.
 As some Exposed APIs implicitly require a transaction and the requirement sometimes change between versions,
 we do not always provide APIs to completely avoid this exception, for which there are 2 reasons:
 
-1. Exposed APIs may change and our APIs may evolve accordingly, so we don't want to add a bunch of APIs that need maintenance and may be removed in the future.
+1. Exposed APIs are not fully decoupled and designed to serve this library, they may change and our APIs may evolve accordingly, so we don't want to add a bunch of APIs that need maintenance and may be removed in the future.
 1. We can improve performance slightly by not calling `transaction` unnecessarily.
