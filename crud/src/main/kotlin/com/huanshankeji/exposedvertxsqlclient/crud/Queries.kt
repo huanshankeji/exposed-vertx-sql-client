@@ -201,11 +201,23 @@ suspend fun <T : Table, E, SelectorResultT : Comparable<SelectorResultT>> Databa
 
 
 suspend fun <T : Table> DatabaseClient<*>.deleteWhere(
-    table: T, limit: Int? = null, offset: Long? = null, op: T.() -> Op<Boolean>
+    table: T, limit: Int? = null, op: T.() -> Op<Boolean>
 ) =
     executeUpdate(buildStatement { table.deleteWhere(limit, op) })
 
+@Deprecated("The `offset` parameter is removed.", ReplaceWith("this.deleteWhere(table, limit, op)"))
+suspend fun <T : Table> DatabaseClient<*>.deleteWhere(
+    table: T, limit: Int? = null, offset: Long? = null, op: T.() -> Op<Boolean>
+) =
+    deleteWhere(table, limit, op)
+
+suspend fun <T : Table> DatabaseClient<*>.deleteIgnoreWhere(
+    table: T, limit: Int? = null, op: T.() -> Op<Boolean>
+) =
+    executeUpdate(buildStatement { table.deleteIgnoreWhere(limit, op) })
+
+@Deprecated("The `offset` parameter is removed.", ReplaceWith("this.deleteIgnoreWhere(table, limit, op)"))
 suspend fun <T : Table> DatabaseClient<*>.deleteIgnoreWhere(
     table: T, limit: Int? = null, offset: Long? = null, op: T.() -> Op<Boolean>
 ) =
-    executeUpdate(buildStatement { table.deleteIgnoreWhere(limit, op) })
+    deleteIgnoreWhere(table, limit, op)
