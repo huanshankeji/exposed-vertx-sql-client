@@ -2,17 +2,14 @@ package com.huanshankeji.exposed.benchmark
 
 import com.huanshankeji.exposed.benchmark.table.EmptyTable
 import com.huanshankeji.exposed.benchmark.table.VarcharTable
-import com.huanshankeji.exposed.deleteAllStatement
-import com.huanshankeji.exposed.deleteWhereStatement
-import com.huanshankeji.exposed.insertStatement
-import com.huanshankeji.exposed.updateStatement
 import kotlinx.benchmark.Benchmark
 import kotlinx.benchmark.Param
 import kotlinx.benchmark.Scope
 import kotlinx.benchmark.State
-import org.jetbrains.exposed.sql.Op
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.v1.core.Op
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.core.statements.buildStatement
+import org.jetbrains.exposed.v1.jdbc.selectAll
 
 @State(Scope.Benchmark)
 class StatementBenchmark : AbstractBenchmark() {
@@ -28,14 +25,14 @@ class StatementBenchmark : AbstractBenchmark() {
     fun createSelectStatement() = table.selectAll()
 
     @Benchmark
-    fun createInsertStatement() = table.insertStatement {}
+    fun createInsertStatement() = buildStatement { table.insert {} }
 
     @Benchmark
-    fun createUpdateStatement() = table.updateStatement(null) {}
+    fun createUpdateStatement() = buildStatement { table.update {} }
 
     @Benchmark
-    fun deleteAllStatement() = table.deleteAllStatement()
+    fun deleteAllStatement() = buildStatement { table.deleteAll() }
 
     @Benchmark
-    fun deleteWhereStatement() = table.deleteWhereStatement { Op.TRUE }
+    fun deleteWhereStatement() = buildStatement { table.deleteWhere { Op.TRUE } }
 }
