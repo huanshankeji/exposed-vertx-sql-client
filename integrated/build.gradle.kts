@@ -12,9 +12,9 @@ dependencies {
 
     implementation(cpnProject(project, ":core"))
     implementation(cpnProject(project, ":postgresql"))
-    implementation(cpnProject(project, ":sql-dsl"))
+    implementation(cpnProject(project, ":crud"))
     implementation("com.huanshankeji:exposed-gadt-mapping:${DependencyVersions.exposedAdtMapping}")
-    implementation(cpnProject(project, ":sql-dsl-with-mapper"))
+    implementation(cpnProject(project, ":crud-with-mapper"))
 }
 
 afterEvaluate {

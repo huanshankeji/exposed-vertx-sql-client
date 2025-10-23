@@ -1,6 +1,9 @@
 package com.huanshankeji.exposedvertxsqlclient
 
 interface DatabaseClientConfig {
+    /**
+     * Whether to validate whether the batch statements have the same generated prepared SQL. It's recommended to keep this enabled for tests but disabled for production.
+     */
     val validateBatch: Boolean
     val logSql: Boolean
 
