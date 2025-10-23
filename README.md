@@ -148,10 +148,9 @@ databaseClient.executeSingleUpdate(buildStatement { Examples.deleteIgnoreWhere {
 
 #### Extension CRUD operations
 
-The extension CRUD APIs are similar
-to [those in Exposed](https://www.jetbrains.com/help/exposed/dsl-crud-operations.html). With them, your code becomes
-more concise compared to using `buildStatement`, but it might be more difficult when you need to compose statements or
-edit the code.
+The extension CRUD APIs are similar to [those in Exposed](https://www.jetbrains.com/help/exposed/dsl-crud-operations.html).
+With them, your code becomes more concise compared to using `buildStatement`,
+but it might be more difficult when you need to compose statements or edit the code.
 
 Gradle dependency configuration (only needed since v0.5.0):
 
