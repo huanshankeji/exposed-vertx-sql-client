@@ -1,8 +1,8 @@
 rootProject.name = "exposed-vertx-sql-client"
 
 include("core")
-include("sql-dsl")
-include("sql-dsl-with-mapper")
+include("crud")
+include("crud-with-mapper")
 include("mysql")
 include("postgresql")
 include("integrated")

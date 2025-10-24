@@ -84,7 +84,7 @@ Create a Vert.x `SqlClient` with the `ConnectionConfig`, preferably in a `Vertic
 ```kotlin
 val sqlClient = createPgClient(vertx, evscConfig.vertxSqlClientConnectionConfig)
 val pool = createPgPool(vertx, evscConfig.vertxSqlClientConnectionConfig)
-val sqlConnection = createPgClient(vertx, evscConfig.vertxSqlClientConnectionConfig)
+val sqlConnection = createPgConnection(vertx, evscConfig.vertxSqlClientConnectionConfig)
 ```
 
 Create a `Database` with the provided Vert.x `SqlClient` and Exposed `Database`, preferably in a `Verticle`:
@@ -125,34 +125,37 @@ With these core APIs, you create and execute Exposed `Statement`s. You don't nee
 ```kotlin
 // The Exposed `Table` extension functions `insert`, `update`, and `delete` execute eagerly so `insertStatement`, `updateStatement`, `deleteStatement` have to be used.
 
-val insertRowCount = databaseClient.executeUpdate(Examples.insertStatement { it[name] = "A" })
+val insertRowCount = databaseClient.executeUpdate(buildStatement { Examples.insert { it[name] = "A" } })
 assert(insertRowCount == 1)
 // `executeSingleUpdate` function requires that there is only 1 row updated and returns `Unit`.
-databaseClient.executeSingleUpdate(Examples.insertStatement { it[name] = "B" })
+databaseClient.executeSingleUpdate(buildStatement { Examples.insert { it[name] = "B" } })
 // `executeSingleOrNoUpdate` requires that there is 0 or 1 row updated and returns `Boolean`.
-val isInserted = databaseClient.executeSingleOrNoUpdate(Examples.insertIgnoreStatement { it[name] = "B" })
+val isInserted =
+    databaseClient.executeSingleOrNoUpdate(buildStatement { Examples.insertIgnore { it[name] = "B" } })
 assert(isInserted)
 
 val updateRowCount =
-    databaseClient.executeUpdate(Examples.updateStatement({ Examples.id eq 1 }) { it[name] = "AA" })
+    databaseClient.executeUpdate(buildStatement { Examples.update({ Examples.id eq 1 }) { it[name] = "AA" } })
 assert(updateRowCount == 1)
 
 // The Exposed `Table` extension function `select` doesn't execute eagerly so it can also be used directly.
-val exampleName = databaseClient.executeQuery(Examples.selectStatement(Examples.name).where(Examples.id eq 1))
+val exampleName = databaseClient.executeQuery(Examples.select(Examples.name).where(Examples.id eq 1))
     .single()[Examples.name]
 
-databaseClient.executeSingleUpdate(Examples.deleteWhereStatement { id eq 1 })
-databaseClient.executeSingleUpdate(Examples.deleteIgnoreWhereStatement { id eq 2 })
+databaseClient.executeSingleUpdate(buildStatement { Examples.deleteWhere { id eq 1 } })
+databaseClient.executeSingleUpdate(buildStatement { Examples.deleteIgnoreWhere { id eq 2 } })
 ```
 
-#### Extension SQL DSL APIs
+#### Extension CRUD operations
 
-With the extension SQL DSL APIs, your code becomes more concise, but it might be more difficult when you need to compose statements or edit the code.
+The extension CRUD APIs are similar to [those in Exposed](https://www.jetbrains.com/help/exposed/dsl-crud-operations.html).
+With them, your code becomes more concise compared to using `buildStatement`,
+but it might be more difficult when you need to compose statements or edit the code.
 
 Gradle dependency configuration (only needed since v0.5.0):
 
 ```kotlin
-implementation("com.huanshankeji:exposed-vertx-sql-client-sql-dsl:$libraryVersion")
+implementation("com.huanshankeji:exposed-vertx-sql-client-crud:$libraryVersion")
 ```
 
 Example code:
@@ -176,14 +179,14 @@ val deleteRowCount2 = databaseClient.deleteIgnoreWhere(Examples) { id eq 2 }
 assert(deleteRowCount2 == 1)
 ```
 
-#### Extension SQL DSL APIs with [Exposed GADT mapping](https://github.com/huanshankeji/exposed-adt-mapping)
+#### Extension CRUD APIs with [Exposed GADT mapping](https://github.com/huanshankeji/exposed-gadt-mapping)
 
-Please read [that library's basic usage guide](https://github.com/huanshankeji/exposed-adt-mapping?tab=readme-ov-file#basic-usage-guide) first. Here are examples of this library that correspond to [that library's CRUD operations](https://github.com/huanshankeji/exposed-adt-mapping?tab=readme-ov-file#crud-operations).
+Please read [that library's basic usage guide](https://github.com/huanshankeji/exposed-gadt-mapping?tab=readme-ov-file#basic-usage-guide) first. Here are examples of this library that correspond to [that library's CRUD operations](https://github.com/huanshankeji/exposed-gadt-mapping?tab=readme-ov-file#crud-operations).
 
 Gradle dependency configuration (only needed since v0.5.0):
 
 ```kotlin
-implementation("com.huanshankeji:exposed-vertx-sql-client-sql-dsl-with-mapper:$libraryVersion")
+implementation("com.huanshankeji:exposed-vertx-sql-client-crud-with-mapper:$libraryVersion")
 ```
 
 Example code:
@@ -207,6 +210,17 @@ val fullFilms = databaseClient.selectWithMapper(filmsLeftJoinDirectors, Mappers.
 }
 ```
 
-### About the code
+### Common issues
 
-Also see <https://github.com/huanshankeji/kotlin-common/tree/main/exposed> for some dependency code which serves this library.
+#### "No transaction in context."
+
+If you encounter
+`java.lang.IllegalStateException: No transaction in context.` in your code, wrap the call with `databaseClient.exposedTransaction { ... }`.
+For example, this can happen if you call `Query.forUpdate()` without a transaction.
+In such a case, you can use our `Query.forUpdateWithTransaction()` instead.
+
+As some Exposed APIs implicitly require a transaction and the requirement sometimes change between versions,
+we do not always provide APIs to completely avoid this exception, for which there are 2 reasons:
+
+1. Exposed APIs are not fully decoupled and designed to serve this library, they may change and our APIs may evolve accordingly, so we don't want to add a bunch of APIs that need maintenance and may be removed in the future.
+1. We can improve performance slightly by not calling `transaction` unnecessarily.

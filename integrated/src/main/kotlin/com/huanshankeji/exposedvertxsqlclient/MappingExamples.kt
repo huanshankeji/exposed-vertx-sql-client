@@ -2,15 +2,15 @@ package com.huanshankeji.exposedvertxsqlclient
 
 import com.huanshankeji.exposed.datamapping.classproperty.PropertyColumnMappingConfig
 import com.huanshankeji.exposed.datamapping.classproperty.reflectionBasedClassPropertyDataMapper
-import com.huanshankeji.exposedvertxsqlclient.sql.mapping.insertWithMapper
-import com.huanshankeji.exposedvertxsqlclient.sql.mapping.selectWithMapper
+import com.huanshankeji.exposedvertxsqlclient.crud.mapping.insertWithMapper
+import com.huanshankeji.exposedvertxsqlclient.crud.mapping.selectWithMapper
 import io.vertx.sqlclient.Pool
-import org.jetbrains.exposed.dao.id.IntIdTable
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
+import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
+import org.jetbrains.exposed.v1.core.inList
 
-// copied and adapted from https://github.com/huanshankeji/exposed-adt-mapping/blob/main/lib/src/test/kotlin/com/huanshankeji/exposed/datamapping/classproperty/Examples.kt
+// copied and adapted from https://github.com/huanshankeji/exposed-gadt-mapping/blob/main/lib/src/test/kotlin/com/huanshankeji/exposed/datamapping/classproperty/Examples.kt
 // Update accordingly to keep the code consistent.
-// TODO also consider publishing the "exposed-adt-mapping" example code as a library and depend on it
+// TODO also consider publishing the "exposed-gadt-mapping" example code as a library and depend on it
 
 object Directors : IntIdTable("directors") {
     val directorId = id

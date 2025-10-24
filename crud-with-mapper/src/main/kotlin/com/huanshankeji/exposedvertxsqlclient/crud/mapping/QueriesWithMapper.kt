@@ -1,18 +1,19 @@
-package com.huanshankeji.exposedvertxsqlclient.sql.mapping
+package com.huanshankeji.exposedvertxsqlclient.crud.mapping
 
-import com.huanshankeji.exposed.BuildWhere
 import com.huanshankeji.exposed.datamapping.DataQueryMapper
 import com.huanshankeji.exposed.datamapping.DataUpdateMapper
 import com.huanshankeji.exposed.datamapping.updateBuilderSetter
 import com.huanshankeji.exposedvertxsqlclient.DatabaseClient
 import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
-import com.huanshankeji.exposedvertxsqlclient.sql.*
+import com.huanshankeji.exposedvertxsqlclient.crud.*
 import com.huanshankeji.vertx.sqlclient.datamapping.RowDataQueryMapper
 import io.vertx.sqlclient.RowSet
-import org.jetbrains.exposed.sql.ColumnSet
-import org.jetbrains.exposed.sql.Query
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.statements.UpdateBuilder
+import org.jetbrains.exposed.v1.core.ColumnSet
+import org.jetbrains.exposed.v1.core.Op
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.core.statements.UpdateBuilder
+import org.jetbrains.exposed.v1.jdbc.Query
+import org.jetbrains.exposed.v1.jdbc.select
 
 // TODO move to a separate module
 
@@ -78,6 +79,10 @@ suspend fun <Data : Any> DatabaseClient<*>.batchInsertIgnoreWithMapper(
  */
 @ExperimentalEvscApi
 suspend fun <Data : Any> DatabaseClient<*>.updateWithMapper(
-    table: Table, where: BuildWhere? = null, limit: Int? = null, data: Data, dataUpdateMapper: DataUpdateMapper<Data>
+    table: Table,
+    where: (() -> Op<Boolean>)? = null,
+    limit: Int? = null,
+    data: Data,
+    dataUpdateMapper: DataUpdateMapper<Data>
 ) =
     update(table, where, limit, dataUpdateMapper.updateBuilderSetter(data))

@@ -1,7 +1,7 @@
 package com.huanshankeji.exposed.benchmark.table
 
-import org.jetbrains.exposed.dao.id.LongIdTable
-import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
 
 object EmptyTable : Table()
 

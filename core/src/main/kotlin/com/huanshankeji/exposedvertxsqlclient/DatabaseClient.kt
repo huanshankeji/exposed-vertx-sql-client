@@ -10,18 +10,44 @@ import io.vertx.core.buffer.Buffer
 import io.vertx.kotlin.coroutines.coAwait
 import io.vertx.sqlclient.*
 import kotlinx.coroutines.coroutineScope
-import org.jetbrains.exposed.dao.id.EntityID
-import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.Query
-import org.jetbrains.exposed.sql.statements.InsertStatement
-import org.jetbrains.exposed.sql.statements.Statement
-import org.jetbrains.exposed.sql.statements.UpdateStatement
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.core.*
+import org.jetbrains.exposed.v1.core.dao.id.EntityID
+import org.jetbrains.exposed.v1.core.statements.InsertStatement
+import org.jetbrains.exposed.v1.core.statements.Statement
+import org.jetbrains.exposed.v1.core.statements.UpdateStatement
+import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.Query
+import org.jetbrains.exposed.v1.jdbc.SchemaUtils
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.slf4j.LoggerFactory
 import java.util.function.Function
+import kotlin.Any
+import kotlin.AssertionError
+import kotlin.Boolean
+import kotlin.Deprecated
+import kotlin.Exception
+import kotlin.IllegalArgumentException
+import kotlin.Int
+import kotlin.NotImplementedError
+import kotlin.OptIn
+import kotlin.Pair
+import kotlin.PublishedApi
+import kotlin.ReplaceWith
+import kotlin.String
+import kotlin.Suppress
+import kotlin.Unit
+import kotlin.also
+import kotlin.collections.map
+import kotlin.let
 import kotlin.reflect.KClass
+import kotlin.require
+import kotlin.run
 import kotlin.sequences.Sequence
-import org.jetbrains.exposed.sql.Transaction as ExposedTransaction
+import kotlin.sequences.map
+import kotlin.text.Regex
+import kotlin.text.matches
+import kotlin.to
+import org.jetbrains.exposed.v1.core.Transaction as ExposedTransaction
 
 @ExperimentalEvscApi
 typealias ExposedArguments = Iterable<Pair<IColumnType<*>, Any?>>
@@ -35,7 +61,11 @@ fun Statement<*>.singleStatementArguments() =
 fun ExposedArguments.toVertxTuple(): Tuple =
     Tuple.wrap(map {
         val value = it.second
-        if (value is EntityID<*>) value.value else value
+        when (value) {
+            is EntityID<*> -> value.value
+            is List<*> -> value.toTypedArray()
+            else -> value
+        }
     })
 
 @ExperimentalEvscApi
@@ -61,8 +91,6 @@ internal val logger = LoggerFactory.getLogger(DatabaseClient::class.java)
 
 /**
  * A wrapper client around Vert.x [SqlClient] for queries and an Exposed [Database] to generate SQLs working around the limitations of Exposed.
- *
- * @param validateBatch whether to validate whether the batch statements have the same generated prepared SQL. It's recommended to keep this enabled for tests but disabled for production.
  */
 @OptIn(ExperimentalApi::class)
 // TODO also consider adding `DatabaseClientConfig` as a type parameter and `PgDatabaseClientConfig` a subtype for specific dialect operations.
@@ -106,7 +134,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
             "withContext(Dispatchers.IO) { exposedTransaction { SchemaUtils.create(table) } }",
             "kotlinx.coroutines.withContext",
             "kotlinx.coroutines.Dispatchers",
-            "org.jetbrains.exposed.sql.SchemaUtils"
+            "org.jetbrains.exposed.v1.jdbc.SchemaUtils"
         )
     )
     suspend fun createTable(table: Table) =
@@ -122,7 +150,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
             "withContext(Dispatchers.IO) { exposedTransaction { SchemaUtils.drop(table) } }",
             "kotlinx.coroutines.withContext",
             "kotlinx.coroutines.Dispatchers",
-            "org.jetbrains.exposed.sql.SchemaUtils"
+            "org.jetbrains.exposed.v1.jdbc.SchemaUtils"
         )
     )
     suspend fun dropTable(table: Table) =
@@ -162,20 +190,25 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     suspend fun <U> executeWithMapping(statement: Statement<*>, RowMapper: Function<Row, U>): RowSet<U> =
         execute(statement) { mapping(RowMapper) }
 
-    // TODO call `getFieldExpressionSet` inside existing transactions (the ones used to prepare the query) to further optimize the performance
+    // TODO consider calling `getFieldExpressionSet` inside existing transactions (the ones used to prepare the query) to further optimize the performance
+    // TODO consider removing this and letting the user call `exposedTransaction` themself
     @ExperimentalEvscApi
-    fun FieldSet.getFieldExpressionSetWithTransaction() =
+    @PublishedApi
+    internal fun FieldSet.getFieldExpressionSetWithTransaction() =
         exposedTransaction { getFieldExpressionSet() }
 
     @Deprecated("This function is called nowhere except `Row.toExposedResultRowWithTransaction`. Consider inlining and removing it.")
     @ExperimentalEvscApi
-    fun Query.getFieldExpressionSetWithTransaction() =
+    private fun Query.getFieldExpressionSetWithTransaction() =
         set.getFieldExpressionSetWithTransaction()
 
     @ExperimentalEvscApi
     fun Row.toExposedResultRowWithTransaction(query: Query) =
         toExposedResultRow(query.getFieldExpressionSetWithTransaction())
 
+    /* TODO Consider deprecating this variant taking a `resultRowMapper: ResultRow.() -> Data` parameter
+        as the Vert.x `RowSet` stores all the results in a `List` rather fetch as needed.
+        Just map the `RowSet` to a `List` or `Sequence`. */
     suspend inline fun <Data> executeQuery(
         query: Query, crossinline resultRowMapper: ResultRow.() -> Data
     ): RowSet<Data> =
@@ -195,17 +228,17 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
 
 
     @Deprecated(
-        "Use `selectExpression` in the \"sql-dsl\" module instead.",
+        "Use `selectExpression` in the `crud` module instead.",
         ReplaceWith(
-            "selectExpression<T>(clazz, expression)", "com.huanshankeji.exposedvertxsqlclient.sql.selectExpression"
+            "selectExpression<T>(clazz, expression)", "com.huanshankeji.exposedvertxsqlclient.crud.selectExpression"
         )
     )
     suspend fun <T : Any> executeExpression(clazz: KClass<T>, expression: Expression<T?>): T? =
         throw NotImplementedError()
 
     @Deprecated(
-        "Use `selectExpression` in the \"sql-dsl\" module instead.",
-        ReplaceWith("selectExpression<T>(expression)", "com.huanshankeji.exposedvertxsqlclient.sql.selectExpression")
+        "Use `selectExpression` in the `crud` module instead.",
+        ReplaceWith("selectExpression<T>(expression)", "com.huanshankeji.exposedvertxsqlclient.crud.selectExpression")
     )
     suspend inline fun <reified T> executeExpression(expression: Expression<T>): T =
         throw NotImplementedError()
@@ -219,9 +252,9 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
 
 
     /**
-     * @see org.jetbrains.exposed.sql.batchInsert
-     * @see org.jetbrains.exposed.sql.executeBatch
-     * @see org.jetbrains.exposed.sql.statements.BatchUpdateStatement.addBatch though this function seems never used in Exposed
+     * @see org.jetbrains.exposed.v1.jdbc.batchInsert
+     * @see org.jetbrains.exposed.v1.jdbc.executeBatch
+     * @see org.jetbrains.exposed.v1.core.statements.BatchUpdateStatement.addBatch though this function seems never used in Exposed
      * @see PreparedQuery.executeBatch
      * @see execute
      */
@@ -344,7 +377,7 @@ private const val USE_THE_ONE_IN_DATABASE_CLIENT_BECAUSE_TRANSACTION_REQUIRED_ME
  */
 //@Deprecated(USE_THE_ONE_IN_DATABASE_CLIENT_BECAUSE_TRANSACTION_REQUIRED_MESSAGE)
 fun FieldSet.getFieldExpressionSet() =
-    /** [org.jetbrains.exposed.sql.AbstractQuery.ResultIterator.fieldsIndex] */
+    /** [org.jetbrains.exposed.v1.jdbc.Query.ResultIterator.fieldIndex] */
     realFields.toSet()
 
 /**

@@ -1,19 +1,18 @@
 @file:OptIn(ExperimentalEvscApi::class)
 
-package com.huanshankeji.exposedvertxsqlclient.sql
+package com.huanshankeji.exposedvertxsqlclient.crud
 
-import com.huanshankeji.exposed.*
 import com.huanshankeji.exposedvertxsqlclient.DatabaseClient
 import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
 import com.huanshankeji.exposedvertxsqlclient.dbAssert
 import com.huanshankeji.exposedvertxsqlclient.singleOrNoUpdate
 import com.huanshankeji.vertx.sqlclient.sortDataAndExecuteBatch
 import io.vertx.sqlclient.RowSet
-import org.jetbrains.exposed.dao.id.EntityID
-import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.statements.InsertSelectStatement
-import org.jetbrains.exposed.sql.statements.InsertStatement
-import org.jetbrains.exposed.sql.statements.UpdateStatement
+import org.jetbrains.exposed.v1.core.*
+import org.jetbrains.exposed.v1.core.dao.id.EntityID
+import org.jetbrains.exposed.v1.core.statements.*
+import org.jetbrains.exposed.v1.jdbc.Query
+import org.jetbrains.exposed.v1.jdbc.select
 import kotlin.reflect.KClass
 import kotlin.sequences.Sequence
 
@@ -78,7 +77,7 @@ suspend inline fun <reified T> DatabaseClient<*>.selectExpression(expression: Ex
 
 @ExperimentalEvscApi
 suspend fun <T : Table> DatabaseClient<*>.insert(table: T, body: T.(InsertStatement<Number>) -> Unit) =
-    executeSingleUpdate(table.insertStatement(body))
+    executeSingleUpdate(buildStatement { table.insert(body) })
 
 @ExperimentalEvscApi
 @Deprecated("Use `insert`", ReplaceWith("this.insert<T>(table, body)"))
@@ -87,42 +86,38 @@ suspend fun <T : Table> DatabaseClient<*>.insertSingle(table: T, body: T.(Insert
 
 @ExperimentalEvscApi
 suspend fun <T : Table> DatabaseClient<*>.insertIgnore(
-    table: T, body: T.(InsertStatement<Number>) -> Unit
+    table: T, body: T.(UpdateBuilder<*>) -> Unit
 ): Boolean =
-    executeSingleOrNoUpdate(table.insertIgnoreStatement(body))
+    executeSingleOrNoUpdate(buildStatement { table.insertIgnore(body) })
 
 @ExperimentalEvscApi
 @Deprecated("Use `insertIgnore`", ReplaceWith("this.insertIgnore<T>(table, body)"))
 suspend fun <T : Table> DatabaseClient<*>.insertIgnoreSingle(
-    table: T, body: T.(InsertStatement<Number>) -> Unit
+    table: T, body: T.(UpdateBuilder<*>) -> Unit
 ): Boolean =
     insertIgnore(table, body)
 
 @ExperimentalEvscApi
 @Deprecated("Use `insertIgnore`", ReplaceWith("this.insertIgnore<T>(table, body)"))
 suspend fun <T : Table> DatabaseClient<*>.executeInsertIgnore(
-    table: T, body: T.(InsertStatement<Number>) -> Unit
+    table: T, body: T.(UpdateBuilder<*>) -> Unit
 ): Boolean =
     insertIgnore(table, body)
 
 
 suspend fun <T : Table> DatabaseClient<*>.insertSelect(
-    table: T,
-    selectQuery: AbstractQuery<*>,
-    columns: List<Column<*>> = table.defaultColumnsForInsertSelect()
-) =
-    executeUpdate(table.insertSelectStatement(selectQuery, columns))
+    table: T, selectQuery: AbstractQuery<*>, columns: List<Column<*>>? = null
+) = executeUpdate(buildStatement { table.insert(selectQuery, columns) })
 
 suspend fun <T : Table> DatabaseClient<*>.insertIgnoreSelect(
-    table: T, selectQuery: AbstractQuery<*>, columns: List<Column<*>> = table.defaultColumnsForInsertSelect()
-) =
-    executeUpdate(table.insertSelectStatement(selectQuery, columns, true))
+    table: T, selectQuery: AbstractQuery<*>, columns: List<Column<*>>? = null
+) = executeUpdate(buildStatement { table.insertIgnore(selectQuery, columns) })
 
 
 suspend fun <T : Table> DatabaseClient<*>.update(
-    table: T, where: BuildWhere? = null, limit: Int? = null, body: T.(UpdateStatement) -> Unit
+    table: T, where: (() -> Op<Boolean>)? = null, limit: Int? = null, body: T.(UpdateStatement) -> Unit
 ) =
-    executeUpdate(table.updateStatement(where, limit, body))
+    executeUpdate(buildStatement { table.update(where, limit, body) })
 
 
 /**
@@ -141,7 +136,7 @@ suspend fun <T : Table, E> DatabaseClient<*>.batchInsert(
     table: T, data: Iterable<E>, body: T.(InsertStatement<Number>, E) -> Unit
 ) =
     executeBatchUpdate(data.asSequence().map { element ->
-        table.insertStatement { body(it, element) }
+        buildStatement { table.insert { body(it, element) } }
     }.asIterable())
         .forEach { dbAssert(it == 1) }
 
@@ -149,10 +144,10 @@ suspend fun <T : Table, E> DatabaseClient<*>.batchInsert(
  * @see DatabaseClient.executeBatchUpdate
  */
 suspend fun <T : Table, E> DatabaseClient<*>.batchInsertIgnore(
-    table: T, data: Iterable<E>, body: T.(InsertStatement<Number>, E) -> Unit
+    table: T, data: Iterable<E>, body: T.(UpdateBuilder<*>, E) -> Unit
 ) =
     executeBatchUpdate(data.asSequence().map { element ->
-        table.insertIgnoreStatement { body(it, element) }
+        buildStatement { table.insertIgnore { body(it, element) } }
     }.asIterable())
         .map { it.singleOrNoUpdate() }
 
@@ -162,9 +157,7 @@ suspend fun <T : Table, E> DatabaseClient<*>.batchInsertIgnore(
  * @see DatabaseClient.executeBatchUpdate
  */
 @ExperimentalEvscApi
-suspend fun DatabaseClient<*>.batchInsertSelect(
-    statements: Iterable<InsertSelectStatement>
-) =
+suspend fun DatabaseClient<*>.batchInsertSelect(statements: Iterable<InsertSelectStatement>) =
     executeBatchUpdate(statements)
 
 /**
@@ -172,10 +165,14 @@ suspend fun DatabaseClient<*>.batchInsertSelect(
  * @see sortDataAndBatchUpdate
  */
 suspend fun <T : Table, E> DatabaseClient<*>.batchUpdate(
-    table: T, data: Iterable<E>, where: BuildWhere? = null, limit: Int? = null, body: T.(UpdateStatement, E) -> Unit
+    table: T,
+    data: Iterable<E>,
+    where: (() -> Op<Boolean>)? = null,
+    limit: Int? = null,
+    body: T.(UpdateStatement, E) -> Unit
 ) =
     executeBatchUpdate(data.asSequence().map { element ->
-        table.updateStatement(where, limit) { body(it, element) }
+        buildStatement { table.update(where, limit) { body(it, element) } }
     }.asIterable())
 
 /**
@@ -183,7 +180,11 @@ suspend fun <T : Table, E> DatabaseClient<*>.batchUpdate(
  * @see batchUpdate
  */
 suspend fun <T : Table, E> DatabaseClient<*>.batchSingleOrNoUpdate(
-    table: T, data: Iterable<E>, where: BuildWhere? = null, limit: Int? = null, body: T.(UpdateStatement, E) -> Unit
+    table: T,
+    data: Iterable<E>,
+    where: (() -> Op<Boolean>)? = null,
+    limit: Int? = null,
+    body: T.(UpdateStatement, E) -> Unit
 ): Sequence<Boolean> =
     batchUpdate(table, data, where, limit, body).map { it.singleOrNoUpdate() }
 
@@ -194,17 +195,29 @@ suspend fun <T : Table, E> DatabaseClient<*>.batchSingleOrNoUpdate(
 suspend fun <T : Table, E, SelectorResultT : Comparable<SelectorResultT>> DatabaseClient<*>.sortDataAndBatchUpdate(
     table: T,
     data: Iterable<E>, selector: (E) -> SelectorResultT,
-    where: BuildWhere? = null, limit: Int? = null, body: T.(UpdateStatement, E) -> Unit
+    where: (() -> Op<Boolean>)? = null, limit: Int? = null, body: T.(UpdateStatement, E) -> Unit
 ) =
     batchUpdate(table, data.sortedBy(selector), where, limit, body)
 
 
 suspend fun <T : Table> DatabaseClient<*>.deleteWhere(
-    table: T, limit: Int? = null, offset: Long? = null, op: TableAwareWithSqlExpressionBuilderBuildWhere<T>
+    table: T, limit: Int? = null, op: T.() -> Op<Boolean>
 ) =
-    executeUpdate(table.deleteWhereStatement(limit, offset, op))
+    executeUpdate(buildStatement { table.deleteWhere(limit, op) })
+
+@Deprecated("The `offset` parameter is removed.", ReplaceWith("this.deleteWhere(table, limit, op)"))
+suspend fun <T : Table> DatabaseClient<*>.deleteWhere(
+    table: T, limit: Int? = null, offset: Long? = null, op: T.() -> Op<Boolean>
+) =
+    deleteWhere(table, limit, op)
 
 suspend fun <T : Table> DatabaseClient<*>.deleteIgnoreWhere(
-    table: T, limit: Int? = null, offset: Long? = null, op: TableAwareWithSqlExpressionBuilderBuildWhere<T>
+    table: T, limit: Int? = null, op: T.() -> Op<Boolean>
 ) =
-    executeUpdate(table.deleteIgnoreWhereStatement(limit, offset, op))
+    executeUpdate(buildStatement { table.deleteIgnoreWhere(limit, op) })
+
+@Deprecated("The `offset` parameter is removed.", ReplaceWith("this.deleteIgnoreWhere(table, limit, op)"))
+suspend fun <T : Table> DatabaseClient<*>.deleteIgnoreWhere(
+    table: T, limit: Int? = null, offset: Long? = null, op: T.() -> Op<Boolean>
+) =
+    deleteIgnoreWhere(table, limit, op)
