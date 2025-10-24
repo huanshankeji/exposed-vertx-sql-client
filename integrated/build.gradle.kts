@@ -25,9 +25,9 @@ afterEvaluate {
         "benchmarksImplementation"(cpnProject(project, ":core"))
         "benchmarksImplementation"(cpnProject(project, ":postgresql"))
 
-        with(commonDependencies.testContainers) {
+        with(commonDependencies.testcontainers) {
             "benchmarksImplementation"(platformBom())
-            "benchmarksImplementation"(postgreSql)
+            "benchmarksImplementation"(testcontainersPostgresql)
         }
         "benchmarksImplementation"(commonDependencies.slf4j.simple())
     }

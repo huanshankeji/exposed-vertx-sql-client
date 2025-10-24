@@ -12,5 +12,7 @@ val commonGradleClasspathDependencies = CommonGradleClasspathDependencies(common
 object DependencyVersions {
     val exposedAdtMapping = "0.4.0-SNAPSHOT" // TODO don't use a snapshot version in a main branch
 
-    val mysqlConnectorJ = "9.4.0"
+    // https://github.com/mysql/mysql-connector-j/tags
+    val mysqlConnectorJ =
+        "9.4.0" // 9.5.0 is released on GitHub but available from Maven Central. This may be due to some delay.
 }
