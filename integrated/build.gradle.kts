@@ -29,6 +29,7 @@ afterEvaluate {
             "benchmarksImplementation"(platformBom())
             "benchmarksImplementation"(testcontainersPostgresql)
         }
-        "benchmarksImplementation"(commonDependencies.slf4j.simple("2.0.17"))
+        // Vert.x actually already includes an `slf4j-simple` dependency
+        "benchmarksImplementation"(commonDependencies.slf4j.simple())
     }
 }
