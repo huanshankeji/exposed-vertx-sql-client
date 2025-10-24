@@ -29,6 +29,6 @@ afterEvaluate {
             "benchmarksImplementation"(platformBom())
             "benchmarksImplementation"(testcontainersPostgresql)
         }
-        "benchmarksImplementation"(commonDependencies.slf4j.simple())
+        "benchmarksImplementation"(commonDependencies.slf4j.simple("2.0.17"))
     }
 }
