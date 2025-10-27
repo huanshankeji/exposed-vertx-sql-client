@@ -9,7 +9,10 @@ plugins {
 }
 
 publishing.publications.getByName<MavenPublication>("maven") {
-    pomForTeamDefaultOpenSource(project, "Exposed Vert.x SQL Client", "Exposed on top of Vert.x Reactive SQL Client") {
+    pomForTeamDefaultOpenSource(
+        project,
+        "Exposed Vert.x SQL Client", "Exposed on top of Vert.x Reactive SQL Client", "2022"
+    ) {
         ShreckYe()
     }
 }
