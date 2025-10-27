@@ -5,7 +5,7 @@ import com.huanshankeji.CommonVersions
 val projectVersion = "0.6.0-SNAPSHOT"
 
 // TODO don't use a snapshot version in a main branch
-val commonVersions = CommonVersions(kotlinCommon = "0.7.0-SNAPSHOT")
+val commonVersions = CommonVersions(kotlinCommon = "0.7.0")
 val commonDependencies = CommonDependencies(commonVersions)
 val commonGradleClasspathDependencies = CommonGradleClasspathDependencies(commonVersions)
 
