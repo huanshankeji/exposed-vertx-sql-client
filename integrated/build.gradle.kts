@@ -13,7 +13,7 @@ dependencies {
     implementation(cpnProject(project, ":core"))
     implementation(cpnProject(project, ":postgresql"))
     implementation(cpnProject(project, ":crud"))
-    implementation("com.huanshankeji:exposed-gadt-mapping:${DependencyVersions.exposedAdtMapping}")
+    implementation("com.huanshankeji:exposed-gadt-mapping:${DependencyVersions.exposedGadtMapping}")
     implementation(cpnProject(project, ":crud-with-mapper"))
 }
 

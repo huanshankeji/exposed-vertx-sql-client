@@ -10,7 +10,7 @@ val commonDependencies = CommonDependencies(commonVersions)
 val commonGradleClasspathDependencies = CommonGradleClasspathDependencies(commonVersions)
 
 object DependencyVersions {
-    val exposedAdtMapping = "0.4.0-SNAPSHOT" // TODO don't use a snapshot version in a main branch
+    val exposedGadtMapping = "0.4.0" // don't use a snapshot version in a main branch
 
     // https://github.com/mysql/mysql-connector-j/tags
     val mysqlConnectorJ =
