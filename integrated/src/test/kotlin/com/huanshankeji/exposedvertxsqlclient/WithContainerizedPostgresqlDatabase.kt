@@ -10,6 +10,7 @@ import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
+import java.util.concurrent.TimeUnit
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 
@@ -41,7 +42,7 @@ abstract class WithContainerizedPostgresqlDatabase {
     @AfterTest
     fun tearDown() {
         pool.close()
-        vertx.close().toCompletionStage().toCompletableFuture().get()
+        vertx.close().toCompletionStage().toCompletableFuture().get(30, TimeUnit.SECONDS)
         postgreSQLContainer.stop()
     }
 
