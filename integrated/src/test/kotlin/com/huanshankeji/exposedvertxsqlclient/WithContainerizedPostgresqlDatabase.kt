@@ -41,7 +41,7 @@ abstract class WithContainerizedPostgresqlDatabase {
     @AfterTest
     fun tearDown() {
         pool.close()
-        vertx.close()
+        vertx.close().toCompletionStage().toCompletableFuture().get()
         postgreSQLContainer.stop()
     }
 

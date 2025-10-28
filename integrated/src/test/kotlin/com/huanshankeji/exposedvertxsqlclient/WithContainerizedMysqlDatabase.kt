@@ -41,7 +41,7 @@ abstract class WithContainerizedMysqlDatabase {
     @AfterTest
     fun tearDown() {
         pool.close()
-        vertx.close()
+        vertx.close().toCompletionStage().toCompletableFuture().get()
         mySQLContainer.stop()
     }
 
