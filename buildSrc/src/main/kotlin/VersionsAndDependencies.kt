@@ -14,4 +14,7 @@ object DependencyVersions {
 
     // https://github.com/mysql/mysql-connector-j/tags
     val mysqlConnectorJ = "9.5.0"
+    
+    // https://github.com/kohlschutter/junixsocket/releases
+    val junixsocket = "2.11.0"
 }
