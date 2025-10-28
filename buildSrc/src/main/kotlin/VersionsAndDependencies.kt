@@ -14,5 +14,5 @@ object DependencyVersions {
 
     // https://github.com/mysql/mysql-connector-j/tags
     val mysqlConnectorJ =
-        "9.4.0" // 9.5.0 is released on GitHub but available from Maven Central. This may be due to some delay.
+        "9.4.0" // 9.5.0 is released on GitHub but not available from Maven Central. This may be due to some delay.
 }
