@@ -4,7 +4,7 @@
 
 [Exposed](https://github.com/JetBrains/Exposed) on top of [Vert.x Reactive SQL Client](https://github.com/eclipse-vertx/vertx-sql-client)
 
-## Note
+## Supported DBs
 
 Only PostgreSQL with [Reactive PostgreSQL Client](https://vertx.io/docs/vertx-pg-client/java/) is currently supported. MySQL support will be implemented in v0.6.0 but not tested yet.
 
