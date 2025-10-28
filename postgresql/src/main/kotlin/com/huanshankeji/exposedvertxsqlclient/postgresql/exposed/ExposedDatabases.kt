@@ -5,7 +5,6 @@ import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
 import com.huanshankeji.exposedvertxsqlclient.exposed.exposedDatabaseConnect
 import org.jetbrains.exposed.v1.core.DatabaseConfig
 import org.jetbrains.exposed.v1.jdbc.Database
-import org.jetbrains.exposed.v1.jdbc.transactions.TransactionManager
 import java.sql.Connection
 
 /**
@@ -14,11 +13,10 @@ import java.sql.Connection
 @ExperimentalEvscApi
 fun ConnectionConfig.Socket.exposedDatabaseConnectPostgresql(
     setupConnection: (Connection) -> Unit = {},
-    databaseConfig: DatabaseConfig? = null,
-    manager: (Database) -> TransactionManager = { TransactionManager(it) }
+    databaseConfig: DatabaseConfig? = null
 ) =
     exposedDatabaseConnect(
-        "postgresql", "org.postgresql.Driver", setupConnection, databaseConfig, manager
+        "postgresql", "org.postgresql.Driver", setupConnection, databaseConfig
     )
 
 @ExperimentalEvscApi
@@ -26,7 +24,6 @@ fun ConnectionConfig.Socket.exposedDatabaseConnectPostgresql(
 fun exposedDatabaseConnectPostgresql(
     socketConnectionConfig: ConnectionConfig.Socket,
     setupConnection: (Connection) -> Unit = {},
-    databaseConfig: DatabaseConfig? = null,
-    manager: (Database) -> TransactionManager = { TransactionManager(it) }
+    databaseConfig: DatabaseConfig? = null
 ) =
-    socketConnectionConfig.exposedDatabaseConnectPostgresql(setupConnection, databaseConfig, manager)
+    socketConnectionConfig.exposedDatabaseConnectPostgresql(setupConnection, databaseConfig)

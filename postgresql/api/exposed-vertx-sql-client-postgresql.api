@@ -13,10 +13,10 @@ public final class com/huanshankeji/exposedvertxsqlclient/postgresql/SqlTransfor
 }
 
 public final class com/huanshankeji/exposedvertxsqlclient/postgresql/exposed/ExposedDatabasesKt {
-	public static final fun exposedDatabaseConnectPostgresql (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/v1/core/DatabaseConfig;Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/exposed/v1/jdbc/Database;
-	public static synthetic fun exposedDatabaseConnectPostgresql$default (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/v1/core/DatabaseConfig;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lorg/jetbrains/exposed/v1/jdbc/Database;
-	public static final fun exposedDatabaseConnectPostgresqlWithParameterConnectionConfig (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/v1/core/DatabaseConfig;Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/exposed/v1/jdbc/Database;
-	public static synthetic fun exposedDatabaseConnectPostgresqlWithParameterConnectionConfig$default (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/v1/core/DatabaseConfig;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lorg/jetbrains/exposed/v1/jdbc/Database;
+	public static final fun exposedDatabaseConnectPostgresql (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/v1/core/DatabaseConfig;)Lorg/jetbrains/exposed/v1/jdbc/Database;
+	public static synthetic fun exposedDatabaseConnectPostgresql$default (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/v1/core/DatabaseConfig;ILjava/lang/Object;)Lorg/jetbrains/exposed/v1/jdbc/Database;
+	public static final fun exposedDatabaseConnectPostgresqlWithParameterConnectionConfig (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/v1/core/DatabaseConfig;)Lorg/jetbrains/exposed/v1/jdbc/Database;
+	public static synthetic fun exposedDatabaseConnectPostgresqlWithParameterConnectionConfig$default (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/v1/core/DatabaseConfig;ILjava/lang/Object;)Lorg/jetbrains/exposed/v1/jdbc/Database;
 }
 
 public final class com/huanshankeji/exposedvertxsqlclient/postgresql/local/LocalConnectionConfigKt {

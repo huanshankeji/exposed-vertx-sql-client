@@ -5,7 +5,6 @@ import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
 import com.huanshankeji.exposedvertxsqlclient.exposed.exposedDatabaseConnect
 import org.jetbrains.exposed.v1.core.DatabaseConfig
 import org.jetbrains.exposed.v1.jdbc.Database
-import org.jetbrains.exposed.v1.jdbc.transactions.TransactionManager
 import java.sql.Connection
 
 /**
@@ -14,11 +13,10 @@ import java.sql.Connection
 @ExperimentalEvscApi
 fun ConnectionConfig.Socket.exposedDatabaseConnectMysql(
     setupConnection: (Connection) -> Unit = {},
-    databaseConfig: DatabaseConfig? = null,
-    manager: (Database) -> TransactionManager = { TransactionManager(it) }
+    databaseConfig: DatabaseConfig? = null
 ) =
     exposedDatabaseConnect(
-        "mysql", "com.mysql.cj.jdbc.Driver", setupConnection, databaseConfig, manager
+        "mysql", "com.mysql.cj.jdbc.Driver", setupConnection, databaseConfig
     )
 
 @ExperimentalEvscApi
@@ -26,7 +24,6 @@ fun ConnectionConfig.Socket.exposedDatabaseConnectMysql(
 fun exposedDatabaseConnectMysql(
     socketConnectionConfig: ConnectionConfig.Socket,
     setupConnection: (Connection) -> Unit = {},
-    databaseConfig: DatabaseConfig? = null,
-    manager: (Database) -> TransactionManager = { TransactionManager(it) }
+    databaseConfig: DatabaseConfig? = null
 ) =
-    socketConnectionConfig.exposedDatabaseConnectMysql(setupConnection, databaseConfig, manager)
+    socketConnectionConfig.exposedDatabaseConnectMysql(setupConnection, databaseConfig)

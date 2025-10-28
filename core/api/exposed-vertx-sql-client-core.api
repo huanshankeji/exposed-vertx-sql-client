@@ -121,10 +121,10 @@ public final class com/huanshankeji/exposedvertxsqlclient/SingleUpdateException 
 }
 
 public final class com/huanshankeji/exposedvertxsqlclient/exposed/ExposedDatabasesKt {
-	public static final fun exposedDatabaseConnect (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/v1/core/DatabaseConfig;Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/exposed/v1/jdbc/Database;
-	public static final fun exposedDatabaseConnect (Ljava/lang/String;Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/v1/core/DatabaseConfig;Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/exposed/v1/jdbc/Database;
-	public static synthetic fun exposedDatabaseConnect$default (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/v1/core/DatabaseConfig;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lorg/jetbrains/exposed/v1/jdbc/Database;
-	public static synthetic fun exposedDatabaseConnect$default (Ljava/lang/String;Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/v1/core/DatabaseConfig;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lorg/jetbrains/exposed/v1/jdbc/Database;
+	public static final fun exposedDatabaseConnect (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/v1/core/DatabaseConfig;)Lorg/jetbrains/exposed/v1/jdbc/Database;
+	public static final fun exposedDatabaseConnect (Ljava/lang/String;Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/v1/core/DatabaseConfig;)Lorg/jetbrains/exposed/v1/jdbc/Database;
+	public static synthetic fun exposedDatabaseConnect$default (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/v1/core/DatabaseConfig;ILjava/lang/Object;)Lorg/jetbrains/exposed/v1/jdbc/Database;
+	public static synthetic fun exposedDatabaseConnect$default (Ljava/lang/String;Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/v1/core/DatabaseConfig;ILjava/lang/Object;)Lorg/jetbrains/exposed/v1/jdbc/Database;
 }
 
 public final class com/huanshankeji/exposedvertxsqlclient/exposed/QueryKt {
