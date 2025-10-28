@@ -3,10 +3,9 @@ package com.huanshankeji.exposedvertxsqlclient.exposed
 import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig
 import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
 import com.huanshankeji.exposedvertxsqlclient.jdbc.jdbcUrl
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.DatabaseConfig
-import org.jetbrains.exposed.sql.transactions.ThreadLocalTransactionManager
-import org.jetbrains.exposed.sql.transactions.TransactionManager
+import org.jetbrains.exposed.v1.core.DatabaseConfig
+import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.transactions.TransactionManager
 import java.sql.Connection
 
 /**
@@ -19,9 +18,10 @@ fun ConnectionConfig.Socket.exposedDatabaseConnect(
     driver: String,
     setupConnection: (Connection) -> Unit = {},
     databaseConfig: DatabaseConfig? = null,
-    manager: (Database) -> TransactionManager = { ThreadLocalTransactionManager(it) }
+    //connectionAutoRegistration: DatabaseConnectionAutoRegistration = connectionInstanceImpl, // `connectionInstanceImpl` is `private`
+    manager: (Database) -> TransactionManager = { TransactionManager(it) }
 ) =
-    Database.connect(jdbcUrl(rdbms), driver, user, password, setupConnection, databaseConfig, manager)
+    Database.connect(jdbcUrl(rdbms), driver, user, password, setupConnection, databaseConfig, manager = manager)
 
 @ExperimentalEvscApi
 fun exposedDatabaseConnect(
@@ -30,6 +30,6 @@ fun exposedDatabaseConnect(
     driver: String,
     setupConnection: (Connection) -> Unit = {},
     databaseConfig: DatabaseConfig? = null,
-    manager: (Database) -> TransactionManager = { ThreadLocalTransactionManager(it) }
+    manager: (Database) -> TransactionManager = { TransactionManager(it) }
 ) =
     socketConnectionConfig.exposedDatabaseConnect(rdbms, driver, setupConnection, databaseConfig, manager)

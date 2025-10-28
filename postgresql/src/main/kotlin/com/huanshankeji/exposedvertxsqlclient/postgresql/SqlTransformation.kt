@@ -1,14 +1,14 @@
 package com.huanshankeji.exposedvertxsqlclient.postgresql
 
 import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
-import org.jetbrains.exposed.sql.statements.Statement
-import org.jetbrains.exposed.sql.Transaction as ExposedTransaction
+import org.jetbrains.exposed.v1.core.statements.Statement
+import org.jetbrains.exposed.v1.core.Transaction as ExposedTransaction
 
 @ExperimentalEvscApi
 fun String.transformPgPreparedSql(): String =
     buildString(length * 2) {
         var i = 1
-        for (c in this)
+        for (c in this@transformPgPreparedSql)
             if (c == '?') append('$').append(i++)
             else append(c)
     }

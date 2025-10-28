@@ -4,10 +4,10 @@ import com.huanshankeji.kotlinx.coroutines.benchmark.ParameterizedRunBlockingAwa
 import com.huanshankeji.kotlinx.coroutines.benchmark.RunBlockingAwaitAsyncsBenchmark
 import kotlinx.benchmark.*
 import kotlinx.coroutines.*
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
-import org.jetbrains.exposed.sql.transactions.experimental.suspendedTransactionAsync
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.transactions.experimental.newSuspendedTransaction
+import org.jetbrains.exposed.v1.jdbc.transactions.experimental.suspendedTransactionAsync
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.util.concurrent.Executors
 import kotlin.concurrent.thread
 

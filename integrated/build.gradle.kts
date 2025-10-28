@@ -12,9 +12,9 @@ dependencies {
 
     implementation(cpnProject(project, ":core"))
     implementation(cpnProject(project, ":postgresql"))
-    implementation(cpnProject(project, ":sql-dsl"))
-    implementation("com.huanshankeji:exposed-adt-mapping:${DependencyVersions.exposedAdtMapping}")
-    implementation(cpnProject(project, ":sql-dsl-with-mapper"))
+    implementation(cpnProject(project, ":crud"))
+    implementation("com.huanshankeji:exposed-gadt-mapping:${DependencyVersions.exposedGadtMapping}")
+    implementation(cpnProject(project, ":crud-with-mapper"))
 }
 
 afterEvaluate {
@@ -25,10 +25,11 @@ afterEvaluate {
         "benchmarksImplementation"(cpnProject(project, ":core"))
         "benchmarksImplementation"(cpnProject(project, ":postgresql"))
 
-        with(commonDependencies.testContainers) {
+        with(commonDependencies.testcontainers) {
             "benchmarksImplementation"(platformBom())
-            "benchmarksImplementation"(postgreSql)
+            "benchmarksImplementation"(testcontainersPostgresql)
         }
+        // Vert.x actually already includes an `slf4j-simple` dependency
         "benchmarksImplementation"(commonDependencies.slf4j.simple())
     }
 }

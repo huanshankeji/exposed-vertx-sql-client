@@ -4,7 +4,8 @@ plugins {
 
 dependencies {
     api(commonDependencies.exposed.core()) // TODO: use `implementation` when possible
-    api(commonDependencies.kotlinCommon.exposed())
+    api(commonDependencies.exposed.module("jdbc"))
+    api(commonDependencies.kotlinCommon.exposed()) // TODO This is only kept to ease migration and is not used any more. Remove in a future release.
 
     with(commonDependencies.vertx) {
         implementation(platformStackDepchain())
