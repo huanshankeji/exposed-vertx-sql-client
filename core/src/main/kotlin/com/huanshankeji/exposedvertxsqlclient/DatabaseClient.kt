@@ -310,7 +310,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
                     val currentSql = statement.prepareSQL(this)
                     require(currentSql == sql) {
                         "The statement after set by `setUpStatement` each time should generate the same prepared SQL statement. " +
-                                "However, we have got SQL statement \"$sql\" set by each previous element" +
+                                "However, we have got SQL statement \"$sql\" set by each previous element " +
                                 "and SQL statement \"$currentSql\" set by the current statement $statement."
                     }
                     /*
@@ -362,7 +362,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
                     val currentSql = statement.prepareSQL(this)
                     require(currentSql == sql) {
                         "The statement after set by `setUpStatement` each time should generate the same prepared SQL statement. " +
-                                "However, we have got SQL statement \"$sql\" set by each previous element" +
+                                "However, we have got SQL statement \"$sql\" set by each previous element " +
                                 "and SQL statement \"$currentSql\" set by the current statement $statement."
                     }
                     /*
