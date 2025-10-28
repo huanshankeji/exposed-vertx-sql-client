@@ -1,15 +1,16 @@
 import com.huanshankeji.team.ShreckYe
-import com.huanshankeji.team.pomForTeamDefaultOpenSource
+import com.huanshankeji.team.setUpPomForTeamDefaultOpenSource
 
 plugins {
     id("conventions")
-    id("com.huanshankeji.kotlin-jvm-library-sonatype-ossrh-publish-conventions")
+    `java-library`
+    id("com.huanshankeji.maven-central-publish-conventions")
     id("com.huanshankeji.team.default-github-packages-maven-publish")
     id("com.huanshankeji.team.dokka.github-dokka-convention")
 }
 
-publishing.publications.getByName<MavenPublication>("maven") {
-    pomForTeamDefaultOpenSource(
+mavenPublishing.pom {
+    setUpPomForTeamDefaultOpenSource(
         project,
         "Exposed Vert.x SQL Client", "Exposed on top of Vert.x Reactive SQL Client", "2022"
     ) {
