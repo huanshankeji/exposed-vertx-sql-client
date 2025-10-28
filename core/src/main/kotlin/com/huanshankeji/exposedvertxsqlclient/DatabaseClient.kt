@@ -183,6 +183,25 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
             .coAwait()
     }
 
+    @ExperimentalEvscApi
+    suspend /*inline*/ fun <SqlResultT : SqlResult<*>> executeWithFieldExpressionSet(
+        statement: Statement<*>,
+        fieldSet: FieldSet,
+        transformQuery: (Set<Expression<*>>, PreparedQuery<RowSet<Row>>) -> PreparedQuery<SqlResultT>
+    ): SqlResultT {
+        val (sql, argTuple, fieldExpressionSet) = exposedTransaction {
+            Triple(
+                config.transformPreparedSql(statement.prepareSqlAndLogIfNeeded(this)),
+                statement.getVertxSqlClientArgTuple(),
+                fieldSet.getFieldExpressionSet()
+            )
+        }
+        return vertxSqlClient.preparedQuery(sql)
+            .let { transformQuery(fieldExpressionSet, it) }
+            .run { if (argTuple === null) execute() else execute(argTuple) }
+            .coAwait()
+    }
+
     suspend fun executeForVertxSqlClientRowSet(statement: Statement<*>): RowSet<Row> =
         execute(statement) { this }
 
@@ -190,8 +209,11 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     suspend fun <U> executeWithMapping(statement: Statement<*>, RowMapper: Function<Row, U>): RowSet<U> =
         execute(statement) { mapping(RowMapper) }
 
-    // TODO consider calling `getFieldExpressionSet` inside existing transactions (the ones used to prepare the query) to further optimize the performance
-    // TODO consider removing this and letting the user call `exposedTransaction` themself
+    @Deprecated(
+        "This method creates a new transaction when it should use an existing one. " +
+                "Call `getFieldExpressionSet()` within an existing `exposedTransaction` block instead.",
+        ReplaceWith("getFieldExpressionSet()")
+    )
     @ExperimentalEvscApi
     @PublishedApi
     internal fun FieldSet.getFieldExpressionSetWithTransaction() =
@@ -202,6 +224,11 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     private fun Query.getFieldExpressionSetWithTransaction() =
         set.getFieldExpressionSetWithTransaction()
 
+    @Deprecated(
+        "This method creates a new transaction when it should use an existing one. " +
+                "Use `executeWithFieldExpressionSet` and `toExposedResultRow` instead.",
+        ReplaceWith("toExposedResultRow(query.set.getFieldExpressionSet())")
+    )
     @ExperimentalEvscApi
     fun Row.toExposedResultRowWithTransaction(query: Query) =
         toExposedResultRow(query.getFieldExpressionSetWithTransaction())
@@ -212,7 +239,9 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     suspend inline fun <Data> executeQuery(
         query: Query, crossinline resultRowMapper: ResultRow.() -> Data
     ): RowSet<Data> =
-        executeWithMapping(query) { row -> row.toExposedResultRowWithTransaction(query).resultRowMapper() }
+        executeWithFieldExpressionSet(query, query.set) { fieldExpressionSet, preparedQuery ->
+            preparedQuery.mapping { row -> row.toExposedResultRow(fieldExpressionSet).resultRowMapper() }
+        }
 
     suspend fun executeQuery(query: Query): RowSet<ResultRow> =
         executeQuery(query) { this }
@@ -310,6 +339,58 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     }
 
     @ExperimentalEvscApi
+    suspend /*inline*/ fun <SqlResultT : SqlResult<*>> executeBatchWithFieldExpressionSet(
+        statements: Iterable<Statement<*>>,
+        fieldSet: FieldSet,
+        transformQuery: (Set<Expression<*>>, PreparedQuery<RowSet<Row>>) -> PreparedQuery<SqlResultT>
+    ): Sequence<SqlResultT> {
+        //if (data.none()) return emptySequence() // This causes "java.lang.IllegalStateException: This sequence can be consumed only once." when `data` is a `ConstrainedOnceSequence`.
+
+        val (sql, argTuples, fieldExpressionSet) = exposedTransaction {
+            var sql: String? = null
+            //var argumentTypes: List<IColumnType>? = null
+
+            val argTuples = statements.map { statement ->
+                // The `map` is currently not parallelized.
+
+                val arguments = statement.singleStatementArguments()
+                    ?: throw IllegalArgumentException("the prepared query of a batch statement should have arguments")
+                if (sql === null) {
+                    sql = statement.prepareSqlAndLogIfNeeded(this)
+                    //argumentTypes = arguments.types()
+                } else if (config.validateBatch) {
+                    val currentSql = statement.prepareSQL(this)
+                    require(currentSql == sql) {
+                        "The statement after set by `setUpStatement` each time should generate the same prepared SQL statement. " +
+                                "However, we have got SQL statement \"$sql\" set by each previous element" +
+                                "and SQL statement \"$currentSql\" set by the current statement $statement."
+                    }
+                    /*
+                    val currentElementArgumentTypes = arguments.types()
+                    require(currentElementArgumentTypes == argumentTypes!!) {
+                        "The statement after set by `setUpStatement` each time should generate the same arguments. " +
+                                "However we have got argument types $argumentTypes set by each previous element" +
+                                "and argument types $currentElementArgumentTypes set by the current element $element"
+                    }
+                    */
+                }
+
+                arguments.toVertxTuple()
+            }
+
+            Triple(sql, argTuples, fieldSet.getFieldExpressionSet())
+        }
+
+        if (sql === null)
+            return emptySequence()
+
+        val vertxSqlClientSql = config.transformPreparedSql(sql)
+        return vertxSqlClient.preparedQuery(vertxSqlClientSql)
+            .let { transformQuery(fieldExpressionSet, it) }
+            .executeBatchAwaitForSqlResultSequence(argTuples)
+    }
+
+    @ExperimentalEvscApi
     suspend fun executeBatchForVertxSqlClientRowSetSequence(statements: Iterable<Statement<*>>): Sequence<RowSet<Row>> =
         executeBatch(statements) { this }
 
@@ -319,12 +400,10 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     @ExperimentalEvscApi
     suspend inline fun <Data> executeBatchQuery(
         fieldSet: FieldSet, queries: Iterable<Query>, crossinline resultRowMapper: ResultRow.() -> Data
-    ): Sequence<RowSet<Data>> {
-        val fieldExpressionSet = fieldSet.getFieldExpressionSetWithTransaction()
-        return executeBatch(queries) {
-            mapping { row -> row.toExposedResultRow(fieldExpressionSet).resultRowMapper() }
+    ): Sequence<RowSet<Data>> =
+        executeBatchWithFieldExpressionSet(queries, fieldSet) { fieldExpressionSet, preparedQuery ->
+            preparedQuery.mapping { row -> row.toExposedResultRow(fieldExpressionSet).resultRowMapper() }
         }
-    }
 
     suspend fun executeBatchQuery(fieldSet: FieldSet, queries: Iterable<Query>): Sequence<RowSet<ResultRow>> =
         executeBatchQuery(fieldSet, queries) { this }
