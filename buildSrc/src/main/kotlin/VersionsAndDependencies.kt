@@ -13,6 +13,5 @@ object DependencyVersions {
     val exposedGadtMapping = "0.4.0" // don't use a snapshot version in a main branch
 
     // https://github.com/mysql/mysql-connector-j/tags
-    val mysqlConnectorJ =
-        "9.4.0" // 9.5.0 is released on GitHub but not available from Maven Central. This may be due to some delay.
+    val mysqlConnectorJ = "9.5.0"
 }
