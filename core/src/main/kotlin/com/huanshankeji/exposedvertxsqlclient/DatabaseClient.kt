@@ -190,18 +190,37 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     suspend fun <U> executeWithMapping(statement: Statement<*>, RowMapper: Function<Row, U>): RowSet<U> =
         execute(statement) { mapping(RowMapper) }
 
-    // TODO consider calling `getFieldExpressionSet` inside existing transactions (the ones used to prepare the query) to further optimize the performance
-    // TODO consider removing this and letting the user call `exposedTransaction` themself
+    @Deprecated(
+        "Call `exposedTransaction { getFieldExpressionSet() }` yourself if you need to get the field expression set with a transaction.",
+        ReplaceWith(
+            "exposedTransaction { getFieldExpressionSet() }",
+            "com.huanshankeji.exposedvertxsqlclient.getFieldExpressionSet"
+        )
+    )
     @ExperimentalEvscApi
     @PublishedApi
     internal fun FieldSet.getFieldExpressionSetWithTransaction() =
         exposedTransaction { getFieldExpressionSet() }
 
-    @Deprecated("This function is called nowhere except `Row.toExposedResultRowWithTransaction`. Consider inlining and removing it.")
+    @Deprecated(
+        "Call `exposedTransaction { set.getFieldExpressionSet() }` yourself if you need to get the field expression set with a transaction.",
+        ReplaceWith(
+            "exposedTransaction { set.getFieldExpressionSet() }",
+            "com.huanshankeji.exposedvertxsqlclient.getFieldExpressionSet"
+        )
+    )
     @ExperimentalEvscApi
     private fun Query.getFieldExpressionSetWithTransaction() =
         set.getFieldExpressionSetWithTransaction()
 
+    @Deprecated(
+        "Call `exposedTransaction { query.set.getFieldExpressionSet() }` to get the field expression set, then use `row.toExposedResultRow(fieldExpressionSet)`.",
+        ReplaceWith(
+            "toExposedResultRow(exposedTransaction { query.set.getFieldExpressionSet() })",
+            "com.huanshankeji.exposedvertxsqlclient.toExposedResultRow",
+            "com.huanshankeji.exposedvertxsqlclient.getFieldExpressionSet"
+        )
+    )
     @ExperimentalEvscApi
     fun Row.toExposedResultRowWithTransaction(query: Query) =
         toExposedResultRow(query.getFieldExpressionSetWithTransaction())
@@ -211,8 +230,10 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
         Just map the `RowSet` to a `List` or `Sequence`. */
     suspend inline fun <Data> executeQuery(
         query: Query, crossinline resultRowMapper: ResultRow.() -> Data
-    ): RowSet<Data> =
-        executeWithMapping(query) { row -> row.toExposedResultRowWithTransaction(query).resultRowMapper() }
+    ): RowSet<Data> {
+        val fieldExpressionSet = exposedTransaction { query.set.getFieldExpressionSet() }
+        return executeWithMapping(query) { row -> row.toExposedResultRow(fieldExpressionSet).resultRowMapper() }
+    }
 
     suspend fun executeQuery(query: Query): RowSet<ResultRow> =
         executeQuery(query) { this }
@@ -320,7 +341,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     suspend inline fun <Data> executeBatchQuery(
         fieldSet: FieldSet, queries: Iterable<Query>, crossinline resultRowMapper: ResultRow.() -> Data
     ): Sequence<RowSet<Data>> {
-        val fieldExpressionSet = fieldSet.getFieldExpressionSetWithTransaction()
+        val fieldExpressionSet = exposedTransaction { fieldSet.getFieldExpressionSet() }
         return executeBatch(queries) {
             mapping { row -> row.toExposedResultRow(fieldExpressionSet).resultRowMapper() }
         }
