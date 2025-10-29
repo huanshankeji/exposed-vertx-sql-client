@@ -31,7 +31,6 @@ import kotlin.Int
 import kotlin.NotImplementedError
 import kotlin.OptIn
 import kotlin.Pair
-import kotlin.PublishedApi
 import kotlin.ReplaceWith
 import kotlin.String
 import kotlin.Suppress
@@ -190,11 +189,9 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     suspend fun <U> executeWithMapping(statement: Statement<*>, RowMapper: Function<Row, U>): RowSet<U> =
         execute(statement) { mapping(RowMapper) }
 
-    // TODO consider calling `getFieldExpressionSet` inside existing transactions (the ones used to prepare the query) to further optimize the performance
-    // TODO consider removing this and letting the user call `exposedTransaction` themself
+    @Deprecated("call `exposedTransaction` as needed to improve performance.")
     @ExperimentalEvscApi
-    @PublishedApi
-    internal fun FieldSet.getFieldExpressionSetWithTransaction() =
+    private fun FieldSet.getFieldExpressionSetWithTransaction() =
         exposedTransaction { getFieldExpressionSet() }
 
     @Deprecated("This function is called nowhere except `Row.toExposedResultRowWithTransaction`. Consider inlining and removing it.")
@@ -204,7 +201,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
 
     @ExperimentalEvscApi
     fun Row.toExposedResultRowWithTransaction(query: Query) =
-        toExposedResultRow(query.getFieldExpressionSetWithTransaction())
+        toExposedResultRow(query.getFieldExpressionSet())
 
     /* TODO Consider deprecating this variant taking a `resultRowMapper: ResultRow.() -> Data` parameter
         as the Vert.x `RowSet` stores all the results in a `List` rather fetch as needed.
@@ -320,7 +317,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     suspend inline fun <Data> executeBatchQuery(
         fieldSet: FieldSet, queries: Iterable<Query>, crossinline resultRowMapper: ResultRow.() -> Data
     ): Sequence<RowSet<Data>> {
-        val fieldExpressionSet = fieldSet.getFieldExpressionSetWithTransaction()
+        val fieldExpressionSet = fieldSet.getFieldExpressionSet()
         return executeBatch(queries) {
             mapping { row -> row.toExposedResultRow(fieldExpressionSet).resultRowMapper() }
         }
@@ -369,8 +366,11 @@ fun Row.toExposedResultRow(fieldExpressionSet: Set<Expression<*>>) =
         }.toMap()
     )
 
+/*
 private const val USE_THE_ONE_IN_DATABASE_CLIENT_BECAUSE_TRANSACTION_REQUIRED_MESSAGE =
     "Use the one in `DatabaseClient` because a transaction may be required."
+*/
+
 
 /**
  * An Exposed transaction is required if the [FieldSet] contains custom functions that depend on dialects.
@@ -383,7 +383,6 @@ fun FieldSet.getFieldExpressionSet() =
 /**
  * @see FieldSet.getFieldExpressionSet
  */
-@Deprecated("This function is called nowhere except `Row.toExposedResultRow`. Consider inlining and removing it.")
 //@Deprecated(USE_THE_ONE_IN_DATABASE_CLIENT_BECAUSE_TRANSACTION_REQUIRED_MESSAGE)
 fun Query.getFieldExpressionSet() =
     set.getFieldExpressionSet()
