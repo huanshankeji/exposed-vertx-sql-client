@@ -189,7 +189,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     suspend fun <U> executeWithMapping(statement: Statement<*>, RowMapper: Function<Row, U>): RowSet<U> =
         execute(statement) { mapping(RowMapper) }
 
-    @Deprecated("call `exposedTransaction` as needed to improve performance.")
+    @Deprecated("call `exposedTransaction` yourself as needed to improve performance.")
     @ExperimentalEvscApi
     private fun FieldSet.getFieldExpressionSetWithTransaction() =
         exposedTransaction { getFieldExpressionSet() }
@@ -199,9 +199,10 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     private fun Query.getFieldExpressionSetWithTransaction() =
         set.getFieldExpressionSetWithTransaction()
 
+    @Deprecated("call `exposedTransaction` yourself as needed to improve performance.")
     @ExperimentalEvscApi
     fun Row.toExposedResultRowWithTransaction(query: Query) =
-        toExposedResultRow(query.getFieldExpressionSet())
+        toExposedResultRow(query.getFieldExpressionSetWithTransaction())
 
     /* TODO Consider deprecating this variant taking a `resultRowMapper: ResultRow.() -> Data` parameter
         as the Vert.x `RowSet` stores all the results in a `List` rather fetch as needed.
@@ -383,6 +384,7 @@ fun FieldSet.getFieldExpressionSet() =
 /**
  * @see FieldSet.getFieldExpressionSet
  */
+@Deprecated("This function is called nowhere except `Row.toExposedResultRow`. Consider inlining and removing it.")
 //@Deprecated(USE_THE_ONE_IN_DATABASE_CLIENT_BECAUSE_TRANSACTION_REQUIRED_MESSAGE)
 fun Query.getFieldExpressionSet() =
     set.getFieldExpressionSet()
