@@ -132,7 +132,7 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
 
     @Benchmark
     fun multiThreadParallel10KTransactionsWithSleepEvenlyDivided() =
-        multiThreadParallel10KTransactionsEvenlyDividedHelper { sleep(1) }
+        multiThreadParallel10KTransactionsEvenlyDividedHelper { Thread.sleep(1) }
 
     /*
     // These don't work because the block in side `transaction` can't be suspend.
