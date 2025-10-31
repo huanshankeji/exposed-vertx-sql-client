@@ -135,7 +135,7 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
         multiThreadParallel10KTransactionsEvenlyDividedHelper { Thread.sleep(1) }
 
     /*
-    // These don't work because the block in side `transaction` can't be suspend.
+    // These don't work because the block inside `transaction` can't be suspend.
 
     private inline fun multiThreadCoroutineParallel10KTransactionsEvenlyDividedHelper(crossinline block: suspend () -> Unit) {
         val numThreads = numProcessors()
