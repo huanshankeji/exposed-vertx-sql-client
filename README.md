@@ -63,7 +63,9 @@ val evscConfig = ConnectionConfig.Socket("localhost", user = "user", password = 
     .toUniversalEvscConfig()
 ```
 
-Local alternative with Unix domain socket:
+Local alternatives with Unix domain sockets for better performance:
+
+**Option 1: Unix domain socket for Vert.x only (Exposed still uses TCP/IP):**
 
 ```kotlin
 val evscConfig = defaultPostgresqlLocalConnectionConfig(
@@ -73,7 +75,19 @@ val evscConfig = defaultPostgresqlLocalConnectionConfig(
 ).toPerformantUnixEvscConfig()
 ```
 
-Create an Exposed `Database` with the `ConnectionConfig.Socket`, which can be shared and reused in multiple `Verticle`s:
+**Option 2: Unix domain sockets for both Exposed and Vert.x (most performant):**
+
+```kotlin
+val evscConfig = defaultPostgresqlLocalConnectionConfig(
+    user = "user",
+    socketConnectionPassword = "password",
+    database = "database"
+).toFullUnixEvscConfig()
+```
+
+Note: Option 2 requires the [junixsocket](https://github.com/kohlschutter/junixsocket) library at runtime for JDBC connections. This library is included as a transitive dependency when using the PostgreSQL or MySQL modules.
+
+Create an Exposed `Database` with the `ConnectionConfig`, which can be shared and reused in multiple `Verticle`s:
 
 ```kotlin
 val exposedDatabase = evscConfig.exposedConnectionConfig.exposedDatabaseConnectPostgresql()
