@@ -1,5 +1,7 @@
 package com.huanshankeji.exposed.benchmark
 
+import com.huanshankeji.kotlinx.coroutines.benchmark.ParameterizedRunBlockingAwaitAsyncsBenchmark
+import com.huanshankeji.kotlinx.coroutines.benchmark.RunBlockingAwaitAsyncsBenchmark
 import kotlinx.benchmark.*
 import kotlinx.coroutines.*
 import org.jetbrains.exposed.v1.jdbc.Database
