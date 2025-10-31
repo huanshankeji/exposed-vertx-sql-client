@@ -46,6 +46,7 @@ public final class com/huanshankeji/exposedvertxsqlclient/DatabaseClient : com/h
 	public final fun executeBatchQuery (Lorg/jetbrains/exposed/v1/core/FieldSet;Ljava/lang/Iterable;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun executeBatchQuery (Lorg/jetbrains/exposed/v1/core/FieldSet;Ljava/lang/Iterable;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun executeBatchUpdate (Ljava/lang/Iterable;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun executeBatchWithFieldExpressionSet (Ljava/lang/Iterable;Lorg/jetbrains/exposed/v1/core/FieldSet;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun executeExpression (Lkotlin/reflect/KClass;Lorg/jetbrains/exposed/v1/core/Expression;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun executeForVertxSqlClientRowSet (Lorg/jetbrains/exposed/v1/core/statements/Statement;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun executePlainSql (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
@@ -55,6 +56,7 @@ public final class com/huanshankeji/exposedvertxsqlclient/DatabaseClient : com/h
 	public final fun executeSingleOrNoUpdate (Lorg/jetbrains/exposed/v1/core/statements/Statement;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun executeSingleUpdate (Lorg/jetbrains/exposed/v1/core/statements/Statement;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun executeUpdate (Lorg/jetbrains/exposed/v1/core/statements/Statement;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun executeWithFieldExpressionSet (Lorg/jetbrains/exposed/v1/core/statements/Statement;Lorg/jetbrains/exposed/v1/core/FieldSet;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun executeWithMapping (Lorg/jetbrains/exposed/v1/core/statements/Statement;Ljava/util/function/Function;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun exposedTransaction (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
 	public final fun getConfig ()Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClientConfig;
