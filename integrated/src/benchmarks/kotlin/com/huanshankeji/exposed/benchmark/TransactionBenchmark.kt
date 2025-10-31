@@ -9,7 +9,6 @@ import org.jetbrains.exposed.v1.jdbc.transactions.experimental.newSuspendedTrans
 import org.jetbrains.exposed.v1.jdbc.transactions.experimental.suspendedTransactionAsync
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.util.concurrent.Executors
-import kotlin.concurrent.thread
 
 @State(Scope.Benchmark)
 class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
@@ -69,6 +68,7 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
             println("Number of processors: $it")
         }
 
+    /*
     @Benchmark
     fun multiThreadMultiConnectionEach10KLocalTransactions() {
         // Note that on a device with heterogeneous architecture some threads may finish earlier than others.
@@ -81,6 +81,7 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
             it.join()
         }
     }
+    */
 
 
     val databaseThreadLocal = ThreadLocal<Database>()
