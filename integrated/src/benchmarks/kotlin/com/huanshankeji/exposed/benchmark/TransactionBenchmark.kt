@@ -19,6 +19,11 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
 
     companion object {
         const val `10K` = 10_000
+
+        private fun numProcessors() =
+            Runtime.getRuntime().availableProcessors().also {
+                println("Number of processors: $it")
+            }
     }
 
     @Benchmark
@@ -29,10 +34,6 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
     @Suppress("SuspendFunctionOnCoroutineScope")
     private suspend inline fun CoroutineScope.awaitAsync10K(crossinline block: () -> Unit) =
         List(`10K`) { async { block() } }.awaitAll()
-
-    @Suppress("SuspendFunctionOnCoroutineScope")
-    private suspend fun CoroutineScope.awaitAsync10KTransactions() =
-        awaitAsync10K { transaction(database) {} }
 
     /**
      * For debugging purposes.
@@ -49,13 +50,18 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
         println("Number of threads used: " + threadMap.size)
     }
 
+    @Suppress("SuspendFunctionOnCoroutineScope")
+    private suspend fun CoroutineScope.awaitAsync10KTransactions() =
+        awaitAsync10K { transaction(database) {} }
+
     /**
      * Compare with [RunBlockingAwaitAsyncsBenchmark].
      */
     @Benchmark
     fun singleThreadConcurrent10KTransactions() =
         @OptIn(ExperimentalCoroutinesApi::class, DelicateCoroutinesApi::class)
-        runBlocking(newSingleThreadContext("single thread")) {
+        // `newSingleThreadContext("single thread")` yields poorer results.
+        runBlocking(Executors.newSingleThreadExecutor().asCoroutineDispatcher()) {
             awaitAsync10KTransactions()
         }
 
@@ -67,7 +73,8 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
     fun multiThreadConcurrent10KTransactionsWithSharedDatabase() =
         //runBlocking { awaitAsync10KTransactions() } // This does not run on multiple threads as tested.
         @OptIn(ExperimentalCoroutinesApi::class, DelicateCoroutinesApi::class)
-        runBlocking(newFixedThreadPoolContext(numProcessors(), "multiple threads")) {
+        // `newFixedThreadPoolContext(numProcessors(), "multiple threads")` yields much poorer results.
+        runBlocking(Executors.newFixedThreadPool(numProcessors()).asCoroutineDispatcher()) {
             awaitAsync10KTransactions()
         }
 
@@ -81,11 +88,6 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
     fun _10KSuspendedTransactionAsyncs() = runBlocking {
         List(`10K`) { suspendedTransactionAsync(db = database) {} }.awaitAll()
     }
-
-    private fun numProcessors() =
-        Runtime.getRuntime().availableProcessors().also {
-            println("Number of processors: $it")
-        }
 
     /*
     @Benchmark
