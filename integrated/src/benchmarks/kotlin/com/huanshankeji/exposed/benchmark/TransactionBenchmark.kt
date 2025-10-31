@@ -35,6 +35,21 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
         awaitAsync10K { transaction(database) {} }
 
     /**
+     * For debugging purposes.
+     */
+    @Suppress("SuspendFunctionOnCoroutineScope")
+    private suspend inline fun CoroutineScope.awaitAsync10KCountingThreads(crossinline block: () -> Unit) {
+        val threadMap = HashSet<Thread>(numProcessors())
+        List(`10K`) {
+            async {
+                threadMap.add(Thread.currentThread())
+                block()
+            }
+        }.awaitAll()
+        println("Number of threads used: " + threadMap.size)
+    }
+
+    /**
      * Compare with [RunBlockingAwaitAsyncsBenchmark].
      */
     @Benchmark
@@ -50,13 +65,7 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
      */
     @Benchmark
     fun multiThreadConcurrent10KTransactionsWithSharedDatabase() =
-        runBlocking { awaitAsync10KTransactions() }
-
-    /**
-     * To compare explicitly with [singleThreadConcurrent10KTransactions].
-     */
-    @Benchmark
-    fun explicitMultiThreadConcurrent10KTransactionsWithSharedDatabase() =
+        //runBlocking { awaitAsync10KTransactions() } // This does not run on multiple threads as tested.
         @OptIn(ExperimentalCoroutinesApi::class, DelicateCoroutinesApi::class)
         runBlocking(newFixedThreadPoolContext(numProcessors(), "single thread")) {
             awaitAsync10KTransactions()
