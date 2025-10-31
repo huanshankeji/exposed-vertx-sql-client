@@ -61,8 +61,10 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
     fun singleThreadConcurrent10KTransactions() =
         @OptIn(ExperimentalCoroutinesApi::class, DelicateCoroutinesApi::class)
         // `newSingleThreadContext("single thread")` yields poorer results.
-        runBlocking(Executors.newSingleThreadExecutor().asCoroutineDispatcher()) {
-            awaitAsync10KTransactions()
+        Executors.newSingleThreadExecutor().asCoroutineDispatcher().use {
+            runBlocking(it) {
+                awaitAsync10KTransactions()
+            }
         }
 
 
@@ -74,8 +76,10 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
         //runBlocking { awaitAsync10KTransactions() } // This does not run on multiple threads as tested.
         @OptIn(ExperimentalCoroutinesApi::class, DelicateCoroutinesApi::class)
         // `newFixedThreadPoolContext(numProcessors(), "multiple threads")` yields much poorer results.
-        runBlocking(Executors.newFixedThreadPool(numProcessors()).asCoroutineDispatcher()) {
-            awaitAsync10KTransactions()
+        Executors.newFixedThreadPool(numProcessors()).asCoroutineDispatcher().use {
+            runBlocking(it) {
+                awaitAsync10KTransactions()
+            }
         }
 
 
