@@ -8,7 +8,6 @@ import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.v1.jdbc.transactions.experimental.suspendedTransactionAsync
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
-import java.lang.Thread.sleep
 import java.util.*
 import java.util.concurrent.Executors
 import kotlin.concurrent.thread
