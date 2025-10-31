@@ -8,7 +8,9 @@ import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.v1.jdbc.transactions.experimental.suspendedTransactionAsync
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import java.lang.Thread.sleep
 import java.util.concurrent.Executors
+import kotlin.concurrent.thread
 
 @State(Scope.Benchmark)
 class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
@@ -94,6 +96,7 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
     }
 
     /*
+    // TODO adapt to evenly divided as below
     @Benchmark
     fun multiThreadMultiConnectionEach10KLocalTransactions() {
         // Note that on a device with heterogeneous architecture some threads may finish earlier than others.
@@ -106,6 +109,55 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
             it.join()
         }
     }
+    */
+
+
+    private inline fun multiThreadParallel10KTransactionsEvenlyDividedHelper(crossinline block: () -> Unit) {
+        val numThreads = numProcessors()
+        val numTransactionEachThread = `10K` / numThreads
+        // Note that on a device with heterogeneous architecture some threads may finish earlier than others.
+        List(numThreads) {
+            thread {
+                repeat(numTransactionEachThread) { transaction(database) { block() } }
+            }
+        }.forEach {
+            it.join()
+        }
+    }
+
+    @Benchmark
+    fun multiThreadParallel10KTransactionsEvenlyDivided() =
+        multiThreadParallel10KTransactionsEvenlyDividedHelper {}
+
+    @Benchmark
+    fun multiThreadParallel10KTransactionsWithSleepEvenlyDivided() =
+        multiThreadParallel10KTransactionsEvenlyDividedHelper { sleep(1) }
+
+    /*
+    // These don't work because the block in side `transaction` can't be suspend.
+
+    private inline fun multiThreadCoroutineParallel10KTransactionsEvenlyDividedHelper(crossinline block: suspend () -> Unit) {
+        val numThreads = numProcessors()
+        val numTransactionEachThread = `10K` / numThreads
+        // Note that on a device with heterogeneous architecture some threads may finish earlier than others.
+        runBlocking {
+            List(numThreads) {
+                launch {
+                    repeat(numTransactionEachThread) { transaction(database) { block() } }
+                }
+            }.forEach {
+                it.join()
+            }
+        }
+    }
+
+    @Benchmark
+    fun multiThreadCoroutineParallel10KTransactionsEvenlyDivided() =
+        multiThreadCoroutineParallel10KTransactionsEvenlyDividedHelper {}
+
+    @Benchmark
+    fun multiThreadCoroutineParallel10KTransactionsWithDelayEvenlyDivided() =
+        multiThreadCoroutineParallel10KTransactionsEvenlyDividedHelper { delay(1) }
     */
 
 
