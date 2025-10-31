@@ -33,6 +33,7 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
         repeat(`10K`) { transaction(database) {} }
     }
 
+    // ! `await` is actually quite expensive.
     @Suppress("SuspendFunctionOnCoroutineScope")
     private suspend inline fun CoroutineScope.awaitAsync10K(crossinline block: () -> Unit) =
         List(`10K`) { async { block() } }.awaitAll()
