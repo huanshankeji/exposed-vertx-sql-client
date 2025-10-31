@@ -52,6 +52,16 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
     fun multiThreadConcurrent10KTransactionsWithSharedDatabase() =
         runBlocking { awaitAsync10KTransactions() }
 
+    /**
+     * To compare explicitly with [singleThreadConcurrent10KTransactions].
+     */
+    @Benchmark
+    fun explicitMultiThreadConcurrent10KTransactionsWithSharedDatabase() =
+        @OptIn(ExperimentalCoroutinesApi::class, DelicateCoroutinesApi::class)
+        runBlocking(newFixedThreadPoolContext(numProcessors(), "single thread")) {
+            awaitAsync10KTransactions()
+        }
+
 
     @Benchmark
     fun _10KSuspendedTransactions() = runBlocking {
