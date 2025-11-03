@@ -115,15 +115,15 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
 
     private inline fun multiThreadParallel10KTransactionsEvenlyDividedHelper(crossinline block: () -> Unit) {
         val numThreads = numProcessors()
-        val numTransactionEachThread = `10K` / numThreads
         // Note that on a device with heterogeneous architecture some threads may finish earlier than others.
-        List(numThreads) {
+        List(numThreads) { i ->
             thread {
-                repeat(numTransactionEachThread) { transaction(database) { block() } }
+                val start = i * `10K` / numThreads
+                val end = (i + 1) * `10K` / numThreads
+                for (j in start until end)
+                    transaction(database) { block() }
             }
-        }.forEach {
-            it.join()
-        }
+        }.forEach { it.join() }
     }
 
     @Benchmark
