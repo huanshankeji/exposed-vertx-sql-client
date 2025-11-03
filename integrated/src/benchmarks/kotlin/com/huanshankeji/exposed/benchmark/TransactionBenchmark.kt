@@ -148,6 +148,8 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
         }
     }
 
+    /*
+    // This is not parallel but sequential.
     @Benchmark
     fun multiThreadParallel10KTransactionsEvenlyDividedWithCoroutineFlowCollect() {
         runBlocking {
@@ -155,6 +157,7 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
                 .collect { transaction(database) {} }
         }
     }
+    */
 
     @Benchmark
     fun multiThreadParallel10KTransactionsEvenlyDividedWithJavaStream() {
