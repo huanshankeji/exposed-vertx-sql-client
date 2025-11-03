@@ -140,7 +140,7 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
     fun multiThreadParallel10KTransactionsEvenlyDividedWithCoroutineFlowFlatMapMerge() {
         val numThreads = numProcessors()
         runBlocking {
-            (0 until 10_000).asFlow()
+            (0 until `10K`).asFlow()
                 .flatMapMerge(concurrency = numThreads) {
                     flow<Unit> { transaction(database) {} }
                 }
@@ -153,7 +153,7 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
     @Benchmark
     fun multiThreadParallel10KTransactionsEvenlyDividedWithCoroutineFlowCollect() {
         runBlocking {
-            (0 until 10_000).asFlow()
+            (0 until `10K`).asFlow()
                 .collect { transaction(database) {} }
         }
     }
@@ -161,7 +161,7 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
 
     @Benchmark
     fun multiThreadParallel10KTransactionsEvenlyDividedWithJavaStream() {
-        IntStream.range(0, 10_000)
+        IntStream.range(0, `10K`)
             .parallel()
             .forEach { transaction(database) {} }
     }
