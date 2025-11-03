@@ -126,7 +126,7 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
                 val start = i * `10K` / numThreads
                 val end = (i + 1) * `10K` / numThreads
                 for (j in start until end)
-                    transaction(database) { block() }
+                    transaction(database, block)
             }
         }.forEach { it.join() }
     }
