@@ -161,11 +161,9 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
 
     @Benchmark
     fun multiThreadParallel10KTransactionsEvenlyDividedWithJavaStream() {
-        runBlocking {
-            IntStream.range(0, 10_000)
-                .parallel()
-                .forEach { transaction(database) {} }
-        }
+        IntStream.range(0, 10_000)
+            .parallel()
+            .forEach { transaction(database) {} }
     }
 
     @Benchmark
