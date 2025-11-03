@@ -12,7 +12,7 @@ import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.v1.jdbc.transactions.experimental.suspendedTransactionAsync
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
-import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors
 import java.util.stream.IntStream
 import kotlin.concurrent.thread
@@ -48,7 +48,7 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
      */
     @Suppress("SuspendFunctionOnCoroutineScope")
     private suspend inline fun CoroutineScope.awaitAsync10KCountingThreads(crossinline block: () -> Unit) {
-        val threadMap = Collections.synchronizedSet(HashSet<Thread>(numProcessors()))
+        val threadMap = ConcurrentHashMap.newKeySet<Thread>(numProcessors())
         List(`10K`) {
             async {
                 threadMap.add(Thread.currentThread())
