@@ -4,12 +4,17 @@ import com.huanshankeji.kotlinx.coroutines.benchmark.ParameterizedRunBlockingAwa
 import com.huanshankeji.kotlinx.coroutines.benchmark.RunBlockingAwaitAsyncsBenchmark
 import kotlinx.benchmark.*
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flatMapMerge
+import kotlinx.coroutines.flow.flow
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.v1.jdbc.transactions.experimental.suspendedTransactionAsync
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.util.*
 import java.util.concurrent.Executors
+import java.util.stream.IntStream
 import kotlin.concurrent.thread
 
 @State(Scope.Benchmark)
@@ -129,6 +134,36 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
     @Benchmark
     fun multiThreadParallel10KTransactionsEvenlyDivided() =
         multiThreadParallel10KTransactionsEvenlyDividedHelper {}
+
+    // This performs poorly.
+    @Benchmark
+    fun multiThreadParallel10KTransactionsEvenlyDividedWithCoroutineFlowFlatMapMerge() {
+        val numThreads = numProcessors()
+        runBlocking {
+            (0 until 10_000).asFlow()
+                .flatMapMerge(concurrency = numThreads) {
+                    flow<Unit> { transaction(database) {} }
+                }
+                .collect()
+        }
+    }
+
+    @Benchmark
+    fun multiThreadParallel10KTransactionsEvenlyDividedWithCoroutineFlowCollect() {
+        runBlocking {
+            (0 until 10_000).asFlow()
+                .collect { transaction(database) {} }
+        }
+    }
+
+    @Benchmark
+    fun multiThreadParallel10KTransactionsEvenlyDividedWithJavaStream() {
+        runBlocking {
+            IntStream.range(0, 10_000)
+                .parallel()
+                .forEach { transaction(database) {} }
+        }
+    }
 
     @Benchmark
     fun multiThreadParallel10KTransactionsWithSleepEvenlyDivided() =
