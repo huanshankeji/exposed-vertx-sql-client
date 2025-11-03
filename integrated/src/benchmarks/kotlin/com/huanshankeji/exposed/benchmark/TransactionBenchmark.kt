@@ -142,7 +142,7 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
         runBlocking {
             (0 until `10K`).asFlow()
                 .flatMapMerge(concurrency = numThreads) {
-                    flow<Unit> { transaction(database) {} }
+                    flow<Unit> { emit(transaction(database) {}) }
                 }
                 .collect()
         }
