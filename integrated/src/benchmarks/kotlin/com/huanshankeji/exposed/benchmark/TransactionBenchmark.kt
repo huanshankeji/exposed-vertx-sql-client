@@ -118,7 +118,7 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
     */
 
 
-    private inline fun multiThreadParallel10KTransactionsEvenlyDividedHelper(crossinline block: () -> Unit) {
+    private inline fun multiThreadParallel10KTransactionsNearlyEvenlyDividedHelper(crossinline block: () -> Unit) {
         val numThreads = numProcessors()
         // Note that on a device with heterogeneous architecture some threads may finish earlier than others.
         List(numThreads) { i ->
@@ -133,7 +133,7 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
 
     @Benchmark
     fun multiThreadParallel10KTransactionsEvenlyDivided() =
-        multiThreadParallel10KTransactionsEvenlyDividedHelper {}
+        multiThreadParallel10KTransactionsNearlyEvenlyDividedHelper {}
 
     // This performs poorly.
     @Benchmark
@@ -171,7 +171,7 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
 
     @Benchmark
     fun multiThreadParallel10KTransactionsWithSleepEvenlyDivided() =
-        multiThreadParallel10KTransactionsEvenlyDividedHelper { Thread.sleep(1) }
+        multiThreadParallel10KTransactionsNearlyEvenlyDividedHelper { Thread.sleep(1) }
 
     /*
     // These don't work because the block inside `transaction` can't be suspend.
