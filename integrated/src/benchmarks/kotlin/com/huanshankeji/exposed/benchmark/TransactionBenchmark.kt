@@ -139,12 +139,15 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
     @Benchmark
     fun multiThreadParallel10KTransactionsEvenlyDividedWithCoroutineFlowFlatMapMerge() {
         val numThreads = numProcessors()
-        runBlocking {
-            (0 until `10K`).asFlow()
-                .flatMapMerge(concurrency = numThreads) {
-                    flow { emit(transaction(database) {}) }
-                }
-                .collect()
+        // This dispatcher actually makes performance worse.
+        Executors.newFixedThreadPool(numProcessors()).asCoroutineDispatcher().use {
+            runBlocking(it) {
+                (0 until `10K`).asFlow()
+                    .flatMapMerge(concurrency = numThreads) {
+                        flow { emit(transaction(database) {}) }
+                    }
+                    .collect()
+            }
         }
     }
 
