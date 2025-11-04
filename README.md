@@ -222,4 +222,4 @@ In such a case, you can use our `Query.forUpdateWithTransaction()` instead.
 Some Exposed APIs implicitly require a transaction and we do not always provide APIs to completely avoid this exception, for which there are 2 reasons:
 
 1. Exposed APIs are not fully decoupled and designed to serve this library, the transaction requirements in APIs sometimes change between versions and our APIs may need to evolve accordingly. Therefore, we don't want to add a bunch of APIs that need constant maintenance and may be removed in the future.
-1. Though we can provide transactions wherever they are possibly but not always needed, performance can be improved slightly when transactions are not created unnecessarily.
+1. Though we can provide transactions wherever they might possibly be needed, performance can be improved slightly when transactions are not created unnecessarily.
