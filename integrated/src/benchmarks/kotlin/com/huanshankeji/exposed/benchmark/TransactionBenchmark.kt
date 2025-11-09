@@ -101,7 +101,6 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
         List(`10K`) { suspendedTransactionAsync(db = database) {} }.awaitAll()
     }
 
-    // TODO adapt to evenly divided as below
     @Benchmark
     fun multiThreadMultiConnectionEach10KLocalTransactions() {
         // Note that on a device with heterogeneous architecture some threads may finish earlier than others.
@@ -115,27 +114,40 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
         }
     }
 
-
-    private inline fun multiThreadParallel10KTransactionsNearlyEvenlyDividedHelper(crossinline block: () -> Unit) {
+    private inline fun multiThread10KNearlyEvenlyPartitionedHelper(crossinline threadBlock: (num: Int) -> Unit) {
         val numThreads = numProcessors()
         // Note that on a device with heterogeneous architecture some threads may finish earlier than others.
         List(numThreads) { i ->
             thread {
                 val start = i * `10K` / numThreads
                 val end = (i + 1) * `10K` / numThreads
-                for (j in start until end)
-                    transaction(database) { block() }
+                threadBlock(end - start)
             }
         }.forEach { it.join() }
     }
 
     @Benchmark
-    fun multiThreadParallel10KTransactionsEvenlyDivided() =
-        multiThreadParallel10KTransactionsNearlyEvenlyDividedHelper {}
+    fun multiThreadMultiConnectionInTotal10KLocalTransactionsNearlyEvenlyDivided() {
+        multiThread10KNearlyEvenlyPartitionedHelper { num ->
+            val database = databaseConnect()
+            repeat(num) { transaction(database) {} }
+        }
+    }
+
+
+    private inline fun multiThreadParallel10KTransactionsNearlyEvenlyPartitionedHelper(crossinline block: () -> Unit) {
+        multiThread10KNearlyEvenlyPartitionedHelper { num ->
+            repeat(num) { transaction(database) { block() } }
+        }
+    }
+
+    @Benchmark
+    fun multiThreadParallel10KTransactionsNearlyEvenlyPartitioned() =
+        multiThreadParallel10KTransactionsNearlyEvenlyPartitionedHelper {}
 
     // This performs poorly.
     @Benchmark
-    fun multiThreadParallel10KTransactionsEvenlyDividedWithCoroutineFlowFlatMapMerge() {
+    fun multiThreadParallel10KTransactionsNearlyEvenlyPartitionedWithCoroutineFlowFlatMapMerge() {
         val numThreads = numProcessors()
         // This dispatcher actually makes performance worse.
         Executors.newFixedThreadPool(numProcessors()).asCoroutineDispatcher().use {
@@ -161,15 +173,15 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
     */
 
     @Benchmark
-    fun multiThreadParallel10KTransactionsEvenlyDividedWithJavaStream() {
+    fun multiThreadParallel10KTransactionsNearlyEvenlyPartitionedWithJavaStream() {
         IntStream.range(0, `10K`)
             .parallel()
             .forEach { transaction(database) {} }
     }
 
     @Benchmark
-    fun multiThreadParallel10KTransactionsWithSleepEvenlyDivided() =
-        multiThreadParallel10KTransactionsNearlyEvenlyDividedHelper { Thread.sleep(1) }
+    fun multiThreadParallel10KTransactionsWithSleepNearlyEvenlyPartitioned() =
+        multiThreadParallel10KTransactionsNearlyEvenlyPartitionedHelper { Thread.sleep(1) }
 
     /*
     // These don't work because the block inside `transaction` can't be suspend.
