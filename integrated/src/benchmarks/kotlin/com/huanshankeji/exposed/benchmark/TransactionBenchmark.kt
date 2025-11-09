@@ -101,7 +101,6 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
         List(`10K`) { suspendedTransactionAsync(db = database) {} }.awaitAll()
     }
 
-    /*
     // TODO adapt to evenly divided as below
     @Benchmark
     fun multiThreadMultiConnectionEach10KLocalTransactions() {
@@ -115,7 +114,6 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
             it.join()
         }
     }
-    */
 
 
     private inline fun multiThreadParallel10KTransactionsNearlyEvenlyDividedHelper(crossinline block: () -> Unit) {
