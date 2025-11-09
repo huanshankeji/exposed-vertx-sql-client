@@ -127,7 +127,7 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
     }
 
     @Benchmark
-    fun multiThreadMultiConnectionInTotal10KLocalTransactionsNearlyEvenlyDivided() {
+    fun multiThreadMultiConnectionInTotal10KLocalTransactionsNearlyEvenlyPartitioned() {
         multiThread10KNearlyEvenlyPartitionedHelper { num ->
             val database = databaseConnect()
             repeat(num) { transaction(database) {} }
@@ -164,7 +164,7 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
     /*
     // This is not parallel but sequential.
     @Benchmark
-    fun multiThreadParallel10KTransactionsEvenlyDividedWithCoroutineFlowCollect() {
+    fun multiThreadParallel10KTransactionsEvenlyPartitionedWithCoroutineFlowCollect() {
         runBlocking {
             (0 until `10K`).asFlow()
                 .collect { transaction(database) {} }
@@ -186,7 +186,7 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
     /*
     // These don't work because the block inside `transaction` can't be suspend.
 
-    private inline fun multiThreadCoroutineParallel10KTransactionsEvenlyDividedHelper(crossinline block: suspend () -> Unit) {
+    private inline fun multiThreadCoroutineParallel10KTransactionsEvenlyPartitionedHelper(crossinline block: suspend () -> Unit) {
         val numThreads = numProcessors()
         val numTransactionEachThread = `10K` / numThreads
         // Note that on a device with heterogeneous architecture some threads may finish earlier than others.
@@ -202,12 +202,12 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
     }
 
     @Benchmark
-    fun multiThreadCoroutineParallel10KTransactionsEvenlyDivided() =
-        multiThreadCoroutineParallel10KTransactionsEvenlyDividedHelper {}
+    fun multiThreadCoroutineParallel10KTransactionsEvenlyPartitioned() =
+        multiThreadCoroutineParallel10KTransactionsEvenlyPartitionedHelper {}
 
     @Benchmark
-    fun multiThreadCoroutineParallel10KTransactionsWithDelayEvenlyDivided() =
-        multiThreadCoroutineParallel10KTransactionsEvenlyDividedHelper { delay(1) }
+    fun multiThreadCoroutineParallel10KTransactionsWithDelayEvenlyPartitioned() =
+        multiThreadCoroutineParallel10KTransactionsEvenlyPartitionedHelper { delay(1) }
     */
 
 
