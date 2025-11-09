@@ -107,8 +107,9 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
 
     // TODO consider splitting into 2, one with `readOnly` set to true and isolation level `NONE` / READ UNCOMMITED for SQL generation, and a normal one for Exposed execution
     fun <T> exposedTransaction(
-        transactionIsolation: Int? = exposedDatabase?.transactionManager?.defaultIsolationLevel,
-        readOnly: Boolean? = exposedDatabase?.transactionManager?.defaultReadOnly,
+        // default arguments copied from `transaction`
+        transactionIsolation: Int? = exposedDatabase/*?*/.transactionManager/*?*/.defaultIsolationLevel,
+        readOnly: Boolean? = exposedDatabase/*?*/.transactionManager/*?*/.defaultReadOnly,
         statement: ExposedTransaction.() -> T
     ) =
         transaction(exposedDatabase, transactionIsolation, readOnly, statement)
