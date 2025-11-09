@@ -19,6 +19,7 @@ import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.Query
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.transactions.transactionManager
 import org.slf4j.LoggerFactory
 import java.util.function.Function
 import kotlin.Any
@@ -105,9 +106,13 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     }
 
     // TODO consider splitting into 2, one with `readOnly` set to true and isolation level `NONE` / READ UNCOMMITED for SQL generation, and a normal one for Exposed execution
-    // TODO also consider adding the 2 parameters `transactionIsolation` and `readOnly` with default arguments
-    fun <T> exposedTransaction(statement: ExposedTransaction.() -> T) =
-        transaction(exposedDatabase, statement)
+    fun <T> exposedTransaction(
+        // default arguments copied from `transaction`
+        transactionIsolation: Int? = exposedDatabase/*?*/.transactionManager/*?*/.defaultIsolationLevel,
+        readOnly: Boolean? = exposedDatabase/*?*/.transactionManager/*?*/.defaultReadOnly,
+        statement: ExposedTransaction.() -> T
+    ) =
+        transaction(exposedDatabase, transactionIsolation, readOnly, statement)
 
     private fun Statement<*>.prepareSqlAndLogIfNeeded(transaction: ExposedTransaction) =
         prepareSQL(transaction).also {
