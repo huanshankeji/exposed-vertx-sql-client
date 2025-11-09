@@ -56,7 +56,8 @@ public final class com/huanshankeji/exposedvertxsqlclient/DatabaseClient : com/h
 	public final fun executeSingleUpdate (Lorg/jetbrains/exposed/v1/core/statements/Statement;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun executeUpdate (Lorg/jetbrains/exposed/v1/core/statements/Statement;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun executeWithMapping (Lorg/jetbrains/exposed/v1/core/statements/Statement;Ljava/util/function/Function;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun exposedTransaction (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public final fun exposedTransaction (Ljava/lang/Integer;Ljava/lang/Boolean;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public static synthetic fun exposedTransaction$default (Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClient;Ljava/lang/Integer;Ljava/lang/Boolean;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ljava/lang/Object;
 	public final fun getConfig ()Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClientConfig;
 	public final fun getExposedDatabase ()Lorg/jetbrains/exposed/v1/jdbc/Database;
 	public final fun getFieldExpressionSetWithTransaction (Lorg/jetbrains/exposed/v1/core/FieldSet;)Ljava/util/Set;
