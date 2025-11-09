@@ -107,7 +107,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     // TODO consider splitting into 2, one with `readOnly` set to true and isolation level `NONE` / READ UNCOMMITED for SQL generation, and a normal one for Exposed execution
     // TODO also consider adding the 2 parameters `transactionIsolation` and `readOnly` with default arguments
     fun <T> exposedTransaction(statement: ExposedTransaction.() -> T) =
-        transaction(exposedDatabase, statement)
+        transaction(exposedDatabase, null, null, statement)
 
     private fun Statement<*>.prepareSqlAndLogIfNeeded(transaction: ExposedTransaction) =
         prepareSQL(transaction).also {
