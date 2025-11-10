@@ -6,6 +6,7 @@ import com.huanshankeji.exposed.datamapping.updateBuilderSetter
 import com.huanshankeji.exposedvertxsqlclient.DatabaseClient
 import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
 import com.huanshankeji.exposedvertxsqlclient.crud.*
+import com.huanshankeji.exposedvertxsqlclient.toExposedResultRow
 import com.huanshankeji.vertx.sqlclient.datamapping.RowDataQueryMapper
 import io.vertx.sqlclient.RowSet
 import org.jetbrains.exposed.v1.core.ColumnSet
@@ -22,7 +23,7 @@ suspend fun <Data : Any> DatabaseClient<*>.executeQueryWithMapper(
     query: Query,
     dataQueryMapper: DataQueryMapper<Data>
 ): RowSet<Data> =
-    executeWithMapping(query) { row -> dataQueryMapper.resultRowToData(row.toExposedResultRowWithTransaction(query)) }
+    executeWithMapping(query) { row -> dataQueryMapper.resultRowToData(row.toExposedResultRow(query)) }
 
 @ExperimentalEvscApi
 suspend fun <Data : Any> DatabaseClient<*>.executeVertxSqlClientRowQueryWithMapper(

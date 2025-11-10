@@ -215,7 +215,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     suspend inline fun <Data> executeQuery(
         query: Query, crossinline resultRowMapper: ResultRow.() -> Data
     ): RowSet<Data> =
-        executeWithMapping(query) { row -> row.toExposedResultRowWithTransaction(query).resultRowMapper() }
+        executeWithMapping(query) { row -> row.toExposedResultRow(query).resultRowMapper() }
 
     suspend fun executeQuery(query: Query): RowSet<ResultRow> =
         executeQuery(query) { this }
