@@ -26,6 +26,7 @@ import kotlin.Any
 import kotlin.AssertionError
 import kotlin.Boolean
 import kotlin.Deprecated
+import kotlin.DeprecationLevel
 import kotlin.Exception
 import kotlin.IllegalArgumentException
 import kotlin.Int
@@ -99,6 +100,13 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     val exposedDatabase: Database,
     val config: DatabaseClientConfig
 ) : CoroutineAutoCloseable {
+    companion object {
+        private const val FUNCTION_TRANSFORMING_ROWS_USING_PREPARED_QUERY_MAPPING_DEPRECATED_MESSAGE =
+            "This function transforms rows using Vert.x's `PreparedQuery.mapping` and is deprecated. " +
+                    "The Vert.x `RowSet` stores all the results in a List rather fetch as needed, so using `PreparedQuery.mapping` doesn't bring any performance benefits compared to using Kotlin's `map`. " +
+                    "In addition, The Exposed `transaction` can be created on a finer-grained level only for the Kotlin `map` process from Vert.x `Row`s to Exposed `ResultRow`s."
+    }
+
     override suspend fun close() {
         vertxSqlClient.close().coAwait()
         // How to close The Exposed `Database`?
@@ -190,9 +198,16 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     suspend fun executeForVertxSqlClientRowSet(statement: Statement<*>): RowSet<Row> =
         execute(statement) { this }
 
+
+    @Deprecated(
+        FUNCTION_TRANSFORMING_ROWS_USING_PREPARED_QUERY_MAPPING_DEPRECATED_MESSAGE,
+        ReplaceWith("executeForVertxSqlClientRowSet(statement).map(rowMapper)")
+    )
     @ExperimentalEvscApi
-    suspend fun <U> executeWithMapping(statement: Statement<*>, RowMapper: Function<Row, U>): RowSet<U> =
-        execute(statement) { mapping(RowMapper) }
+    suspend fun <U> executeWithMapping(statement: Statement<*>, rowMapper: Function<Row, U>): RowSet<U> =
+        execute(statement) { mapping(rowMapper) }
+
+    // If these functions are to be kept, consider renaming them to `...WithExposedTransaction` to make it clearer that an Exposed `transaction` is used.
 
     @Deprecated("call `exposedTransaction` yourself as needed to improve performance.")
     @ExperimentalEvscApi
@@ -209,16 +224,37 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     fun Row.toExposedResultRowWithTransaction(query: Query) =
         toExposedResultRow(query.getFieldExpressionSetWithTransaction())
 
-    /* TODO Consider deprecating this variant taking a `resultRowMapper: ResultRow.() -> Data` parameter
-        as the Vert.x `RowSet` stores all the results in a `List` rather fetch as needed.
-        Just map the `RowSet` to a `List` or `Sequence`. */
+    @Deprecated(
+        FUNCTION_TRANSFORMING_ROWS_USING_PREPARED_QUERY_MAPPING_DEPRECATED_MESSAGE,
+        ReplaceWith("executeQuery(query).map(resultRowMapper)")
+    )
     suspend inline fun <Data> executeQuery(
         query: Query, crossinline resultRowMapper: ResultRow.() -> Data
     ): RowSet<Data> =
         executeWithMapping(query) { row -> row.toExposedResultRow(query).resultRowMapper() }
 
+    @Deprecated(
+        FUNCTION_TRANSFORMING_ROWS_USING_PREPARED_QUERY_MAPPING_DEPRECATED_MESSAGE,
+        ReplaceWith("executeQuery(query, TODO())"),
+        DeprecationLevel.HIDDEN
+    )
     suspend fun executeQuery(query: Query): RowSet<ResultRow> =
-        executeQuery(query) { this }
+        execute(query) { mapping { row: Row -> row.toExposedResultRow(query) } }
+
+    /**
+     * @param mapRowWithExposedTransaction whether to map each [Row] to [ResultRow] within an Exposed transaction.
+     *     Try setting this to true if you encounter `java.lang.IllegalStateException: No transaction in context.`.
+     */
+    suspend fun executeQuery(query: Query, mapRowWithExposedTransaction: Boolean = false): List<ResultRow> {
+        val rowSet = executeForVertxSqlClientRowSet(query)
+        fun toExposedResultRows() =
+            rowSet.map { row -> row.toExposedResultRow(query) }
+        return if (mapRowWithExposedTransaction)
+        // TODO merge from `main` and use `exposedReadOnlyTransaction`
+            exposedTransaction { toExposedResultRows() }
+        else
+            toExposedResultRows()
+    }
 
     suspend fun executeUpdate(statement: Statement<Int>): Int =
         executeForVertxSqlClientRowSet(statement).rowCount()
