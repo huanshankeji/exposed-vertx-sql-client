@@ -239,7 +239,10 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     private fun Query.getFieldExpressionSetWithTransaction() =
         set.getFieldExpressionSetWithTransaction()
 
-    @Deprecated("call `exposedTransaction` yourself as needed to improve performance.")
+    @Deprecated(
+        "Call `exposedTransaction` yourself as needed to improve performance. " +
+                "This is also of potential poor performance if accidentally called to transform multiple rows."
+    )
     @ExperimentalEvscApi
     fun Row.toExposedResultRowWithTransaction(query: Query) =
         toExposedResultRow(query.getFieldExpressionSetWithTransaction())
