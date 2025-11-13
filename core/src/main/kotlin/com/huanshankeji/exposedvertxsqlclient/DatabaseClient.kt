@@ -18,7 +18,6 @@ import org.jetbrains.exposed.v1.core.statements.UpdateStatement
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.Query
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.jdbc.transactions.transactionManager
 import org.slf4j.LoggerFactory
 import java.util.function.Function
@@ -36,6 +35,7 @@ import kotlin.PublishedApi
 import kotlin.ReplaceWith
 import kotlin.String
 import kotlin.Suppress
+import kotlin.TODO
 import kotlin.Unit
 import kotlin.also
 import kotlin.collections.map
@@ -112,7 +112,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
         readOnly: Boolean? = exposedDatabase/*?*/.transactionManager/*?*/.defaultReadOnly,
         statement: ExposedTransaction.() -> T
     ) =
-        transaction(exposedDatabase, transactionIsolation, readOnly, statement)
+        TODO() as T
 
     private fun Statement<*>.prepareSqlAndLogIfNeeded(transaction: ExposedTransaction) =
         prepareSQL(transaction).also {
