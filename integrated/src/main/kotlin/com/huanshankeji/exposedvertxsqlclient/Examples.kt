@@ -58,6 +58,20 @@ suspend fun examples(vertx: Vertx) {
         SchemaUtils.create(*tables)
     }
 
+    /*
+    transaction(exposedDatabase) {
+        SchemaUtils.create(*tables)
+    }
+
+    transaction(databaseClient.exposedDatabase) {
+        SchemaUtils.create(*tables)
+    }
+
+    transaction {
+        SchemaUtils.create(*tables)
+    }
+    */
+
     run {
         // The Exposed `Table` extension functions `insert`, `update`, and `delete` execute eagerly so `insertStatement`, `updateStatement`, `deleteStatement` have to be used.
 

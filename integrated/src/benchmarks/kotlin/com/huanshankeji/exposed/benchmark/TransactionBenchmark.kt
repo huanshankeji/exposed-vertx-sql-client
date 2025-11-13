@@ -12,6 +12,7 @@ import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.v1.jdbc.transactions.experimental.suspendedTransactionAsync
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import java.sql.Connection
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors
 import java.util.stream.IntStream
@@ -34,8 +35,18 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
     }
 
     @Benchmark
-    fun _10KTransactions() {
+    fun _10K_Transactions() {
         repeat(`10K`) { transaction(database) {} }
+    }
+
+    @Benchmark
+    fun transactionNone_ReadOnly_10K_Transaction() {
+        repeat(`10K`) { transaction(database, Connection.TRANSACTION_NONE, true) {} }
+    }
+
+    @Benchmark
+    fun transactionReadUncommitted_ReadOnly_10K_Transaction() {
+        repeat(`10K`) { transaction(database, Connection.TRANSACTION_READ_UNCOMMITTED, true) {} }
     }
 
     // ! `await` is actually quite expensive.
@@ -126,24 +137,54 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
         }.forEach { it.join() }
     }
 
-    @Benchmark
-    fun multiThreadMultiConnectionInTotal10KLocalTransactionsNearlyEvenlyPartitioned() {
+
+    private inline fun multiThreadMultiConnectionInTotal10KLocalTransactionsNearlyEvenlyPartitionedHelper(crossinline transactionBlock: (database: Database) -> Unit) {
         multiThread10KNearlyEvenlyPartitionedHelper { num ->
             val database = databaseConnect()
-            repeat(num) { transaction(database) {} }
-        }
-    }
-
-
-    private inline fun multiThreadParallel10KTransactionsNearlyEvenlyPartitionedHelper(crossinline block: () -> Unit) {
-        multiThread10KNearlyEvenlyPartitionedHelper { num ->
-            repeat(num) { transaction(database) { block() } }
+            repeat(num) { transactionBlock(database) }
         }
     }
 
     @Benchmark
-    fun multiThreadParallel10KTransactionsNearlyEvenlyPartitioned() =
-        multiThreadParallel10KTransactionsNearlyEvenlyPartitionedHelper {}
+    fun multiThread_MultiConnection_InTotal_10K_Local_Transactions_NearlyEvenlyPartitioned() =
+        multiThreadMultiConnectionInTotal10KLocalTransactionsNearlyEvenlyPartitionedHelper { database ->
+            transaction(database) {}
+        }
+
+    @Benchmark
+    fun multiThread_MultiConnection_InTotal_10K_Local_TransactionNone_ReadOnly_Transactions_NearlyEvenlyPartitioned() =
+        multiThreadMultiConnectionInTotal10KLocalTransactionsNearlyEvenlyPartitionedHelper { database ->
+            transaction(database, Connection.TRANSACTION_NONE, true) {}
+        }
+
+    @Benchmark
+    fun multiThread_MultiConnection_InTotal_10K_Local_TransactionReadUncommitted_ReadOnly_Transactions_NearlyEvenlyPartitioned() =
+        multiThreadMultiConnectionInTotal10KLocalTransactionsNearlyEvenlyPartitionedHelper { database ->
+            transaction(database, Connection.TRANSACTION_READ_UNCOMMITTED, true) {}
+        }
+
+
+    private inline fun multiThread_Parallel_10K_Transactions_NearlyEvenlyPartitioned_Helper(crossinline transactionBlock: () -> Unit) {
+        multiThread10KNearlyEvenlyPartitionedHelper { num ->
+            repeat(num) { transactionBlock() }
+        }
+    }
+
+    @Benchmark
+    fun multiThread_Parallel_10K_Transactions_NearlyEvenlyPartitioned() =
+        multiThread_Parallel_10K_Transactions_NearlyEvenlyPartitioned_Helper { transaction(database) {} }
+
+    @Benchmark
+    fun multiThread_Parallel_10K_TransactionNone_ReadOnly_Transactions_NearlyEvenlyPartitioned() =
+        multiThread_Parallel_10K_Transactions_NearlyEvenlyPartitioned_Helper {
+            transaction(database, Connection.TRANSACTION_NONE, true) {}
+        }
+
+    @Benchmark
+    fun multiThread_Parallel_10K_TransactionReadUncommitted_ReadOnly_Transactions_NearlyEvenlyPartitioned() =
+        multiThread_Parallel_10K_Transactions_NearlyEvenlyPartitioned_Helper {
+            transaction(database, Connection.TRANSACTION_READ_UNCOMMITTED, true) {}
+        }
 
     // This performs poorly.
     @Benchmark
@@ -181,7 +222,7 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
 
     @Benchmark
     fun multiThreadParallel10KTransactionsWithSleepNearlyEvenlyPartitioned() =
-        multiThreadParallel10KTransactionsNearlyEvenlyPartitionedHelper { Thread.sleep(1) }
+        multiThread_Parallel_10K_Transactions_NearlyEvenlyPartitioned_Helper { transaction(database) { Thread.sleep(1) } }
 
     /*
     // These don't work because the block inside `transaction` can't be suspend.
