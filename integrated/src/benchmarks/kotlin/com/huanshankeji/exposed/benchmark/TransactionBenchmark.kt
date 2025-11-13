@@ -138,26 +138,28 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
     }
 
 
-    private inline fun multiThreadMultiConnectionInTotal10KLocalTransactionsNearlyEvenlyPartitionedHelper(crossinline transactionBlock: () -> Unit) {
+    private inline fun multiThreadMultiConnectionInTotal10KLocalTransactionsNearlyEvenlyPartitionedHelper(crossinline transactionBlock: (database: Database) -> Unit) {
         multiThread10KNearlyEvenlyPartitionedHelper { num ->
             val database = databaseConnect()
-            repeat(num) { transactionBlock() }
+            repeat(num) { transactionBlock(database) }
         }
     }
 
     @Benchmark
     fun multiThread_MultiConnection_InTotal_10K_Local_Transactions_NearlyEvenlyPartitioned() =
-        multiThreadMultiConnectionInTotal10KLocalTransactionsNearlyEvenlyPartitionedHelper { transaction(database) {} }
+        multiThreadMultiConnectionInTotal10KLocalTransactionsNearlyEvenlyPartitionedHelper { database ->
+            transaction(database) {}
+        }
 
     @Benchmark
     fun multiThread_MultiConnection_InTotal_10K_Local_TransactionNone_ReadOnly_Transactions_NearlyEvenlyPartitioned() =
-        multiThreadMultiConnectionInTotal10KLocalTransactionsNearlyEvenlyPartitionedHelper {
+        multiThreadMultiConnectionInTotal10KLocalTransactionsNearlyEvenlyPartitionedHelper { database ->
             transaction(database, Connection.TRANSACTION_NONE, true) {}
         }
 
     @Benchmark
     fun multiThread_MultiConnection_InTotal_10K_Local_TransactionReadUncommitted_ReadOnly_Transactions_NearlyEvenlyPartitioned() =
-        multiThreadMultiConnectionInTotal10KLocalTransactionsNearlyEvenlyPartitionedHelper {
+        multiThreadMultiConnectionInTotal10KLocalTransactionsNearlyEvenlyPartitionedHelper { database ->
             transaction(database, Connection.TRANSACTION_READ_UNCOMMITTED, true) {}
         }
 
