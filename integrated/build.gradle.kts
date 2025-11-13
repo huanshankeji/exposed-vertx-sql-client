@@ -20,6 +20,19 @@ dependencies {
 afterEvaluate {
 // for the benchmarks
     dependencies {
+        with(commonDependencies.vertx) { implementation(platformStackDepchain()) } // needed
+        // The benchmarks run and "check" passes but the code doesn't resolve without this dependency TODO remove if not needed one day
+        implementation(cpnProject(project, ":core"))
+        implementation(cpnProject(project, ":postgresql"))
+
+        with(commonDependencies.testcontainers) {
+            implementation(platformBom())
+            implementation(testcontainersPostgresql)
+        }
+        // Vert.x actually already includes an `slf4j-simple` dependency
+        implementation(commonDependencies.slf4j.simple())
+
+
         with(commonDependencies.vertx) { "benchmarksImplementation"(platformStackDepchain()) } // needed
         // The benchmarks run and "check" passes but the code doesn't resolve without this dependency TODO remove if not needed one day
         "benchmarksImplementation"(cpnProject(project, ":core"))

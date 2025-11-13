@@ -127,13 +127,13 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
         readOnly: Boolean? = exposedDatabase/*?*/.transactionManager/*?*/.defaultReadOnly,
         statement: ExposedTransaction.() -> T
     ) =
-        transaction(exposedDatabase, transactionIsolation, readOnly, statement)
+        transaction(transactionIsolation!!, readOnly!!, exposedDatabase, statement)
 
     // alternative name: `exposedTransactionNoneReadOnlyTransaction`
     fun <T> exposedReadOnlyTransaction(
         statement: ExposedTransaction.() -> T
     ) =
-        transaction(exposedDatabase, Connection.TRANSACTION_NONE, true, statement)
+        transaction(Connection.TRANSACTION_NONE, true, exposedDatabase, statement)
 
     private fun Statement<*>.prepareSqlAndLogIfNeeded(transaction: ExposedTransaction) =
         prepareSQL(transaction).also {
