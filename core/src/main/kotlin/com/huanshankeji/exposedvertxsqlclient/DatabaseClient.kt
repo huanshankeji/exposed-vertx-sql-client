@@ -105,7 +105,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
         private const val FUNCTION_TRANSFORMING_ROWS_USING_PREPARED_QUERY_MAPPING_DEPRECATED_MESSAGE =
             "This function transforms rows using Vert.x's `PreparedQuery.mapping` and is deprecated. " +
                     "The Vert.x `RowSet` stores all the results in a List rather fetch as needed, so using `PreparedQuery.mapping` doesn't bring any performance benefits compared to using Kotlin's `map`. " +
-                    "In addition, The Exposed `transaction` can be created on a finer-grained level only for the Kotlin `map` process from Vert.x `Row`s to Exposed `ResultRow`s."
+                    "In addition, the Exposed `transaction` can be created on a finer-grained level only for the Kotlin `map` process from Vert.x `Row`s to Exposed `ResultRow`s."
     }
 
     override suspend fun close() {
