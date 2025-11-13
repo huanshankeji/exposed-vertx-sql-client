@@ -168,14 +168,9 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
         }
     }
 
-    // TODO Adapted from the old code. Just inline and remove this.
-    private inline fun multiThread_Parallel_10K_Transactions_NearlyEvenlyPartitioned_Helper_2(crossinline block: () -> Unit) =
-        multiThread_Parallel_10K_Transactions_NearlyEvenlyPartitioned_Helper { transaction(database) { block() } }
-
-
     @Benchmark
     fun multiThread_Parallel_10K_Transactions_NearlyEvenlyPartitioned() =
-        multiThread_Parallel_10K_Transactions_NearlyEvenlyPartitioned_Helper_2 {}
+        multiThread_Parallel_10K_Transactions_NearlyEvenlyPartitioned_Helper { transaction(database) {} }
 
     @Benchmark
     fun multiThread_Parallel_10K_TransactionNone_ReadOnly_Transactions_NearlyEvenlyPartitioned() =
@@ -225,7 +220,7 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
 
     @Benchmark
     fun multiThreadParallel10KTransactionsWithSleepNearlyEvenlyPartitioned() =
-        multiThread_Parallel_10K_Transactions_NearlyEvenlyPartitioned_Helper_2 { Thread.sleep(1) }
+        multiThread_Parallel_10K_Transactions_NearlyEvenlyPartitioned_Helper { transaction(database) { Thread.sleep(1) } }
 
     /*
     // These don't work because the block inside `transaction` can't be suspend.
