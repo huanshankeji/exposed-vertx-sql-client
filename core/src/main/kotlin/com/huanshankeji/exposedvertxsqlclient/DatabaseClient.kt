@@ -273,8 +273,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
         fun toExposedResultRows() =
             rowSet.map { row -> row.toExposedResultRow(query) }
         return if (mapRowWithExposedTransaction)
-        // TODO merge from `main` and use `exposedReadOnlyTransaction`
-            exposedTransaction { toExposedResultRows() }
+            exposedReadOnlyTransaction { toExposedResultRows() }
         else
             toExposedResultRows()
     }
