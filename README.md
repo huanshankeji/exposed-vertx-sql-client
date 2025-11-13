@@ -22,7 +22,7 @@ This library is experimental now. The APIs are subject to change (especially tho
 
 ### **Important note : compatibility with Exposed**
 
-If you encounter issues likely caused by compatibility with Exposed, please try using the same version of Exposed this library depends on. The current Exposed version for v0.6.0 of this library is v1.0.0-rc-2.
+If you encounter issues likely caused by compatibility with Exposed, please try using the same version of Exposed this library depends on. The current Exposed version for v0.6.0 of this library is v1.0.0-rc-3.
 
 ## API documentation
 
@@ -104,6 +104,8 @@ val tables = arrayOf(Examples)
 ```
 
 ### Use `exposedTransaction` to execute original blocking Exposed code
+
+<!-- ### Use `transaction` from Exposed to execute original blocking Exposed code -->
 
 For example, to create tables:
 
@@ -215,7 +217,7 @@ val fullFilms = databaseClient.selectWithMapper(filmsLeftJoinDirectors, Mappers.
 #### "No transaction in context."
 
 If you encounter
-`java.lang.IllegalStateException: No transaction in context.` in your code, wrap the call with `databaseClient.exposedTransaction { ... }`.
+`java.lang.IllegalStateException: No transaction in context.` in your code, wrap the call with `databaseClient.exposedReadOnlyTransaction { ... }`.
 For example, this can happen if you call `Query.forUpdate()` without a transaction.
 In such a case, you can use our `Query.forUpdateWithTransaction()` instead.
 
