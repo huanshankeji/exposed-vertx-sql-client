@@ -21,11 +21,13 @@ import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.jdbc.transactions.transactionManager
 import org.slf4j.LoggerFactory
+import java.sql.Connection
 import java.util.function.Function
 import kotlin.Any
 import kotlin.AssertionError
 import kotlin.Boolean
 import kotlin.Deprecated
+import kotlin.DeprecationLevel
 import kotlin.Exception
 import kotlin.IllegalArgumentException
 import kotlin.Int
@@ -105,10 +107,19 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
         // How to close The Exposed `Database`?
     }
 
-    // TODO consider splitting into 2, one with `readOnly` set to true and isolation level `NONE` / READ UNCOMMITED for SQL generation, and a normal one for Exposed execution
-
+    // Alternatively, just remove the `exposedTransaction` function(s).
+    /*
+    @Deprecated(
+        "Use `exposedReadOnlyTransaction` for preparing data for and processing the result from the Vert.x SQL Client. " +
+                "Otherwise, use the `transaction` function from Exposed directly."
+    )
+    */
+    @Deprecated(
+        "Use the overload with all the transaction parameters.",
+        level = DeprecationLevel.HIDDEN
+    )
     fun <T> exposedTransaction(statement: ExposedTransaction.() -> T) =
-        transaction(exposedDatabase, statement = statement)
+        exposedTransaction(statement = statement)
 
     fun <T> exposedTransaction(
         // default arguments copied from `transaction`
@@ -117,6 +128,12 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
         statement: ExposedTransaction.() -> T
     ) =
         transaction(exposedDatabase, transactionIsolation, readOnly, statement)
+
+    // alternative name: `exposedTransactionNoneReadOnlyTransaction`
+    fun <T> exposedReadOnlyTransaction(
+        statement: ExposedTransaction.() -> T
+    ) =
+        transaction(exposedDatabase, Connection.TRANSACTION_NONE, true, statement)
 
     private fun Statement<*>.prepareSqlAndLogIfNeeded(transaction: ExposedTransaction) =
         prepareSQL(transaction).also {
@@ -147,7 +164,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
         )
     )
     suspend fun createTable(table: Table) =
-        executePlainSqlUpdate(exposedTransaction {
+        executePlainSqlUpdate(exposedReadOnlyTransaction {
             //table.createStatement()
             (table.ddl + table.indices.flatMap { it.createStatement() }).joinSqls()
         })
@@ -163,7 +180,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
         )
     )
     suspend fun dropTable(table: Table) =
-        executePlainSqlUpdate(exposedTransaction {
+        executePlainSqlUpdate(exposedReadOnlyTransaction {
             table.dropStatement().joinSqls()
         })
 
@@ -182,7 +199,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
         statement: Statement<*>,
         transformQuery: PreparedQuery<RowSet<Row>>.() -> PreparedQuery<SqlResultT>
     ): SqlResultT {
-        val (sql, argTuple) = exposedTransaction {
+        val (sql, argTuple) = exposedReadOnlyTransaction {
             config.transformPreparedSql(statement.prepareSqlAndLogIfNeeded(this)) to
                     statement.getVertxSqlClientArgTuple()
         }
@@ -204,7 +221,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     @ExperimentalEvscApi
     @PublishedApi
     internal fun FieldSet.getFieldExpressionSetWithTransaction() =
-        exposedTransaction { getFieldExpressionSet() }
+        exposedReadOnlyTransaction { getFieldExpressionSet() }
 
     @Deprecated("This function is called nowhere except `Row.toExposedResultRowWithTransaction`. Consider inlining and removing it.")
     @ExperimentalEvscApi
@@ -274,7 +291,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     ): Sequence<SqlResultT> {
         //if (data.none()) return emptySequence() // This causes "java.lang.IllegalStateException: This sequence can be consumed only once." when `data` is a `ConstrainedOnceSequence`.
 
-        val (sql, argTuples) = exposedTransaction {
+        val (sql, argTuples) = exposedReadOnlyTransaction {
             var sql: String? = null
             //var argumentTypes: List<IColumnType>? = null
 

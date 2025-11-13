@@ -105,6 +105,8 @@ val tables = arrayOf(Examples)
 
 ### Use `exposedTransaction` to execute original blocking Exposed code
 
+<!-- ### Use `transaction` from Exposed to execute original blocking Exposed code -->
+
 For example, to create tables:
 
 ```kotlin
@@ -215,7 +217,7 @@ val fullFilms = databaseClient.selectWithMapper(filmsLeftJoinDirectors, Mappers.
 #### "No transaction in context."
 
 If you encounter
-`java.lang.IllegalStateException: No transaction in context.` in your code, wrap the call with `databaseClient.exposedTransaction { ... }`.
+`java.lang.IllegalStateException: No transaction in context.` in your code, wrap the call with `databaseClient.exposedReadOnlyTransaction { ... }`.
 For example, this can happen if you call `Query.forUpdate()` without a transaction.
 In such a case, you can use our `Query.forUpdateWithTransaction()` instead.
 
