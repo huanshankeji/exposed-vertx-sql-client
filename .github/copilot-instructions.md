@@ -2,7 +2,17 @@
 
 ## Repository Overview
 
+### Summary
 This is **Exposed Vert.x SQL Client**, a Kotlin library that provides integration between JetBrains Exposed (SQL DSL/ORM) and Vert.x Reactive SQL Client. The library enables reactive database operations using Exposed's type-safe SQL DSL.
+
+### High Level Repository Information
+- **Type**: Kotlin JVM library project
+- **Size**: Medium-sized (6 modules across core, database-specific, and CRUD extensions)
+- **Languages**: Kotlin (445 source files), Gradle Kotlin DSL for build scripts
+- **Target Platform**: JVM (JDK 11+)
+- **Build System**: Gradle with custom convention plugins in buildSrc
+- **Documentation**: Generated with Dokka
+- **Testing**: Benchmarks only (no unit tests, quality validated by internal consuming projects)
 
 **Key Facts:**
 - Language: Kotlin (445 source files)
@@ -58,6 +68,14 @@ The repository uses Gradle's `settings.gradle.kts` with concatenated project nam
 **Setup:**
 The Gradle wrapper (`./gradlew`) handles all tooling. No additional installation needed.
 
+**Initial setup time**: ~1-2 minutes for Gradle daemon initialization and dependency download on first build.
+
+### Environment Setup
+
+Always ensure JDK 11 or higher is properly configured before building. The project uses Gradle wrapper, so no manual Gradle installation is needed.
+
+**IMPORTANT**: If the project uses snapshot dependencies of other `com.huanshankeji` libraries, especially in a branch other than `main` such as `dev`, refer to the setup instructions at <https://github.com/huanshankeji/.github/blob/main/dev-instructions.md#about-snapshot-dependencies-of-our-library-projects>.
+
 ### Build Commands (In Order of Priority)
 
 **ALWAYS use the Gradle wrapper (`./gradlew`) NOT `gradle`.**
@@ -106,6 +124,24 @@ The Gradle wrapper (`./gradlew`) handles all tooling. No additional installation
    ```
    - Generates API docs in `build/dokka/html/`
 
+### Build Timing and Known Issues
+
+**Timing Expectations**:
+- First build: ~35-50 seconds (includes dependency resolution)
+- Subsequent builds: ~2-5 seconds (with daemon)
+- Clean builds: ~35-50 seconds
+- Check task: ~45-50 seconds
+- API validation: ~18 seconds
+
+**Common Warnings (can be ignored)**:
+- Dokka package-list download errors from external sites (builds still succeed)
+- Configuration cache warnings (cache is enabled and working)
+
+**Error Handling**:
+- Gradle daemon issues: Use `./gradlew --stop` then retry
+- Configuration cache issues: Delete `.gradle/` directory and rebuild
+- Dependency resolution fails: Check internet connection; mavenCentral() is the primary repository
+
 ### Important Build Notes
 
 **ALWAYS:**
@@ -152,6 +188,16 @@ Runs on every push to any branch:
 ./gradlew check
 ```
 
+### Validation and Quality Checks
+
+Before check-in, the following validations run:
+1. **Compilation**: All modules compile successfully
+2. **API Compatibility**: Binary compatibility validation via `apiCheck`
+3. **Dependency Analysis**: Automated dependency submission to GitHub (in CI)
+
+**Code Style:**
+- Follow [our Kotlin code style guide](https://github.com/huanshankeji/.github/blob/main/kotlin-code-style.md) for all Kotlin code contributions
+
 ## Development Workflow
 
 ### Making Code Changes
@@ -183,6 +229,9 @@ Runs on every push to any branch:
 - **exposed-gadt-mapping**: 0.4.0 (for mapper modules)
 
 **Dependency Management:** All versions are centralized in `buildSrc/src/main/kotlin/VersionsAndDependencies.kt` using `common-gradle-dependencies` library.
+
+**Additional Development Resources:**
+- For snapshot dependencies and development branch workflows, see [@huanshankeji/.github/dev-instructions.md](https://github.com/huanshankeji/.github/blob/main/dev-instructions.md)
 
 ## Architecture Notes
 
@@ -221,6 +270,27 @@ module-name/
 - **API Validation**: Uses `binary-compatibility-validator` plugin (v0.18.1)
 - **Documentation**: Uses Dokka plugin (v2.1.0) for KDoc generation
 
+## Key Files Reference
+
+### Build Configuration
+- `build.gradle.kts`: Root build file with Dokka setup, API validation
+- `settings.gradle.kts`: Project structure, naming conventions (concatenated module names)
+- `gradle.properties`: JVM settings, configuration cache enabled
+- `buildSrc/build.gradle.kts`: buildSrc/meta-build plugin dependencies and versions
+- `buildSrc/src/main/kotlin/VersionsAndDependencies.kt`: Shared compilation dependencies and versions
+
+### Documentation
+- `README.md`: Maven coordinates, basic usage guide, API docs link
+- `CONTRIBUTING.md`: Development setup, JDK requirements, workflow guidelines
+- [@huanshankeji/.github/dev-instructions.md](https://github.com/huanshankeji/.github/blob/main/dev-instructions.md): Additional development instructions from the organization
+- Each module has `api/` directory for compatibility validation files
+
+### Dependencies
+The project uses custom dependency management through:
+- `com.huanshankeji:common-gradle-dependencies` for shared dependencies
+- `com.huanshankeji.team:gradle-plugins` for build conventions
+- Kotlin 2.2.21, Dokka 2.1.0
+
 ## Quick Reference
 
 ### Most Common Commands
@@ -234,9 +304,10 @@ module-name/
 
 ### File Paths to Know
 - Version management: `buildSrc/src/main/kotlin/VersionsAndDependencies.kt`
-- Main config: `build.gradle.kts`, `settings.gradle.kts`
+- Main config: `build.gradle.kts`, `settings.gradle.kts`, `gradle.properties`
 - CI config: `.github/workflows/kotlin-jvm-ci.yml`
 - API definitions: `*/api/*.api` (generated, commit after running `apiDump`)
+- Convention plugins: `buildSrc/src/main/kotlin/conventions.gradle.kts`, `buildSrc/src/main/kotlin/lib-conventions.gradle.kts`
 
 ### When Things Go Wrong
 
@@ -244,6 +315,7 @@ module-name/
 2. **API check fails**: Run `./gradlew apiDump` if the API change was intentional, then commit the updated `.api` files
 3. **Configuration cache issues**: Delete `.gradle/` directory and rebuild
 4. **Dependency resolution fails**: Check internet connection; mavenCentral() is the primary repository
+5. **Gradle daemon issues**: Use `./gradlew --stop` then retry the build
 
 ## Trust These Instructions
 
@@ -253,3 +325,5 @@ These instructions are based on thorough exploration and testing of the reposito
 - You need details about internal implementation not covered here
 
 For questions or issues, refer to `CONTRIBUTING.md` or open a GitHub Discussion.
+
+**Trust these instructions**: This information has been validated through actual command execution and file inspection. Only search for additional information if these instructions are incomplete or found to be incorrect.
