@@ -126,6 +126,7 @@ class MappingExamplesTest {
                 pool = createPgPool(vertx, evscConfig.vertxSqlClientConnectionConfig)
                 databaseClient = DatabaseClient(pool, exposedDatabase, PgDatabaseClientConfig())
             }
+
             DbType.MYSQL -> {
                 exposedDatabase = evscConfig.exposedConnectionConfig.exposedDatabaseConnectMysql()
                 pool = createMysqlPool(vertx, evscConfig.vertxSqlClientConnectionConfig)

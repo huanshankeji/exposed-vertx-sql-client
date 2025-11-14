@@ -26,7 +26,8 @@ import org.testcontainers.containers.MySQLContainer
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
 import java.util.concurrent.TimeUnit
-import kotlin.test.*
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 object Examples : IntIdTable("examples") {
     val name = varchar("name", 64)
@@ -69,6 +70,7 @@ class ExamplesTest {
                 pool = createPgPool(vertx, evscConfig.vertxSqlClientConnectionConfig)
                 databaseClient = DatabaseClient(pool, exposedDatabase, PgDatabaseClientConfig())
             }
+
             DbType.MYSQL -> {
                 exposedDatabase = evscConfig.exposedConnectionConfig.exposedDatabaseConnectMysql()
                 pool = createMysqlPool(vertx, evscConfig.vertxSqlClientConnectionConfig)
