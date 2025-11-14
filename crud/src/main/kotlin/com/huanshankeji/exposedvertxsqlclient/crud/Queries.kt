@@ -16,19 +16,21 @@ import org.jetbrains.exposed.v1.jdbc.select
 import kotlin.reflect.KClass
 import kotlin.sequences.Sequence
 
-/* TODO Consider moving these to a separate non-compulsory module because there are too many kinds of different [Statement]s.
-    Supporting all of them may be difficult and pose an extra cognitive burden on a user. */
-
 suspend inline fun <Data> DatabaseClient<*>.select(
-    columnSet: ColumnSet, buildQuery: ColumnSet.() -> Query, crossinline resultRowMapper: ResultRow.() -> Data
+    columnSet: ColumnSet,
+    buildQuery: ColumnSet.() -> Query,
+    getFieldExpressionSetWithExposedTransaction: Boolean = config.autoExposedTransaction,
+    crossinline resultRowMapper: ResultRow.() -> Data
 ): RowSet<Data> =
-    executeQuery(columnSet.buildQuery(), resultRowMapper)
+    executeQuery(columnSet.buildQuery(), getFieldExpressionSetWithExposedTransaction, resultRowMapper)
 
 suspend inline fun DatabaseClient<*>.select(
-    columnSet: ColumnSet, buildQuery: ColumnSet.() -> Query
+    columnSet: ColumnSet,
+    buildQuery: ColumnSet.() -> Query,
+    getFieldExpressionSetWithExposedTransaction: Boolean = config.autoExposedTransaction
 ): RowSet<ResultRow> =
     @Suppress("MoveLambdaOutsideParentheses")
-    select(columnSet, buildQuery, { this })
+    select(columnSet, buildQuery, getFieldExpressionSetWithExposedTransaction, { this })
 
 
 /**
@@ -37,9 +39,16 @@ suspend inline fun DatabaseClient<*>.select(
  */
 @ExperimentalEvscApi
 suspend fun <T> DatabaseClient<*>.selectColumnSetExpression(
-    columnSet: ColumnSet, expression: Expression<T>, buildQuery: Query.() -> Query
+    columnSet: ColumnSet,
+    expression: Expression<T>,
+    buildQuery: Query.() -> Query,
+    getFieldExpressionSetWithExposedTransaction: Boolean = config.autoExposedTransaction
 ): RowSet<T> =
-    select(columnSet, { select(expression).buildQuery() }, { this[expression] })
+    select(
+        columnSet,
+        { select(expression).buildQuery() },
+        getFieldExpressionSetWithExposedTransaction,
+        { this[expression] })
 
 // This function with `mapper` is not really useful
 @ExperimentalEvscApi
@@ -47,19 +56,28 @@ suspend inline fun <ColumnT, DataT> DatabaseClient<*>.selectSingleColumn(
     columnSet: ColumnSet,
     column: Column<ColumnT>,
     buildQuery: Query.() -> Query,
+    getFieldExpressionSetWithExposedTransaction: Boolean = config.autoExposedTransaction,
     crossinline mapper: ColumnT.() -> DataT
 ): RowSet<DataT> =
-    select(columnSet, { select(column).buildQuery() }, { this[column].mapper() })
+    select(
+        columnSet,
+        { select(column).buildQuery() },
+        getFieldExpressionSetWithExposedTransaction,
+        { this[column].mapper() })
 
 suspend fun <T> DatabaseClient<*>.selectSingleColumn(
-    columnSet: ColumnSet, column: Column<T>, buildQuery: Query.() -> Query
+    columnSet: ColumnSet, column: Column<T>, buildQuery: Query.() -> Query,
+    getFieldExpressionSetWithExposedTransaction: Boolean = config.autoExposedTransaction
 ): RowSet<T> =
-    selectColumnSetExpression(columnSet, column, buildQuery)
+    selectColumnSetExpression(columnSet, column, buildQuery, getFieldExpressionSetWithExposedTransaction)
 
 suspend fun <T : Comparable<T>> DatabaseClient<*>.selectSingleEntityIdColumn(
-    columnSet: ColumnSet, column: Column<EntityID<T>>, buildQuery: Query.() -> Query
+    columnSet: ColumnSet,
+    column: Column<EntityID<T>>,
+    buildQuery: Query.() -> Query,
+    getFieldExpressionSetWithExposedTransaction: Boolean = config.autoExposedTransaction
 ): RowSet<T> =
-    selectSingleColumn(columnSet, column, buildQuery) { value }
+    selectSingleColumn(columnSet, column, buildQuery, getFieldExpressionSetWithExposedTransaction) { value }
 
 
 /**
