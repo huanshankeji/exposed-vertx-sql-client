@@ -11,7 +11,7 @@ This is **Exposed Vert.x SQL Client**, a Kotlin library that provides integratio
 - Supported Databases: PostgreSQL (stable), MySQL (experimental since v0.6.0)
 - Size: ~18MB repository
 - Current Version: 0.6.0-SNAPSHOT
-- Exposed Version: v0.56.0 (important: stick to this exact version for compatibility)
+- Exposed Version: v1.0.0-rc-3 (important: stick to this exact version for compatibility)
 
 ## Project Structure
 
@@ -52,7 +52,7 @@ The repository uses Gradle's `settings.gradle.kts` with concatenated project nam
 ### Prerequisites
 
 **Required:**
-- JDK 11 or higher (JDK 11 for compilation, CI tests with JDK 8 and 17)
+- JDK 11 or higher (JDK 11 for compilation, CI tests with JDK 11 and 17)
 - Internet connection for dependency downloads
 
 **Setup:**
@@ -141,7 +141,7 @@ The Gradle wrapper (`./gradlew`) handles all tooling. No additional installation
 Runs on every push to any branch:
 1. **test-and-check** job:
    - Uses shared action: `huanshankeji/.github/actions/gradle-test-and-check@v0.2.0`
-   - Tests with: JDK 8-temurin, JDK 17-temurin
+   - Tests with: JDK 11-temurin, JDK 17-temurin
    - Runs: `./gradlew check`
 
 2. **dependency-submission** job:
@@ -176,7 +176,7 @@ Runs on every push to any branch:
 
 ### Key Dependencies
 
-- **Exposed**: 0.56.0 (via `commonDependencies.exposed.*`)
+- **Exposed**: 1.0.0-rc-3 (via `commonDependencies.exposed.*`)
 - **Vert.x**: Managed by `vertx.platformStackDepchain()` (uses Vert.x BOM)
 - **Kotlin**: 2.2.21
 - **Arrow**: For functional constructs
@@ -199,7 +199,7 @@ module-name/
 **Key Packages (in core module):**
 - `jdbc/` - Exposed JDBC integration
 - `exposed/` - Exposed-specific utilities
-- `vertx.sqlclient/` - Vert.x SQL Client abstractions
+- `vertx/sqlclient/` - Vert.x SQL Client abstractions
 - `local/` - Local connection configuration helpers
 
 **Database-specific packages:**
