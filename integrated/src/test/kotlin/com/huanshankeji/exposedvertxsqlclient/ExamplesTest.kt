@@ -23,7 +23,7 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.testcontainers.containers.JdbcDatabaseContainer
 import org.testcontainers.containers.MySQLContainer
-import org.testcontainers.containers.PostgreSQLContainer
+import org.testcontainers.postgresql.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
 import java.util.concurrent.TimeUnit
 import kotlin.test.Test
