@@ -20,9 +20,9 @@ This library is experimental now. The APIs are subject to change (especially tho
 "com.huanshankeji:exposed-vertx-sql-client-$module:$libraryVersion"
 ```
 
-### **Important note**
+### **Important note : compatibility with Exposed**
 
-As Exposed is a library that has not reached stability yet and often has incompatible changes, you are recommended to stick to the same version of Exposed used by this library. The current version is v0.56.0.
+If you encounter issues likely caused by compatibility with Exposed, please try using the same version of Exposed this library depends on. The current Exposed version for v0.6.0 of this library is v1.0.0-rc-3.
 
 ## API documentation
 
@@ -104,6 +104,8 @@ val tables = arrayOf(Examples)
 ```
 
 ### Use `exposedTransaction` to execute original blocking Exposed code
+
+<!-- ### Use `transaction` from Exposed to execute original blocking Exposed code -->
 
 For example, to create tables:
 
@@ -215,12 +217,12 @@ val fullFilms = databaseClient.selectWithMapper(filmsLeftJoinDirectors, Mappers.
 #### "No transaction in context."
 
 If you encounter
-`java.lang.IllegalStateException: No transaction in context.` in your code, wrap the call with `databaseClient.exposedTransaction { ... }`.
-For example, this can happen if you call `Query.forUpdate()` without a transaction.
-In such a case, you can use our `Query.forUpdateWithTransaction()` instead.
+`java.lang.IllegalStateException: No transaction in context.` in your code, inspect the exception stacktrace and try these options:
 
-As some Exposed APIs implicitly require a transaction and the requirement sometimes change between versions,
-we do not always provide APIs to completely avoid this exception, for which there are 2 reasons:
+1. wrap the `Statement` creation call with `databaseClient.exposedReadOnlyTransaction { ... }`.
 
-1. Exposed APIs are not fully decoupled and designed to serve this library, they may change and our APIs may evolve accordingly, so we don't want to add a bunch of APIs that need maintenance and may be removed in the future.
-1. We can improve performance slightly by not calling `transaction` unnecessarily.
+   For example, this can happen if you call `Query.forUpdate()` without a transaction. In such a case, you can also use our `Query.forUpdateWithTransaction()` instead.
+
+2. If your function call has a parameter with `WithExposedTransaction` in its name, try setting it to `true`. To make things easier, you can also set `autoExposedTransaction` to `true` in `DatabaseClientConfig` when creating the `DatabaseClient`. Note that this slightly degrades performance though.
+
+Some Exposed APIs implicitly require a transaction and we can't guarantee that such exceptions are always avoided, as Exposed APIs are not fully decoupled and designed to serve this library, the transaction requirements in APIs sometimes change between versions and our APIs may need to evolve accordingly.

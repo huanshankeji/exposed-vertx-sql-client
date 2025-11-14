@@ -6,6 +6,7 @@ import com.huanshankeji.exposed.datamapping.updateBuilderSetter
 import com.huanshankeji.exposedvertxsqlclient.DatabaseClient
 import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
 import com.huanshankeji.exposedvertxsqlclient.crud.*
+import com.huanshankeji.exposedvertxsqlclient.toExposedResultRow
 import com.huanshankeji.vertx.sqlclient.datamapping.RowDataQueryMapper
 import io.vertx.sqlclient.RowSet
 import org.jetbrains.exposed.v1.core.ColumnSet
@@ -20,10 +21,19 @@ import org.jetbrains.exposed.v1.jdbc.select
 @ExperimentalEvscApi
 suspend fun <Data : Any> DatabaseClient<*>.executeQueryWithMapper(
     query: Query,
-    dataQueryMapper: DataQueryMapper<Data>
+    dataQueryMapper: DataQueryMapper<Data>,
+    getFieldExpressionSetWithExposedTransaction: Boolean = config.autoExposedTransaction
 ): RowSet<Data> =
-    executeWithMapping(query) { row -> dataQueryMapper.resultRowToData(row.toExposedResultRowWithTransaction(query)) }
+    execute(query) {
+        val fieldSet = query.getFieldExpressionSetWithOptionalReadOnlyExposedTransaction(
+            getFieldExpressionSetWithExposedTransaction
+        )
+        mapping { row -> dataQueryMapper.resultRowToData(row.toExposedResultRow(fieldSet)) }
+    }
 
+/**
+ * Highly experimental. Not used or tested by us yet.
+ */
 @ExperimentalEvscApi
 suspend fun <Data : Any> DatabaseClient<*>.executeVertxSqlClientRowQueryWithMapper(
     query: Query, rowDataQueryMapper: RowDataQueryMapper<Data>

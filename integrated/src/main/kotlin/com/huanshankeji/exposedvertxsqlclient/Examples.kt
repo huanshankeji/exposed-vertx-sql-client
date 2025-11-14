@@ -58,6 +58,20 @@ suspend fun examples(vertx: Vertx) {
         SchemaUtils.create(*tables)
     }
 
+    /*
+    transaction(exposedDatabase) {
+        SchemaUtils.create(*tables)
+    }
+
+    transaction(databaseClient.exposedDatabase) {
+        SchemaUtils.create(*tables)
+    }
+
+    transaction {
+        SchemaUtils.create(*tables)
+    }
+    */
+
     run {
         // The Exposed `Table` extension functions `insert`, `update`, and `delete` execute eagerly so `insertStatement`, `updateStatement`, `deleteStatement` have to be used.
 
@@ -89,9 +103,9 @@ suspend fun examples(vertx: Vertx) {
         val updateRowCount = databaseClient.update(Examples, { Examples.id eq 1 }) { it[name] = "AA" }
 
         val exampleName1 =
-            databaseClient.select(Examples) { select(Examples.name).where(Examples.id eq 1) }.single()[Examples.name]
+            databaseClient.select(Examples, { select(Examples.name).where(Examples.id eq 1) }).single()[Examples.name]
         val exampleName2 =
-            databaseClient.selectSingleColumn(Examples, Examples.name) { where(Examples.id eq 2) }.single()
+            databaseClient.selectSingleColumn(Examples, Examples.name, { where(Examples.id eq 2) }).single()
 
         val examplesExist = databaseClient.selectExpression(exists(Examples.selectAll()))
 
