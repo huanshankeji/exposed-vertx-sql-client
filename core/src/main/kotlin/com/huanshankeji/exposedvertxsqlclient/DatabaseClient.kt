@@ -34,6 +34,7 @@ import kotlin.Int
 import kotlin.NotImplementedError
 import kotlin.OptIn
 import kotlin.Pair
+import kotlin.PublishedApi
 import kotlin.ReplaceWith
 import kotlin.String
 import kotlin.Suppress
@@ -101,12 +102,14 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     val exposedDatabase: Database,
     val config: DatabaseClientConfig
 ) : CoroutineAutoCloseable {
+    /*
     companion object {
         private const val FUNCTION_TRANSFORMING_ROWS_USING_PREPARED_QUERY_MAPPING_DEPRECATED_MESSAGE =
             "This function transforms rows using Vert.x's `PreparedQuery.mapping` and is deprecated. " +
                     "The Vert.x `RowSet` stores all the results in a List rather fetch as needed, so using `PreparedQuery.mapping` doesn't bring any performance benefits compared to using Kotlin's `map`. " +
                     "In addition, the Exposed `transaction` can be created on a finer-grained level only for the Kotlin `map` process from Vert.x `Row`s to Exposed `ResultRow`s."
     }
+    */
 
     override suspend fun close() {
         vertxSqlClient.close().coAwait()
@@ -219,63 +222,105 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
         execute(statement) { this }
 
 
+    /*
     @Deprecated(
         FUNCTION_TRANSFORMING_ROWS_USING_PREPARED_QUERY_MAPPING_DEPRECATED_MESSAGE,
         ReplaceWith("executeForVertxSqlClientRowSet(statement).map(rowMapper)")
     )
+    */
+    // no longer used by other non-experimental APIs of ours
     @ExperimentalEvscApi
     suspend fun <U> executeWithMapping(statement: Statement<*>, rowMapper: Function<Row, U>): RowSet<U> =
         execute(statement) { mapping(rowMapper) }
 
+    // TODO temporarily kept, remove these in the future
     // If these functions are to be kept, consider renaming them to `...WithExposedTransaction` to make it clearer that an Exposed `transaction` is used.
 
-    @Deprecated("call `exposedTransaction` yourself as needed to improve performance.")
+    @Deprecated("This API is no longer used and will be removed.")
     @ExperimentalEvscApi
-    private fun FieldSet.getFieldExpressionSetWithTransaction() =
+    fun FieldSet.getFieldExpressionSetWithTransaction() =
         exposedReadOnlyTransaction { getFieldExpressionSet() }
 
     @Deprecated("This function is called nowhere except `Row.toExposedResultRowWithTransaction`. Consider inlining and removing it.")
     @ExperimentalEvscApi
-    private fun Query.getFieldExpressionSetWithTransaction() =
+    fun Query.getFieldExpressionSetWithTransaction() =
         set.getFieldExpressionSetWithTransaction()
 
     @Deprecated(
-        "Call `exposedTransaction` yourself as needed to improve performance. " +
+        "This API is no longer used and will be removed. " +
                 "This is also of potential poor performance if accidentally called to transform multiple rows."
     )
     @ExperimentalEvscApi
-    fun Row.toExposedResultRowWithTransaction(query: Query) =
+    private fun Row.toExposedResultRowWithTransaction(query: Query) =
         toExposedResultRow(query.getFieldExpressionSetWithTransaction())
 
+    @PublishedApi
+    internal inline fun <T> runWithOptionalReadOnlyExposedTransaction(
+        withExposedTransaction: Boolean, crossinline block: () -> T
+    ): T =
+        if (withExposedTransaction)
+            exposedReadOnlyTransaction { block() }
+        else
+            block()
+
+    @ExperimentalEvscApi
+    fun Query.getFieldExpressionSetWithOptionalReadOnlyExposedTransaction(getFieldExpressionSetWithExposedTransaction: Boolean) =
+        runWithOptionalReadOnlyExposedTransaction(getFieldExpressionSetWithExposedTransaction) { getFieldExpressionSet() }
+
+    /**
+     * @param getFieldExpressionSetWithExposedTransaction see [DatabaseClientConfig.autoExposedTransaction]
+     */
+    /*
     @Deprecated(
         FUNCTION_TRANSFORMING_ROWS_USING_PREPARED_QUERY_MAPPING_DEPRECATED_MESSAGE,
         ReplaceWith("executeQuery(query).map(resultRowMapper)")
     )
+    */
     suspend inline fun <Data> executeQuery(
-        query: Query, crossinline resultRowMapper: ResultRow.() -> Data
+        query: Query,
+        getFieldExpressionSetWithExposedTransaction: Boolean = config.autoExposedTransaction,
+        crossinline resultRowMapper: ResultRow.() -> Data
     ): RowSet<Data> =
-        executeWithMapping(query) { row -> row.toExposedResultRow(query).resultRowMapper() }
+        execute(query) {
+            @OptIn(ExperimentalEvscApi::class)
+            val fieldExpressionSet = query.getFieldExpressionSetWithOptionalReadOnlyExposedTransaction(
+                getFieldExpressionSetWithExposedTransaction
+            )
+            mapping { row ->
+                row.toExposedResultRow(fieldExpressionSet).resultRowMapper()
+            }
+        }
 
+    /**
+     * @param getFieldExpressionSetWithExposedTransaction see [DatabaseClientConfig.autoExposedTransaction]
+     */
+    /*
     @Deprecated(
         FUNCTION_TRANSFORMING_ROWS_USING_PREPARED_QUERY_MAPPING_DEPRECATED_MESSAGE,
         ReplaceWith("executeQuery(query, TODO())"),
         DeprecationLevel.HIDDEN
     )
-    suspend fun executeQuery(query: Query): RowSet<ResultRow> =
-        execute(query) { mapping { row: Row -> row.toExposedResultRow(query) } }
+    */
+    suspend fun executeQuery(
+        query: Query,
+        getFieldExpressionSetWithExposedTransaction: Boolean = config.autoExposedTransaction
+    ): RowSet<ResultRow> =
+        executeQuery(query, getFieldExpressionSetWithExposedTransaction) { this }
 
     /**
-     * @param mapRowWithExposedTransaction whether to map each [Row] to [ResultRow] within an Exposed transaction.
-     *     Try setting this to true if you encounter `java.lang.IllegalStateException: No transaction in context.`.
+     * An alternative API to [executeQuery] that returns a [List] instead of a [RowSet].
+     * @param getFieldExpressionSetWithExposedTransaction see [DatabaseClientConfig.autoExposedTransaction]
      */
-    suspend fun executeQuery(query: Query, mapRowWithExposedTransaction: Boolean = false): List<ResultRow> {
+    @ExperimentalEvscApi
+    suspend fun executeQueryForList(
+        query: Query,
+        getFieldExpressionSetWithExposedTransaction: Boolean = config.autoExposedTransaction
+    ): List<ResultRow> {
         val rowSet = executeForVertxSqlClientRowSet(query)
-        fun toExposedResultRows() =
-            rowSet.map { row -> row.toExposedResultRow(query) }
-        return if (mapRowWithExposedTransaction)
-            exposedReadOnlyTransaction { toExposedResultRows() }
-        else
-            toExposedResultRows()
+        val fieldExpressionSet = query.getFieldExpressionSetWithOptionalReadOnlyExposedTransaction(
+            getFieldExpressionSetWithExposedTransaction
+        )
+        return rowSet.map { row -> row.toExposedResultRow(fieldExpressionSet) }
     }
 
     suspend fun executeUpdate(statement: Statement<Int>): Int =
@@ -376,12 +421,17 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
 
     /**
      * @see executeBatch
+     * @param getFieldExpressionSetWithExposedTransaction see [DatabaseClientConfig.autoExposedTransaction]
      */
     @ExperimentalEvscApi
     suspend inline fun <Data> executeBatchQuery(
-        fieldSet: FieldSet, queries: Iterable<Query>, crossinline resultRowMapper: ResultRow.() -> Data
+        fieldSet: FieldSet,
+        queries: Iterable<Query>,
+        getFieldExpressionSetWithExposedTransaction: Boolean = config.autoExposedTransaction,
+        crossinline resultRowMapper: ResultRow.() -> Data
     ): Sequence<RowSet<Data>> {
-        val fieldExpressionSet = fieldSet.getFieldExpressionSet()
+        val fieldExpressionSet =
+            runWithOptionalReadOnlyExposedTransaction(getFieldExpressionSetWithExposedTransaction) { fieldSet.getFieldExpressionSet() }
         return executeBatch(queries) {
             mapping { row -> row.toExposedResultRow(fieldExpressionSet).resultRowMapper() }
         }
@@ -430,16 +480,10 @@ fun Row.toExposedResultRow(fieldExpressionSet: Set<Expression<*>>) =
         }.toMap()
     )
 
-/*
-private const val USE_THE_ONE_IN_DATABASE_CLIENT_BECAUSE_TRANSACTION_REQUIRED_MESSAGE =
-    "Use the one in `DatabaseClient` because a transaction may be required."
-*/
-
 
 /**
  * An Exposed transaction is required if the [FieldSet] contains custom functions that depend on dialects.
  */
-//@Deprecated(USE_THE_ONE_IN_DATABASE_CLIENT_BECAUSE_TRANSACTION_REQUIRED_MESSAGE)
 fun FieldSet.getFieldExpressionSet() =
     /** [org.jetbrains.exposed.v1.jdbc.Query.ResultIterator.fieldIndex] */
     realFields.toSet()
@@ -447,15 +491,18 @@ fun FieldSet.getFieldExpressionSet() =
 /**
  * @see FieldSet.getFieldExpressionSet
  */
-@Deprecated("This function is called nowhere except `Row.toExposedResultRow`. Consider inlining and removing it.")
-//@Deprecated(USE_THE_ONE_IN_DATABASE_CLIENT_BECAUSE_TRANSACTION_REQUIRED_MESSAGE)
 fun Query.getFieldExpressionSet() =
     set.getFieldExpressionSet()
 
 /**
  * @see FieldSet.getFieldExpressionSet
  */
-//@Deprecated(USE_THE_ONE_IN_DATABASE_CLIENT_BECAUSE_TRANSACTION_REQUIRED_MESSAGE)
+
+@Deprecated(
+    "It's a rare case that only one row is transformed and this function calls `Query.getFieldExpressionSet` when transforming every row. " +
+            "Call `getFieldExpressionSet` directly with or without an Exposed `transaction` yourself to have finer-grained control and slightly improve performance.",
+    ReplaceWith("toExposedResultRow(query.getFieldExpressionSet())")
+)
 fun Row.toExposedResultRow(query: Query) =
     toExposedResultRow(query.getFieldExpressionSet())
 

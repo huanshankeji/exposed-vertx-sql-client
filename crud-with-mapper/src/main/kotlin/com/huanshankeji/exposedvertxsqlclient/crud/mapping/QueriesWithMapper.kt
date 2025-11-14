@@ -21,10 +21,19 @@ import org.jetbrains.exposed.v1.jdbc.select
 @ExperimentalEvscApi
 suspend fun <Data : Any> DatabaseClient<*>.executeQueryWithMapper(
     query: Query,
-    dataQueryMapper: DataQueryMapper<Data>
+    dataQueryMapper: DataQueryMapper<Data>,
+    getFieldExpressionSetWithExposedTransaction: Boolean = config.autoExposedTransaction
 ): RowSet<Data> =
-    executeWithMapping(query) { row -> dataQueryMapper.resultRowToData(row.toExposedResultRow(query)) }
+    execute(query) {
+        val fieldSet = query.getFieldExpressionSetWithOptionalReadOnlyExposedTransaction(
+            getFieldExpressionSetWithExposedTransaction
+        )
+        mapping { row -> dataQueryMapper.resultRowToData(row.toExposedResultRow(fieldSet)) }
+    }
 
+/**
+ * Highly experimental. Not used or tested by us yet.
+ */
 @ExperimentalEvscApi
 suspend fun <Data : Any> DatabaseClient<*>.executeVertxSqlClientRowQueryWithMapper(
     query: Query, rowDataQueryMapper: RowDataQueryMapper<Data>
