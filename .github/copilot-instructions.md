@@ -82,8 +82,7 @@ Always ensure JDK 11 or higher is properly configured before building. The proje
 
 1. **Clean Build** (recommended before first build or after major changes):
    ```bash
-   ./gradlew clean
-   ./gradlew build
+   ./gradlew clean build
    ```
    - Time: ~35-50 seconds for clean build (without daemon), ~2-5 seconds with daemon
    - What it does: Compiles all modules, runs tests (NO-SOURCE - no tests exist), validates API compatibility
