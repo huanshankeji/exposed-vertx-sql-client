@@ -21,6 +21,7 @@ import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 object Examples : IntIdTable("examples") {
     val name = varchar("name", 64)
@@ -53,24 +54,21 @@ suspend fun examples(vertx: Vertx) {
 
     val databaseClient = DatabaseClient(vertxSqlClient, exposedDatabase, PgDatabaseClientConfig())
 
+
     // put in `Vertx.executeBlocking` or `Dispatchers.IO` if needed
+
     databaseClient.exposedTransaction {
         SchemaUtils.create(*tables)
     }
 
-    /*
     transaction(exposedDatabase) {
-        SchemaUtils.create(*tables)
-    }
-
-    transaction(databaseClient.exposedDatabase) {
         SchemaUtils.create(*tables)
     }
 
     transaction {
         SchemaUtils.create(*tables)
     }
-    */
+
 
     run {
         // The Exposed `Table` extension functions `insert`, `update`, and `delete` execute eagerly so `insertStatement`, `updateStatement`, `deleteStatement` have to be used.

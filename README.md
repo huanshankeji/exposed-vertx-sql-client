@@ -103,14 +103,28 @@ object Examples : IntIdTable("examples") {
 val tables = arrayOf(Examples)
 ```
 
-### Use `exposedTransaction` to execute original blocking Exposed code
-
-<!-- ### Use `transaction` from Exposed to execute original blocking Exposed code -->
+### Use `exposedTransaction` or `transaction` from Exposed to execute original blocking Exposed code
 
 For example, to create tables:
 
 ```kotlin
 databaseClient.exposedTransaction {
+    SchemaUtils.create(*tables)
+}
+```
+
+You can also use the `transaction` API from Exposed directly:
+
+```kotlin
+transaction(exposedDatabase) {
+    SchemaUtils.create(*tables)
+}
+```
+
+Or use the thread-local `Database` instance implicitly following Exposed conventions:
+
+```kotlin
+transaction {
     SchemaUtils.create(*tables)
 }
 ```
