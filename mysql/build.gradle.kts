@@ -11,6 +11,8 @@ dependencies {
     // TODO remove the Exposed JDBC dependency and the MySQL dependency when there is no need to to generate SQLs with an Exposed transaction
     runtimeOnly(commonDependencies.exposed.module("jdbc"))
     implementation("com.mysql:mysql-connector-j:${DependencyVersions.mysqlConnectorJ}")
+    // For Unix domain socket support in JDBC
+    runtimeOnly("com.kohlschutter.junixsocket:junixsocket-core:${DependencyVersions.junixsocket}")
     api(commonDependencies.vertx.moduleWithoutVersion("mysql-client")) // `api` used because `MySQLConnection` has to be exposed
     implementation(commonDependencies.kotlinCommon.core()) // for `Untested`
     //implementation(commonDependencies.kotlinCommon.vertx()) // for `MySQLPoolOptions.setUpConventionally`

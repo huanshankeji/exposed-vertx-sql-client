@@ -2,16 +2,18 @@ package com.huanshankeji.exposedvertxsqlclient
 
 @ExperimentalEvscApi
 interface IEvscConfig {
-    val exposedConnectionConfig: ConnectionConfig.Socket
+    val exposedConnectionConfig: ConnectionConfig
     val vertxSqlClientConnectionConfig: ConnectionConfig
 }
 
-// TODO add a type parameter for `exposedConnectionConfig` to better support RDBMSs that don't support Unix domain sockets
 /**
- * This API is not used in the factory function parameter types yet.
+ * Configuration for both Exposed (JDBC) and Vert.x SQL Client connections.
+ * 
+ * Both connection configs can be either Socket or UnixDomainSocketWithPeerAuthentication,
+ * allowing for flexible configuration including using Unix domain sockets for Exposed connections.
  */
 @ExperimentalEvscApi
 class EvscConfig(
-    override val exposedConnectionConfig: ConnectionConfig.Socket,
+    override val exposedConnectionConfig: ConnectionConfig,
     override val vertxSqlClientConnectionConfig: ConnectionConfig
 ) : IEvscConfig

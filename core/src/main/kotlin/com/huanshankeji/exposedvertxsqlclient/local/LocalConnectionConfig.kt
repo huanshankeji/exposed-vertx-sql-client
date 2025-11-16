@@ -40,6 +40,16 @@ class LocalConnectionConfig(
 fun LocalConnectionConfig.toPerformantUnixEvscConfig() =
     EvscConfig(socketConnectionConfig, unixDomainSocketWithPeerAuthenticationConnectionConfig)
 
+/**
+ * Creates an EvscConfig that uses Unix domain sockets for both Exposed (JDBC) and Vert.x SQL Client connections.
+ * This is the most performant option for local database connections, eliminating TCP/IP overhead for both.
+ * 
+ * Note: This requires the junixsocket library to be available at runtime for JDBC connections.
+ */
+@ExperimentalEvscApi
+fun LocalConnectionConfig.toFullUnixEvscConfig() =
+    EvscConfig(unixDomainSocketWithPeerAuthenticationConnectionConfig, unixDomainSocketWithPeerAuthenticationConnectionConfig)
+
 @ExperimentalEvscApi
 fun LocalConnectionConfig.toUniversalEvscConfig() =
     EvscConfig(socketConnectionConfig, socketConnectionConfig)

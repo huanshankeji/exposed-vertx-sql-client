@@ -3,6 +3,7 @@
 package com.huanshankeji.exposedvertxsqlclient
 
 import com.huanshankeji.exposedvertxsqlclient.crud.*
+import com.huanshankeji.exposedvertxsqlclient.local.toFullUnixEvscConfig
 import com.huanshankeji.exposedvertxsqlclient.local.toPerformantUnixEvscConfig
 import com.huanshankeji.exposedvertxsqlclient.postgresql.PgDatabaseClientConfig
 import com.huanshankeji.exposedvertxsqlclient.postgresql.exposed.exposedDatabaseConnectPostgresql
@@ -32,12 +33,19 @@ val evscConfig = ConnectionConfig.Socket("localhost", user = "user", password = 
     .toUniversalEvscConfig()
 
 object Alternative {
-    // Unix domain socket alternative
+    // Unix domain socket alternative - performant for Vert.x only
     val evscConfig = defaultPostgresqlLocalConnectionConfig(
         user = "user",
         socketConnectionPassword = "password",
         database = "database"
     ).toPerformantUnixEvscConfig()
+    
+    // Unix domain socket alternative - most performant, uses Unix sockets for both Exposed and Vert.x
+    val fullUnixEvscConfig = defaultPostgresqlLocalConnectionConfig(
+        user = "user",
+        socketConnectionPassword = "password",
+        database = "database"
+    ).toFullUnixEvscConfig()
 }
 
 @OptIn(ExperimentalEvscApi::class)

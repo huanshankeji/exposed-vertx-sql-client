@@ -111,8 +111,8 @@ public final class com/huanshankeji/exposedvertxsqlclient/DatabaseClientKt {
 }
 
 public final class com/huanshankeji/exposedvertxsqlclient/EvscConfig : com/huanshankeji/exposedvertxsqlclient/IEvscConfig {
-	public fun <init> (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig;)V
-	public fun getExposedConnectionConfig ()Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;
+	public fun <init> (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig;Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig;)V
+	public fun getExposedConnectionConfig ()Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig;
 	public fun getVertxSqlClientConnectionConfig ()Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig;
 }
 
@@ -120,7 +120,7 @@ public abstract interface annotation class com/huanshankeji/exposedvertxsqlclien
 }
 
 public abstract interface class com/huanshankeji/exposedvertxsqlclient/IEvscConfig {
-	public abstract fun getExposedConnectionConfig ()Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;
+	public abstract fun getExposedConnectionConfig ()Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig;
 	public abstract fun getVertxSqlClientConnectionConfig ()Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig;
 }
 
@@ -144,6 +144,8 @@ public final class com/huanshankeji/exposedvertxsqlclient/exposed/QueryKt {
 
 public final class com/huanshankeji/exposedvertxsqlclient/jdbc/JdbcUrlsKt {
 	public static final fun jdbcUrl (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Ljava/lang/String;)Ljava/lang/String;
+	public static final fun mysqlUnixSocketJdbcUrl (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+	public static final fun postgresqlUnixSocketJdbcUrl (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 }
 
 public final class com/huanshankeji/exposedvertxsqlclient/local/LocalConnectionConfig {
@@ -165,6 +167,7 @@ public final class com/huanshankeji/exposedvertxsqlclient/local/LocalConnectionC
 }
 
 public final class com/huanshankeji/exposedvertxsqlclient/local/LocalConnectionConfigKt {
+	public static final fun toFullUnixEvscConfig (Lcom/huanshankeji/exposedvertxsqlclient/local/LocalConnectionConfig;)Lcom/huanshankeji/exposedvertxsqlclient/EvscConfig;
 	public static final fun toPerformantUnixEvscConfig (Lcom/huanshankeji/exposedvertxsqlclient/local/LocalConnectionConfig;)Lcom/huanshankeji/exposedvertxsqlclient/EvscConfig;
 	public static final fun toUniversalEvscConfig (Lcom/huanshankeji/exposedvertxsqlclient/local/LocalConnectionConfig;)Lcom/huanshankeji/exposedvertxsqlclient/EvscConfig;
 }
