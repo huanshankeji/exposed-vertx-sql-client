@@ -1,23 +1,20 @@
 package com.huanshankeji.exposed.benchmark
 
-import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig
-import com.huanshankeji.exposedvertxsqlclient.postgresql.exposed.exposedDatabaseConnectPostgresql
+import com.huanshankeji.exposedvertxsqlclient.LatestPostgreSQLContainer
+import com.huanshankeji.exposedvertxsqlclient.exposedDatabaseConnect
 import kotlinx.benchmark.Scope
 import kotlinx.benchmark.Setup
 import kotlinx.benchmark.State
 import kotlinx.benchmark.TearDown
 import org.jetbrains.exposed.v1.jdbc.Database
-import org.testcontainers.postgresql.PostgreSQLContainer
-import org.testcontainers.utility.DockerImageName
 
 @State(Scope.Benchmark)
 class WithContainerizedDatabaseBenchmark : AbstractBenchmark() {
-    val postgreSQLContainer = PostgreSQLContainer(DockerImageName.parse("postgres:latest"))
+    val postgreSQLContainer = LatestPostgreSQLContainer()
     lateinit var database: Database
 
     fun databaseConnect() =
-        with(postgreSQLContainer) { ConnectionConfig.Socket(host, firstMappedPort, username, password, databaseName) }
-            .exposedDatabaseConnectPostgresql()
+        postgreSQLContainer.exposedDatabaseConnect()
 
     @Setup
     fun setUp() {
