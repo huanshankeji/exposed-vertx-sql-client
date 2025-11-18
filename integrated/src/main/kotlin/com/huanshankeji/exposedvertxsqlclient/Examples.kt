@@ -41,7 +41,6 @@ object Alternative {
     ).toPerformantUnixEvscConfig()
 }
 
-@OptIn(ExperimentalEvscApi::class)
 suspend fun examples(vertx: Vertx) {
     /** It may be more efficient to reuse a single shared [Database] to generate SQLs in multiple [DatabaseClient]s for [SqlClient]s in respective [Verticle]s. */
     val exposedDatabase = evscConfig.exposedConnectionConfig.exposedDatabaseConnectPostgresql()
@@ -54,7 +53,15 @@ suspend fun examples(vertx: Vertx) {
 
     val databaseClient = DatabaseClient(vertxSqlClient, exposedDatabase, PgDatabaseClientConfig())
 
+    // put in `Vertx.executeBlocking` or `Dispatchers.IO` if needed
+    createTablesWithExposedTransaction()
 
+    crudWithStatements(databaseClient)
+    crudExtensions(databaseClient)
+}
+
+// for copying to README.md
+private fun allWaysOfCreatingTables(databaseClient: DatabaseClient<SqlClient>, exposedDatabase: Database) {
     // put in `Vertx.executeBlocking` or `Dispatchers.IO` if needed
 
     databaseClient.exposedTransaction {
@@ -68,48 +75,72 @@ suspend fun examples(vertx: Vertx) {
     transaction {
         SchemaUtils.create(*tables)
     }
+}
 
-
-    run {
-        // The Exposed `Table` extension functions `insert`, `update`, and `delete` execute eagerly so `insertStatement`, `updateStatement`, `deleteStatement` have to be used.
-
-        val insertRowCount = databaseClient.executeUpdate(buildStatement { Examples.insert { it[name] = "A" } })
-        assert(insertRowCount == 1)
-        // `executeSingleUpdate` function requires that there is only 1 row updated and returns `Unit`.
-        databaseClient.executeSingleUpdate(buildStatement { Examples.insert { it[name] = "B" } })
-        // `executeSingleOrNoUpdate` requires that there is 0 or 1 row updated and returns `Boolean`.
-        val isInserted =
-            databaseClient.executeSingleOrNoUpdate(buildStatement { Examples.insertIgnore { it[name] = "B" } })
-        assert(isInserted)
-
-        val updateRowCount =
-            databaseClient.executeUpdate(buildStatement { Examples.update({ Examples.id eq 1 }) { it[name] = "AA" } })
-        assert(updateRowCount == 1)
-
-        // The Exposed `Table` extension function `select` doesn't execute eagerly so it can also be used directly.
-        val exampleName = databaseClient.executeQuery(Examples.select(Examples.name).where(Examples.id eq 1))
-            .single()[Examples.name]
-
-        databaseClient.executeSingleUpdate(buildStatement { Examples.deleteWhere { id eq 1 } })
-        databaseClient.executeSingleUpdate(buildStatement { Examples.deleteIgnoreWhere { id eq 2 } })
+fun createTablesWithExposedTransaction() =
+    transaction {
+        SchemaUtils.create(*tables)
     }
 
-    run {
-        databaseClient.insert(Examples) { it[name] = "A" }
-        val isInserted = databaseClient.insertIgnore(Examples) { it[name] = "B" }
-
-        val updateRowCount = databaseClient.update(Examples, { Examples.id eq 1 }) { it[name] = "AA" }
-
-        val exampleName1 =
-            databaseClient.select(Examples, { select(Examples.name).where(Examples.id eq 1) }).single()[Examples.name]
-        val exampleName2 =
-            databaseClient.selectSingleColumn(Examples, Examples.name, { where(Examples.id eq 2) }).single()
-
-        val examplesExist = databaseClient.selectExpression(exists(Examples.selectAll()))
-
-        val deleteRowCount1 = databaseClient.deleteWhere(Examples) { id eq 1 }
-        assert(deleteRowCount1 == 1)
-        val deleteRowCount2 = databaseClient.deleteIgnoreWhere(Examples) { id eq 2 }
-        assert(deleteRowCount2 == 1)
+fun dropTablesWithExposedTransaction() =
+    transaction {
+        SchemaUtils.drop(*tables)
     }
+
+// mainly for tests
+suspend fun withTables(block: suspend () -> Unit) {
+    createTablesWithExposedTransaction()
+    try {
+        block()
+    } finally {
+        dropTablesWithExposedTransaction()
+    }
+}
+
+suspend fun crudWithStatements(databaseClient: DatabaseClient<*>) {
+    val insertRowCount = databaseClient.executeUpdate(buildStatement { Examples.insert { it[name] = "A" } })
+    assert(insertRowCount == 1)
+    // `executeSingleUpdate` function requires that there is only 1 row updated and returns `Unit`.
+    databaseClient.executeSingleUpdate(buildStatement { Examples.insert { it[name] = "B" } })
+    // `executeSingleOrNoUpdate` requires that there is 0 or 1 row updated and returns `Boolean`.
+    val isInserted =
+        databaseClient.executeSingleOrNoUpdate(buildStatement { Examples.insertIgnore { it[name] = "B" } })
+    assert(isInserted)
+
+    val updateRowCount =
+        databaseClient.executeUpdate(buildStatement { Examples.update({ Examples.id eq 1 }) { it[name] = "AA" } })
+    assert(updateRowCount == 1)
+
+    // The Exposed `Table` extension function `select` doesn't execute eagerly so it can also be used directly.
+    val exampleName = databaseClient.executeQuery(Examples.select(Examples.name).where(Examples.id eq 1))
+        .single()[Examples.name]
+    assert(exampleName == "AA")
+
+    databaseClient.executeSingleUpdate(buildStatement { Examples.deleteWhere { id eq 1 } })
+    databaseClient.executeSingleUpdate(buildStatement { Examples.deleteIgnoreWhere { id eq 2 } })
+}
+
+@OptIn(ExperimentalEvscApi::class)
+suspend fun crudExtensions(databaseClient: DatabaseClient<*>) {
+    databaseClient.insert(Examples) { it[name] = "A" }
+    val isInserted = databaseClient.insertIgnore(Examples) { it[name] = "B" }
+    assert(isInserted)
+
+    val updateRowCount = databaseClient.update(Examples, { Examples.id eq 1 }) { it[name] = "AA" }
+    assert(updateRowCount == 1)
+
+    val exampleName1 =
+        databaseClient.select(Examples, { select(Examples.name).where(Examples.id eq 1) }).single()[Examples.name]
+    assert(exampleName1 == "AA")
+    val exampleName2 =
+        databaseClient.selectSingleColumn(Examples, Examples.name, { where(Examples.id eq 2) }).single()
+    assert(exampleName2 == "B")
+
+    val examplesExist = databaseClient.selectExpression(exists(Examples.selectAll()))
+    assert(examplesExist)
+
+    val deleteRowCount1 = databaseClient.deleteWhere(Examples) { id eq 1 }
+    assert(deleteRowCount1 == 1)
+    val deleteRowCount2 = databaseClient.deleteIgnoreWhere(Examples) { id eq 2 }
+    assert(deleteRowCount2 == 1)
 }

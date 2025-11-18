@@ -4,6 +4,7 @@ import com.huanshankeji.cpnProject
 
 plugins {
     conventions
+    id("io.kotest") version commonVersions.kotest
     id("com.huanshankeji.benchmark.kotlinx-benchmark-jvm-conventions")
 }
 
@@ -22,6 +23,12 @@ dependencies {
         implementation(testcontainersPostgresql)
         implementation(moduleWithoutVersion("testcontainers-mysql"))
     }
+
+
+    testImplementation(commonDependencies.kotest.module("framework-engine"))
+    testImplementation(commonDependencies.kotest.module("extensions-testcontainers"))
+
+    testRuntimeOnly(commonDependencies.slf4j.simple())
 }
 
 afterEvaluate {
@@ -35,6 +42,6 @@ afterEvaluate {
         "benchmarksImplementation"(cpnProject(project, ":postgresql"))
 
         // Vert.x actually already includes an `slf4j-simple` dependency
-        "benchmarksImplementation"(commonDependencies.slf4j.simple())
+        "benchmarksRuntimeOnly"(commonDependencies.slf4j.simple())
     }
 }
