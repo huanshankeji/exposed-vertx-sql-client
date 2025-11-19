@@ -23,6 +23,7 @@ fun LatestPostgreSQLContainer(): PostgreSQLContainer =
 fun PostgreSQLContainer.exposedDatabaseConnect(): Database =
     connectionConfig().exposedDatabaseConnectPostgresql()
 
+
 // https://testcontainers.com/modules/mysql/
 fun LatestMySQLContainer(): MySQLContainer =
     MySQLContainer(DockerImageName.parse("mysql:latest"))
@@ -37,6 +38,7 @@ fun LatestOracleContainer(): OracleContainer =
 
 fun OracleContainer.exposedDatabaseConnect(): Database =
     connectionConfig().exposedDatabaseConnectOracle()
+
 
 /*
 https://testcontainers.com/modules/mssql/
