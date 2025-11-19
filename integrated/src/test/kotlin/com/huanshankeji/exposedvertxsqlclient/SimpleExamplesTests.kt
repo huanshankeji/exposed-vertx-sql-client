@@ -22,7 +22,7 @@ class SimpleExamplesTests : FunSpec({
             withTables { crudWithStatements(databaseClient) }
         }
         test("test CRUD Extensions") {
-            crudExtensions(databaseClient)
+            withTables { crudExtensions(databaseClient) }
         }
     }
 

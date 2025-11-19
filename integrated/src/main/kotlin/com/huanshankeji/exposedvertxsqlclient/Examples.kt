@@ -117,7 +117,8 @@ suspend fun crudWithStatements(databaseClient: DatabaseClient<*>) {
     assert(exampleName == "AA")
 
     databaseClient.executeSingleUpdate(buildStatement { Examples.deleteWhere { id eq 1 } })
-    databaseClient.executeSingleUpdate(buildStatement { Examples.deleteIgnoreWhere { id eq 2 } })
+    // not supported by PostgreSQL
+    //databaseClient.executeSingleUpdate(buildStatement { Examples.deleteIgnoreWhere { id eq 2 } })
 }
 
 @OptIn(ExperimentalEvscApi::class)
@@ -141,6 +142,9 @@ suspend fun crudExtensions(databaseClient: DatabaseClient<*>) {
 
     val deleteRowCount1 = databaseClient.deleteWhere(Examples) { id eq 1 }
     assert(deleteRowCount1 == 1)
+    // not supported by PostgreSQL
+    /*
     val deleteRowCount2 = databaseClient.deleteIgnoreWhere(Examples) { id eq 2 }
     assert(deleteRowCount2 == 1)
+    */
 }
