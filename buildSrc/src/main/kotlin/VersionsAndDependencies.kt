@@ -16,7 +16,8 @@ object DependencyVersions {
     val mysqlConnectorJ = "9.5.0"
 
     // https://mvnrepository.com/artifact/com.oracle.database.jdbc/ojdbc11
-    val oracleJdbc = "23.6.0.24.10"
+    // https://repo1.maven.org/maven2/com/oracle/database/jdbc/ojdbc11/
+    val oracleJdbc = "23.26.0.0.0"
 
     // https://mvnrepository.com/artifact/com.microsoft.sqlserver/mssql-jdbc
     val mssqlJdbc = "12.10.0.jre11"
