@@ -36,6 +36,7 @@ class SimpleExamplesTests : FunSpec({
         val exposedDatabase = connectionConfig.exposedDatabaseConnectPostgresql()
         val databaseClientConfig = PgDatabaseClientConfig()
         context("SqlClient") {
+            // TODO Also consider closing the clients. This isn't a big issue now though.
             crudTests(DatabaseClient(createPgClient(null, connectionConfig), exposedDatabase, databaseClientConfig))
         }
         context("Pool") {
