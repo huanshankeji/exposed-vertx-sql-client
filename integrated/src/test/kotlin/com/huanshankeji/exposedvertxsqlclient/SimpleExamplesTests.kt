@@ -32,6 +32,9 @@ class SimpleExamplesTests : FunSpec({
     val vertx = Vertx.vertx()
     afterSpec { vertx.close().await() }
 
+    // This causes passing tests to fail. Not sure why.
+    //testExecutionMode = TestExecutionMode.Concurrent
+
     suspend fun FunSpecContainerScope.crudTests(databaseClient: DatabaseClient<*>) {
         test("test CRUD with Statements") {
             withTables { crudWithStatements(databaseClient) }
