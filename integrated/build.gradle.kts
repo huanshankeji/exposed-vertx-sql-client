@@ -22,9 +22,13 @@ dependencies {
 
     with(commonDependencies.testcontainers) {
         implementation(platformBom())
+        // https://testcontainers.com/modules/postgresql/
         implementation(testcontainersPostgresql)
+        // https://testcontainers.com/modules/mysql/
         implementation(moduleWithoutVersion("testcontainers-mysql"))
+        // https://testcontainers.com/modules/oracle-free/
         implementation(moduleWithoutVersion("testcontainers-oracle-free"))
+        // https://testcontainers.com/modules/mssql/
         implementation(moduleWithoutVersion("testcontainers-mssqlserver"))
     }
 
