@@ -27,8 +27,15 @@ dependencies {
 
     testImplementation(commonDependencies.kotest.module("framework-engine"))
     testImplementation(commonDependencies.kotest.module("extensions-testcontainers"))
+    // to resolve "no tests discovered" errors when running `check`
+    testRuntimeOnly(commonDependencies.kotest.module("runner-junit5"))
 
     testRuntimeOnly(commonDependencies.slf4j.simple())
+}
+
+// to resolve "no tests discovered" errors when running `check`
+tasks.test {
+    useJUnitPlatform()
 }
 
 afterEvaluate {
