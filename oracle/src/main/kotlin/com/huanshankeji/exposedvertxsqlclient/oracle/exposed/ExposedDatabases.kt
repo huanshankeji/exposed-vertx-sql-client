@@ -18,7 +18,7 @@ fun ConnectionConfig.Socket.exposedDatabaseConnectOracle(
     manager: (Database) -> TransactionManager = { TransactionManager(it) }
 ) =
     exposedDatabaseConnect(
-        "oracle:thin:@", "oracle.jdbc.OracleDriver", setupConnection, databaseConfig, manager
+        "oracle:thin", "oracle.jdbc.OracleDriver", setupConnection, databaseConfig, manager
     )
 
 @ExperimentalEvscApi

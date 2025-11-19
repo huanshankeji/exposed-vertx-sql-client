@@ -17,6 +17,9 @@ import org.testcontainers.utility.DockerImageName
 fun JdbcDatabaseContainer<*>.connectionConfig() =
     ConnectionConfig.Socket(host, firstMappedPort, username, password, databaseName)
 
+fun MSSQLServerContainer.connectionConfig() =
+    ConnectionConfig.Socket(host, firstMappedPort, username, password, "master")
+
 
 fun LatestPostgreSQLContainer(): PostgreSQLContainer =
     PostgreSQLContainer(DockerImageName.parse("postgres:latest"))
