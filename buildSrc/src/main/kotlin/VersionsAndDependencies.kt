@@ -20,7 +20,4 @@ object DependencyVersions {
 
     // https://mvnrepository.com/artifact/com.microsoft.sqlserver/mssql-jdbc
     val mssqlJdbc = "12.10.0.jre11"
-
-    // https://mvnrepository.com/artifact/com.ibm.db2/jcc
-    val db2Jcc = "11.5.9.0"
 }
