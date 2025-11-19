@@ -25,9 +25,9 @@ dependencies {
         implementation(platformBom())
         implementation(testcontainersPostgresql)
         implementation(moduleWithoutVersion("testcontainers-mysql"))
+        implementation(moduleWithoutVersion("testcontainers-db2"))
         implementation(moduleWithoutVersion("testcontainers-oracle-free"))
         implementation(moduleWithoutVersion("testcontainers-mssqlserver"))
-        implementation(moduleWithoutVersion("testcontainers-db2"))
     }
 
 
