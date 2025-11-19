@@ -9,51 +9,52 @@ import com.huanshankeji.exposedvertxsqlclient.postgresql.vertx.pgclient.createPg
 import com.huanshankeji.exposedvertxsqlclient.postgresql.vertx.pgclient.createPgConnection
 import com.huanshankeji.exposedvertxsqlclient.postgresql.vertx.pgclient.createPgPool
 import io.kotest.core.extensions.install
-import io.kotest.core.spec.style.StringSpec
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.scopes.FunSpecContainerScope
 import io.kotest.extensions.testcontainers.TestContainerSpecExtension
 import io.vertx.core.Vertx
 
-class SimpleExamplesTests : StringSpec({
+class SimpleExamplesTests : FunSpec({
     val vertx: Vertx? = null
 
-    fun crudTests(databaseClient: DatabaseClient<*>) {
-        "test CRUD with Statements" {
+    suspend fun FunSpecContainerScope.crudTests(databaseClient: DatabaseClient<*>) {
+        test("test CRUD with Statements") {
             withTables { crudWithStatements(databaseClient) }
         }
-        "test CRUD Extensions" {
+        test("test CRUD Extensions") {
             crudExtensions(databaseClient)
         }
     }
 
-    "PostgreSQL" {
+    context("PostgreSQL") {
         val postgresqlContainer = install(TestContainerSpecExtension(LatestPostgreSQLContainer()))
         val connectionConfig = postgresqlContainer.connectionConfig()
         val exposedDatabase = connectionConfig.exposedDatabaseConnectPostgresql()
         val databaseClientConfig = PgDatabaseClientConfig()
-        "SQLClient" {
+        context("SQLClient") {
             crudTests(DatabaseClient(createPgClient(vertx, connectionConfig), exposedDatabase, databaseClientConfig))
         }
-        "Pool" {
+        context("Pool") {
             crudTests(DatabaseClient(createPgPool(vertx, connectionConfig), exposedDatabase, databaseClientConfig))
         }
-        "SqlConnection" {
+        context("SqlConnection") {
             crudTests(
                 DatabaseClient(createPgConnection(vertx, connectionConfig), exposedDatabase, databaseClientConfig)
             )
         }
     }
-    "MySQL" {
+    context("MySQL") {
         val mysqlContainer = install(TestContainerSpecExtension(LatestMySQLContainer()))
         val connectionConfig = mysqlContainer.connectionConfig()
         val exposedDatabase = connectionConfig.exposedDatabaseConnectMysql()
         val databaseClientConfig = MysqlDatabaseClientConfig()
-        "SQLClient" {
+        context("SQLClient") {
             crudTests(DatabaseClient(createMysqlClient(vertx, connectionConfig), exposedDatabase, databaseClientConfig))
         }
-        "Pool" {
+        context("Pool") {
             crudTests(DatabaseClient(createMysqlClient(vertx, connectionConfig), exposedDatabase, databaseClientConfig))
         }
-        "SqlConnection" {
+        context("SqlConnection") {
             crudTests(
                 DatabaseClient(createMysqlClient(vertx, connectionConfig), exposedDatabase, databaseClientConfig)
             )
