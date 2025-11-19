@@ -2,7 +2,6 @@
 
 package com.huanshankeji.exposedvertxsqlclient.oracle.vertx.oracleclient
 
-import com.huanshankeji.Untested
 import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig
 import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
 import com.huanshankeji.exposedvertxsqlclient.vertx.sqlclient.CoConnectHandler
@@ -65,7 +64,6 @@ fun createOraclePool(
  * @see createGenericSqlClient
  * @param vertx Non-null. See [OracleConnection.connect].
  */
-@Untested
 suspend fun createOracleConnection(
     vertx: Vertx,
     connectionConfig: ConnectionConfig,

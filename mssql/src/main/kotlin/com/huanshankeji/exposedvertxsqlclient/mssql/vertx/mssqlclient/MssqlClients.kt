@@ -2,7 +2,6 @@
 
 package com.huanshankeji.exposedvertxsqlclient.mssql.vertx.mssqlclient
 
-import com.huanshankeji.Untested
 import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig
 import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
 import com.huanshankeji.exposedvertxsqlclient.vertx.sqlclient.CoConnectHandler
@@ -65,7 +64,6 @@ fun createMssqlPool(
  * @see createGenericSqlClient
  * @param vertx Non-null. See [MSSQLConnection.connect].
  */
-@Untested
 suspend fun createMssqlConnection(
     vertx: Vertx,
     connectionConfig: ConnectionConfig,
