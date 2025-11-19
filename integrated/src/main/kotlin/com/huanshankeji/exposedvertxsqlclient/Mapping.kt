@@ -112,4 +112,5 @@ suspend fun crudMapperExtensions(databaseClient: DatabaseClient<*>) {
     val fullFilms = databaseClient.selectWithMapper(filmsLeftJoinDirectors, Mappers.fullFilm) {
         where(Films.filmId inList listOf(1, 2))
     }
+    assert(fullFilms.size() == 2)
 }
