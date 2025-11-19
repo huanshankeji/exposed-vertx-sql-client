@@ -16,17 +16,13 @@ import io.kotest.core.spec.style.scopes.FunSpecContainerScope
 import io.kotest.extensions.testcontainers.TestContainerSpecExtension
 import io.vertx.core.Vertx
 
-class SimpleExamplesTests : FunSpec({
+class SimpleMappingTests : FunSpec({
     val vertx = Vertx.vertx()
 
-    suspend fun FunSpecContainerScope.crudTests(databaseClient: DatabaseClient<*>) {
-        test("test CRUD with Statements") {
-            withTables { crudWithStatements(databaseClient) }
+    suspend fun FunSpecContainerScope.crudTest(databaseClient: DatabaseClient<*>) =
+        test("test CRUD mapper Extensions") {
+            withMappingTables { crudMapperExtensions(databaseClient) }
         }
-        test("test CRUD extensions") {
-            withTables { crudExtensions(databaseClient) }
-        }
-    }
 
     context("PostgreSQL") {
         val postgresqlContainer = install(TestContainerSpecExtension(LatestPostgreSQLContainer()))
@@ -34,15 +30,13 @@ class SimpleExamplesTests : FunSpec({
         val exposedDatabase = connectionConfig.exposedDatabaseConnectPostgresql()
         val databaseClientConfig = PgDatabaseClientConfig()
         context("SqlClient") {
-            crudTests(DatabaseClient(createPgClient(null, connectionConfig), exposedDatabase, databaseClientConfig))
+            crudTest(DatabaseClient(createPgClient(null, connectionConfig), exposedDatabase, databaseClientConfig))
         }
         context("Pool") {
-            crudTests(DatabaseClient(createPgPool(null, connectionConfig), exposedDatabase, databaseClientConfig))
+            crudTest(DatabaseClient(createPgPool(null, connectionConfig), exposedDatabase, databaseClientConfig))
         }
         context("SqlConnection") {
-            crudTests(
-                DatabaseClient(createPgConnection(vertx, connectionConfig), exposedDatabase, databaseClientConfig)
-            )
+            crudTest(DatabaseClient(createPgConnection(vertx, connectionConfig), exposedDatabase, databaseClientConfig))
         }
     }
     context("MySQL") {
@@ -51,14 +45,18 @@ class SimpleExamplesTests : FunSpec({
         val exposedDatabase = connectionConfig.exposedDatabaseConnectMysql()
         val databaseClientConfig = MysqlDatabaseClientConfig()
         context("SqlClient") {
-            crudTests(DatabaseClient(createMysqlClient(null, connectionConfig), exposedDatabase, databaseClientConfig))
+            crudTest(DatabaseClient(createMysqlClient(null, connectionConfig), exposedDatabase, databaseClientConfig))
         }
         context("Pool") {
-            crudTests(DatabaseClient(createMysqlPool(null, connectionConfig), exposedDatabase, databaseClientConfig))
+            crudTest(DatabaseClient(createMysqlPool(null, connectionConfig), exposedDatabase, databaseClientConfig))
         }
         context("SqlConnection") {
-            crudTests(
-                DatabaseClient(createMysqlConnection(vertx, connectionConfig), exposedDatabase, databaseClientConfig)
+            crudTest(
+                DatabaseClient(
+                    createMysqlConnection(vertx, connectionConfig),
+                    exposedDatabase,
+                    databaseClientConfig
+                )
             )
         }
     }
