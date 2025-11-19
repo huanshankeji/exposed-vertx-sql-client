@@ -33,7 +33,7 @@ class SimpleExamplesTests : FunSpec({
         val connectionConfig = postgresqlContainer.connectionConfig()
         val exposedDatabase = connectionConfig.exposedDatabaseConnectPostgresql()
         val databaseClientConfig = PgDatabaseClientConfig()
-        context("SQLClient") {
+        context("SqlClient") {
             crudTests(DatabaseClient(createPgClient(null, connectionConfig), exposedDatabase, databaseClientConfig))
         }
         context("Pool") {
@@ -50,7 +50,7 @@ class SimpleExamplesTests : FunSpec({
         val connectionConfig = mysqlContainer.connectionConfig()
         val exposedDatabase = connectionConfig.exposedDatabaseConnectMysql()
         val databaseClientConfig = MysqlDatabaseClientConfig()
-        context("SQLClient") {
+        context("SqlClient") {
             crudTests(DatabaseClient(createMysqlClient(null, connectionConfig), exposedDatabase, databaseClientConfig))
         }
         context("Pool") {
