@@ -3,6 +3,8 @@ package com.huanshankeji.exposedvertxsqlclient
 import com.huanshankeji.exposedvertxsqlclient.mysql.MysqlDatabaseClientConfig
 import com.huanshankeji.exposedvertxsqlclient.mysql.exposed.exposedDatabaseConnectMysql
 import com.huanshankeji.exposedvertxsqlclient.mysql.vertx.mysqlclient.createMysqlClient
+import com.huanshankeji.exposedvertxsqlclient.mysql.vertx.mysqlclient.createMysqlConnection
+import com.huanshankeji.exposedvertxsqlclient.mysql.vertx.mysqlclient.createMysqlPool
 import com.huanshankeji.exposedvertxsqlclient.postgresql.PgDatabaseClientConfig
 import com.huanshankeji.exposedvertxsqlclient.postgresql.exposed.exposedDatabaseConnectPostgresql
 import com.huanshankeji.exposedvertxsqlclient.postgresql.vertx.pgclient.createPgClient
@@ -52,11 +54,11 @@ class SimpleExamplesTests : FunSpec({
             crudTests(DatabaseClient(createMysqlClient(vertx, connectionConfig), exposedDatabase, databaseClientConfig))
         }
         context("Pool") {
-            crudTests(DatabaseClient(createMysqlClient(vertx, connectionConfig), exposedDatabase, databaseClientConfig))
+            crudTests(DatabaseClient(createMysqlPool(vertx, connectionConfig), exposedDatabase, databaseClientConfig))
         }
         context("SqlConnection") {
             crudTests(
-                DatabaseClient(createMysqlClient(vertx, connectionConfig), exposedDatabase, databaseClientConfig)
+                DatabaseClient(createMysqlConnection(vertx, connectionConfig), exposedDatabase, databaseClientConfig)
             )
         }
     }
