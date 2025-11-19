@@ -2,6 +2,7 @@ package com.huanshankeji.exposedvertxsqlclient.exposed
 
 import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig
 import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
+import com.huanshankeji.exposedvertxsqlclient.jdbc.JDBC_URL_FORMAT_NOT_UNIVERSAL_DEPRECATION_MESSAGE
 import com.huanshankeji.exposedvertxsqlclient.jdbc.jdbcUrl
 import org.jetbrains.exposed.v1.core.DatabaseConfig
 import org.jetbrains.exposed.v1.jdbc.Database
@@ -12,6 +13,7 @@ import java.sql.Connection
  * Further configurations such as [setupConnection], [databaseConfig], and [manager] are most likely not needed
  * because the Exposed [Database] is mostly only used for table creation and SQL generation.
  */
+@Deprecated(JDBC_URL_FORMAT_NOT_UNIVERSAL_DEPRECATION_MESSAGE)
 @ExperimentalEvscApi
 fun ConnectionConfig.Socket.exposedDatabaseConnect(
     rdbms: String,
@@ -23,6 +25,7 @@ fun ConnectionConfig.Socket.exposedDatabaseConnect(
 ) =
     Database.connect(jdbcUrl(rdbms), driver, user, password, setupConnection, databaseConfig, manager = manager)
 
+@Deprecated(JDBC_URL_FORMAT_NOT_UNIVERSAL_DEPRECATION_MESSAGE)
 @ExperimentalEvscApi
 fun exposedDatabaseConnect(
     rdbms: String,

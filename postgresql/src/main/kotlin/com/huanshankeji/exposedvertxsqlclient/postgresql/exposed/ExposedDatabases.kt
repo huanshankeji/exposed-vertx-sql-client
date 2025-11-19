@@ -3,6 +3,7 @@ package com.huanshankeji.exposedvertxsqlclient.postgresql.exposed
 import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig
 import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
 import com.huanshankeji.exposedvertxsqlclient.exposed.exposedDatabaseConnect
+import com.huanshankeji.exposedvertxsqlclient.jdbc.postgresqlJdbcUrl
 import org.jetbrains.exposed.v1.core.DatabaseConfig
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.transactions.TransactionManager
@@ -17,8 +18,9 @@ fun ConnectionConfig.Socket.exposedDatabaseConnectPostgresql(
     databaseConfig: DatabaseConfig? = null,
     manager: (Database) -> TransactionManager = { TransactionManager(it) }
 ) =
-    exposedDatabaseConnect(
-        "postgresql", "org.postgresql.Driver", setupConnection, databaseConfig, manager
+    // https://www.jetbrains.com/help/exposed/working-with-database.html#postgresql
+    Database.connect(
+        postgresqlJdbcUrl(), "org.postgresql.Driver", user, password, setupConnection, databaseConfig, manager = manager
     )
 
 @ExperimentalEvscApi

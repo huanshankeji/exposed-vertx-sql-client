@@ -144,6 +144,11 @@ public final class com/huanshankeji/exposedvertxsqlclient/exposed/QueryKt {
 
 public final class com/huanshankeji/exposedvertxsqlclient/jdbc/JdbcUrlsKt {
 	public static final fun jdbcUrl (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Ljava/lang/String;)Ljava/lang/String;
+	public static final fun mysqlJdbcUrl (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;)Ljava/lang/String;
+	public static final fun oracleJdbcUrl (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;)Ljava/lang/String;
+	public static final fun postgresqlAndMysqlJdbcUrl (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Ljava/lang/String;)Ljava/lang/String;
+	public static final fun postgresqlJdbcUrl (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;)Ljava/lang/String;
+	public static final fun sqlServerJdbcUrl (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;)Ljava/lang/String;
 }
 
 public final class com/huanshankeji/exposedvertxsqlclient/local/LocalConnectionConfig {

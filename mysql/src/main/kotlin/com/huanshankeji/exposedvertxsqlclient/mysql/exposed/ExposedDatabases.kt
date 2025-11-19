@@ -3,6 +3,7 @@ package com.huanshankeji.exposedvertxsqlclient.mysql.exposed
 import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig
 import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
 import com.huanshankeji.exposedvertxsqlclient.exposed.exposedDatabaseConnect
+import com.huanshankeji.exposedvertxsqlclient.jdbc.mysqlJdbcUrl
 import org.jetbrains.exposed.v1.core.DatabaseConfig
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.transactions.TransactionManager
@@ -17,8 +18,9 @@ fun ConnectionConfig.Socket.exposedDatabaseConnectMysql(
     databaseConfig: DatabaseConfig? = null,
     manager: (Database) -> TransactionManager = { TransactionManager(it) }
 ) =
-    exposedDatabaseConnect(
-        "mysql", "com.mysql.cj.jdbc.Driver", setupConnection, databaseConfig, manager
+    // https://www.jetbrains.com/help/exposed/working-with-database.html#mysql
+    Database.connect(
+        mysqlJdbcUrl(), "com.mysql.cj.jdbc.Driver", user, password, setupConnection, databaseConfig, manager = manager
     )
 
 @ExperimentalEvscApi

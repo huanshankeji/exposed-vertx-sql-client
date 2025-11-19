@@ -3,6 +3,7 @@ package com.huanshankeji.exposedvertxsqlclient.oracle.exposed
 import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig
 import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
 import com.huanshankeji.exposedvertxsqlclient.exposed.exposedDatabaseConnect
+import com.huanshankeji.exposedvertxsqlclient.jdbc.oracleJdbcUrl
 import org.jetbrains.exposed.v1.core.DatabaseConfig
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.transactions.TransactionManager
@@ -17,8 +18,9 @@ fun ConnectionConfig.Socket.exposedDatabaseConnectOracle(
     databaseConfig: DatabaseConfig? = null,
     manager: (Database) -> TransactionManager = { TransactionManager(it) }
 ) =
-    exposedDatabaseConnect(
-        "oracle:thin:@", "oracle.jdbc.OracleDriver", setupConnection, databaseConfig, manager
+    // https://www.jetbrains.com/help/exposed/working-with-database.html#oracle
+    Database.connect(
+        oracleJdbcUrl(), "oracle.jdbc.OracleDriver", user, password, setupConnection, databaseConfig, manager = manager
     )
 
 @ExperimentalEvscApi

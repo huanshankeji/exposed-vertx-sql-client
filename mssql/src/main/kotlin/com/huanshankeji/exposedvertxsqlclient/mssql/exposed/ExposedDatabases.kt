@@ -3,6 +3,7 @@ package com.huanshankeji.exposedvertxsqlclient.mssql.exposed
 import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig
 import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
 import com.huanshankeji.exposedvertxsqlclient.exposed.exposedDatabaseConnect
+import com.huanshankeji.exposedvertxsqlclient.jdbc.sqlServerJdbcUrl
 import org.jetbrains.exposed.v1.core.DatabaseConfig
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.transactions.TransactionManager
@@ -17,8 +18,14 @@ fun ConnectionConfig.Socket.exposedDatabaseConnectMssql(
     databaseConfig: DatabaseConfig? = null,
     manager: (Database) -> TransactionManager = { TransactionManager(it) }
 ) =
-    exposedDatabaseConnect(
-        "sqlserver", "com.microsoft.sqlserver.jdbc.SQLServerDriver", setupConnection, databaseConfig, manager
+    Database.connect(
+        sqlServerJdbcUrl(),
+        "com.microsoft.sqlserver.jdbc.SQLServerDriver",
+        user,
+        password,
+        setupConnection,
+        databaseConfig,
+        manager = manager
     )
 
 @ExperimentalEvscApi
