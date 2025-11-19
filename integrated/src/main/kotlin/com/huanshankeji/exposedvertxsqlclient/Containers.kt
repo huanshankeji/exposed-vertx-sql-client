@@ -16,13 +16,14 @@ fun JdbcDatabaseContainer<*>.connectionConfig() =
     ConnectionConfig.Socket(host, firstMappedPort, username, password, databaseName)
 
 
+// https://testcontainers.com/modules/postgresql/
 fun LatestPostgreSQLContainer(): PostgreSQLContainer =
     PostgreSQLContainer(DockerImageName.parse("postgres:latest"))
 
 fun PostgreSQLContainer.exposedDatabaseConnect(): Database =
     connectionConfig().exposedDatabaseConnectPostgresql()
 
-// https://testcontainers.com/modules/postgresql/
+// https://testcontainers.com/modules/mysql/
 fun LatestMySQLContainer(): MySQLContainer =
     MySQLContainer(DockerImageName.parse("mysql:latest"))
 
