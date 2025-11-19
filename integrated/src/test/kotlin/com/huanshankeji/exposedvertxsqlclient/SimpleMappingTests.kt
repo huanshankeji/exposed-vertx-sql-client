@@ -1,10 +1,22 @@
 package com.huanshankeji.exposedvertxsqlclient
 
+import com.huanshankeji.exposedvertxsqlclient.db2.Db2DatabaseClientConfig
+import com.huanshankeji.exposedvertxsqlclient.db2.exposed.exposedDatabaseConnectDb2
+import com.huanshankeji.exposedvertxsqlclient.db2.vertx.db2client.createDb2Connection
+import com.huanshankeji.exposedvertxsqlclient.db2.vertx.db2client.createDb2Pool
+import com.huanshankeji.exposedvertxsqlclient.mssql.MssqlDatabaseClientConfig
+import com.huanshankeji.exposedvertxsqlclient.mssql.exposed.exposedDatabaseConnectMssql
+import com.huanshankeji.exposedvertxsqlclient.mssql.vertx.mssqlclient.createMssqlConnection
+import com.huanshankeji.exposedvertxsqlclient.mssql.vertx.mssqlclient.createMssqlPool
 import com.huanshankeji.exposedvertxsqlclient.mysql.MysqlDatabaseClientConfig
 import com.huanshankeji.exposedvertxsqlclient.mysql.exposed.exposedDatabaseConnectMysql
 import com.huanshankeji.exposedvertxsqlclient.mysql.vertx.mysqlclient.createMysqlClient
 import com.huanshankeji.exposedvertxsqlclient.mysql.vertx.mysqlclient.createMysqlConnection
 import com.huanshankeji.exposedvertxsqlclient.mysql.vertx.mysqlclient.createMysqlPool
+import com.huanshankeji.exposedvertxsqlclient.oracle.OracleDatabaseClientConfig
+import com.huanshankeji.exposedvertxsqlclient.oracle.exposed.exposedDatabaseConnectOracle
+import com.huanshankeji.exposedvertxsqlclient.oracle.vertx.oracleclient.createOracleConnection
+import com.huanshankeji.exposedvertxsqlclient.oracle.vertx.oracleclient.createOraclePool
 import com.huanshankeji.exposedvertxsqlclient.postgresql.PgDatabaseClientConfig
 import com.huanshankeji.exposedvertxsqlclient.postgresql.exposed.exposedDatabaseConnectPostgresql
 import com.huanshankeji.exposedvertxsqlclient.postgresql.vertx.pgclient.createPgClient
@@ -55,6 +67,54 @@ class SimpleMappingTests : FunSpec({
             crudTest(
                 DatabaseClient(
                     createMysqlConnection(vertx, connectionConfig),
+                    exposedDatabase,
+                    databaseClientConfig
+                )
+            )
+        }
+    }
+    context("Oracle") {
+        val oracleContainer = install(TestContainerSpecExtension(LatestOracleContainer()))
+        val connectionConfig = oracleContainer.connectionConfig()
+        val exposedDatabase = connectionConfig.exposedDatabaseConnectOracle()
+        val databaseClientConfig = OracleDatabaseClientConfig()
+        context("Pool") {
+            crudTest(DatabaseClient(createOraclePool(null, connectionConfig), exposedDatabase, databaseClientConfig))
+        }
+        context("SqlConnection") {
+            crudTest(DatabaseClient(createOracleConnection(vertx, connectionConfig), exposedDatabase, databaseClientConfig))
+        }
+    }
+    context("MSSQL") {
+        val mssqlContainer = install(TestContainerSpecExtension(LatestMssqlContainer()))
+        val connectionConfig = mssqlContainer.connectionConfig()
+        val exposedDatabase = connectionConfig.exposedDatabaseConnectMssql()
+        val databaseClientConfig = MssqlDatabaseClientConfig()
+        context("Pool") {
+            crudTest(DatabaseClient(createMssqlPool(null, connectionConfig), exposedDatabase, databaseClientConfig))
+        }
+        context("SqlConnection") {
+            crudTest(
+                DatabaseClient(
+                    createMssqlConnection(vertx, connectionConfig),
+                    exposedDatabase,
+                    databaseClientConfig
+                )
+            )
+        }
+    }
+    context("DB2") {
+        val db2Container = install(TestContainerSpecExtension(LatestDb2Container()))
+        val connectionConfig = db2Container.connectionConfig()
+        val exposedDatabase = connectionConfig.exposedDatabaseConnectDb2()
+        val databaseClientConfig = Db2DatabaseClientConfig()
+        context("Pool") {
+            crudTest(DatabaseClient(createDb2Pool(null, connectionConfig), exposedDatabase, databaseClientConfig))
+        }
+        context("SqlConnection") {
+            crudTest(
+                DatabaseClient(
+                    createDb2Connection(vertx, connectionConfig),
                     exposedDatabase,
                     databaseClientConfig
                 )

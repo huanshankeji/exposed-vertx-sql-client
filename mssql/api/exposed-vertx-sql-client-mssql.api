@@ -1,0 +1,24 @@
+public final class com/huanshankeji/exposedvertxsqlclient/mssql/DatabaseClientConfigKt {
+	public static final fun MssqlDatabaseClientConfig (ZZZ)Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClientConfig;
+	public static synthetic fun MssqlDatabaseClientConfig$default (ZZZILjava/lang/Object;)Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClientConfig;
+}
+
+public final class com/huanshankeji/exposedvertxsqlclient/mssql/DatabaseClientKt {
+	public static final fun withMssqlTransaction (Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClient;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/huanshankeji/exposedvertxsqlclient/mssql/exposed/ExposedDatabasesKt {
+	public static final fun exposedDatabaseConnectMssql (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/v1/core/DatabaseConfig;Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/exposed/v1/jdbc/Database;
+	public static synthetic fun exposedDatabaseConnectMssql$default (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/v1/core/DatabaseConfig;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lorg/jetbrains/exposed/v1/jdbc/Database;
+	public static final fun exposedDatabaseConnectMssqlWithParameterConnectionConfig (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/v1/core/DatabaseConfig;Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/exposed/v1/jdbc/Database;
+	public static synthetic fun exposedDatabaseConnectMssqlWithParameterConnectionConfig$default (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/v1/core/DatabaseConfig;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lorg/jetbrains/exposed/v1/jdbc/Database;
+}
+
+public final class com/huanshankeji/exposedvertxsqlclient/mssql/vertx/mssqlclient/MssqlClientsKt {
+	public static final fun createGenericMssqlClientWithBuilder (Lio/vertx/core/Vertx;Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig;Lio/vertx/sqlclient/ClientBuilder;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;)Lio/vertx/sqlclient/SqlClient;
+	public static final fun createMssqlConnection (Lio/vertx/core/Vertx;Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun createMssqlConnection$default (Lio/vertx/core/Vertx;Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final fun createMssqlPool (Lio/vertx/core/Vertx;Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;)Lio/vertx/sqlclient/Pool;
+	public static synthetic fun createMssqlPool$default (Lio/vertx/core/Vertx;Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Lio/vertx/sqlclient/Pool;
+}
+

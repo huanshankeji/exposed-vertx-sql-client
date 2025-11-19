@@ -14,4 +14,13 @@ object DependencyVersions {
 
     // https://github.com/mysql/mysql-connector-j/tags
     val mysqlConnectorJ = "9.5.0"
+
+    // https://mvnrepository.com/artifact/com.oracle.database.jdbc/ojdbc11
+    val oracleJdbc = "23.6.0.24.10"
+
+    // https://mvnrepository.com/artifact/com.microsoft.sqlserver/mssql-jdbc
+    val mssqlJdbc = "12.10.0.jre11"
+
+    // https://mvnrepository.com/artifact/com.ibm.db2/jcc
+    val db2Jcc = "11.5.9.0"
 }

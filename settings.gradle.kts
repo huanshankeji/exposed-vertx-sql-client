@@ -5,6 +5,9 @@ include("crud")
 include("crud-with-mapper")
 include("mysql")
 include("postgresql")
+include("oracle")
+include("mssql")
+include("db2")
 include("integrated")
 
 fun ProjectDescriptor.setProjectConcatenatedNames(prefix: String) {
