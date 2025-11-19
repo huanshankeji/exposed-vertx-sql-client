@@ -18,6 +18,7 @@ import io.vertx.core.Vertx
 
 class SimpleExamplesTests : FunSpec({
     val vertx = Vertx.vertx()
+    afterSpec { vertx.close().await() }
 
     suspend fun FunSpecContainerScope.crudTests(databaseClient: DatabaseClient<*>) {
         test("test CRUD with Statements") {

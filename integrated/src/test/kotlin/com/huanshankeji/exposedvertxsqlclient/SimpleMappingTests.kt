@@ -18,6 +18,7 @@ import io.vertx.core.Vertx
 
 class SimpleMappingTests : FunSpec({
     val vertx = Vertx.vertx()
+    afterSpec { vertx.close().await() }
 
     suspend fun FunSpecContainerScope.crudTest(databaseClient: DatabaseClient<*>) =
         test("test CRUD mapper Extensions") {
