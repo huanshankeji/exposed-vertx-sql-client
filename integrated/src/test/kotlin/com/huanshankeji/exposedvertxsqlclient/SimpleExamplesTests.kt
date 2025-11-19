@@ -77,6 +77,20 @@ class SimpleExamplesTests : FunSpec({
             )
         }
     }
+    context("DB2") {
+        val db2Container = install(TestContainerSpecExtension(LatestDb2Container()))
+        val connectionConfig = db2Container.connectionConfig()
+        val exposedDatabase = connectionConfig.exposedDatabaseConnectDb2()
+        val databaseClientConfig = Db2DatabaseClientConfig()
+        context("Pool") {
+            crudTests(DatabaseClient(createDb2Pool(null, connectionConfig), exposedDatabase, databaseClientConfig))
+        }
+        context("SqlConnection") {
+            crudTests(
+                DatabaseClient(createDb2Connection(vertx, connectionConfig), exposedDatabase, databaseClientConfig)
+            )
+        }
+    }
     context("Oracle") {
         val oracleContainer = install(TestContainerSpecExtension(LatestOracleContainer()))
         val connectionConfig = oracleContainer.connectionConfig()
@@ -102,20 +116,6 @@ class SimpleExamplesTests : FunSpec({
         context("SqlConnection") {
             crudTests(
                 DatabaseClient(createMssqlConnection(vertx, connectionConfig), exposedDatabase, databaseClientConfig)
-            )
-        }
-    }
-    context("DB2") {
-        val db2Container = install(TestContainerSpecExtension(LatestDb2Container()))
-        val connectionConfig = db2Container.connectionConfig()
-        val exposedDatabase = connectionConfig.exposedDatabaseConnectDb2()
-        val databaseClientConfig = Db2DatabaseClientConfig()
-        context("Pool") {
-            crudTests(DatabaseClient(createDb2Pool(null, connectionConfig), exposedDatabase, databaseClientConfig))
-        }
-        context("SqlConnection") {
-            crudTests(
-                DatabaseClient(createDb2Connection(vertx, connectionConfig), exposedDatabase, databaseClientConfig)
             )
         }
     }
