@@ -1,9 +1,5 @@
 package com.huanshankeji.exposedvertxsqlclient
 
-import com.huanshankeji.exposedvertxsqlclient.db2.Db2DatabaseClientConfig
-import com.huanshankeji.exposedvertxsqlclient.db2.exposed.exposedDatabaseConnectDb2
-import com.huanshankeji.exposedvertxsqlclient.db2.vertx.db2client.createDb2Connection
-import com.huanshankeji.exposedvertxsqlclient.db2.vertx.db2client.createDb2Pool
 import com.huanshankeji.exposedvertxsqlclient.mssql.MssqlDatabaseClientConfig
 import com.huanshankeji.exposedvertxsqlclient.mssql.exposed.exposedDatabaseConnectMssql
 import com.huanshankeji.exposedvertxsqlclient.mssql.vertx.mssqlclient.createMssqlConnection
@@ -77,20 +73,6 @@ class SimpleExamplesTests : FunSpec({
         context("SqlConnection") {
             crudTests(
                 DatabaseClient(createMysqlConnection(vertx, connectionConfig), exposedDatabase, databaseClientConfig)
-            )
-        }
-    }
-    context("DB2") {
-        val db2Container = install(TestContainerSpecExtension(LatestDb2Container()))
-        val connectionConfig = db2Container.connectionConfig()
-        val exposedDatabase = connectionConfig.exposedDatabaseConnectDb2()
-        val databaseClientConfig = Db2DatabaseClientConfig()
-        context("Pool") {
-            crudTests(DatabaseClient(createDb2Pool(null, connectionConfig), exposedDatabase, databaseClientConfig))
-        }
-        context("SqlConnection") {
-            crudTests(
-                DatabaseClient(createDb2Connection(vertx, connectionConfig), exposedDatabase, databaseClientConfig)
             )
         }
     }

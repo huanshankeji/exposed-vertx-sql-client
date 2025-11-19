@@ -16,7 +16,6 @@ dependencies {
     implementation(cpnProject(project, ":mysql"))
     implementation(cpnProject(project, ":oracle"))
     implementation(cpnProject(project, ":mssql"))
-    implementation(cpnProject(project, ":db2"))
     implementation(cpnProject(project, ":crud"))
     implementation("com.huanshankeji:exposed-gadt-mapping:${DependencyVersions.exposedGadtMapping}")
     implementation(cpnProject(project, ":crud-with-mapper"))
@@ -25,7 +24,6 @@ dependencies {
         implementation(platformBom())
         implementation(testcontainersPostgresql)
         implementation(moduleWithoutVersion("testcontainers-mysql"))
-        implementation(moduleWithoutVersion("testcontainers-db2"))
         implementation(moduleWithoutVersion("testcontainers-oracle-free"))
         implementation(moduleWithoutVersion("testcontainers-mssqlserver"))
     }

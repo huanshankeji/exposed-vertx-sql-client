@@ -1,13 +1,11 @@
 package com.huanshankeji.exposedvertxsqlclient
 
-import com.huanshankeji.exposedvertxsqlclient.db2.exposed.exposedDatabaseConnectDb2
 import com.huanshankeji.exposedvertxsqlclient.mssql.exposed.exposedDatabaseConnectMssql
 import com.huanshankeji.exposedvertxsqlclient.mysql.exposed.exposedDatabaseConnectMysql
 import com.huanshankeji.exposedvertxsqlclient.oracle.exposed.exposedDatabaseConnectOracle
 import com.huanshankeji.exposedvertxsqlclient.postgresql.exposed.exposedDatabaseConnectPostgresql
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.testcontainers.containers.JdbcDatabaseContainer
-import org.testcontainers.db2.Db2Container
 import org.testcontainers.mssqlserver.MSSQLServerContainer
 import org.testcontainers.mysql.MySQLContainer
 import org.testcontainers.oracle.OracleContainer
@@ -32,17 +30,6 @@ fun MySQLContainer.exposedDatabaseConnect(): Database =
     connectionConfig().exposedDatabaseConnectMysql()
 
 
-/*
-https://testcontainers.com/modules/db2/
-"Failed to verify that image 'ibmcom/db2:11.5.0.0a' is a compatible substitute for 'icr.io/db2_community/db2'. This generally means that you are trying to use an image that Testcontainers has not been designed to use."
-*/
-fun LatestDb2Container(): Db2Container =
-    Db2Container(DockerImageName.parse("icr.io/db2_community/db2:latest"))
-        .acceptLicense()
-
-fun Db2Container.exposedDatabaseConnect(): Database =
-    connectionConfig().exposedDatabaseConnectDb2()
-
 // https://testcontainers.com/modules/oracle-free/
 fun LatestOracleContainer(): OracleContainer =
     OracleContainer(DockerImageName.parse("gvenzl/oracle-free:latest"))
@@ -61,4 +48,3 @@ fun LatestMssqlContainer(): MSSQLServerContainer =
 
 fun MSSQLServerContainer.exposedDatabaseConnect(): Database =
     connectionConfig().exposedDatabaseConnectMssql()
-
