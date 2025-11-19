@@ -20,5 +20,6 @@ object DependencyVersions {
     val oracleJdbc = "23.26.0.0.0"
 
     // https://mvnrepository.com/artifact/com.microsoft.sqlserver/mssql-jdbc
-    val mssqlJdbc = "12.10.0.jre11"
+    // https://github.com/microsoft/mssql-jdbc/releases
+    val mssqlJdbc = "13.2.1.jre11"
 }
