@@ -28,6 +28,7 @@ class SimpleExamplesTests : FunSpec({
         }
     }
 
+    // TODO consider not running all tests against all kinds of `SqlClient`s to save some time
     context("PostgreSQL") {
         val postgresqlContainer = install(TestContainerSpecExtension(LatestPostgreSQLContainer()))
         val connectionConfig = postgresqlContainer.connectionConfig()
