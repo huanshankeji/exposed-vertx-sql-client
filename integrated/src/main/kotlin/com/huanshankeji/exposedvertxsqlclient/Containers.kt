@@ -31,9 +31,13 @@ fun LatestMySQLContainer(): MySQLContainer =
 fun MySQLContainer.exposedDatabaseConnect(): Database =
     connectionConfig().exposedDatabaseConnectMysql()
 
-// https://testcontainers.com/modules/db2/
+
+/*
+https://testcontainers.com/modules/db2/
+"Failed to verify that image 'ibmcom/db2:11.5.0.0a' is a compatible substitute for 'icr.io/db2_community/db2'. This generally means that you are trying to use an image that Testcontainers has not been designed to use."
+*/
 fun LatestDb2Container(): Db2Container =
-    Db2Container(DockerImageName.parse("ibmcom/db2:11.5.0.0a"))
+    Db2Container(DockerImageName.parse("icr.io/db2_community/db2:latest"))
         .acceptLicense()
 
 fun Db2Container.exposedDatabaseConnect(): Database =
