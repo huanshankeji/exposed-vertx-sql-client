@@ -79,7 +79,7 @@ fun createPgPool(
 
 /**
  * @see createGenericSqlClient
- * @param vertx Not null. See [PgConnection.connect].
+ * @param vertx Non-null. See [PgConnection.connect].
  */
 @Untested
 suspend fun createPgConnection(
