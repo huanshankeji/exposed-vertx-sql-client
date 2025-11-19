@@ -71,13 +71,14 @@ fun <SqlClientT : SqlClient, SqlConnectOptionsT : SqlConnectOptions, PoolOptions
 
 /**
  * @see createGenericSqlClient
+ * @param vertx Non-null. [SqlConnection]s require a Vertx instance.
  */
 @ExperimentalEvscApi
 // made not inline anymore for easier debugging
 suspend fun <SqlConnectionT : SqlConnection, SqlConnectOptionsT : SqlConnectOptions> createGenericSqlConnection(
-    vertx: Vertx?,
+    vertx: Vertx,
     connectionConfig: ConnectionConfig,
-    sqlConnectionConnect: (Vertx?, SqlConnectOptionsT) -> Future<SqlConnectionT>,
+    sqlConnectionConnect: (Vertx, SqlConnectOptionsT) -> Future<SqlConnectionT>,
     sqlConnectOptionsFromConstructor: SqlConnectOptionsT,
     extraSqlConnectOptions: SqlConnectOptionsT.() -> Unit,
     connectHandlerExtra: CoConnectHandler
@@ -92,7 +93,7 @@ suspend fun <SqlConnectionT : SqlConnection, SqlConnectOptionsT : SqlConnectOpti
         {},
         connectHandlerExtra
     ) { vertx, database, _, connectHandlerExtra ->
-        sqlConnectionConnect(vertx, database).coAwait().also {
+        sqlConnectionConnect(vertx!!, database).coAwait().also {
             connectionConfig.initConnection(it, connectHandlerExtra)
         }
     }

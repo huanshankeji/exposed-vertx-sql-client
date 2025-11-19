@@ -4,9 +4,10 @@ import com.huanshankeji.exposed.datamapping.classproperty.PropertyColumnMappingC
 import com.huanshankeji.exposed.datamapping.classproperty.reflectionBasedClassPropertyDataMapper
 import com.huanshankeji.exposedvertxsqlclient.crud.mapping.insertWithMapper
 import com.huanshankeji.exposedvertxsqlclient.crud.mapping.selectWithMapper
-import io.vertx.sqlclient.Pool
 import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
 import org.jetbrains.exposed.v1.core.inList
+import org.jetbrains.exposed.v1.jdbc.SchemaUtils
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 // copied and adapted from https://github.com/huanshankeji/exposed-gadt-mapping/blob/main/lib/src/test/kotlin/com/huanshankeji/exposed/datamapping/classproperty/Examples.kt
 // Update accordingly to keep the code consistent.
@@ -26,6 +27,7 @@ object Films : IntIdTable() {
 
 val filmsLeftJoinDirectors = Films leftJoin Directors
 
+val mappingTables = arrayOf(Directors, Films)
 
 typealias DirectorId = Int
 
@@ -79,8 +81,21 @@ object Mappers {
 }
 
 
+suspend fun withMappingTables(block: suspend () -> Unit) {
+    transaction {
+        SchemaUtils.create(*mappingTables)
+    }
+    try {
+        block()
+    } finally {
+        transaction {
+            SchemaUtils.drop(*mappingTables)
+        }
+    }
+}
+
 @OptIn(ExperimentalEvscApi::class)
-suspend fun mappingExamples(databaseClient: DatabaseClient<Pool>) {
+suspend fun crudMapperExtensions(databaseClient: DatabaseClient<*>) {
     val directorId = 1
     val director = Director(directorId, "George Lucas")
     databaseClient.insertWithMapper(Directors, director, Mappers.director)
@@ -97,4 +112,5 @@ suspend fun mappingExamples(databaseClient: DatabaseClient<Pool>) {
     val fullFilms = databaseClient.selectWithMapper(filmsLeftJoinDirectors, Mappers.fullFilm) {
         where(Films.filmId inList listOf(1, 2))
     }
+    assert(fullFilms.size() == 2)
 }

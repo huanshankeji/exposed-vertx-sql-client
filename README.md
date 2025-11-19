@@ -139,8 +139,6 @@ With these core APIs, you create and execute Exposed `Statement`s. You don't nee
 `Statement`s are more composable and easily editable. For example, you can move a query into an adapted subquery.
 
 ```kotlin
-// The Exposed `Table` extension functions `insert`, `update`, and `delete` execute eagerly so `insertStatement`, `updateStatement`, `deleteStatement` have to be used.
-
 val insertRowCount = databaseClient.executeUpdate(buildStatement { Examples.insert { it[name] = "A" } })
 assert(insertRowCount == 1)
 // `executeSingleUpdate` function requires that there is only 1 row updated and returns `Unit`.
@@ -157,9 +155,11 @@ assert(updateRowCount == 1)
 // The Exposed `Table` extension function `select` doesn't execute eagerly so it can also be used directly.
 val exampleName = databaseClient.executeQuery(Examples.select(Examples.name).where(Examples.id eq 1))
     .single()[Examples.name]
+assert(exampleName == "AA")
 
 databaseClient.executeSingleUpdate(buildStatement { Examples.deleteWhere { id eq 1 } })
-databaseClient.executeSingleUpdate(buildStatement { Examples.deleteIgnoreWhere { id eq 2 } })
+// not supported by PostgreSQL
+//databaseClient.executeSingleUpdate(buildStatement { Examples.deleteIgnoreWhere { id eq 2 } })
 ```
 
 #### Extension CRUD operations
@@ -179,20 +179,28 @@ Example code:
 ```kotlin
 databaseClient.insert(Examples) { it[name] = "A" }
 val isInserted = databaseClient.insertIgnore(Examples) { it[name] = "B" }
+assert(isInserted)
 
 val updateRowCount = databaseClient.update(Examples, { Examples.id eq 1 }) { it[name] = "AA" }
+assert(updateRowCount == 1)
 
 val exampleName1 =
-    databaseClient.select(Examples) { select(Examples.name).where(Examples.id eq 1) }.single()[Examples.name]
+    databaseClient.select(Examples, { select(Examples.name).where(Examples.id eq 1) }).single()[Examples.name]
+assert(exampleName1 == "AA")
 val exampleName2 =
-    databaseClient.selectSingleColumn(Examples, Examples.name) { where(Examples.id eq 2) }.single()
+    databaseClient.selectSingleColumn(Examples, Examples.name, { where(Examples.id eq 2) }).single()
+assert(exampleName2 == "B")
 
 val examplesExist = databaseClient.selectExpression(exists(Examples.selectAll()))
+assert(examplesExist)
 
 val deleteRowCount1 = databaseClient.deleteWhere(Examples) { id eq 1 }
 assert(deleteRowCount1 == 1)
+// not supported by PostgreSQL
+/*
 val deleteRowCount2 = databaseClient.deleteIgnoreWhere(Examples) { id eq 2 }
 assert(deleteRowCount2 == 1)
+*/
 ```
 
 #### Extension CRUD APIs with [Exposed GADT mapping](https://github.com/huanshankeji/exposed-gadt-mapping)
@@ -224,6 +232,7 @@ databaseClient.insertWithMapper(Films, filmWithDirectorId, Mappers.filmWithDirec
 val fullFilms = databaseClient.selectWithMapper(filmsLeftJoinDirectors, Mappers.fullFilm) {
     where(Films.filmId inList listOf(1, 2))
 }
+assert(fullFilms.size() == 2)
 ```
 
 ### Common issues

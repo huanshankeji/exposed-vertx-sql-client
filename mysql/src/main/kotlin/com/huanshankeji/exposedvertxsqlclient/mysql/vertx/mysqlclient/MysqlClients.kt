@@ -80,10 +80,11 @@ fun createMysqlPool(
 
 /**
  * @see createGenericSqlClient
+ * @param vertx Non-null. See [MySQLConnection.connect].
  */
 @Untested
 suspend fun createMysqlConnection(
-    vertx: Vertx?,
+    vertx: Vertx,
     connectionConfig: ConnectionConfig,
     extraMysqlConnectOptions: MySQLConnectOptions.() -> Unit = {},
     connectHandlerExtra: CoConnectHandler = null
