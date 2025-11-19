@@ -49,5 +49,9 @@ fun LatestMssqlContainer(): MSSQLServerContainer =
     MSSQLServerContainer(DockerImageName.parse("mcr.microsoft.com/mssql/server:2022-latest"))
         .acceptLicense()
 
+// `MSSQLServerContainer` doesn't support `getDatabaseName()`, so we need a specific implementation.
+fun MSSQLServerContainer.connectionConfig() =
+    ConnectionConfig.Socket(host, firstMappedPort, username, password, "master")
+
 fun MSSQLServerContainer.exposedDatabaseConnect(): Database =
     connectionConfig().exposedDatabaseConnectMssql()
