@@ -131,6 +131,10 @@ public final class com/huanshankeji/exposedvertxsqlclient/SingleUpdateException 
 	public fun <init> (I)V
 }
 
+public final class com/huanshankeji/exposedvertxsqlclient/SqlTransformationKt {
+	public static final fun transformPreparedSqlToNumbered (Ljava/lang/String;Lkotlin/jvm/functions/Function1;)Ljava/lang/String;
+}
+
 public final class com/huanshankeji/exposedvertxsqlclient/exposed/ExposedDatabasesKt {
 	public static final fun exposedDatabaseConnect (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/v1/core/DatabaseConfig;Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/exposed/v1/jdbc/Database;
 	public static final fun exposedDatabaseConnect (Ljava/lang/String;Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/v1/core/DatabaseConfig;Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/exposed/v1/jdbc/Database;

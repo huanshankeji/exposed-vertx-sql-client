@@ -130,7 +130,10 @@ suspend fun crudWithStatements(
 
 @OptIn(ExperimentalEvscApi::class)
 suspend fun crudExtensions(
-    databaseClient: DatabaseClient<*>, dialectSupportsInsertIgnore: Boolean, dialectSupportsDeleteIgnore: Boolean
+    databaseClient: DatabaseClient<*>,
+    dialectSupportsInsertIgnore: Boolean,
+    dialectSupportsDeleteIgnore: Boolean,
+    dialectSupportsExists: Boolean = true
 ) {
     databaseClient.insert(Examples) { it[name] = "A" }
     if (dialectSupportsInsertIgnore) {
@@ -149,8 +152,10 @@ suspend fun crudExtensions(
         databaseClient.selectSingleColumn(Examples, Examples.name, { where(Examples.id eq 2) }).single()
     assert(exampleName2 == "B")
 
-    val examplesExist = databaseClient.selectExpression(exists(Examples.selectAll()))
-    assert(examplesExist)
+    if (dialectSupportsExists) {
+        val examplesExist = databaseClient.selectExpression(exists(Examples.selectAll()))
+        assert(examplesExist)
+    }
 
     val deleteRowCount1 = databaseClient.deleteWhere(Examples) { id eq 1 }
     assert(deleteRowCount1 == 1)

@@ -34,13 +34,20 @@ class SimpleExamplesTests : FunSpec({
     //testExecutionMode = TestExecutionMode.Concurrent
 
     suspend fun FunSpecContainerScope.crudTests(
-        databaseClient: DatabaseClient<*>, dialectSupportsInsertIgnore: Boolean, dialectSupportsDeleteIgnore: Boolean
+        databaseClient: DatabaseClient<*>,
+        dialectSupportsInsertIgnore: Boolean,
+        dialectSupportsDeleteIgnore: Boolean,
+        dialectSupportsExists: Boolean = true
     ) {
         test("test CRUD with Statements") {
             withTables { crudWithStatements(databaseClient, dialectSupportsInsertIgnore, dialectSupportsDeleteIgnore) }
         }
         test("test CRUD extensions") {
-            withTables { crudExtensions(databaseClient, dialectSupportsInsertIgnore, dialectSupportsDeleteIgnore) }
+            withTables {
+                crudExtensions(
+                    databaseClient, dialectSupportsInsertIgnore, dialectSupportsDeleteIgnore, dialectSupportsExists
+                )
+            }
         }
     }
 
@@ -108,7 +115,7 @@ class SimpleExamplesTests : FunSpec({
         }
         val databaseClientConfig = MssqlDatabaseClientConfig()
         suspend fun FunSpecContainerScope.crudTests(databaseClient: DatabaseClient<*>) =
-            crudTests(databaseClient, true, true)
+            crudTests(databaseClient, false, false, false)
         context("Pool") {
             crudTests(DatabaseClient(createMssqlPool(null, connectionConfig), exposedDatabase, databaseClientConfig))
         }

@@ -12,4 +12,4 @@ fun MssqlDatabaseClientConfig(
     autoExposedTransaction: Boolean = false
 ) =
     @OptIn(ExperimentalEvscApi::class)
-    DatabaseClientConfig(validateBatch, logSql, autoExposedTransaction, { it })
+    DatabaseClientConfig(validateBatch, logSql, autoExposedTransaction, String::transformMssqlPreparedSql)
