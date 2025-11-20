@@ -144,8 +144,10 @@ assert(insertRowCount == 1)
 // `executeSingleUpdate` function requires that there is only 1 row updated and returns `Unit`.
 databaseClient.executeSingleUpdate(buildStatement { Examples.insert { it[name] = "B" } })
 // `executeSingleOrNoUpdate` requires that there is 0 or 1 row updated and returns `Boolean`.
-val isInserted =
+val isInserted = if (dialectSupportsInsertIgnore)
     databaseClient.executeSingleOrNoUpdate(buildStatement { Examples.insertIgnore { it[name] = "B" } })
+else
+    databaseClient.executeSingleOrNoUpdate(buildStatement { Examples.insert { it[name] = "B" } })
 assert(isInserted)
 
 val updateRowCount =
@@ -158,8 +160,11 @@ val exampleName = databaseClient.executeQuery(Examples.select(Examples.name).whe
 assert(exampleName == "AA")
 
 databaseClient.executeSingleUpdate(buildStatement { Examples.deleteWhere { id eq 1 } })
-// not supported by PostgreSQL
-//databaseClient.executeSingleUpdate(buildStatement { Examples.deleteIgnoreWhere { id eq 2 } })
+if (dialectSupportsDeleteIgnore) {
+    val isDeleted =
+        databaseClient.executeSingleOrNoUpdate(buildStatement { Examples.deleteIgnoreWhere { id eq 2 } })
+    assert(isDeleted)
+}
 ```
 
 #### Extension CRUD operations
@@ -178,8 +183,11 @@ Example code:
 
 ```kotlin
 databaseClient.insert(Examples) { it[name] = "A" }
-val isInserted = databaseClient.insertIgnore(Examples) { it[name] = "B" }
-assert(isInserted)
+if (dialectSupportsInsertIgnore) {
+    val isInserted = databaseClient.insertIgnore(Examples) { it[name] = "B" }
+    assert(isInserted)
+} else
+    databaseClient.insert(Examples) { it[name] = "B" }
 
 val updateRowCount = databaseClient.update(Examples, { Examples.id eq 1 }) { it[name] = "AA" }
 assert(updateRowCount == 1)
@@ -191,16 +199,18 @@ val exampleName2 =
     databaseClient.selectSingleColumn(Examples, Examples.name, { where(Examples.id eq 2) }).single()
 assert(exampleName2 == "B")
 
-val examplesExist = databaseClient.selectExpression(exists(Examples.selectAll()))
-assert(examplesExist)
+if (dialectSupportsExists) {
+    val examplesExist = databaseClient.selectExpression(exists(Examples.selectAll()))
+    assert(examplesExist)
+}
 
 val deleteRowCount1 = databaseClient.deleteWhere(Examples) { id eq 1 }
 assert(deleteRowCount1 == 1)
-// not supported by PostgreSQL
-/*
-val deleteRowCount2 = databaseClient.deleteIgnoreWhere(Examples) { id eq 2 }
-assert(deleteRowCount2 == 1)
-*/
+
+if (dialectSupportsDeleteIgnore) {
+    val deleteRowCount2 = databaseClient.deleteIgnoreWhere(Examples) { id eq 2 }
+    assert(deleteRowCount2 == 1)
+}
 ```
 
 #### Extension CRUD APIs with [Exposed GADT mapping](https://github.com/huanshankeji/exposed-gadt-mapping)
