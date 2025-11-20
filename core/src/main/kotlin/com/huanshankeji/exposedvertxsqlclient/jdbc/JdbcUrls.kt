@@ -23,9 +23,10 @@ fun ConnectionConfig.Socket.postgresqlJdbcUrl() =
 fun ConnectionConfig.Socket.mysqlJdbcUrl() =
     postgresqlAndMysqlJdbcUrl("mysql")
 
+// https://www.jetbrains.com/help/exposed/working-with-database.html#oracle
 @ExperimentalEvscApi
 fun ConnectionConfig.Socket.oracleJdbcUrl() =
-    "jdbc:oracle:thin:@$host${port?.let { ":$it" } ?: ""}:$database"
+    "jdbc:oracle:thin:@//$host${port?.let { ":$it" } ?: ""}/$database"
 
 @ExperimentalEvscApi
 fun ConnectionConfig.Socket.sqlServerJdbcUrl() =
