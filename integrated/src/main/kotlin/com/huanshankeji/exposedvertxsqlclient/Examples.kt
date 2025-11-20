@@ -105,11 +105,11 @@ suspend fun crudWithStatements(
     // `executeSingleUpdate` function requires that there is only 1 row updated and returns `Unit`.
     databaseClient.executeSingleUpdate(buildStatement { Examples.insert { it[name] = "B" } })
     // `executeSingleOrNoUpdate` requires that there is 0 or 1 row updated and returns `Boolean`.
-    if (dialectSupportsInsertIgnore) {
-        val isInserted =
-            databaseClient.executeSingleOrNoUpdate(buildStatement { Examples.insertIgnore { it[name] = "B" } })
-        assert(isInserted)
-    }
+    val isInserted = if (dialectSupportsInsertIgnore)
+        databaseClient.executeSingleOrNoUpdate(buildStatement { Examples.insertIgnore { it[name] = "B" } })
+    else
+        databaseClient.executeSingleOrNoUpdate(buildStatement { Examples.insert { it[name] = "B" } })
+    assert(isInserted)
 
     val updateRowCount =
         databaseClient.executeUpdate(buildStatement { Examples.update({ Examples.id eq 1 }) { it[name] = "AA" } })
@@ -136,7 +136,8 @@ suspend fun crudExtensions(
     if (dialectSupportsInsertIgnore) {
         val isInserted = databaseClient.insertIgnore(Examples) { it[name] = "B" }
         assert(isInserted)
-    }
+    } else
+        databaseClient.insert(Examples) { it[name] = "B" }
 
     val updateRowCount = databaseClient.update(Examples, { Examples.id eq 1 }) { it[name] = "AA" }
     assert(updateRowCount == 1)
