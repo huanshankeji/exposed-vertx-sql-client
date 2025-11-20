@@ -56,8 +56,9 @@ suspend fun examples(vertx: Vertx) {
     // put in `Vertx.executeBlocking` or `Dispatchers.IO` if needed
     createTablesWithExposedTransaction()
 
-    crudWithStatements(databaseClient, true, false)
-    crudExtensions(databaseClient, true, false)
+    val crudSupportConfig = CrudSupportConfig.POSTGRESQL
+    crudWithStatements(databaseClient, crudSupportConfig)
+    crudExtensions(databaseClient, crudSupportConfig)
 }
 
 // for copying to README.md
@@ -97,9 +98,29 @@ suspend fun withTables(block: suspend () -> Unit) {
     }
 }
 
-suspend fun crudWithStatements(
-    databaseClient: DatabaseClient<*>, dialectSupportsInsertIgnore: Boolean, dialectSupportsDeleteIgnore: Boolean
+data class CrudSupportConfig(
+    val dialectSupportsInsertIgnore: Boolean,
+    val dialectSupportsDeleteIgnore: Boolean,
+    val dialectSupportsExists: Boolean = true
 ) {
+    companion object {
+        val POSTGRESQL = CrudSupportConfig(true, false)
+        val MYSQL = CrudSupportConfig(true, true)
+        val ORACLE = CrudSupportConfig(false, false)
+        val MSSQL = CrudSupportConfig(false, false, false)
+        fun fromRdbmsType(rdbmsType: RdbmsType) =
+            when (rdbmsType) {
+                RdbmsType.Posgresql -> POSTGRESQL
+                RdbmsType.Mysql -> MYSQL
+                RdbmsType.Oracle -> ORACLE
+                RdbmsType.Mssql -> MSSQL
+            }
+    }
+}
+
+suspend fun crudWithStatements(
+    databaseClient: DatabaseClient<*>, crudSupportConfig: CrudSupportConfig
+) = with(crudSupportConfig) {
     val insertRowCount = databaseClient.executeUpdate(buildStatement { Examples.insert { it[name] = "A" } })
     assert(insertRowCount == 1)
     // `executeSingleUpdate` function requires that there is only 1 row updated and returns `Unit`.
@@ -130,11 +151,8 @@ suspend fun crudWithStatements(
 
 @OptIn(ExperimentalEvscApi::class)
 suspend fun crudExtensions(
-    databaseClient: DatabaseClient<*>,
-    dialectSupportsInsertIgnore: Boolean,
-    dialectSupportsDeleteIgnore: Boolean,
-    dialectSupportsExists: Boolean = true
-) {
+    databaseClient: DatabaseClient<*>, crudSupportConfig: CrudSupportConfig
+) = with(crudSupportConfig) {
     databaseClient.insert(Examples) { it[name] = "A" }
     if (dialectSupportsInsertIgnore) {
         val isInserted = databaseClient.insertIgnore(Examples) { it[name] = "B" }
