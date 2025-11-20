@@ -149,6 +149,7 @@ public final class com/huanshankeji/exposedvertxsqlclient/jdbc/JdbcUrlsKt {
 	public static final fun postgresqlAndMysqlJdbcUrl (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Ljava/lang/String;)Ljava/lang/String;
 	public static final fun postgresqlJdbcUrl (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;)Ljava/lang/String;
 	public static final fun sqlServerJdbcUrl (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;)Ljava/lang/String;
+	public static final fun sqlServerJdbcUrlWithEncryptEqFalse (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;)Ljava/lang/String;
 }
 
 public final class com/huanshankeji/exposedvertxsqlclient/local/LocalConnectionConfig {

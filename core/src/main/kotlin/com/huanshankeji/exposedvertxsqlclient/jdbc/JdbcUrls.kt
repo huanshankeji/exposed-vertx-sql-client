@@ -33,4 +33,11 @@ fun ConnectionConfig.Socket.oracleJdbcUrl() =
 // https://www.jetbrains.com/help/exposed/working-with-database.html#sql-server
 @ExperimentalEvscApi
 fun ConnectionConfig.Socket.sqlServerJdbcUrl() =
-    "jdbc:sqlserver://$host${port?.let { ":$it" } ?: ""};databaseName=$database"
+    "jdbc:sqlserver://$host${port?.let { ":$it" } ?: ""};databaseName=$database;encrypt=false;trustServerCertificate=true"
+
+/**
+ * Suitable for container testing.
+ */
+@ExperimentalEvscApi
+fun ConnectionConfig.Socket.sqlServerJdbcUrlWithEncryptEqFalse() =
+    sqlServerJdbcUrl() + ";encrypt=false"

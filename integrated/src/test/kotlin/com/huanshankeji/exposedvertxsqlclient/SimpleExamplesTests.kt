@@ -1,5 +1,6 @@
 package com.huanshankeji.exposedvertxsqlclient
 
+import com.huanshankeji.exposedvertxsqlclient.jdbc.sqlServerJdbcUrlWithEncryptEqFalse
 import com.huanshankeji.exposedvertxsqlclient.mssql.MssqlDatabaseClientConfig
 import com.huanshankeji.exposedvertxsqlclient.mssql.exposed.exposedDatabaseConnectMssql
 import com.huanshankeji.exposedvertxsqlclient.mssql.vertx.mssqlclient.createMssqlConnection
@@ -102,7 +103,9 @@ class SimpleExamplesTests : FunSpec({
     context("MSSQL") {
         val mssqlContainer = install(TestContainerSpecExtension(LatestMssqlContainer()))
         val connectionConfig = mssqlContainer.connectionConfig()
-        val exposedDatabase = connectionConfig.exposedDatabaseConnectMssql()
+        val exposedDatabase = with(connectionConfig) {
+            exposedDatabaseConnectMssql(sqlServerJdbcUrlWithEncryptEqFalse())
+        }
         val databaseClientConfig = MssqlDatabaseClientConfig()
         suspend fun FunSpecContainerScope.crudTests(databaseClient: DatabaseClient<*>) =
             crudTests(databaseClient, true, true)

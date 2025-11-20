@@ -8,10 +8,10 @@ public final class com/huanshankeji/exposedvertxsqlclient/mssql/DatabaseClientKt
 }
 
 public final class com/huanshankeji/exposedvertxsqlclient/mssql/exposed/ExposedDatabasesKt {
-	public static final fun exposedDatabaseConnectMssql (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/v1/core/DatabaseConfig;Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/exposed/v1/jdbc/Database;
-	public static synthetic fun exposedDatabaseConnectMssql$default (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/v1/core/DatabaseConfig;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lorg/jetbrains/exposed/v1/jdbc/Database;
-	public static final fun exposedDatabaseConnectMssqlWithParameterConnectionConfig (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/v1/core/DatabaseConfig;Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/exposed/v1/jdbc/Database;
-	public static synthetic fun exposedDatabaseConnectMssqlWithParameterConnectionConfig$default (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/v1/core/DatabaseConfig;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lorg/jetbrains/exposed/v1/jdbc/Database;
+	public static final fun exposedDatabaseConnectMssql (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/v1/core/DatabaseConfig;Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/exposed/v1/jdbc/Database;
+	public static synthetic fun exposedDatabaseConnectMssql$default (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/v1/core/DatabaseConfig;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lorg/jetbrains/exposed/v1/jdbc/Database;
+	public static final fun exposedDatabaseConnectMssqlWithParameterConnectionConfig (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/v1/core/DatabaseConfig;Lkotlin/jvm/functions/Function1;)Lorg/jetbrains/exposed/v1/jdbc/Database;
+	public static synthetic fun exposedDatabaseConnectMssqlWithParameterConnectionConfig$default (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lorg/jetbrains/exposed/v1/core/DatabaseConfig;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lorg/jetbrains/exposed/v1/jdbc/Database;
 }
 
 public final class com/huanshankeji/exposedvertxsqlclient/mssql/vertx/mssqlclient/MssqlClientsKt {

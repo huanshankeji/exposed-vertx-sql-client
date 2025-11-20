@@ -14,12 +14,13 @@ import java.sql.Connection
  */
 @ExperimentalEvscApi
 fun ConnectionConfig.Socket.exposedDatabaseConnectMssql(
+    url: String = sqlServerJdbcUrl(),
     setupConnection: (Connection) -> Unit = {},
     databaseConfig: DatabaseConfig? = null,
     manager: (Database) -> TransactionManager = { TransactionManager(it) }
 ) =
     Database.connect(
-        sqlServerJdbcUrl(),
+        url,
         "com.microsoft.sqlserver.jdbc.SQLServerDriver",
         user,
         password,
@@ -32,8 +33,9 @@ fun ConnectionConfig.Socket.exposedDatabaseConnectMssql(
 @JvmName("exposedDatabaseConnectMssqlWithParameterConnectionConfig")
 fun exposedDatabaseConnectMssql(
     socketConnectionConfig: ConnectionConfig.Socket,
+    url: String = socketConnectionConfig.sqlServerJdbcUrl(),
     setupConnection: (Connection) -> Unit = {},
     databaseConfig: DatabaseConfig? = null,
     manager: (Database) -> TransactionManager = { TransactionManager(it) }
 ) =
-    socketConnectionConfig.exposedDatabaseConnectMssql(setupConnection, databaseConfig, manager)
+    socketConnectionConfig.exposedDatabaseConnectMssql(url, setupConnection, databaseConfig, manager)
