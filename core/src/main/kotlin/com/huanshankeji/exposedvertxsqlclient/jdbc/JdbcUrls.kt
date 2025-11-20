@@ -15,10 +15,12 @@ fun ConnectionConfig.Socket.jdbcUrl(rdbms: String) =
 fun ConnectionConfig.Socket.postgresqlAndMysqlJdbcUrl(rdbms: String) =
     "jdbc:$rdbms://$host${port?.let { ":$it" } ?: ""}/$database"
 
+// https://www.jetbrains.com/help/exposed/working-with-database.html#postgresql
 @ExperimentalEvscApi
 fun ConnectionConfig.Socket.postgresqlJdbcUrl() =
     postgresqlAndMysqlJdbcUrl("postgresql")
 
+// https://www.jetbrains.com/help/exposed/working-with-database.html#mysql
 @ExperimentalEvscApi
 fun ConnectionConfig.Socket.mysqlJdbcUrl() =
     postgresqlAndMysqlJdbcUrl("mysql")
@@ -28,6 +30,7 @@ fun ConnectionConfig.Socket.mysqlJdbcUrl() =
 fun ConnectionConfig.Socket.oracleJdbcUrl() =
     "jdbc:oracle:thin:@//$host${port?.let { ":$it" } ?: ""}/$database"
 
+// https://www.jetbrains.com/help/exposed/working-with-database.html#sql-server
 @ExperimentalEvscApi
 fun ConnectionConfig.Socket.sqlServerJdbcUrl() =
     "jdbc:sqlserver://$host${port?.let { ":$it" } ?: ""};databaseName=$database"
