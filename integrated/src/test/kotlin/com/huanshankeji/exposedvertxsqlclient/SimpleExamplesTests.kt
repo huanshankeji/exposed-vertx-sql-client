@@ -24,6 +24,7 @@ import io.kotest.core.spec.style.scopes.FunSpecContainerScope
 import io.kotest.extensions.testcontainers.TestContainerSpecExtension
 import io.vertx.core.Vertx
 
+// TODO consider extracting common test structure
 class SimpleExamplesTests : FunSpec({
     val vertx = Vertx.vertx()
     afterSpec { vertx.close().await() }
@@ -31,12 +32,14 @@ class SimpleExamplesTests : FunSpec({
     // This causes passing tests to fail. Not sure why.
     //testExecutionMode = TestExecutionMode.Concurrent
 
-    suspend fun FunSpecContainerScope.crudTests(databaseClient: DatabaseClient<*>) {
+    suspend fun FunSpecContainerScope.crudTests(
+        databaseClient: DatabaseClient<*>, dialectSupportsInsertIgnore: Boolean, dialectSupportsDeleteIgnore: Boolean
+    ) {
         test("test CRUD with Statements") {
-            withTables { crudWithStatements(databaseClient) }
+            withTables { crudWithStatements(databaseClient, dialectSupportsInsertIgnore, dialectSupportsDeleteIgnore) }
         }
         test("test CRUD extensions") {
-            withTables { crudExtensions(databaseClient) }
+            withTables { crudExtensions(databaseClient, dialectSupportsInsertIgnore, dialectSupportsDeleteIgnore) }
         }
     }
 
@@ -46,6 +49,8 @@ class SimpleExamplesTests : FunSpec({
         val connectionConfig = postgresqlContainer.connectionConfig()
         val exposedDatabase = connectionConfig.exposedDatabaseConnectPostgresql()
         val databaseClientConfig = PgDatabaseClientConfig()
+        suspend fun FunSpecContainerScope.crudTests(databaseClient: DatabaseClient<*>) =
+            crudTests(databaseClient, true, false)
         context("SqlClient") {
             // TODO Also consider closing the clients. This isn't a big issue now though.
             crudTests(DatabaseClient(createPgClient(null, connectionConfig), exposedDatabase, databaseClientConfig))
@@ -64,6 +69,8 @@ class SimpleExamplesTests : FunSpec({
         val connectionConfig = mysqlContainer.connectionConfig()
         val exposedDatabase = connectionConfig.exposedDatabaseConnectMysql()
         val databaseClientConfig = MysqlDatabaseClientConfig()
+        suspend fun FunSpecContainerScope.crudTests(databaseClient: DatabaseClient<*>) =
+            crudTests(databaseClient, true, true)
         context("SqlClient") {
             crudTests(DatabaseClient(createMysqlClient(null, connectionConfig), exposedDatabase, databaseClientConfig))
         }
@@ -81,6 +88,8 @@ class SimpleExamplesTests : FunSpec({
         val connectionConfig = oracleContainer.connectionConfig()
         val exposedDatabase = connectionConfig.exposedDatabaseConnectOracle()
         val databaseClientConfig = OracleDatabaseClientConfig()
+        suspend fun FunSpecContainerScope.crudTests(databaseClient: DatabaseClient<*>) =
+            crudTests(databaseClient, false, false)
         context("Pool") {
             crudTests(DatabaseClient(createOraclePool(null, connectionConfig), exposedDatabase, databaseClientConfig))
         }
@@ -95,6 +104,8 @@ class SimpleExamplesTests : FunSpec({
         val connectionConfig = mssqlContainer.connectionConfig()
         val exposedDatabase = connectionConfig.exposedDatabaseConnectMssql()
         val databaseClientConfig = MssqlDatabaseClientConfig()
+        suspend fun FunSpecContainerScope.crudTests(databaseClient: DatabaseClient<*>) =
+            crudTests(databaseClient, true, true)
         context("Pool") {
             crudTests(DatabaseClient(createMssqlPool(null, connectionConfig), exposedDatabase, databaseClientConfig))
         }
