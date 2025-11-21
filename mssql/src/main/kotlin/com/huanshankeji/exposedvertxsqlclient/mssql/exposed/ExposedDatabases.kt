@@ -9,7 +9,8 @@ import org.jetbrains.exposed.v1.jdbc.transactions.TransactionManager
 import java.sql.Connection
 
 /**
- * @see exposedDatabaseConnect
+ * Further configurations such as [setupConnection], [databaseConfig], and [manager] are most likely not needed
+ * because the Exposed [Database] is mostly only used for table creation and SQL generation.
  * @param url the JDBC URL to override the default [sqlServerJdbcUrl]. This JDBC URL for SQL Server sometimes need to be customized with extra parameters.
  */
 @ExperimentalEvscApi
