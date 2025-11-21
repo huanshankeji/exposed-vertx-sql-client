@@ -12,6 +12,6 @@ dependencies {
     runtimeOnly(commonDependencies.exposed.module("jdbc"))
     implementation("com.mysql:mysql-connector-j:${DependencyVersions.mysqlConnectorJ}")
     api(commonDependencies.vertx.moduleWithoutVersion("mysql-client")) // `api` used because `MySQLConnection` has to be exposed
-    implementation(commonDependencies.kotlinCommon.core()) // for `Untested`
+    //implementation(commonDependencies.kotlinCommon.core()) // for `Untested`
     //implementation(commonDependencies.kotlinCommon.vertx()) // for `MySQLPoolOptions.setUpConventionally`
 }
