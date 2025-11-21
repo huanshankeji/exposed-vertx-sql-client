@@ -12,6 +12,7 @@ import io.vertx.sqlclient.RowSet
 import org.jetbrains.exposed.v1.core.ColumnSet
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.core.AbstractQuery
 import org.jetbrains.exposed.v1.core.statements.UpdateBuilder
 import org.jetbrains.exposed.v1.jdbc.Query
 import org.jetbrains.exposed.v1.jdbc.select
@@ -20,7 +21,7 @@ import org.jetbrains.exposed.v1.jdbc.select
 
 @ExperimentalEvscApi
 suspend fun <Data : Any> DatabaseClient<*>.executeQueryWithMapper(
-    query: Query,
+    query: AbstractQuery<*>,
     dataQueryMapper: DataQueryMapper<Data>,
     getFieldExpressionSetWithExposedTransaction: Boolean = config.autoExposedTransaction
 ): RowSet<Data> =
@@ -36,7 +37,7 @@ suspend fun <Data : Any> DatabaseClient<*>.executeQueryWithMapper(
  */
 @ExperimentalEvscApi
 suspend fun <Data : Any> DatabaseClient<*>.executeVertxSqlClientRowQueryWithMapper(
-    query: Query, rowDataQueryMapper: RowDataQueryMapper<Data>
+    query: AbstractQuery<*>, rowDataQueryMapper: RowDataQueryMapper<Data>
 ): RowSet<Data> =
     executeWithMapping(query, rowDataQueryMapper::rowToData)
 
