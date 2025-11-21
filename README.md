@@ -227,8 +227,8 @@ Example code:
 
 ```kotlin
 val directorId = 1
-val director = Director(directorId, "George Lucas")
-databaseClient.insertWithMapper(Directors, director, Mappers.director)
+val directorDetails = DirectorDetails("George Lucas")
+databaseClient.insertWithMapper(Directors, directorDetails, Mappers.directorDetails)
 
 val episodeIFilmDetails = FilmDetails(1, "Star Wars: Episode I – The Phantom Menace", directorId)
 // insert without the ID since it's `AUTO_INCREMENT`
@@ -237,7 +237,10 @@ databaseClient.insertWithMapper(Films, episodeIFilmDetails, Mappers.filmDetailsW
 val filmId = 2
 val episodeIIFilmDetails = FilmDetails(2, "Star Wars: Episode II – Attack of the Clones", directorId)
 val filmWithDirectorId = FilmWithDirectorId(filmId, episodeIIFilmDetails)
-databaseClient.insertWithMapper(Films, filmWithDirectorId, Mappers.filmWithDirectorId) // insert with the ID
+if (dialectSupportsIdentityInsert)
+    databaseClient.insertWithMapper(Films, filmWithDirectorId, Mappers.filmWithDirectorId) // insert with the ID
+else
+    databaseClient.insertWithMapper(Films, episodeIIFilmDetails, Mappers.filmDetailsWithDirectorId)
 
 val fullFilms = databaseClient.selectWithMapper(filmsLeftJoinDirectors, Mappers.fullFilm) {
     where(Films.filmId inList listOf(1, 2))
