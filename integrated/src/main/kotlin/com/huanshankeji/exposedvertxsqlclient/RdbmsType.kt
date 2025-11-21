@@ -1,7 +1,7 @@
 package com.huanshankeji.exposedvertxsqlclient
 
 enum class RdbmsType {
-    Posgresql, Mysql, Oracle, Mssql;
+    Postgresql, Mysql, Oracle, Mssql;
 
     companion object {
         val Sqlserver = Mssql

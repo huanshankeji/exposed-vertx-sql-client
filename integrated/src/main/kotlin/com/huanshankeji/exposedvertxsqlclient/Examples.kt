@@ -110,7 +110,7 @@ data class CrudSupportConfig(
         val MSSQL = CrudSupportConfig(false, false, false)
         fun fromRdbmsType(rdbmsType: RdbmsType) =
             when (rdbmsType) {
-                RdbmsType.Posgresql -> POSTGRESQL
+                RdbmsType.Postgresql -> POSTGRESQL
                 RdbmsType.Mysql -> MYSQL
                 RdbmsType.Oracle -> ORACLE
                 RdbmsType.Mssql -> MSSQL

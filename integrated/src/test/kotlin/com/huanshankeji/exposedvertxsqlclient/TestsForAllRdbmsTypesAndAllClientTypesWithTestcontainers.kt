@@ -38,14 +38,14 @@ abstract class TestsForAllRdbmsTypesAndAllClientTypesWithTestcontainers(
     //testExecutionMode = TestExecutionMode.Concurrent
 
     // TODO consider not running all tests against all kinds of `SqlClient`s to save some time
-    if (RdbmsType.Posgresql in enabledRdbmsTypes)
+    if (RdbmsType.Postgresql in enabledRdbmsTypes)
         context("PostgreSQL") {
             val postgresqlContainer = install(TestContainerSpecExtension(LatestPostgreSQLContainer()))
             val connectionConfig = postgresqlContainer.connectionConfig()
             val exposedDatabase = connectionConfig.exposedDatabaseConnectPostgresql()
             val databaseClientConfig = PgDatabaseClientConfig()
             suspend fun FunSpecContainerScope.tests(databaseClient: DatabaseClient<*>) =
-                tests(databaseClient, RdbmsType.Posgresql)
+                tests(databaseClient, RdbmsType.Postgresql)
             context("SqlClient") {
                 // TODO Also consider closing the clients. This isn't a big issue now though.
                 tests(DatabaseClient(createPgClient(null, connectionConfig), exposedDatabase, databaseClientConfig))
