@@ -36,17 +36,9 @@ See the [hosted API documentation](https://huanshankeji.github.io/exposed-vertx-
 
 ## Basic usage guide
 
-Here is a basic usage guide.
+Here is a basic usage guide (since v0.5.0).
 
-### Before v0.5.0
-
-Add the PostgreSQL module, which was the only module, to your dependencies with the Gradle build script:
-
-```kotlin
-implementation("com.huanshankeji:exposed-vertx-sql-client-postgresql:$libraryVersion")
-```
-
-### Since v0.5.0
+### Add the dependencies
 
 Add the core module to your dependencies with the Gradle build script:
 
@@ -179,7 +171,7 @@ The extension CRUD APIs are similar to [those in Exposed](https://www.jetbrains.
 With them, your code becomes more concise compared to using `buildStatement`,
 but it might be more difficult when you need to compose statements or edit the code.
 
-Gradle dependency configuration (only needed since v0.5.0):
+Gradle dependency configuration:
 
 ```kotlin
 implementation("com.huanshankeji:exposed-vertx-sql-client-crud:$libraryVersion")
