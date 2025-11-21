@@ -6,11 +6,17 @@
 
 ## Supported DBs
 
-Only PostgreSQL with [Reactive PostgreSQL Client](https://vertx.io/docs/vertx-pg-client/java/) is currently supported. MySQL support will be implemented in v0.6.0 but not tested yet.
+- PostgreSQL with [Reactive PostgreSQL Client](https://vertx.io/docs/vertx-pg-client/java/) and [Exposed PostgreSQL support](https://www.jetbrains.com/help/exposed/working-with-database.html#postgresql)
+- MySQL with [Reactive MySQL Client](https://vertx.io/docs/vertx-mysql-client/java/) and [Exposed MySQL support](https://www.jetbrains.com/help/exposed/working-with-database.html#mysql)
+- Oracle with [Reactive Oracle Client](https://vertx.io/docs/vertx-oracle-client/java/) and [Exposed Oracle support](https://www.jetbrains.com/help/exposed/working-with-database.html#oracle)
+- Microsoft SQL Server with [Reactive MSSQL Client](https://vertx.io/docs/vertx-mssql-client/java/) and [Exposed SQL Server support](https://www.jetbrains.com/help/exposed/working-with-database.html#sql-server)
 
 ## Experimental
 
-This library is experimental now. The APIs are subject to change (especially those marked with `@ExperimentalEvscApi`), the tests are incomplete (its usability is guaranteed by our internal consuming projects though), and please expect bugs and report them.
+This library is experimental now.
+The APIs are subject to change (especially those marked with `@ExperimentalEvscApi`).
+There are some basic tests, but they are incomplete to cover all the APIs, so please expect bugs and report them.
+We also have some internal consuming code to guarantee the usability of the APIs.
 
 ## Add to your dependencies
 
