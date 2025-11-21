@@ -2,7 +2,6 @@ package com.huanshankeji.exposedvertxsqlclient.mysql.exposed
 
 import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig
 import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
-import com.huanshankeji.exposedvertxsqlclient.exposed.exposedDatabaseConnect
 import com.huanshankeji.exposedvertxsqlclient.jdbc.mysqlJdbcUrl
 import org.jetbrains.exposed.v1.core.DatabaseConfig
 import org.jetbrains.exposed.v1.jdbc.Database
