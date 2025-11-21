@@ -18,6 +18,7 @@ import org.jetbrains.exposed.v1.core.statements.UpdateStatement
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.Query
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
+import org.jetbrains.exposed.v1.core.AbstractQuery
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.jdbc.transactions.transactionManager
 import org.slf4j.LoggerFactory
@@ -243,7 +244,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
 
     @Deprecated("This function is called nowhere except `Row.toExposedResultRowWithTransaction`. Consider inlining and removing it.")
     @ExperimentalEvscApi
-    fun Query.getFieldExpressionSetWithTransaction() =
+    fun AbstractQuery<*>.getFieldExpressionSetWithTransaction() =
         set.getFieldExpressionSetWithTransaction()
 
     @Deprecated(
@@ -251,7 +252,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
                 "This is also of potential poor performance if accidentally called to transform multiple rows."
     )
     @ExperimentalEvscApi
-    private fun Row.toExposedResultRowWithTransaction(query: Query) =
+    private fun Row.toExposedResultRowWithTransaction(query: AbstractQuery<*>) =
         toExposedResultRow(query.getFieldExpressionSetWithTransaction())
 
     @PublishedApi
@@ -264,7 +265,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
             block()
 
     @ExperimentalEvscApi
-    fun Query.getFieldExpressionSetWithOptionalReadOnlyExposedTransaction(getFieldExpressionSetWithExposedTransaction: Boolean) =
+    fun AbstractQuery<*>.getFieldExpressionSetWithOptionalReadOnlyExposedTransaction(getFieldExpressionSetWithExposedTransaction: Boolean) =
         runWithOptionalReadOnlyExposedTransaction(getFieldExpressionSetWithExposedTransaction) { getFieldExpressionSet() }
 
     /**
@@ -277,7 +278,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     )
     */
     suspend inline fun <Data> executeQuery(
-        query: Query,
+        query: AbstractQuery<*>,
         getFieldExpressionSetWithExposedTransaction: Boolean = config.autoExposedTransaction,
         crossinline resultRowMapper: ResultRow.() -> Data
     ): RowSet<Data> =
@@ -302,7 +303,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     )
     */
     suspend fun executeQuery(
-        query: Query,
+        query: AbstractQuery<*>,
         getFieldExpressionSetWithExposedTransaction: Boolean = config.autoExposedTransaction
     ): RowSet<ResultRow> =
         executeQuery(query, getFieldExpressionSetWithExposedTransaction) { this }
@@ -313,7 +314,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
      */
     @ExperimentalEvscApi
     suspend fun executeQueryForList(
-        query: Query,
+        query: AbstractQuery<*>,
         getFieldExpressionSetWithExposedTransaction: Boolean = config.autoExposedTransaction
     ): List<ResultRow> {
         val rowSet = executeForVertxSqlClientRowSet(query)
@@ -426,7 +427,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     @ExperimentalEvscApi
     suspend inline fun <Data> executeBatchQuery(
         fieldSet: FieldSet,
-        queries: Iterable<Query>,
+        queries: Iterable<AbstractQuery<*>>,
         getFieldExpressionSetWithExposedTransaction: Boolean = config.autoExposedTransaction,
         crossinline resultRowMapper: ResultRow.() -> Data
     ): Sequence<RowSet<Data>> {
@@ -437,7 +438,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
         }
     }
 
-    suspend fun executeBatchQuery(fieldSet: FieldSet, queries: Iterable<Query>): Sequence<RowSet<ResultRow>> =
+    suspend fun executeBatchQuery(fieldSet: FieldSet, queries: Iterable<AbstractQuery<*>>): Sequence<RowSet<ResultRow>> =
         executeBatchQuery(fieldSet, queries) { this }
 
     /*
@@ -491,7 +492,7 @@ fun FieldSet.getFieldExpressionSet() =
 /**
  * @see FieldSet.getFieldExpressionSet
  */
-fun Query.getFieldExpressionSet() =
+fun AbstractQuery<*>.getFieldExpressionSet() =
     set.getFieldExpressionSet()
 
 /**
@@ -499,11 +500,11 @@ fun Query.getFieldExpressionSet() =
  */
 
 @Deprecated(
-    "It's a rare case that only one row is transformed and this function calls `Query.getFieldExpressionSet` when transforming every row. " +
+    "It's a rare case that only one row is transformed and this function calls `AbstractQuery.getFieldExpressionSet` when transforming every row. " +
             "Call `getFieldExpressionSet` directly with or without an Exposed `transaction` yourself to have finer-grained control and slightly improve performance.",
     ReplaceWith("toExposedResultRow(query.getFieldExpressionSet())")
 )
-fun Row.toExposedResultRow(query: Query) =
+fun Row.toExposedResultRow(query: AbstractQuery<*>) =
     toExposedResultRow(query.getFieldExpressionSet())
 
 class SingleUpdateException(rowCount: Int) : Exception("update row count: $rowCount")
