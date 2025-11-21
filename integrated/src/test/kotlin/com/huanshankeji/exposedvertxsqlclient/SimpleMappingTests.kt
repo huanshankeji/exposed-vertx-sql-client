@@ -13,7 +13,7 @@ class SimpleMappingTests : TestsForAllRdbmsTypesAndAllClientTypesWithTestcontain
                     "SET IDENTITY_INSERT ${Directors.tableName} ON"
                 )
             */
-            crudMapperExtensions(databaseClient)
+            crudMapperExtensions(databaseClient, rdbmsType != RdbmsType.Mssql)
         }
     }
 }, enabledRdbmsTypes = EnumSet.of(RdbmsType.Mssql))
