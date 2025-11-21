@@ -10,6 +10,7 @@ import java.sql.Connection
 
 /**
  * @see exposedDatabaseConnect
+ * @url the JDBC URL to override the default [sqlServerJdbcUrl]. This JDBC URL for SQL Server sometimes need to be customized with extra parameters.
  */
 @ExperimentalEvscApi
 fun ConnectionConfig.Socket.exposedDatabaseConnectMssql(
