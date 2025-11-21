@@ -5,7 +5,7 @@ import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import java.util.*
+import java.util.EnumSet
 
 // Test table with column transformation
 object ProductsWithTransform : IntIdTable("products_transform") {
