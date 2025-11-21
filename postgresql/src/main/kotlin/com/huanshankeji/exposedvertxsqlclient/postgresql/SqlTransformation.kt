@@ -1,20 +1,19 @@
 package com.huanshankeji.exposedvertxsqlclient.postgresql
 
-import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
+import com.huanshankeji.exposedvertxsqlclient.InternalApi
+import com.huanshankeji.exposedvertxsqlclient.transformPreparedSqlToNumbered
 import org.jetbrains.exposed.v1.core.statements.Statement
 import org.jetbrains.exposed.v1.core.Transaction as ExposedTransaction
 
-@ExperimentalEvscApi
+/**
+ * see https://vertx.io/docs/vertx-pg-client/java/#_prepared_queries
+ */
+@InternalApi
 fun String.transformPgPreparedSql(): String =
-    buildString(length * 2) {
-        var i = 1
-        for (c in this@transformPgPreparedSql)
-            if (c == '?') append('$').append(i++)
-            else append(c)
-    }
+    transformPreparedSqlToNumbered { append('$') }
 
 // TODO consider removing
 // TODO context parameters
-@ExperimentalEvscApi
+@InternalApi
 fun Statement<*>.getVertxPgClientPreparedSql(transaction: ExposedTransaction) =
     prepareSQL(transaction).transformPgPreparedSql()

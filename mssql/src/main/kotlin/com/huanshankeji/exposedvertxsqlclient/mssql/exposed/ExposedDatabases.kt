@@ -1,9 +1,8 @@
-package com.huanshankeji.exposedvertxsqlclient.exposed
+package com.huanshankeji.exposedvertxsqlclient.mssql.exposed
 
 import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig
 import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
-import com.huanshankeji.exposedvertxsqlclient.jdbc.JDBC_URL_FORMAT_NOT_UNIVERSAL_DEPRECATION_MESSAGE
-import com.huanshankeji.exposedvertxsqlclient.jdbc.jdbcUrl
+import com.huanshankeji.exposedvertxsqlclient.jdbc.sqlServerJdbcUrl
 import org.jetbrains.exposed.v1.core.DatabaseConfig
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.transactions.TransactionManager
@@ -12,27 +11,33 @@ import java.sql.Connection
 /**
  * Further configurations such as [setupConnection], [databaseConfig], and [manager] are most likely not needed
  * because the Exposed [Database] is mostly only used for table creation and SQL generation.
+ * @param url the JDBC URL to override the default [sqlServerJdbcUrl]. This JDBC URL for SQL Server sometimes need to be customized with extra parameters.
  */
-@Deprecated(JDBC_URL_FORMAT_NOT_UNIVERSAL_DEPRECATION_MESSAGE)
 @ExperimentalEvscApi
-fun ConnectionConfig.Socket.exposedDatabaseConnect(
-    rdbms: String,
-    driver: String,
+fun ConnectionConfig.Socket.exposedDatabaseConnectMssql(
+    url: String = sqlServerJdbcUrl(),
     setupConnection: (Connection) -> Unit = {},
     databaseConfig: DatabaseConfig? = null,
-    //connectionAutoRegistration: DatabaseConnectionAutoRegistration = connectionInstanceImpl, // `connectionInstanceImpl` is `private`
     manager: (Database) -> TransactionManager = { TransactionManager(it) }
 ) =
-    Database.connect(jdbcUrl(rdbms), driver, user, password, setupConnection, databaseConfig, manager = manager)
+    // https://www.jetbrains.com/help/exposed/working-with-database.html#sql-server
+    Database.connect(
+        url,
+        "com.microsoft.sqlserver.jdbc.SQLServerDriver",
+        user,
+        password,
+        setupConnection,
+        databaseConfig,
+        manager = manager
+    )
 
-@Deprecated(JDBC_URL_FORMAT_NOT_UNIVERSAL_DEPRECATION_MESSAGE)
 @ExperimentalEvscApi
-fun exposedDatabaseConnect(
-    rdbms: String,
+@JvmName("exposedDatabaseConnectMssqlWithParameterConnectionConfig")
+fun exposedDatabaseConnectMssql(
     socketConnectionConfig: ConnectionConfig.Socket,
-    driver: String,
+    url: String = socketConnectionConfig.sqlServerJdbcUrl(),
     setupConnection: (Connection) -> Unit = {},
     databaseConfig: DatabaseConfig? = null,
     manager: (Database) -> TransactionManager = { TransactionManager(it) }
 ) =
-    socketConnectionConfig.exposedDatabaseConnect(rdbms, driver, setupConnection, databaseConfig, manager)
+    socketConnectionConfig.exposedDatabaseConnectMssql(url, setupConnection, databaseConfig, manager)

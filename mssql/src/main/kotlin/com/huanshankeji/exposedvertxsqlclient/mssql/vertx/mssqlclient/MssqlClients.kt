@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalEvscApi::class)
 
-package com.huanshankeji.exposedvertxsqlclient.postgresql.vertx.pgclient
+package com.huanshankeji.exposedvertxsqlclient.mssql.vertx.mssqlclient
 
 import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig
 import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
@@ -9,12 +9,12 @@ import com.huanshankeji.exposedvertxsqlclient.vertx.sqlclient.createGenericSqlCl
 import com.huanshankeji.exposedvertxsqlclient.vertx.sqlclient.createGenericSqlClientWithBuilder
 import com.huanshankeji.exposedvertxsqlclient.vertx.sqlclient.createGenericSqlConnection
 import io.vertx.core.Vertx
-import io.vertx.pgclient.PgBuilder
-import io.vertx.pgclient.PgConnectOptions
-import io.vertx.pgclient.PgConnection
-import io.vertx.pgclient.impl.PgPoolOptions
+import io.vertx.mssqlclient.MSSQLBuilder
+import io.vertx.mssqlclient.MSSQLConnectOptions
+import io.vertx.mssqlclient.MSSQLConnection
 import io.vertx.sqlclient.ClientBuilder
 import io.vertx.sqlclient.Pool
+import io.vertx.sqlclient.PoolOptions
 import io.vertx.sqlclient.SqlClient
 
 /**
@@ -22,75 +22,59 @@ import io.vertx.sqlclient.SqlClient
  */
 // made not inline anymore for easier debugging
 @ExperimentalEvscApi
-fun <SqlClientT : SqlClient, ClientBuilderT : ClientBuilder<SqlClientT>> createGenericPgClientWithBuilder(
+fun <SqlClientT : SqlClient, ClientBuilderT : ClientBuilder<SqlClientT>> createGenericMssqlClientWithBuilder(
     vertx: Vertx?,
     connectionConfig: ConnectionConfig,
     clientBuilder: ClientBuilderT,
-    extraPgConnectOptions: PgConnectOptions.() -> Unit,
-    extraPgPoolOptions: PgPoolOptions.() -> Unit,
+    extraMssqlConnectOptions: MSSQLConnectOptions.() -> Unit,
+    extraMssqlPoolOptions: PoolOptions.() -> Unit,
     connectHandlerExtra: CoConnectHandler
 ): SqlClientT =
     createGenericSqlClientWithBuilder(
         vertx,
         connectionConfig,
         clientBuilder,
-        PgConnectOptions(),
-        extraPgConnectOptions,
-        extraPgPoolOptions,
+        MSSQLConnectOptions(),
+        extraMssqlConnectOptions,
+        extraMssqlPoolOptions,
         connectHandlerExtra,
-        PgPoolOptions()
-    )
-
-fun createPgClient(
-    vertx: Vertx?,
-    connectionConfig: ConnectionConfig,
-    extraPgConnectOptions: PgConnectOptions.() -> Unit = {},
-    extraPoolOptions: PgPoolOptions.() -> Unit = {},
-    connectHandlerExtra: CoConnectHandler = null,
-): SqlClient =
-    createGenericPgClientWithBuilder(
-        vertx,
-        connectionConfig,
-        PgBuilder.client(),
-        extraPgConnectOptions,
-        extraPoolOptions,
-        connectHandlerExtra
+        PoolOptions()
     )
 
 /**
  * @see createGenericSqlClient
  */
-fun createPgPool(
+fun createMssqlPool(
     vertx: Vertx?,
     connectionConfig: ConnectionConfig,
-    extraPgConnectOptions: PgConnectOptions.() -> Unit = {},
-    extraPoolOptions: PgPoolOptions.() -> Unit = {},
+    extraMssqlConnectOptions: MSSQLConnectOptions.() -> Unit = {},
+    extraPoolOptions: PoolOptions.() -> Unit = {},
     connectHandlerExtra: CoConnectHandler = null,
 ): Pool =
-    createGenericPgClientWithBuilder(
+    createGenericMssqlClientWithBuilder(
         vertx,
         connectionConfig,
-        PgBuilder.pool(),
-        extraPgConnectOptions,
+        MSSQLBuilder.pool(),
+        extraMssqlConnectOptions,
         extraPoolOptions,
         connectHandlerExtra
     )
 
 /**
  * @see createGenericSqlClient
- * @param vertx Non-null. See [PgConnection.connect].
+ * @param vertx Non-null. See [MSSQLConnection.connect].
  */
-suspend fun createPgConnection(
+suspend fun createMssqlConnection(
     vertx: Vertx,
     connectionConfig: ConnectionConfig,
-    extraPgConnectOptions: PgConnectOptions.() -> Unit = {},
+    extraMssqlConnectOptions: MSSQLConnectOptions.() -> Unit = {},
     connectHandlerExtra: CoConnectHandler = null
-): PgConnection =
+): MSSQLConnection =
     createGenericSqlConnection(
         vertx,
         connectionConfig,
-        PgConnection::connect,
-        PgConnectOptions(),
-        extraPgConnectOptions,
+        MSSQLConnection::connect,
+        MSSQLConnectOptions(),
+        extraMssqlConnectOptions,
         connectHandlerExtra
     )

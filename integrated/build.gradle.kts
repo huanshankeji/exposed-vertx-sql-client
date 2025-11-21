@@ -14,14 +14,22 @@ dependencies {
     implementation(cpnProject(project, ":core"))
     implementation(cpnProject(project, ":postgresql"))
     implementation(cpnProject(project, ":mysql"))
+    implementation(cpnProject(project, ":oracle"))
+    implementation(cpnProject(project, ":mssql"))
     implementation(cpnProject(project, ":crud"))
     implementation("com.huanshankeji:exposed-gadt-mapping:${DependencyVersions.exposedGadtMapping}")
     implementation(cpnProject(project, ":crud-with-mapper"))
 
     with(commonDependencies.testcontainers) {
         implementation(platformBom())
+        // https://testcontainers.com/modules/postgresql/
         implementation(testcontainersPostgresql)
+        // https://testcontainers.com/modules/mysql/
         implementation(moduleWithoutVersion("testcontainers-mysql"))
+        // https://testcontainers.com/modules/oracle-free/
+        implementation(moduleWithoutVersion("testcontainers-oracle-free"))
+        // https://testcontainers.com/modules/mssql/
+        implementation(moduleWithoutVersion("testcontainers-mssqlserver"))
     }
 
 

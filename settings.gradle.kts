@@ -3,8 +3,10 @@ rootProject.name = "exposed-vertx-sql-client"
 include("core")
 include("crud")
 include("crud-with-mapper")
-include("mysql")
 include("postgresql")
+include("mysql")
+include("oracle")
+include("mssql")
 include("integrated")
 
 fun ProjectDescriptor.setProjectConcatenatedNames(prefix: String) {

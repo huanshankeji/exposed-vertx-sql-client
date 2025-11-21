@@ -2,7 +2,6 @@
 
 package com.huanshankeji.exposedvertxsqlclient.mysql.vertx.mysqlclient
 
-import com.huanshankeji.Untested
 import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig
 import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
 import com.huanshankeji.exposedvertxsqlclient.vertx.sqlclient.CoConnectHandler
@@ -82,7 +81,6 @@ fun createMysqlPool(
  * @see createGenericSqlClient
  * @param vertx Non-null. See [MySQLConnection.connect].
  */
-@Untested
 suspend fun createMysqlConnection(
     vertx: Vertx,
     connectionConfig: ConnectionConfig,

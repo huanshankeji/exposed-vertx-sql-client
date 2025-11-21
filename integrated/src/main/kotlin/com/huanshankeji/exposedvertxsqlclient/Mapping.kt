@@ -18,7 +18,7 @@ object Directors : IntIdTable("directors") {
     val name = varchar("name", 50)
 }
 
-object Films : IntIdTable() {
+object Films : IntIdTable("films") {
     val filmId = id
     val sequelId = integer("sequel_id").uniqueIndex()
     val name = varchar("name", 50)
@@ -31,7 +31,8 @@ val mappingTables = arrayOf(Directors, Films)
 
 typealias DirectorId = Int
 
-class Director(val directorId: DirectorId, val name: String)
+class DirectorDetails(val name: String)
+class Director(val directorId: DirectorId, val directorDetails: DirectorDetails)
 
 class FilmDetails<DirectorT>(
     val sequelId: Int,
@@ -48,6 +49,7 @@ typealias FullFilm = Film<Director>
 
 
 object Mappers {
+    val directorDetails = reflectionBasedClassPropertyDataMapper<DirectorDetails>(Directors)
     val director = reflectionBasedClassPropertyDataMapper<Director>(Directors)
     val filmDetailsWithDirectorId = reflectionBasedClassPropertyDataMapper<FilmDetailsWithDirectorId>(
         Films,
@@ -95,10 +97,10 @@ suspend fun withMappingTables(block: suspend () -> Unit) {
 }
 
 @OptIn(ExperimentalEvscApi::class)
-suspend fun crudMapperExtensions(databaseClient: DatabaseClient<*>) {
+suspend fun crudMapperExtensions(databaseClient: DatabaseClient<*>, dialectSupportsIdentityInsert: Boolean = true) {
     val directorId = 1
-    val director = Director(directorId, "George Lucas")
-    databaseClient.insertWithMapper(Directors, director, Mappers.director)
+    val directorDetails = DirectorDetails("George Lucas")
+    databaseClient.insertWithMapper(Directors, directorDetails, Mappers.directorDetails)
 
     val episodeIFilmDetails = FilmDetails(1, "Star Wars: Episode I – The Phantom Menace", directorId)
     // insert without the ID since it's `AUTO_INCREMENT`
@@ -107,7 +109,10 @@ suspend fun crudMapperExtensions(databaseClient: DatabaseClient<*>) {
     val filmId = 2
     val episodeIIFilmDetails = FilmDetails(2, "Star Wars: Episode II – Attack of the Clones", directorId)
     val filmWithDirectorId = FilmWithDirectorId(filmId, episodeIIFilmDetails)
-    databaseClient.insertWithMapper(Films, filmWithDirectorId, Mappers.filmWithDirectorId) // insert with the ID
+    if (dialectSupportsIdentityInsert)
+        databaseClient.insertWithMapper(Films, filmWithDirectorId, Mappers.filmWithDirectorId) // insert with the ID
+    else
+        databaseClient.insertWithMapper(Films, episodeIIFilmDetails, Mappers.filmDetailsWithDirectorId)
 
     val fullFilms = databaseClient.selectWithMapper(filmsLeftJoinDirectors, Mappers.fullFilm) {
         where(Films.filmId inList listOf(1, 2))

@@ -6,11 +6,17 @@
 
 ## Supported DBs
 
-Only PostgreSQL with [Reactive PostgreSQL Client](https://vertx.io/docs/vertx-pg-client/java/) is currently supported. MySQL support will be implemented in v0.6.0 but not tested yet.
+- PostgreSQL with [Reactive PostgreSQL Client](https://vertx.io/docs/vertx-pg-client/java/) and [Exposed PostgreSQL support](https://www.jetbrains.com/help/exposed/working-with-database.html#postgresql)
+- MySQL with [Reactive MySQL Client](https://vertx.io/docs/vertx-mysql-client/java/) and [Exposed MySQL support](https://www.jetbrains.com/help/exposed/working-with-database.html#mysql)
+- Oracle with [Reactive Oracle Client](https://vertx.io/docs/vertx-oracle-client/java/) and [Exposed Oracle support](https://www.jetbrains.com/help/exposed/working-with-database.html#oracle)
+- Microsoft SQL Server with [Reactive MSSQL Client](https://vertx.io/docs/vertx-mssql-client/java/) and [Exposed SQL Server support](https://www.jetbrains.com/help/exposed/working-with-database.html#sql-server)
 
 ## Experimental
 
-This library is experimental now. The APIs are subject to change (especially those marked with `@ExperimentalEvscApi`), the tests are incomplete (its usability is guaranteed by our internal consuming projects though), and please expect bugs and report them.
+This library is experimental now.
+The APIs are subject to change (especially those marked with `@ExperimentalEvscApi`).
+There are some basic tests, but they are incomplete to cover all the APIs, so please expect bugs and report them.
+We also have some internal consuming code to guarantee the usability of the APIs.
 
 ## Add to your dependencies
 
@@ -30,17 +36,9 @@ See the [hosted API documentation](https://huanshankeji.github.io/exposed-vertx-
 
 ## Basic usage guide
 
-Here is a basic usage guide.
+Here is a basic usage guide (since v0.5.0).
 
-### Before v0.5.0
-
-Add the PostgreSQL module, which was the only module, to your dependencies with the Gradle build script:
-
-```kotlin
-implementation("com.huanshankeji:exposed-vertx-sql-client-postgresql:$libraryVersion")
-```
-
-### Since v0.5.0
+### Add the dependencies
 
 Add the core module to your dependencies with the Gradle build script:
 
@@ -144,8 +142,10 @@ assert(insertRowCount == 1)
 // `executeSingleUpdate` function requires that there is only 1 row updated and returns `Unit`.
 databaseClient.executeSingleUpdate(buildStatement { Examples.insert { it[name] = "B" } })
 // `executeSingleOrNoUpdate` requires that there is 0 or 1 row updated and returns `Boolean`.
-val isInserted =
+val isInserted = if (dialectSupportsInsertIgnore)
     databaseClient.executeSingleOrNoUpdate(buildStatement { Examples.insertIgnore { it[name] = "B" } })
+else
+    databaseClient.executeSingleOrNoUpdate(buildStatement { Examples.insert { it[name] = "B" } })
 assert(isInserted)
 
 val updateRowCount =
@@ -158,8 +158,11 @@ val exampleName = databaseClient.executeQuery(Examples.select(Examples.name).whe
 assert(exampleName == "AA")
 
 databaseClient.executeSingleUpdate(buildStatement { Examples.deleteWhere { id eq 1 } })
-// not supported by PostgreSQL
-//databaseClient.executeSingleUpdate(buildStatement { Examples.deleteIgnoreWhere { id eq 2 } })
+if (dialectSupportsDeleteIgnore) {
+    val isDeleted =
+        databaseClient.executeSingleOrNoUpdate(buildStatement { Examples.deleteIgnoreWhere { id eq 2 } })
+    assert(isDeleted)
+}
 ```
 
 #### Extension CRUD operations
@@ -168,7 +171,7 @@ The extension CRUD APIs are similar to [those in Exposed](https://www.jetbrains.
 With them, your code becomes more concise compared to using `buildStatement`,
 but it might be more difficult when you need to compose statements or edit the code.
 
-Gradle dependency configuration (only needed since v0.5.0):
+Gradle dependency configuration:
 
 ```kotlin
 implementation("com.huanshankeji:exposed-vertx-sql-client-crud:$libraryVersion")
@@ -178,8 +181,11 @@ Example code:
 
 ```kotlin
 databaseClient.insert(Examples) { it[name] = "A" }
-val isInserted = databaseClient.insertIgnore(Examples) { it[name] = "B" }
-assert(isInserted)
+if (dialectSupportsInsertIgnore) {
+    val isInserted = databaseClient.insertIgnore(Examples) { it[name] = "B" }
+    assert(isInserted)
+} else
+    databaseClient.insert(Examples) { it[name] = "B" }
 
 val updateRowCount = databaseClient.update(Examples, { Examples.id eq 1 }) { it[name] = "AA" }
 assert(updateRowCount == 1)
@@ -191,16 +197,18 @@ val exampleName2 =
     databaseClient.selectSingleColumn(Examples, Examples.name, { where(Examples.id eq 2) }).single()
 assert(exampleName2 == "B")
 
-val examplesExist = databaseClient.selectExpression(exists(Examples.selectAll()))
-assert(examplesExist)
+if (dialectSupportsExists) {
+    val examplesExist = databaseClient.selectExpression(exists(Examples.selectAll()))
+    assert(examplesExist)
+}
 
 val deleteRowCount1 = databaseClient.deleteWhere(Examples) { id eq 1 }
 assert(deleteRowCount1 == 1)
-// not supported by PostgreSQL
-/*
-val deleteRowCount2 = databaseClient.deleteIgnoreWhere(Examples) { id eq 2 }
-assert(deleteRowCount2 == 1)
-*/
+
+if (dialectSupportsDeleteIgnore) {
+    val deleteRowCount2 = databaseClient.deleteIgnoreWhere(Examples) { id eq 2 }
+    assert(deleteRowCount2 == 1)
+}
 ```
 
 #### Extension CRUD APIs with [Exposed GADT mapping](https://github.com/huanshankeji/exposed-gadt-mapping)
@@ -217,8 +225,8 @@ Example code:
 
 ```kotlin
 val directorId = 1
-val director = Director(directorId, "George Lucas")
-databaseClient.insertWithMapper(Directors, director, Mappers.director)
+val directorDetails = DirectorDetails("George Lucas")
+databaseClient.insertWithMapper(Directors, directorDetails, Mappers.directorDetails)
 
 val episodeIFilmDetails = FilmDetails(1, "Star Wars: Episode I – The Phantom Menace", directorId)
 // insert without the ID since it's `AUTO_INCREMENT`
@@ -227,7 +235,10 @@ databaseClient.insertWithMapper(Films, episodeIFilmDetails, Mappers.filmDetailsW
 val filmId = 2
 val episodeIIFilmDetails = FilmDetails(2, "Star Wars: Episode II – Attack of the Clones", directorId)
 val filmWithDirectorId = FilmWithDirectorId(filmId, episodeIIFilmDetails)
-databaseClient.insertWithMapper(Films, filmWithDirectorId, Mappers.filmWithDirectorId) // insert with the ID
+if (dialectSupportsIdentityInsert)
+    databaseClient.insertWithMapper(Films, filmWithDirectorId, Mappers.filmWithDirectorId) // insert with the ID
+else
+    databaseClient.insertWithMapper(Films, episodeIIFilmDetails, Mappers.filmDetailsWithDirectorId)
 
 val fullFilms = databaseClient.selectWithMapper(filmsLeftJoinDirectors, Mappers.fullFilm) {
     where(Films.filmId inList listOf(1, 2))
