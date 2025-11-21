@@ -18,7 +18,7 @@ object Directors : IntIdTable("directors") {
     val name = varchar("name", 50)
 }
 
-object Films : IntIdTable() {
+object Films : IntIdTable("films") {
     val filmId = id
     val sequelId = integer("sequel_id").uniqueIndex()
     val name = varchar("name", 50)
