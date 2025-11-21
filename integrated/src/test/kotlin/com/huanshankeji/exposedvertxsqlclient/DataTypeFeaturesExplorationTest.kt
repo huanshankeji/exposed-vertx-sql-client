@@ -21,13 +21,10 @@ object TestTable : IntIdTable("test_json") {
 }
 
 /**
- * Test to explore Exposed's new data type features and determine what's needed for exposed-vertx-sql-client.
+ * Test to explore Exposed's new data type features availability in version 1.0.0-rc-3.
  * 
- * Features to investigate:
- * 1. JSON/JSONB types
- * 2. Custom data types
- * 3. Custom type mapping (wrapAsExpression, wrap)
- * 4. Column transformation (transform() function)
+ * This test verifies that the APIs compile and are available, without testing
+ * full functionality (which is covered in DataTypeFeatureTests.kt).
  */
 class DataTypeFeaturesExplorationTest : FunSpec({
     

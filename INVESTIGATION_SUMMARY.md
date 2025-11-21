@@ -58,7 +58,7 @@ object MyTable : Table() {
 - Custom type: `UpperCaseVarcharColumnType` - stores uppercase, returns lowercase
 
 **Expected Behavior:**
-- Exposed handles conversion via `valueToDBvalueFromDB()
+- Exposed handles conversion via `valueToDB()` and `valueFromDB()`
 - Our library receives already-converted values
 - Should work transparently
 
