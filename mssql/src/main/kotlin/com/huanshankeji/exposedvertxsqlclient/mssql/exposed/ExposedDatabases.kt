@@ -19,6 +19,7 @@ fun ConnectionConfig.Socket.exposedDatabaseConnectMssql(
     databaseConfig: DatabaseConfig? = null,
     manager: (Database) -> TransactionManager = { TransactionManager(it) }
 ) =
+    // https://www.jetbrains.com/help/exposed/working-with-database.html#sql-server
     Database.connect(
         url,
         "com.microsoft.sqlserver.jdbc.SQLServerDriver",

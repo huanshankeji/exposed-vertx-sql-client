@@ -8,10 +8,9 @@ dependencies {
     with(commonDependencies.vertx) { implementation(platformStackDepchain()) } // needed
     implementation(cpnProject(project, ":core"))
 
-    // TODO remove the Exposed JDBC dependency and the MySQL dependency when there is no need to to generate SQLs with an Exposed transaction
-    runtimeOnly(commonDependencies.exposed.module("jdbc"))
+    // TODO remove the MySQL JDBC dependency when there is no need to to generate SQLs with an Exposed transaction
     implementation("com.mysql:mysql-connector-j:${DependencyVersions.mysqlConnectorJ}")
     api(commonDependencies.vertx.moduleWithoutVersion("mysql-client")) // `api` used because `MySQLConnection` has to be exposed
     //implementation(commonDependencies.kotlinCommon.core()) // for `Untested`
-    //implementation(commonDependencies.kotlinCommon.vertx()) // for `MySQLPoolOptions.setUpConventionally`
+    //implementation(commonDependencies.kotlinCommon.vertx())
 }
