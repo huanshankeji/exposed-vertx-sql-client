@@ -1,7 +1,5 @@
 package com.huanshankeji.exposedvertxsqlclient
 
-import java.util.*
-
 class SimpleMappingTests : TestsForAllRdbmsTypesAndAllClientTypesWithTestcontainers({ databaseClient, rdbmsType ->
     test("test CRUD mapper extensions") {
         withMappingTables {
@@ -16,4 +14,4 @@ class SimpleMappingTests : TestsForAllRdbmsTypesAndAllClientTypesWithTestcontain
             crudMapperExtensions(databaseClient, rdbmsType != RdbmsType.Mssql)
         }
     }
-}, enabledRdbmsTypes = EnumSet.of(RdbmsType.Mssql))
+})
