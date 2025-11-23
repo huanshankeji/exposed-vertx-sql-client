@@ -1,6 +1,7 @@
 # Exposed Vert.x SQL Client
 
 [![Maven Central](https://img.shields.io/maven-central/v/com.huanshankeji/exposed-vertx-sql-client-postgresql)](https://search.maven.org/artifact/com.huanshankeji/exposed-vertx-sql-client-postgresql)
+[![codecov](https://codecov.io/gh/huanshankeji/exposed-vertx-sql-client/branch/main/graph/badge.svg)](https://codecov.io/gh/huanshankeji/exposed-vertx-sql-client)
 
 [Exposed](https://github.com/JetBrains/Exposed) on top of [Vert.x Reactive SQL Client](https://github.com/eclipse-vertx/vertx-sql-client)
 

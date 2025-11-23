@@ -17,6 +17,20 @@ jobs:
       - uses: huanshankeji/.github/actions/gradle-test-and-check@v0.2.0
         with:
           jdk-versions: 11-temurin, 17-temurin
+      
+      # Generate coverage report after tests
+      - name: Generate Kover coverage report
+        run: ./gradlew koverXmlReport
+      
+      # Upload coverage to Codecov
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          files: ./build/reports/kover/report.xml
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   dependency-submission:
     runs-on: ubuntu-latest
