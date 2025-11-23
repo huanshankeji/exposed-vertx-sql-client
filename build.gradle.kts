@@ -10,16 +10,11 @@ plugins {
 
 dependencies {
     dokka(project(":exposed-vertx-sql-client-postgresql"))
-    
-    // Add kover dependencies to merge coverage from all subprojects
-    kover(project(":exposed-vertx-sql-client-core"))
-    kover(project(":exposed-vertx-sql-client-crud"))
-    kover(project(":exposed-vertx-sql-client-crud-with-mapper"))
-    kover(project(":exposed-vertx-sql-client-postgresql"))
-    kover(project(":exposed-vertx-sql-client-mysql"))
-    kover(project(":exposed-vertx-sql-client-oracle"))
-    kover(project(":exposed-vertx-sql-client-mssql"))
-    kover(project(":exposed-vertx-sql-client-integrated"))
+}
+
+// Add kover dependencies to merge coverage from all subprojects
+dependencies {
+    subprojects.forEach { kover(it) }
 }
 
 apiValidation {
