@@ -4,6 +4,7 @@ import com.huanshankeji.cpnProject
 
 plugins {
     conventions
+    kotlin("plugin.serialization") version "2.2.21"
     id("io.kotest") version commonVersions.kotest
     id("com.huanshankeji.benchmark.kotlinx-benchmark-jvm-conventions")
 }
@@ -19,6 +20,11 @@ dependencies {
     implementation(cpnProject(project, ":crud"))
     implementation("com.huanshankeji:exposed-gadt-mapping:${DependencyVersions.exposedGadtMapping}")
     implementation(cpnProject(project, ":crud-with-mapper"))
+    
+    // For JSON/JSONB testing - kotlinx-serialization is required by Exposed's json() and jsonb() functions
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
+    // Exposed JSON support module (same version as the core Exposed)
+    implementation("org.jetbrains.exposed:exposed-json:${commonVersions.exposed}")
 
     with(commonDependencies.testcontainers) {
         implementation(platformBom())
