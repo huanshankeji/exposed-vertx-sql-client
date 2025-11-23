@@ -16,9 +16,7 @@ import org.jetbrains.exposed.v1.core.statements.InsertStatement
 import org.jetbrains.exposed.v1.core.statements.Statement
 import org.jetbrains.exposed.v1.core.statements.UpdateStatement
 import org.jetbrains.exposed.v1.jdbc.Database
-import org.jetbrains.exposed.v1.jdbc.Query
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
-import org.jetbrains.exposed.v1.core.AbstractQuery
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.jdbc.transactions.transactionManager
 import org.slf4j.LoggerFactory
@@ -265,7 +263,9 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
             block()
 
     @ExperimentalEvscApi
-    fun AbstractQuery<*>.getFieldExpressionSetWithOptionalReadOnlyExposedTransaction(getFieldExpressionSetWithExposedTransaction: Boolean) =
+    fun AbstractQuery<*>.getFieldExpressionSetWithOptionalReadOnlyExposedTransaction(
+        getFieldExpressionSetWithExposedTransaction: Boolean
+    ) =
         runWithOptionalReadOnlyExposedTransaction(getFieldExpressionSetWithExposedTransaction) { getFieldExpressionSet() }
 
     /**
@@ -438,7 +438,9 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
         }
     }
 
-    suspend fun executeBatchQuery(fieldSet: FieldSet, queries: Iterable<AbstractQuery<*>>): Sequence<RowSet<ResultRow>> =
+    suspend fun executeBatchQuery(
+        fieldSet: FieldSet, queries: Iterable<AbstractQuery<*>>
+    ): Sequence<RowSet<ResultRow>> =
         executeBatchQuery(fieldSet, queries) { this }
 
     /*
