@@ -11,7 +11,7 @@ plugins {
 dependencies {
     dokka(project(":exposed-vertx-sql-client-postgresql"))
     
-    // Add kover dependencies to merge coverage from all subprojects
+    // Configure kover to aggregate coverage from all subprojects
     subprojects.forEach { kover(it) }
 }
 
