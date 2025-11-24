@@ -1,9 +1,9 @@
-import com.huanshankeji.team.repositoriesAddTeamGithubPackagesMavenRegistry
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 
 plugins {
     id("com.huanshankeji.team.with-group")
     kotlin("jvm")
+    // TODO id("org.jetbrains.kotlinx.kover")
 }
 
 repositories {
