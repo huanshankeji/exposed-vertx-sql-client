@@ -10,8 +10,8 @@ plugins {
 
 dependencies {
     dokka(project(":exposed-vertx-sql-client-postgresql"))
-    
-    // Configure kover to aggregate coverage from all subprojects
+
+    // ConfigureRE kover to aggregate coverage from all subprojects
     subprojects.forEach { kover(it) }
 }
 
@@ -22,18 +22,4 @@ apiValidation {
 // Apply kover to all subprojects
 subprojects {
     apply(plugin = "org.jetbrains.kotlinx.kover")
-}
-
-// Configure kover aggregation at root level
-kover {
-    reports {
-        total {
-            xml {
-                onCheck = true
-            }
-            html {
-                onCheck = true
-            }
-        }
-    }
 }
