@@ -30,4 +30,7 @@ dependencyResolutionManagement {
 
 kover {
     enableCoverage()
+    reports {
+        excludedProjects.add(":exposed-vertx-sql-client-integrated")
+    }
 }
