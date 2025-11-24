@@ -7,7 +7,6 @@ plugins {
     id("com.huanshankeji.maven-central-publish-conventions")
     id("com.huanshankeji.team.default-github-packages-maven-publish")
     id("com.huanshankeji.team.dokka.github-dokka-convention")
-    id("org.jetbrains.kotlinx.kover")
 }
 
 mavenPublishing.pom {
