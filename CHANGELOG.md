@@ -10,9 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Support all other databases commonly supported by Exposed and Vert.x.
-    - MySQL
-    - Oracle
-    - Microsoft SQL Server
+  - MySQL
+  - Oracle
+  - Microsoft SQL Server
 - Add the `DatabaseClientConfig` config interface which is an abstraction of the configurable options passed to `DatabaseClient` and add corresponding creator functions for each database.
 - Add an `exposedReadOnlyTransaction` variant to prevent accidentally writing to databases with Exposed APIs.
 - Add some basic integration tests adapted from the example code with Testcontainers (and Kotest). `@Untested` annotation usages are removed.
@@ -21,12 +21,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Bump dependencies to the latest.
-    - Kotlin 2.2.21
-    - Exposed 1.0.0-rc-3
-    - Vert.x 5.0.5
-    - JVM toolchain / JDK 11 (required by Vert.x)
+  - Kotlin 2.2.21
+  - Exposed 1.0.0-rc-3
+  - Vert.x 5.0.5
+  - JVM toolchain / JDK 11 (required by Vert.x)
   - Gradle 9.2.1
-    - SLF4J 2.0.17
+  - SLF4J 2.0.17
 - Migrate to Exposed 1.0.0 and Vert.x 5. Some APIs are updated accordingly.
 - Update the instructions including the user guide in README.md.
 - Rename the `sql-dsl` modules to `crud` modules to better reflect their contents.
@@ -98,9 +98,6 @@ Miscellaneous changes:
 * Add a basic usage guide
 
 [Unreleased]: https://github.com/huanshankeji/exposed-vertx-sql-client/compare/v0.5.0...HEAD
-
 [0.6.0]: https://github.com/huanshankeji/exposed-vertx-sql-client/compare/v0.5.0...v0.6.0
-
 [0.5.0]: https://github.com/huanshankeji/exposed-vertx-sql-client/compare/v0.4.0...v0.5.0
-
 [0.4.0]: https://github.com/huanshankeji/exposed-vertx-sql-client/releases/tag/v0.4.0
