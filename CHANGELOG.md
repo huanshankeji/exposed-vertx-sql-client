@@ -25,7 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Exposed 1.0.0-rc-3
     - Vert.x 5.0.5
     - JVM toolchain / JDK 11 (required by Vert.x)
-    - Gradle 9.1.0
+  - Gradle 9.2.1
     - SLF4J 2.0.17
 - Migrate to Exposed 1.0.0 and Vert.x 5. Some APIs are updated accordingly.
 - Update the instructions including the user guide in README.md.
