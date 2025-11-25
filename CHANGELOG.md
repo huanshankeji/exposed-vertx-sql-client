@@ -9,15 +9,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Support all other databases commonly supported by Exposed and Vert.x.
+    - MySQL
+    - Oracle
+    - Microsoft SQL Server
+- Add the `DatabaseClientConfig` config interface which is an abstraction of the configurable options passed to `DatabaseClient` and add corresponding creator functions for each database.
+- Add an `exposedReadOnlyTransaction` variant to prevent accidentally writing to databases with Exposed APIs.
+- Add some basic integration tests adapted from the example code with Testcontainers (and Kotest). `@Untested` annotation usages are removed.
+- Show test coverage with Kover and Codecov.
+
 ### Changed
+
+- Bump dependencies to the latest.
+    - Kotlin 2.2.21
+    - Exposed 1.0.0-rc-3
+    - Vert.x 5.0.5
+    - JVM toolchain / JDK 11 (required by Vert.x)
+    - Gradle 9.1.0
+    - SLF4J 2.0.17
+- Migrate to Exposed 1.0.0 and Vert.x 5. Some APIs are updated accordingly.
+- Update the instructions including the user guide in README.md.
+- Rename the `sql-dsl` modules to `crud` modules to better reflect their contents.
+- No longer provide Exposed transactions in the APIs where not always necessary. If you encounter "No transaction in context." issues, see the corresponding section in README.md.
+- Update `exposedTransaction` to match the updated Exposed `transaction` API.
 
 ### Deprecated
 
+- Deprecate the statement creation APIs [in kotlin-common v0.7.0](https://github.com/huanshankeji/kotlin-common/blob/main/CHANGELOG.md#v070--2025-10-28) which are replaced by the Exposed `buildStatement` APIs.
+- Deprecate the `WithTransaction` functions in `DatabaseClient`, which are not supposed to be used by consuming users.
+- Deprecate the `jdbcUrl` function, whose format is not actually universal, and the `ConnectionConfig.Socket.exposedDatabaseConnect` function which depends on it.
+
 ### Removed
 
-### Fixed
+- Some old APIs are migrated thus their original signatures are removed.
 
-### Security
+### Internal
+
+- Use extracted CI actions.
+- Enable Gradle Configuration Cache.
+- Bump Dokka to 2.1.0.
+- Improve the Exposed transaction benchmarks, fixing some bugs, better ruling out the overhead of some implementations, and benchmarking the performance improvements of read-only Exposed transactions (as a result, there aren't any).
+- Onboard with Copilot.
 
 ## [0.5.0] - 2024-11-29
 
