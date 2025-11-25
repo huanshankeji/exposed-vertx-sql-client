@@ -31,9 +31,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - SLF4J 2.0.17
 - Migrate to Exposed 1.0.0 and Vert.x 5 (#33, #27). Some APIs are updated accordingly.
 - Update the instructions including the user guide in README.md (#51, #50).
-- Rename the `sql-dsl` modules to `crud` modules to better reflect their contents.
+- Rename the `sql-dsl` modules to `crud` modules to better reflect their contents (part of #33 and #27).
 - Revamp Exposed transaction handling in `DatabaseClient`, not always creating only possibly needed Exposed transactions (#44). If you encounter "No transaction in context." issues, see the corresponding section in README.md.
-- Update `exposedTransaction` to match the updated Exposed `transaction` API.
+- Update `exposedTransaction` to match the updated Exposed `transaction` API (part of #47).
 
 ### Deprecated
 
