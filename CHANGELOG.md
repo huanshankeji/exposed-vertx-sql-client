@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - MySQL (#18)
   - Oracle (#53)
   - Microsoft SQL Server (#53)
-- Add the `DatabaseClientConfig` config interface which is an abstraction of the configurable options passed to `DatabaseClient` and add corresponding creator functions for each database (#25).
+- Add the `DatabaseClientConfig` interface which is an abstraction of the configurable options passed to `DatabaseClient` and add corresponding creator functions for each database (#25).
 - Add an `exposedReadOnlyTransaction` variant to prevent accidentally writing to databases with Exposed APIs (#48).
 - Add some basic integration tests adapted from the example code with Testcontainers (and Kotest) (#50). `@Untested` annotation usages are removed.
 - Show test coverage with Kover and Codecov (#62, #63).
