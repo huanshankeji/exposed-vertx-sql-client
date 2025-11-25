@@ -2,27 +2,30 @@ package com.huanshankeji.exposedvertxsqlclient.exposed
 
 import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig
 import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
+import com.huanshankeji.exposedvertxsqlclient.jdbc.JDBC_URL_FORMAT_NOT_UNIVERSAL_DEPRECATION_MESSAGE
 import com.huanshankeji.exposedvertxsqlclient.jdbc.jdbcUrl
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.DatabaseConfig
-import org.jetbrains.exposed.sql.transactions.ThreadLocalTransactionManager
-import org.jetbrains.exposed.sql.transactions.TransactionManager
+import org.jetbrains.exposed.v1.core.DatabaseConfig
+import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.transactions.TransactionManager
 import java.sql.Connection
 
 /**
  * Further configurations such as [setupConnection], [databaseConfig], and [manager] are most likely not needed
  * because the Exposed [Database] is mostly only used for table creation and SQL generation.
  */
+@Deprecated(JDBC_URL_FORMAT_NOT_UNIVERSAL_DEPRECATION_MESSAGE)
 @ExperimentalEvscApi
 fun ConnectionConfig.Socket.exposedDatabaseConnect(
     rdbms: String,
     driver: String,
     setupConnection: (Connection) -> Unit = {},
     databaseConfig: DatabaseConfig? = null,
-    manager: (Database) -> TransactionManager = { ThreadLocalTransactionManager(it) }
+    //connectionAutoRegistration: DatabaseConnectionAutoRegistration = connectionInstanceImpl, // `connectionInstanceImpl` is `private`
+    manager: (Database) -> TransactionManager = { TransactionManager(it) }
 ) =
-    Database.connect(jdbcUrl(rdbms), driver, user, password, setupConnection, databaseConfig, manager)
+    Database.connect(jdbcUrl(rdbms), driver, user, password, setupConnection, databaseConfig, manager = manager)
 
+@Deprecated(JDBC_URL_FORMAT_NOT_UNIVERSAL_DEPRECATION_MESSAGE)
 @ExperimentalEvscApi
 fun exposedDatabaseConnect(
     rdbms: String,
@@ -30,6 +33,6 @@ fun exposedDatabaseConnect(
     driver: String,
     setupConnection: (Connection) -> Unit = {},
     databaseConfig: DatabaseConfig? = null,
-    manager: (Database) -> TransactionManager = { ThreadLocalTransactionManager(it) }
+    manager: (Database) -> TransactionManager = { TransactionManager(it) }
 ) =
     socketConnectionConfig.exposedDatabaseConnect(rdbms, driver, setupConnection, databaseConfig, manager)

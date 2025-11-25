@@ -10,18 +10,47 @@ import io.vertx.core.buffer.Buffer
 import io.vertx.kotlin.coroutines.coAwait
 import io.vertx.sqlclient.*
 import kotlinx.coroutines.coroutineScope
-import org.jetbrains.exposed.dao.id.EntityID
-import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.Query
-import org.jetbrains.exposed.sql.statements.InsertStatement
-import org.jetbrains.exposed.sql.statements.Statement
-import org.jetbrains.exposed.sql.statements.UpdateStatement
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.core.*
+import org.jetbrains.exposed.v1.core.dao.id.EntityID
+import org.jetbrains.exposed.v1.core.statements.InsertStatement
+import org.jetbrains.exposed.v1.core.statements.Statement
+import org.jetbrains.exposed.v1.core.statements.UpdateStatement
+import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.Query
+import org.jetbrains.exposed.v1.jdbc.SchemaUtils
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.transactions.transactionManager
 import org.slf4j.LoggerFactory
+import java.sql.Connection
 import java.util.function.Function
+import kotlin.Any
+import kotlin.AssertionError
+import kotlin.Boolean
+import kotlin.Deprecated
+import kotlin.DeprecationLevel
+import kotlin.Exception
+import kotlin.IllegalArgumentException
+import kotlin.Int
+import kotlin.NotImplementedError
+import kotlin.OptIn
+import kotlin.Pair
+import kotlin.PublishedApi
+import kotlin.ReplaceWith
+import kotlin.String
+import kotlin.Suppress
+import kotlin.Unit
+import kotlin.also
+import kotlin.collections.map
+import kotlin.let
 import kotlin.reflect.KClass
+import kotlin.require
+import kotlin.run
 import kotlin.sequences.Sequence
-import org.jetbrains.exposed.sql.Transaction as ExposedTransaction
+import kotlin.sequences.map
+import kotlin.text.Regex
+import kotlin.text.matches
+import kotlin.to
+import org.jetbrains.exposed.v1.core.Transaction as ExposedTransaction
 
 @ExperimentalEvscApi
 typealias ExposedArguments = Iterable<Pair<IColumnType<*>, Any?>>
@@ -35,7 +64,11 @@ fun Statement<*>.singleStatementArguments() =
 fun ExposedArguments.toVertxTuple(): Tuple =
     Tuple.wrap(map {
         val value = it.second
-        if (value is EntityID<*>) value.value else value
+        when (value) {
+            is EntityID<*> -> value.value
+            is List<*> -> value.toTypedArray()
+            else -> value
+        }
     })
 
 @ExperimentalEvscApi
@@ -50,21 +83,6 @@ fun Statement<*>.getVertxSqlClientArgTuple() =
     singleStatementArguments()?.toVertxTuple()
 
 
-@ExperimentalEvscApi
-fun String.toVertxPgClientPreparedSql(): String {
-    val stringBuilder = StringBuilder(length * 2)
-    var i = 1
-    for (c in this)
-        if (c == '?') stringBuilder.append('$').append(i++)
-        else stringBuilder.append(c)
-    return stringBuilder.toString()
-}
-
-// TODO: context receivers
-@ExperimentalEvscApi
-fun Statement<*>.getVertxPgClientPreparedSql(transaction: ExposedTransaction) =
-    prepareSQL(transaction).toVertxPgClientPreparedSql()
-
 @InternalApi
 fun dbAssert(b: Boolean) {
     if (!b)
@@ -76,30 +94,59 @@ internal val logger = LoggerFactory.getLogger(DatabaseClient::class.java)
 
 /**
  * A wrapper client around Vert.x [SqlClient] for queries and an Exposed [Database] to generate SQLs working around the limitations of Exposed.
- *
- * @param validateBatch whether to validate whether the batch statements have the same generated prepared SQL. It's recommended to keep this enabled for tests but disabled for production.
  */
 @OptIn(ExperimentalApi::class)
+// TODO also consider adding `DatabaseClientConfig` as a type parameter and `PgDatabaseClientConfig` a subtype for specific dialect operations.
 class DatabaseClient<out VertxSqlClientT : SqlClient>(
     val vertxSqlClient: VertxSqlClientT,
     val exposedDatabase: Database,
-    // TODO consider adding a `isProduction` parameter whose default depends on the runtime
-    val validateBatch: Boolean = true,
-    val logSql: Boolean = false
+    val config: DatabaseClientConfig
 ) : CoroutineAutoCloseable {
+    /*
+    companion object {
+        private const val FUNCTION_TRANSFORMING_ROWS_USING_PREPARED_QUERY_MAPPING_DEPRECATED_MESSAGE =
+            "This function transforms rows using Vert.x's `PreparedQuery.mapping` and is deprecated. " +
+                    "The Vert.x `RowSet` stores all the results in a List rather fetch as needed, so using `PreparedQuery.mapping` doesn't bring any performance benefits compared to using Kotlin's `map`. " +
+                    "In addition, the Exposed `transaction` can be created on a finer-grained level only for the Kotlin `map` process from Vert.x `Row`s to Exposed `ResultRow`s."
+    }
+    */
+
     override suspend fun close() {
         vertxSqlClient.close().coAwait()
         // How to close The Exposed `Database`?
     }
 
-    // TODO consider splitting into 2, one with `readOnly` set to true and isolation level `NONE` / READ UNCOMMITED for SQL generation, and a normal one for Exposed execution
-    // TODO also consider adding the 2 parameters `transactionIsolation` and `readOnly` with default arguments
+    // Alternatively, just remove the `exposedTransaction` function(s).
+    /*
+    @Deprecated(
+        "Use `exposedReadOnlyTransaction` for preparing data for and processing the result from the Vert.x SQL Client. " +
+                "Otherwise, use the `transaction` function from Exposed directly."
+    )
+    */
+    @Deprecated(
+        "Use the overload with all the transaction parameters.",
+        level = DeprecationLevel.HIDDEN
+    )
     fun <T> exposedTransaction(statement: ExposedTransaction.() -> T) =
-        transaction(exposedDatabase, statement)
+        exposedTransaction(statement = statement)
+
+    fun <T> exposedTransaction(
+        // default arguments copied from `transaction`
+        transactionIsolation: Int? = exposedDatabase/*?*/.transactionManager/*?*/.defaultIsolationLevel,
+        readOnly: Boolean? = exposedDatabase/*?*/.transactionManager/*?*/.defaultReadOnly,
+        statement: ExposedTransaction.() -> T
+    ) =
+        transaction(exposedDatabase, transactionIsolation, readOnly, statement)
+
+    // alternative name: `exposedTransactionNoneReadOnlyTransaction`
+    fun <T> exposedReadOnlyTransaction(
+        statement: ExposedTransaction.() -> T
+    ) =
+        transaction(exposedDatabase, Connection.TRANSACTION_NONE, true, statement)
 
     private fun Statement<*>.prepareSqlAndLogIfNeeded(transaction: ExposedTransaction) =
         prepareSQL(transaction).also {
-            if (logSql) logger.info("Prepared SQL: $it.")
+            if (config.logSql) logger.info("Prepared SQL: $it.")
         }
 
     suspend fun executePlainSql(sql: String): RowSet<Row> =
@@ -122,11 +169,11 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
             "withContext(Dispatchers.IO) { exposedTransaction { SchemaUtils.create(table) } }",
             "kotlinx.coroutines.withContext",
             "kotlinx.coroutines.Dispatchers",
-            "org.jetbrains.exposed.sql.SchemaUtils"
+            "org.jetbrains.exposed.v1.jdbc.SchemaUtils"
         )
     )
     suspend fun createTable(table: Table) =
-        executePlainSqlUpdate(exposedTransaction {
+        executePlainSqlUpdate(exposedReadOnlyTransaction {
             //table.createStatement()
             (table.ddl + table.indices.flatMap { it.createStatement() }).joinSqls()
         })
@@ -138,11 +185,11 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
             "withContext(Dispatchers.IO) { exposedTransaction { SchemaUtils.drop(table) } }",
             "kotlinx.coroutines.withContext",
             "kotlinx.coroutines.Dispatchers",
-            "org.jetbrains.exposed.sql.SchemaUtils"
+            "org.jetbrains.exposed.v1.jdbc.SchemaUtils"
         )
     )
     suspend fun dropTable(table: Table) =
-        executePlainSqlUpdate(exposedTransaction {
+        executePlainSqlUpdate(exposedReadOnlyTransaction {
             table.dropStatement().joinSqls()
         })
 
@@ -161,8 +208,8 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
         statement: Statement<*>,
         transformQuery: PreparedQuery<RowSet<Row>>.() -> PreparedQuery<SqlResultT>
     ): SqlResultT {
-        val (sql, argTuple) = exposedTransaction {
-            statement.prepareSqlAndLogIfNeeded(this).toVertxPgClientPreparedSql() to
+        val (sql, argTuple) = exposedReadOnlyTransaction {
+            config.transformPreparedSql(statement.prepareSqlAndLogIfNeeded(this)) to
                     statement.getVertxSqlClientArgTuple()
         }
         return vertxSqlClient.preparedQuery(sql)
@@ -174,31 +221,107 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     suspend fun executeForVertxSqlClientRowSet(statement: Statement<*>): RowSet<Row> =
         execute(statement) { this }
 
-    @ExperimentalEvscApi
-    suspend fun <U> executeWithMapping(statement: Statement<*>, RowMapper: Function<Row, U>): RowSet<U> =
-        execute(statement) { mapping(RowMapper) }
 
-    // TODO call `getFieldExpressionSet` inside existing transactions (the ones used to prepare the query) to further optimize the performance
+    /*
+    @Deprecated(
+        FUNCTION_TRANSFORMING_ROWS_USING_PREPARED_QUERY_MAPPING_DEPRECATED_MESSAGE,
+        ReplaceWith("executeForVertxSqlClientRowSet(statement).map(rowMapper)")
+    )
+    */
+    // no longer used by other non-experimental APIs of ours
+    @ExperimentalEvscApi
+    suspend fun <U> executeWithMapping(statement: Statement<*>, rowMapper: Function<Row, U>): RowSet<U> =
+        execute(statement) { mapping(rowMapper) }
+
+    // TODO temporarily kept, remove these in the future
+    // If these functions are to be kept, consider renaming them to `...WithExposedTransaction` to make it clearer that an Exposed `transaction` is used.
+
+    @Deprecated("This API is no longer used and will be removed.")
     @ExperimentalEvscApi
     fun FieldSet.getFieldExpressionSetWithTransaction() =
-        exposedTransaction { getFieldExpressionSet() }
+        exposedReadOnlyTransaction { getFieldExpressionSet() }
 
     @Deprecated("This function is called nowhere except `Row.toExposedResultRowWithTransaction`. Consider inlining and removing it.")
     @ExperimentalEvscApi
     fun Query.getFieldExpressionSetWithTransaction() =
         set.getFieldExpressionSetWithTransaction()
 
+    @Deprecated(
+        "This API is no longer used and will be removed. " +
+                "This is also of potential poor performance if accidentally called to transform multiple rows."
+    )
     @ExperimentalEvscApi
-    fun Row.toExposedResultRowWithTransaction(query: Query) =
+    private fun Row.toExposedResultRowWithTransaction(query: Query) =
         toExposedResultRow(query.getFieldExpressionSetWithTransaction())
 
-    suspend inline fun <Data> executeQuery(
-        query: Query, crossinline resultRowMapper: ResultRow.() -> Data
-    ): RowSet<Data> =
-        executeWithMapping(query) { row -> row.toExposedResultRowWithTransaction(query).resultRowMapper() }
+    @PublishedApi
+    internal inline fun <T> runWithOptionalReadOnlyExposedTransaction(
+        withExposedTransaction: Boolean, crossinline block: () -> T
+    ): T =
+        if (withExposedTransaction)
+            exposedReadOnlyTransaction { block() }
+        else
+            block()
 
-    suspend fun executeQuery(query: Query): RowSet<ResultRow> =
-        executeQuery(query) { this }
+    @ExperimentalEvscApi
+    fun Query.getFieldExpressionSetWithOptionalReadOnlyExposedTransaction(getFieldExpressionSetWithExposedTransaction: Boolean) =
+        runWithOptionalReadOnlyExposedTransaction(getFieldExpressionSetWithExposedTransaction) { getFieldExpressionSet() }
+
+    /**
+     * @param getFieldExpressionSetWithExposedTransaction see [DatabaseClientConfig.autoExposedTransaction]
+     */
+    /*
+    @Deprecated(
+        FUNCTION_TRANSFORMING_ROWS_USING_PREPARED_QUERY_MAPPING_DEPRECATED_MESSAGE,
+        ReplaceWith("executeQuery(query).map(resultRowMapper)")
+    )
+    */
+    suspend inline fun <Data> executeQuery(
+        query: Query,
+        getFieldExpressionSetWithExposedTransaction: Boolean = config.autoExposedTransaction,
+        crossinline resultRowMapper: ResultRow.() -> Data
+    ): RowSet<Data> =
+        execute(query) {
+            @OptIn(ExperimentalEvscApi::class)
+            val fieldExpressionSet = query.getFieldExpressionSetWithOptionalReadOnlyExposedTransaction(
+                getFieldExpressionSetWithExposedTransaction
+            )
+            mapping { row ->
+                row.toExposedResultRow(fieldExpressionSet).resultRowMapper()
+            }
+        }
+
+    /**
+     * @param getFieldExpressionSetWithExposedTransaction see [DatabaseClientConfig.autoExposedTransaction]
+     */
+    /*
+    @Deprecated(
+        FUNCTION_TRANSFORMING_ROWS_USING_PREPARED_QUERY_MAPPING_DEPRECATED_MESSAGE,
+        ReplaceWith("executeQuery(query, TODO())"),
+        DeprecationLevel.HIDDEN
+    )
+    */
+    suspend fun executeQuery(
+        query: Query,
+        getFieldExpressionSetWithExposedTransaction: Boolean = config.autoExposedTransaction
+    ): RowSet<ResultRow> =
+        executeQuery(query, getFieldExpressionSetWithExposedTransaction) { this }
+
+    /**
+     * An alternative API to [executeQuery] that returns a [List] instead of a [RowSet].
+     * @param getFieldExpressionSetWithExposedTransaction see [DatabaseClientConfig.autoExposedTransaction]
+     */
+    @ExperimentalEvscApi
+    suspend fun executeQueryForList(
+        query: Query,
+        getFieldExpressionSetWithExposedTransaction: Boolean = config.autoExposedTransaction
+    ): List<ResultRow> {
+        val rowSet = executeForVertxSqlClientRowSet(query)
+        val fieldExpressionSet = query.getFieldExpressionSetWithOptionalReadOnlyExposedTransaction(
+            getFieldExpressionSetWithExposedTransaction
+        )
+        return rowSet.map { row -> row.toExposedResultRow(fieldExpressionSet) }
+    }
 
     suspend fun executeUpdate(statement: Statement<Int>): Int =
         executeForVertxSqlClientRowSet(statement).rowCount()
@@ -211,17 +334,17 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
 
 
     @Deprecated(
-        "Use `selectExpression` in the \"sql-dsl\" module instead.",
+        "Use `selectExpression` in the `crud` module instead.",
         ReplaceWith(
-            "selectExpression<T>(clazz, expression)", "com.huanshankeji.exposedvertxsqlclient.sql.selectExpression"
+            "selectExpression<T>(clazz, expression)", "com.huanshankeji.exposedvertxsqlclient.crud.selectExpression"
         )
     )
     suspend fun <T : Any> executeExpression(clazz: KClass<T>, expression: Expression<T?>): T? =
         throw NotImplementedError()
 
     @Deprecated(
-        "Use `selectExpression` in the \"sql-dsl\" module instead.",
-        ReplaceWith("selectExpression<T>(expression)", "com.huanshankeji.exposedvertxsqlclient.sql.selectExpression")
+        "Use `selectExpression` in the `crud` module instead.",
+        ReplaceWith("selectExpression<T>(expression)", "com.huanshankeji.exposedvertxsqlclient.crud.selectExpression")
     )
     suspend inline fun <reified T> executeExpression(expression: Expression<T>): T =
         throw NotImplementedError()
@@ -235,9 +358,9 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
 
 
     /**
-     * @see org.jetbrains.exposed.sql.batchInsert
-     * @see org.jetbrains.exposed.sql.executeBatch
-     * @see org.jetbrains.exposed.sql.statements.BatchUpdateStatement.addBatch though this function seems never used in Exposed
+     * @see org.jetbrains.exposed.v1.jdbc.batchInsert
+     * @see org.jetbrains.exposed.v1.jdbc.executeBatch
+     * @see org.jetbrains.exposed.v1.core.statements.BatchUpdateStatement.addBatch though this function seems never used in Exposed
      * @see PreparedQuery.executeBatch
      * @see execute
      */
@@ -248,7 +371,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     ): Sequence<SqlResultT> {
         //if (data.none()) return emptySequence() // This causes "java.lang.IllegalStateException: This sequence can be consumed only once." when `data` is a `ConstrainedOnceSequence`.
 
-        val (sql, argTuples) = exposedTransaction {
+        val (sql, argTuples) = exposedReadOnlyTransaction {
             var sql: String? = null
             //var argumentTypes: List<IColumnType>? = null
 
@@ -260,9 +383,9 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
                 if (sql === null) {
                     sql = statement.prepareSqlAndLogIfNeeded(this)
                     //argumentTypes = arguments.types()
-                } else if (validateBatch) {
+                } else if (config.validateBatch) {
                     val currentSql = statement.prepareSQL(this)
-                    require(currentSql == sql!!) {
+                    require(currentSql == sql) {
                         "The statement after set by `setUpStatement` each time should generate the same prepared SQL statement. " +
                                 "However, we have got SQL statement \"$sql\" set by each previous element" +
                                 "and SQL statement \"$currentSql\" set by the current statement $statement."
@@ -286,8 +409,8 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
         if (sql === null)
             return emptySequence()
 
-        val pgSql = sql.toVertxPgClientPreparedSql()
-        return vertxSqlClient.preparedQuery(pgSql)
+        val vertxSqlClientSql = config.transformPreparedSql(sql)
+        return vertxSqlClient.preparedQuery(vertxSqlClientSql)
             .transformQuery()
             .executeBatchAwaitForSqlResultSequence(argTuples)
     }
@@ -298,12 +421,17 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
 
     /**
      * @see executeBatch
+     * @param getFieldExpressionSetWithExposedTransaction see [DatabaseClientConfig.autoExposedTransaction]
      */
     @ExperimentalEvscApi
     suspend inline fun <Data> executeBatchQuery(
-        fieldSet: FieldSet, queries: Iterable<Query>, crossinline resultRowMapper: ResultRow.() -> Data
+        fieldSet: FieldSet,
+        queries: Iterable<Query>,
+        getFieldExpressionSetWithExposedTransaction: Boolean = config.autoExposedTransaction,
+        crossinline resultRowMapper: ResultRow.() -> Data
     ): Sequence<RowSet<Data>> {
-        val fieldExpressionSet = fieldSet.getFieldExpressionSetWithTransaction()
+        val fieldExpressionSet =
+            runWithOptionalReadOnlyExposedTransaction(getFieldExpressionSetWithExposedTransaction) { fieldSet.getFieldExpressionSet() }
         return executeBatch(queries) {
             mapping { row -> row.toExposedResultRow(fieldExpressionSet).resultRowMapper() }
         }
@@ -352,29 +480,29 @@ fun Row.toExposedResultRow(fieldExpressionSet: Set<Expression<*>>) =
         }.toMap()
     )
 
-private const val USE_THE_ONE_IN_DATABASE_CLIENT_BECAUSE_TRANSACTION_REQUIRED_MESSAGE =
-    "Use the one in `DatabaseClient` because a transaction may be required."
 
 /**
  * An Exposed transaction is required if the [FieldSet] contains custom functions that depend on dialects.
  */
-//@Deprecated(USE_THE_ONE_IN_DATABASE_CLIENT_BECAUSE_TRANSACTION_REQUIRED_MESSAGE)
 fun FieldSet.getFieldExpressionSet() =
-    /** [org.jetbrains.exposed.sql.AbstractQuery.ResultIterator.fieldsIndex] */
+    /** [org.jetbrains.exposed.v1.jdbc.Query.ResultIterator.fieldIndex] */
     realFields.toSet()
 
 /**
  * @see FieldSet.getFieldExpressionSet
  */
-@Deprecated("This function is called nowhere except `Row.toExposedResultRow`. Consider inlining and removing it.")
-//@Deprecated(USE_THE_ONE_IN_DATABASE_CLIENT_BECAUSE_TRANSACTION_REQUIRED_MESSAGE)
 fun Query.getFieldExpressionSet() =
     set.getFieldExpressionSet()
 
 /**
  * @see FieldSet.getFieldExpressionSet
  */
-//@Deprecated(USE_THE_ONE_IN_DATABASE_CLIENT_BECAUSE_TRANSACTION_REQUIRED_MESSAGE)
+
+@Deprecated(
+    "It's a rare case that only one row is transformed and this function calls `Query.getFieldExpressionSet` when transforming every row. " +
+            "Call `getFieldExpressionSet` directly with or without an Exposed `transaction` yourself to have finer-grained control and slightly improve performance.",
+    ReplaceWith("toExposedResultRow(query.getFieldExpressionSet())")
+)
 fun Row.toExposedResultRow(query: Query) =
     toExposedResultRow(query.getFieldExpressionSet())
 
@@ -387,6 +515,7 @@ fun Int.singleOrNoUpdate() =
         else -> throw SingleUpdateException(this)
     }
 
+// TODO move to separate `TransactionsAndRollbacks.kt`, `Transactions.kt`, and `Rollbacks.kt` files
 // TODO these functions related to transactions and savepoints should be moved to kotlin-common and can possibly be contributed to Vert.x
 
 /**
@@ -396,7 +525,7 @@ fun Int.singleOrNoUpdate() =
 suspend fun <T> DatabaseClient<Pool>.withTransaction(function: suspend (DatabaseClient<SqlConnection>) -> T): T =
     coroutineScope {
         vertxSqlClient.withTransaction {
-            coroutineToFuture { function(DatabaseClient(it, exposedDatabase)) }
+            coroutineToFuture { function(DatabaseClient(it, exposedDatabase, config)) }
         }.coAwait()
     }
 

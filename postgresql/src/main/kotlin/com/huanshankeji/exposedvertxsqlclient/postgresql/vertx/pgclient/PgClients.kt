@@ -2,7 +2,6 @@
 
 package com.huanshankeji.exposedvertxsqlclient.postgresql.vertx.pgclient
 
-import com.huanshankeji.Untested
 import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig
 import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
 import com.huanshankeji.exposedvertxsqlclient.vertx.sqlclient.CoConnectHandler
@@ -79,10 +78,10 @@ fun createPgPool(
 
 /**
  * @see createGenericSqlClient
+ * @param vertx Non-null. See [PgConnection.connect].
  */
-@Untested
 suspend fun createPgConnection(
-    vertx: Vertx?,
+    vertx: Vertx,
     connectionConfig: ConnectionConfig,
     extraPgConnectOptions: PgConnectOptions.() -> Unit = {},
     connectHandlerExtra: CoConnectHandler = null
