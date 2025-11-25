@@ -1,6 +1,25 @@
-# Change log
+# Changelog
 
-## v0.5.0 / 2024-11-29
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased] ([0.6.0] - 2025-11-25)
+
+### Added
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
+## [0.5.0] - 2024-11-29
 
 Because of [the Exposed SELECT DSL design changes](https://github.com/JetBrains/Exposed/pull/1916), and also because the old `DatabaseClient` creation APIs were poorly designed and too cumbersome, causing additional cognitive burdens on the users, this release has been completely overhauled. Some old APIs are removed directly because deprecating and delegating them to new ones fills the code base with unused code. Therefore, this release is **not source-compatible or binary-compatible** with v0.4.0. Please do not update unless you have time to adapt to the refactored changes. We are sorry for the inconvenience. From this version on, we will try to maintain source and binary compatibility, deprecating APIs instead of removing them in the foreseeable future.
 
@@ -40,8 +59,16 @@ Miscellaneous changes:
 * use the Kotlin binary compatibility validator
 * bump Exposed to v0.56.0
 
-## v0.4.0 / 2024-10-19
+## [0.4.0] / 2024-10-19
 
 * bump Exposed to 0.53.0
 * fix a bug that an Exposed transaction is required if a query `FieldSet` contains custom functions depending on dialects and no such a transaction is provided
 * Add a basic usage guide
+
+[Unreleased]: https://github.com/huanshankeji/exposed-vertx-sql-client/compare/v0.5.0...HEAD
+
+[0.6.0]: https://github.com/huanshankeji/exposed-vertx-sql-client/compare/v0.5.0...v0.6.0
+
+[0.5.0]: https://github.com/huanshankeji/exposed-vertx-sql-client/compare/v0.4.0...v0.5.0
+
+[0.4.0]: https://github.com/huanshankeji/exposed-vertx-sql-client/releases/tag/v0.4.0
