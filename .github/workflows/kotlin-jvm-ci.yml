@@ -4,8 +4,8 @@ on:
   workflow_dispatch:
   push:
     branches: ["*"]
-#  pull_request:
-#    branches: [ "*" ]
+  pull_request:
+    branches: [ "*" ]
 
 jobs:
   test-and-check:
@@ -17,11 +17,6 @@ jobs:
       - uses: huanshankeji/.github/actions/gradle-test-and-check@v0.2.0
         with:
           jdk-versions: 11-temurin, 17-temurin
-
-      - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
 
   dependency-submission:
     runs-on: ubuntu-latest

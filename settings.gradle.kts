@@ -1,3 +1,7 @@
+plugins {
+    id("org.jetbrains.kotlinx.kover.aggregation") version "0.9.3"
+}
+
 rootProject.name = "exposed-vertx-sql-client"
 
 include("core")
@@ -21,5 +25,12 @@ rootProject.setProjectConcatenatedNames("")
 dependencyResolutionManagement {
     repositories {
         mavenCentral()
+    }
+}
+
+kover {
+    enableCoverage()
+    reports {
+        excludedProjects.add(":exposed-vertx-sql-client-integrated")
     }
 }
