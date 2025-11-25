@@ -50,7 +50,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Use extracted CI actions.
 - Enable Gradle Configuration Cache.
 - Bump Dokka to 2.1.0.
-- Improve the Exposed transaction benchmarks, fixing some bugs, better ruling out the overhead of some implementations, and benchmarking the performance improvements of read-only Exposed transactions (as a result, there aren't any).
+- Improve the Exposed transaction benchmarks, fixing some bugs, better ruling out the overhead of some implementations, and benchmarking the performance improvements of read-only Exposed transactions, which showed no significant improvements.
 - Onboard with Copilot.
 
 ## [0.5.0] - 2024-11-29
