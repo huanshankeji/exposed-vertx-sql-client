@@ -33,7 +33,7 @@ The repository uses Gradle's `settings.gradle.kts` with concatenated project nam
 2. **postgresql** (`exposed-vertx-sql-client-postgresql`) - PostgreSQL-specific implementation
 3. **mysql** (`exposed-vertx-sql-client-mysql`) - MySQL-specific implementation
 4. **oracle** (`exposed-vertx-sql-client-oracle`) - Oracle-specific implementation
-5. **mssql** (`exposed-vertx-sql-client-mssql`) - Microsoft SQL Server implementation
+5. **mssql** (`exposed-vertx-sql-client-mssql`) - Implementation specific to Microsoft SQL Server
 6. **crud** (`exposed-vertx-sql-client-crud`) - Extension CRUD operations
 7. **crud-with-mapper** (`exposed-vertx-sql-client-crud-with-mapper`) - CRUD with GADT mapping support
 8. **integrated** (`exposed-vertx-sql-client-integrated`) - Integration tests, benchmarks and examples (not published)
