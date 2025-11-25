@@ -99,7 +99,7 @@ Miscellaneous changes:
 * fix a bug that an Exposed transaction is required if a query `FieldSet` contains custom functions depending on dialects and no such a transaction is provided
 * Add a basic usage guide
 
-[Unreleased]: https://github.com/huanshankeji/exposed-vertx-sql-client/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/huanshankeji/exposed-vertx-sql-client/compare/v0.6.0...HEAD
 [0.6.0]: https://github.com/huanshankeji/exposed-vertx-sql-client/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/huanshankeji/exposed-vertx-sql-client/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/huanshankeji/exposed-vertx-sql-client/releases/tag/v0.4.0
