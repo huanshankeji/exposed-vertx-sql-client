@@ -29,7 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - JVM toolchain / JDK 11 (required by Vert.x)
   - Gradle 9.2.1
   - SLF4J 2.0.17
-- Migrate to Exposed 1.0.0 (#33) and Vert.x 5 (#27). Some APIs are updated accordingly.
+- Migrate to Exposed 1.0.0 and Vert.x 5 (#33, #27). Some APIs are updated accordingly.
 - Update the instructions including the user guide in README.md (#51, #50).
 - Rename the `sql-dsl` modules to `crud` modules to better reflect their contents.
 - Revamp Exposed transaction handling in `DatabaseClient`, not always creating only possibly needed Exposed transactions (#44). If you encounter "No transaction in context." issues, see the corresponding section in README.md.
