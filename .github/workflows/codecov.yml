@@ -33,9 +33,10 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Test and generate Kover Report with Gradle Wrapper
-        run: ./gradlew test -Pkover koverHtmlReport
+        run: ./gradlew test -Pkover koverXmlReport
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v5
         with:
+          files: ./build/reports/kover/report.xml
           token: ${{ secrets.CODECOV_TOKEN }}
