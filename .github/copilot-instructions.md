@@ -7,18 +7,18 @@ This is **Exposed Vert.x SQL Client**, a Kotlin library that provides integratio
 
 ### High Level Repository Information
 - **Type**: Kotlin JVM library project
-- **Size**: Medium-sized (6 modules across core, database-specific, and CRUD extensions)
-- **Languages**: Kotlin (445 source files), Gradle Kotlin DSL for build scripts
+- **Size**: Medium-sized (8 modules across core, database-specific, and CRUD extensions)
+- **Languages**: Kotlin (~450 source files), Gradle Kotlin DSL for build scripts
 - **Target Platform**: JVM (JDK 11+)
 - **Build System**: Gradle with custom convention plugins in buildSrc
 - **Documentation**: Generated with Dokka
-- **Testing**: Benchmarks only (no unit tests, quality validated by internal consuming projects)
+- **Testing**: Integration tests in `integrated` module using Testcontainers, plus benchmarks
 
 **Key Facts:**
-- Language: Kotlin (445 source files)
+- Language: Kotlin (~450 source files)
 - Build: Gradle (Gradle 9.1.0, Kotlin 2.2.21)
 - JVM Target: JDK 11 (configured via `kotlin.jvmToolchain(11)`)
-- Supported Databases: PostgreSQL (stable), MySQL (experimental since v0.6.0)
+- Supported Databases: PostgreSQL, MySQL, Oracle, Microsoft SQL Server
 - Size: ~18MB repository
 - Current Version: 0.6.0-SNAPSHOT
 - Exposed Version: v1.0.0-rc-3 (important: stick to this exact version for compatibility)
@@ -31,10 +31,12 @@ The repository uses Gradle's `settings.gradle.kts` with concatenated project nam
 
 1. **core** (`exposed-vertx-sql-client-core`) - Core abstractions and base functionality
 2. **postgresql** (`exposed-vertx-sql-client-postgresql`) - PostgreSQL-specific implementation
-3. **mysql** (`exposed-vertx-sql-client-mysql`) - MySQL-specific implementation (experimental)
-4. **crud** (`exposed-vertx-sql-client-crud`) - Extension CRUD operations
-5. **crud-with-mapper** (`exposed-vertx-sql-client-crud-with-mapper`) - CRUD with GADT mapping support
-6. **integrated** (`exposed-vertx-sql-client-integrated`) - Benchmarks and examples (not published)
+3. **mysql** (`exposed-vertx-sql-client-mysql`) - MySQL-specific implementation
+4. **oracle** (`exposed-vertx-sql-client-oracle`) - Oracle-specific implementation
+5. **mssql** (`exposed-vertx-sql-client-mssql`) - Implementation specific to Microsoft SQL Server
+6. **crud** (`exposed-vertx-sql-client-crud`) - Extension CRUD operations
+7. **crud-with-mapper** (`exposed-vertx-sql-client-crud-with-mapper`) - CRUD with GADT mapping support
+8. **integrated** (`exposed-vertx-sql-client-integrated`) - Integration tests, benchmarks and examples (not published)
 
 ### Key Files and Directories
 
@@ -84,15 +86,15 @@ Always ensure JDK 11 or higher is properly configured before building. The proje
    ```bash
    ./gradlew clean build
    ```
-   - Time: ~35-50 seconds for clean build (without daemon), ~2-5 seconds with daemon
-   - What it does: Compiles all modules, runs tests (NO-SOURCE - no tests exist), validates API compatibility
+   - Time: ~4-5 minutes for clean build with tests, ~5-15 seconds with daemon for incremental builds
+   - What it does: Compiles all modules, runs integration tests, validates API compatibility
 
 2. **Check** (validation only - recommended for verifying changes):
    ```bash
    ./gradlew check
    ```
-   - Time: ~45-50 seconds clean
-   - What it does: Runs all verification tasks including `apiCheck`
+   - Time: ~4-5 minutes (includes integration tests with Testcontainers)
+   - What it does: Runs all verification tasks including `apiCheck` and integration tests
    - **This is what CI runs** via the `gradle-test-and-check` action
 
 3. **API Compatibility Check** (required after API changes):
@@ -126,11 +128,11 @@ Always ensure JDK 11 or higher is properly configured before building. The proje
 ### Build Timing and Known Issues
 
 **Timing Expectations**:
-- First build: ~35-50 seconds (includes dependency resolution)
-- Subsequent builds: ~2-5 seconds (with daemon)
-- Clean builds: ~35-50 seconds
-- Check task: ~45-50 seconds
-- API validation: ~18 seconds
+- First build with tests: ~4-5 minutes (includes dependency resolution and Testcontainers startup)
+- Subsequent builds with daemon: ~5-15 seconds for incremental changes
+- Clean builds with tests: ~4-5 minutes
+- Check task: ~4-5 minutes (runs integration tests)
+- API validation only: ~18 seconds
 
 **Common Warnings (can be ignored)**:
 - Dokka package-list download errors from external sites (builds still succeed)
@@ -160,20 +162,28 @@ Always ensure JDK 11 or higher is properly configured before building. The proje
 
 ## Testing
 
-**Current State:** This project has NO unit tests. The `test` task always shows `NO-SOURCE`.
+**Current State:** This project has integration tests in the `integrated` module using Testcontainers.
+
+**Integration Tests:** Located in `integrated/src/test/kotlin/` using Kotest framework with Testcontainers:
+```bash
+./gradlew :exposed-vertx-sql-client-integrated:test
+```
+- Tests run against real database instances via Testcontainers
+- Multiple integration tests covering core functionality across different databases
 
 **Benchmarks:** Located in `integrated/src/benchmarks/kotlin/` using kotlinx-benchmark:
 ```bash
 ./gradlew :exposed-vertx-sql-client-integrated:benchmark
 ```
 
-**Quality Assurance:** The project's quality is validated by internal consuming projects (not in this repo).
+**Quality Assurance:** The project's quality is also validated by internal consuming projects (not in this repo).
 
 ## CI/CD Pipeline
 
-**GitHub Actions Workflow:** `.github/workflows/kotlin-jvm-ci.yml`
+**GitHub Actions Workflows:**
 
-Runs on every push to any branch:
+### `.github/workflows/kotlin-jvm-ci.yml` (Main CI)
+Runs on every push and pull request to any branch:
 1. **test-and-check** job:
    - Uses shared action: `huanshankeji/.github/actions/gradle-test-and-check@v0.2.0`
    - Tests with: JDK 11-temurin, JDK 17-temurin
@@ -181,6 +191,18 @@ Runs on every push to any branch:
 
 2. **dependency-submission** job:
    - Submits dependency graph to GitHub
+
+### `.github/workflows/codecov.yml` (Code Coverage)
+- Runs tests with Kover and uploads coverage reports to Codecov
+- Triggered on push and pull request to any branch
+
+### `.github/workflows/dokka-gh-pages.yml` (Documentation)
+- Deploys API documentation to GitHub Pages
+- Triggered on push/PR to `plugins-release` branch
+- Generates documentation with `./gradlew :dokkaGeneratePublicationHtml`
+
+### `.github/workflows/copilot-setup-steps.yml` (Copilot Setup)
+- Sets up JDK 11 and 17 with Gradle for Copilot coding agent
 
 **To replicate CI locally:**
 ```bash
@@ -191,8 +213,10 @@ Runs on every push to any branch:
 
 Before check-in, the following validations run:
 1. **Compilation**: All modules compile successfully
-2. **API Compatibility**: Binary compatibility validation via `apiCheck`
-3. **Dependency Analysis**: Automated dependency submission to GitHub (in CI)
+2. **Integration Tests**: Run via Testcontainers against real database instances
+3. **API Compatibility**: Binary compatibility validation via `apiCheck`
+4. **Dependency Analysis**: Automated dependency submission to GitHub (in CI)
+5. **Code Coverage**: Coverage reports uploaded to Codecov (in CI)
 
 **Code Style:**
 - Follow [our Kotlin code style guide](https://github.com/huanshankeji/.github/blob/main/kotlin-code-style.md) for all Kotlin code contributions
@@ -253,6 +277,8 @@ module-name/
 **Database-specific packages:**
 - `postgresql/` - In postgresql module
 - `mysql/` - In mysql module
+- `oracle/` - In oracle module
+- `mssql/` - In mssql module
 
 ### Important Implementation Details
 
