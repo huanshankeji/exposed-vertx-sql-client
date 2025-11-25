@@ -33,7 +33,7 @@ The repository uses Gradle's `settings.gradle.kts` with concatenated project nam
 2. **postgresql** (`exposed-vertx-sql-client-postgresql`) - PostgreSQL-specific implementation
 3. **mysql** (`exposed-vertx-sql-client-mysql`) - MySQL-specific implementation
 4. **oracle** (`exposed-vertx-sql-client-oracle`) - Oracle-specific implementation
-5. **mssql** (`exposed-vertx-sql-client-mssql`) - Microsoft SQL Server-specific implementation
+5. **mssql** (`exposed-vertx-sql-client-mssql`) - Microsoft SQL Server implementation
 6. **crud** (`exposed-vertx-sql-client-crud`) - Extension CRUD operations
 7. **crud-with-mapper** (`exposed-vertx-sql-client-crud-with-mapper`) - CRUD with GADT mapping support
 8. **integrated** (`exposed-vertx-sql-client-integrated`) - Integration tests, benchmarks and examples (not published)
@@ -183,15 +183,18 @@ Always ensure JDK 11 or higher is properly configured before building. The proje
 **GitHub Actions Workflows:**
 
 ### `.github/workflows/kotlin-jvm-ci.yml` (Main CI)
-Runs on every push to any branch:
+Runs on every push and pull request to any branch:
 1. **test-and-check** job:
    - Uses shared action: `huanshankeji/.github/actions/gradle-test-and-check@v0.2.0`
    - Tests with: JDK 11-temurin, JDK 17-temurin
    - Runs: `./gradlew check`
-   - Uploads coverage to Codecov
 
 2. **dependency-submission** job:
    - Submits dependency graph to GitHub
+
+### `.github/workflows/codecov.yml` (Code Coverage)
+- Runs tests with Kover and uploads coverage reports to Codecov
+- Triggered on push and pull request to any branch
 
 ### `.github/workflows/dokka-gh-pages.yml` (Documentation)
 - Deploys API documentation to GitHub Pages
