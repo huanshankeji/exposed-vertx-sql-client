@@ -18,7 +18,7 @@ import kotlin.sequences.Sequence
 
 suspend inline fun <Data> DatabaseClient<*>.select(
     columnSet: ColumnSet,
-    buildQuery: ColumnSet.() -> Query,
+    buildQuery: ColumnSet.() -> AbstractQuery<*>,
     getFieldExpressionSetWithExposedTransaction: Boolean = config.autoExposedTransaction,
     crossinline resultRowMapper: ResultRow.() -> Data
 ): RowSet<Data> =
@@ -26,7 +26,7 @@ suspend inline fun <Data> DatabaseClient<*>.select(
 
 suspend inline fun DatabaseClient<*>.select(
     columnSet: ColumnSet,
-    buildQuery: ColumnSet.() -> Query,
+    buildQuery: ColumnSet.() -> AbstractQuery<*>,
     getFieldExpressionSetWithExposedTransaction: Boolean = config.autoExposedTransaction
 ): RowSet<ResultRow> =
     @Suppress("MoveLambdaOutsideParentheses")
@@ -143,7 +143,7 @@ suspend fun <T : Table> DatabaseClient<*>.update(
  */
 @ExperimentalEvscApi
 suspend fun <E> DatabaseClient<*>.selectBatch(
-    fieldSet: FieldSet, buildQuery: FieldSet.(E) -> Query, data: Iterable<E>
+    fieldSet: FieldSet, buildQuery: FieldSet.(E) -> AbstractQuery<*>, data: Iterable<E>
 ): Sequence<RowSet<ResultRow>> =
     executeBatchQuery(fieldSet, data.asSequence().map { fieldSet.buildQuery(it) }.asIterable())
 
