@@ -21,7 +21,6 @@ import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.jdbc.transactions.transactionManager
 import org.slf4j.LoggerFactory
-import java.sql.Connection
 import java.util.function.Function
 import kotlin.Any
 import kotlin.AssertionError
@@ -142,7 +141,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     fun <T> exposedReadOnlyTransaction(
         statement: ExposedTransaction.() -> T
     ) =
-        transaction(exposedDatabase, Connection.TRANSACTION_NONE, true, statement)
+        transaction(exposedDatabase, config.readOnlyTransactionIsolationLevel, true, statement)
 
     private fun Statement<*>.prepareSqlAndLogIfNeeded(transaction: ExposedTransaction) =
         prepareSQL(transaction).also {

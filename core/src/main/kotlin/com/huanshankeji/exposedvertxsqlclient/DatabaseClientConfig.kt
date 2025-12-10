@@ -1,6 +1,7 @@
 package com.huanshankeji.exposedvertxsqlclient
 
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import java.sql.Connection
 
 interface DatabaseClientConfig {
     /**
@@ -21,6 +22,8 @@ interface DatabaseClientConfig {
      */
     val autoExposedTransaction: Boolean
 
+    val readOnlyTransactionIsolationLevel: Int?
+
     /**
      * Transform Exposed's prepared SQL to Vert.x SQL Client's prepared SQL.
      */
@@ -35,12 +38,14 @@ inline fun DatabaseClientConfig(
     validateBatch: Boolean = true,
     logSql: Boolean = false,
     autoExposedTransaction: Boolean = false,
+    readOnlyTransactionIsolationLevel: Int? = Connection.TRANSACTION_READ_UNCOMMITTED,
     crossinline exposedPreparedSqlToVertxSqlClientPreparedSql: (preparedSql: String) -> String
 ) =
     object : DatabaseClientConfig {
         override val validateBatch: Boolean = validateBatch
         override val logSql: Boolean = logSql
         override val autoExposedTransaction: Boolean = autoExposedTransaction
+        override val readOnlyTransactionIsolationLevel: Int? = readOnlyTransactionIsolationLevel
         override fun transformPreparedSql(exposedPreparedSql: String): String =
             exposedPreparedSqlToVertxSqlClientPreparedSql(exposedPreparedSql)
     }
