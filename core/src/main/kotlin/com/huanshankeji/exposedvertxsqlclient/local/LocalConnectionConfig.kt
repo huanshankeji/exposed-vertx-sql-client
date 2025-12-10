@@ -12,6 +12,7 @@ import com.huanshankeji.net.LOCALHOST
  * A kind of connection config that can produce both a [ConnectionConfig.Socket] and a [ConnectionConfig.UnixDomainSocketWithPeerAuthentication]
  * to connect to a local database server.
  */
+@ExperimentalEvscApi
 class LocalConnectionConfig(
     val socketConnectionPort: Int? = null,
     val unixDomainSocketPath: String,
