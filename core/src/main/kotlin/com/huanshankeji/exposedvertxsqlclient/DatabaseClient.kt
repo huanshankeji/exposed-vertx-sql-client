@@ -387,14 +387,14 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
                     val currentSql = statement.prepareSQL(this)
                     require(currentSql == sql) {
                         "The statement after set by `setUpStatement` each time should generate the same prepared SQL statement. " +
-                                "However, we have got SQL statement \"$sql\" set by each previous element" +
+                                "However, we have got SQL statement \"$sql\" set by each previous element (at least one)" +
                                 "and SQL statement \"$currentSql\" set by the current statement $statement."
                     }
                     /*
                     val currentElementArgumentTypes = arguments.types()
                     require(currentElementArgumentTypes == argumentTypes!!) {
-                        "The statement after set by `setUpStatement` each time should generate the same arguments. " +
-                                "However we have got argument types $argumentTypes set by each previous element" +
+                        "The statement after set by `setUpStatement` each time should generate the same argument types. " +
+                                "However we have got argument types $argumentTypes set by each previous element (at least one)" +
                                 "and argument types $currentElementArgumentTypes set by the current element $element"
                     }
                     */
