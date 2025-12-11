@@ -2,7 +2,7 @@
 
 package com.huanshankeji.exposedvertxsqlclient
 
-import io.kotest.matchers.shouldBe
+import com.huanshankeji.exposedvertxsqlclient.crud.insert
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
@@ -26,8 +26,8 @@ class ReadOnlyTransactionTests :
                 }
 
                 // Verify we can read the data
-                results.size shouldBe 2
-                results.map { it[Examples.name] }.toSet() shouldBe setOf("ReadOnlyTest1", "ReadOnlyTest2")
+                assert(results.size == 2)
+                assert(results.map { it[Examples.name] }.toSet() == setOf("ReadOnlyTest1", "ReadOnlyTest2"))
             }
         }
 
@@ -41,7 +41,7 @@ class ReadOnlyTransactionTests :
                     Examples.select(Examples.name).where(Examples.id eq 1).single()
                 }
 
-                result[Examples.name] shouldBe "QueryTest"
+                assert(result[Examples.name] == "QueryTest")
             }
         }
 
@@ -57,7 +57,7 @@ class ReadOnlyTransactionTests :
                     Examples.selectAll().count()
                 }
 
-                count shouldBe 1L
+                assert(count == 1L)
             }
         }
 
@@ -93,7 +93,7 @@ class ReadOnlyTransactionTests :
                     Examples.selectAll().single()
                 }
 
-                result[Examples.name] shouldBe "CustomIsolationTest"
+                assert(result[Examples.name] == "CustomIsolationTest")
             }
         }
 
@@ -127,7 +127,7 @@ class ReadOnlyTransactionTests :
                     Examples.selectAll().single()
                 }
 
-                result[Examples.name] shouldBe "NullIsolationTest"
+                assert(result[Examples.name] == "NullIsolationTest")
             }
         }
     })
