@@ -22,6 +22,9 @@ interface DatabaseClientConfig {
      */
     val autoExposedTransaction: Boolean
 
+    /**
+     * The transaction isolation level used in [transaction] in [DatabaseClient.exposedReadOnlyTransaction].
+     */
     val readOnlyTransactionIsolationLevel: Int?
 
     /**

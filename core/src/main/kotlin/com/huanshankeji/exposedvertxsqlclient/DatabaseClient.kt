@@ -138,6 +138,9 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
         transaction(exposedDatabase, transactionIsolation, readOnly, statement)
 
     // alternative name: `exposedTransactionNoneReadOnlyTransaction`
+    /**
+     * @see DatabaseClientConfig.readOnlyTransactionIsolationLevel
+     */
     fun <T> exposedReadOnlyTransaction(
         statement: ExposedTransaction.() -> T
     ) =
