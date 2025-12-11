@@ -36,9 +36,9 @@ class ReadOnlyTransactionTests :
                 // Insert test data
                 databaseClient.insert(Examples) { it[name] = "QueryTest" }
 
-                // Execute a select query in read-only transaction
+                // Execute a select query in read-only transaction using name instead of assuming ID
                 val result = databaseClient.exposedReadOnlyTransaction {
-                    Examples.select(Examples.name).where(Examples.id eq 1).single()
+                    Examples.select(Examples.name).where(Examples.name eq "QueryTest").single()
                 }
 
                 assert(result[Examples.name] == "QueryTest")
