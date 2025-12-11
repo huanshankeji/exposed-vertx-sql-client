@@ -84,8 +84,8 @@ public abstract interface class com/huanshankeji/exposedvertxsqlclient/DatabaseC
 }
 
 public final class com/huanshankeji/exposedvertxsqlclient/DatabaseClientConfigKt {
-	public static final fun DatabaseClientConfig (ZZZLjava/lang/Integer;Lkotlin/jvm/functions/Function1;)Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClientConfig;
-	public static synthetic fun DatabaseClientConfig$default (ZZZLjava/lang/Integer;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClientConfig;
+	public static final fun DatabaseClientConfig (ZZLjava/lang/Integer;ZLkotlin/jvm/functions/Function1;)Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClientConfig;
+	public static synthetic fun DatabaseClientConfig$default (ZZLjava/lang/Integer;ZLkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClientConfig;
 }
 
 public final class com/huanshankeji/exposedvertxsqlclient/DatabaseClientKt {

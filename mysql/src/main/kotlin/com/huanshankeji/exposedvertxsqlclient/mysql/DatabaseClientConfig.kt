@@ -14,4 +14,4 @@ fun MysqlDatabaseClientConfig(
     autoExposedTransaction: Boolean = false
 ) =
     @OptIn(ExperimentalEvscApi::class)
-    DatabaseClientConfig(validateBatch, logSql, autoExposedTransaction, readOnlyTransactionIsolationLevel, { it })
+    DatabaseClientConfig(validateBatch, logSql, readOnlyTransactionIsolationLevel, autoExposedTransaction, { it })

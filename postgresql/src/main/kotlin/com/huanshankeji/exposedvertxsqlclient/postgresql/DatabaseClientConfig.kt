@@ -15,5 +15,5 @@ fun PgDatabaseClientConfig(
 ) =
     @OptIn(ExperimentalEvscApi::class)
     DatabaseClientConfig(
-        validateBatch, logSql, autoExposedTransaction, readOnlyTransactionIsolationLevel, String::transformPgPreparedSql
+        validateBatch, logSql, readOnlyTransactionIsolationLevel, autoExposedTransaction, String::transformPgPreparedSql
     )

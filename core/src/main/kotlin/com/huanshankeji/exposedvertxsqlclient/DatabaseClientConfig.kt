@@ -11,6 +11,11 @@ interface DatabaseClientConfig {
     val logSql: Boolean
 
     /**
+     * The transaction isolation level used in [transaction] in [DatabaseClient.exposedReadOnlyTransaction].
+     */
+    val readOnlyTransactionIsolationLevel: Int?
+
+    /**
      * Whether to always run some steps that possibly require Exposed [transaction]s in Exposed [transaction]s.
      *
      * As some Exposed APIs implicitly require a transaction and the requirements sometimes change between versions,
@@ -21,11 +26,6 @@ interface DatabaseClientConfig {
      * Enabling this option slightly degrades performance but reduces the likelihood of running into `java.lang.IllegalStateException: No transaction in context.`.
      */
     val autoExposedTransaction: Boolean
-
-    /**
-     * The transaction isolation level used in [transaction] in [DatabaseClient.exposedReadOnlyTransaction].
-     */
-    val readOnlyTransactionIsolationLevel: Int?
 
     /**
      * Transform Exposed's prepared SQL to Vert.x SQL Client's prepared SQL.
@@ -40,15 +40,15 @@ inline fun DatabaseClientConfig(
     // TODO consider adding a `isProduction` parameter whose default depends on the runtime
     validateBatch: Boolean = true,
     logSql: Boolean = false,
-    autoExposedTransaction: Boolean = false,
     readOnlyTransactionIsolationLevel: Int? = Connection.TRANSACTION_READ_UNCOMMITTED,
+    autoExposedTransaction: Boolean = false,
     crossinline exposedPreparedSqlToVertxSqlClientPreparedSql: (preparedSql: String) -> String
 ) =
     object : DatabaseClientConfig {
         override val validateBatch: Boolean = validateBatch
         override val logSql: Boolean = logSql
-        override val autoExposedTransaction: Boolean = autoExposedTransaction
         override val readOnlyTransactionIsolationLevel: Int? = readOnlyTransactionIsolationLevel
+        override val autoExposedTransaction: Boolean = autoExposedTransaction
         override fun transformPreparedSql(exposedPreparedSql: String): String =
             exposedPreparedSqlToVertxSqlClientPreparedSql(exposedPreparedSql)
     }

@@ -17,7 +17,7 @@ fun MssqlDatabaseClientConfig(
     DatabaseClientConfig(
         validateBatch,
         logSql,
-        autoExposedTransaction,
         readOnlyTransactionIsolationLevel,
+        autoExposedTransaction,
         String::transformMssqlPreparedSql
     )
