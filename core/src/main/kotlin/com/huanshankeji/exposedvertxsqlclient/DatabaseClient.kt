@@ -148,7 +148,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
 
     @Deprecated(
         "Renamed to `exposedStatementPreparationTransaction`.",
-        ReplaceWith("this.exposedStatementPreparationTransaction(statement)")
+        ReplaceWith("exposedStatementPreparationTransaction(statement)")
     )
     fun <T> exposedReadOnlyTransaction(
         statement: ExposedTransaction.() -> T
