@@ -255,7 +255,7 @@ assert(fullFilms.size() == 2)
 If you encounter
 `java.lang.IllegalStateException: No transaction in context.` in your code, inspect the exception stacktrace and try these options:
 
-1. wrap the `Statement` creation call with `databaseClient.exposedReadOnlyTransaction { ... }`.
+1. wrap the `Statement` creation call with `databaseClient.statementPreparationExposedTransaction { ... }`.
 
    For example, this can happen if you call `Query.forUpdate()` without a transaction. In such a case, you can also use our `Query.forUpdateWithTransaction()` instead.
 

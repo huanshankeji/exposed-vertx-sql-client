@@ -10,14 +10,14 @@ import java.sql.Connection
 fun MssqlDatabaseClientConfig(
     validateBatch: Boolean = true,
     logSql: Boolean = false,
-    readOnlyTransactionIsolationLevel: Int? = Connection.TRANSACTION_READ_UNCOMMITTED,
+    statementPreparationExposedTransactionIsolationLevel: Int? = Connection.TRANSACTION_READ_UNCOMMITTED,
     autoExposedTransaction: Boolean = false
 ) =
     @OptIn(ExperimentalEvscApi::class)
     DatabaseClientConfig(
         validateBatch,
         logSql,
-        readOnlyTransactionIsolationLevel,
+        statementPreparationExposedTransactionIsolationLevel,
         autoExposedTransaction,
         String::transformMssqlPreparedSql
     )
