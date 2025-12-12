@@ -72,7 +72,7 @@ public final class com/huanshankeji/exposedvertxsqlclient/DatabaseClient : com/h
 	public final fun getFieldExpressionSetWithTransaction (Lorg/jetbrains/exposed/v1/jdbc/Query;)Ljava/util/Set;
 	public final fun getVertxSqlClient ()Lio/vertx/sqlclient/SqlClient;
 	public final fun isWorking (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun runWithOptionalReadOnlyExposedTransaction (ZLkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+	public final fun runWithOptionalStatementPreparationExposedTransaction (ZLkotlin/jvm/functions/Function0;)Ljava/lang/Object;
 	public final fun statementPreparationExposedTransaction (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
 }
 
