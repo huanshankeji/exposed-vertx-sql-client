@@ -11,7 +11,7 @@ interface DatabaseClientConfig {
     val logSql: Boolean
 
     /**
-     * The transaction isolation level used in [transaction] in [DatabaseClient.exposedReadOnlyTransaction].
+     * The transaction isolation level used in [transaction] in [DatabaseClient.exposedStatementPreparationTransaction].
      */
     val readOnlyTransactionIsolationLevel: Int?
 
