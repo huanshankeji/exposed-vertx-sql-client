@@ -62,7 +62,6 @@ public final class com/huanshankeji/exposedvertxsqlclient/DatabaseClient : com/h
 	public final fun executeUpdate (Lorg/jetbrains/exposed/v1/core/statements/Statement;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun executeWithMapping (Lorg/jetbrains/exposed/v1/core/statements/Statement;Ljava/util/function/Function;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun exposedReadOnlyTransaction (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
-	public final fun exposedStatementPreparationTransaction (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
 	public final fun exposedTransaction (Ljava/lang/Integer;Ljava/lang/Boolean;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
 	public final synthetic fun exposedTransaction (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
 	public static synthetic fun exposedTransaction$default (Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClient;Ljava/lang/Integer;Ljava/lang/Boolean;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ljava/lang/Object;
@@ -74,12 +73,13 @@ public final class com/huanshankeji/exposedvertxsqlclient/DatabaseClient : com/h
 	public final fun getVertxSqlClient ()Lio/vertx/sqlclient/SqlClient;
 	public final fun isWorking (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun runWithOptionalReadOnlyExposedTransaction (ZLkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+	public final fun statementPreparationExposedTransaction (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
 }
 
 public abstract interface class com/huanshankeji/exposedvertxsqlclient/DatabaseClientConfig {
 	public abstract fun getAutoExposedTransaction ()Z
 	public abstract fun getLogSql ()Z
-	public abstract fun getStatementPreparationTransactionIsolationLevel ()Ljava/lang/Integer;
+	public abstract fun getStatementPreparationExposedTransactionIsolationLevel ()Ljava/lang/Integer;
 	public abstract fun getValidateBatch ()Z
 	public abstract fun transformPreparedSql (Ljava/lang/String;)Ljava/lang/String;
 }

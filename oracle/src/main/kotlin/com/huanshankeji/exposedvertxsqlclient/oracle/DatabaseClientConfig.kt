@@ -10,14 +10,14 @@ import java.sql.Connection
 fun OracleDatabaseClientConfig(
     validateBatch: Boolean = true,
     logSql: Boolean = false,
-    statementPreparationTransactionIsolationLevel: Int? = Connection.TRANSACTION_READ_UNCOMMITTED,
+    statementPreparationExposedTransactionIsolationLevel: Int? = Connection.TRANSACTION_READ_UNCOMMITTED,
     autoExposedTransaction: Boolean = false
 ) =
     @OptIn(ExperimentalEvscApi::class)
     DatabaseClientConfig(
         validateBatch,
         logSql,
-        statementPreparationTransactionIsolationLevel,
+        statementPreparationExposedTransactionIsolationLevel,
         autoExposedTransaction,
         { it }
     )

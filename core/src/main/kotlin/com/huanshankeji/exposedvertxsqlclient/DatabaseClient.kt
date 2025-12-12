@@ -118,7 +118,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     // Alternatively, just remove the `exposedTransaction` function(s).
     /*
     @Deprecated(
-        "Use `statementPreparationTransaction` for preparing data for and processing the result from the Vert.x SQL Client. " +
+        "Use `statementPreparationExposedTransaction` for preparing data for and processing the result from the Vert.x SQL Client. " +
                 "Otherwise, use the `transaction` function from Exposed directly."
     )
     */
@@ -138,21 +138,21 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
         transaction(exposedDatabase, transactionIsolation, readOnly, statement)
 
     /**
-     * @see DatabaseClientConfig.statementPreparationTransactionIsolationLevel
+     * @see DatabaseClientConfig.statementPreparationExposedTransactionIsolationLevel
      */
-    fun <T> exposedStatementPreparationTransaction(
+    fun <T> statementPreparationExposedTransaction(
         statement: ExposedTransaction.() -> T
     ) =
-        transaction(exposedDatabase, config.statementPreparationTransactionIsolationLevel, true, statement)
+        transaction(exposedDatabase, config.statementPreparationExposedTransactionIsolationLevel, true, statement)
 
     @Deprecated(
-        "Renamed to `exposedStatementPreparationTransaction`.",
-        ReplaceWith("exposedStatementPreparationTransaction(statement)")
+        "Renamed to `statementPreparationExposedTransaction`.",
+        ReplaceWith("statementPreparationExposedTransaction(statement)")
     )
     fun <T> exposedReadOnlyTransaction(
         statement: ExposedTransaction.() -> T
     ) =
-        exposedStatementPreparationTransaction(statement)
+        statementPreparationExposedTransaction(statement)
 
     private fun Statement<*>.prepareSqlAndLogIfNeeded(transaction: ExposedTransaction) =
         prepareSQL(transaction).also {
@@ -183,7 +183,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
         )
     )
     suspend fun createTable(table: Table) =
-        executePlainSqlUpdate(exposedStatementPreparationTransaction {
+        executePlainSqlUpdate(statementPreparationExposedTransaction {
             //table.createStatement()
             (table.ddl + table.indices.flatMap { it.createStatement() }).joinSqls()
         })
@@ -199,7 +199,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
         )
     )
     suspend fun dropTable(table: Table) =
-        executePlainSqlUpdate(exposedStatementPreparationTransaction {
+        executePlainSqlUpdate(statementPreparationExposedTransaction {
             table.dropStatement().joinSqls()
         })
 
@@ -218,7 +218,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
         statement: Statement<*>,
         transformQuery: PreparedQuery<RowSet<Row>>.() -> PreparedQuery<SqlResultT>
     ): SqlResultT {
-        val (sql, argTuple) = exposedStatementPreparationTransaction {
+        val (sql, argTuple) = statementPreparationExposedTransaction {
             config.transformPreparedSql(statement.prepareSqlAndLogIfNeeded(this)) to
                     statement.getVertxSqlClientArgTuple()
         }
@@ -249,7 +249,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     @Deprecated("This API is no longer used and will be removed.")
     @ExperimentalEvscApi
     fun FieldSet.getFieldExpressionSetWithTransaction() =
-        exposedStatementPreparationTransaction { getFieldExpressionSet() }
+        statementPreparationExposedTransaction { getFieldExpressionSet() }
 
     @Deprecated("This function is called nowhere except `Row.toExposedResultRowWithTransaction`. Consider inlining and removing it.")
     @ExperimentalEvscApi
@@ -269,7 +269,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
         withExposedTransaction: Boolean, crossinline block: () -> T
     ): T =
         if (withExposedTransaction)
-            exposedStatementPreparationTransaction { block() }
+            statementPreparationExposedTransaction { block() }
         else
             block()
 
@@ -381,7 +381,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     ): Sequence<SqlResultT> {
         //if (data.none()) return emptySequence() // This causes "java.lang.IllegalStateException: This sequence can be consumed only once." when `data` is a `ConstrainedOnceSequence`.
 
-        val (sql, argTuples) = exposedStatementPreparationTransaction {
+        val (sql, argTuples) = statementPreparationExposedTransaction {
             var sql: String? = null
             //var argumentTypes: List<IColumnType>? = null
 
