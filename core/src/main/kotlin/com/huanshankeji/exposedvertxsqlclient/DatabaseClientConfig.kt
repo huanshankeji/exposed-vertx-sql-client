@@ -13,7 +13,7 @@ interface DatabaseClientConfig {
     /**
      * The transaction isolation level used in [transaction] in [DatabaseClient.exposedStatementPreparationTransaction].
      */
-    val readOnlyTransactionIsolationLevel: Int?
+    val statementPreparationTransactionIsolationLevel: Int?
 
     /**
      * Whether to always run some steps that possibly require Exposed [transaction]s in Exposed [transaction]s.
@@ -40,14 +40,14 @@ inline fun DatabaseClientConfig(
     // TODO consider adding a `isProduction` parameter whose default depends on the runtime
     validateBatch: Boolean = true,
     logSql: Boolean = false,
-    readOnlyTransactionIsolationLevel: Int? = Connection.TRANSACTION_READ_UNCOMMITTED,
+    statementPreparationTransactionIsolationLevel: Int? = Connection.TRANSACTION_READ_UNCOMMITTED,
     autoExposedTransaction: Boolean = false,
     crossinline exposedPreparedSqlToVertxSqlClientPreparedSql: (preparedSql: String) -> String
 ) =
     object : DatabaseClientConfig {
         override val validateBatch: Boolean = validateBatch
         override val logSql: Boolean = logSql
-        override val readOnlyTransactionIsolationLevel: Int? = readOnlyTransactionIsolationLevel
+        override val statementPreparationTransactionIsolationLevel: Int? = statementPreparationTransactionIsolationLevel
         override val autoExposedTransaction: Boolean = autoExposedTransaction
         override fun transformPreparedSql(exposedPreparedSql: String): String =
             exposedPreparedSqlToVertxSqlClientPreparedSql(exposedPreparedSql)

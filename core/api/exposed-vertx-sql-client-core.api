@@ -79,7 +79,7 @@ public final class com/huanshankeji/exposedvertxsqlclient/DatabaseClient : com/h
 public abstract interface class com/huanshankeji/exposedvertxsqlclient/DatabaseClientConfig {
 	public abstract fun getAutoExposedTransaction ()Z
 	public abstract fun getLogSql ()Z
-	public abstract fun getReadOnlyTransactionIsolationLevel ()Ljava/lang/Integer;
+	public abstract fun getStatementPreparationTransactionIsolationLevel ()Ljava/lang/Integer;
 	public abstract fun getValidateBatch ()Z
 	public abstract fun transformPreparedSql (Ljava/lang/String;)Ljava/lang/String;
 }

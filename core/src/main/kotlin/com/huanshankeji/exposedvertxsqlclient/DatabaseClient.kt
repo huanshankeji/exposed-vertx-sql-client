@@ -139,12 +139,12 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
 
     // alternative name: `exposedTransactionNoneReadOnlyTransaction`
     /**
-     * @see DatabaseClientConfig.readOnlyTransactionIsolationLevel
+     * @see DatabaseClientConfig.statementPreparationTransactionIsolationLevel
      */
     fun <T> exposedStatementPreparationTransaction(
         statement: ExposedTransaction.() -> T
     ) =
-        transaction(exposedDatabase, config.readOnlyTransactionIsolationLevel, true, statement)
+        transaction(exposedDatabase, config.statementPreparationTransactionIsolationLevel, true, statement)
 
     @Deprecated(
         "Renamed to `exposedStatementPreparationTransaction`.",
