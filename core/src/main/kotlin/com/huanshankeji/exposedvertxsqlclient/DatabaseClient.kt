@@ -118,7 +118,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     // Alternatively, just remove the `exposedTransaction` function(s).
     /*
     @Deprecated(
-        "Use `exposedReadOnlyTransaction` for preparing data for and processing the result from the Vert.x SQL Client. " +
+        "Use `statementPreparationTransaction` for preparing data for and processing the result from the Vert.x SQL Client. " +
                 "Otherwise, use the `transaction` function from Exposed directly."
     )
     */
@@ -137,7 +137,6 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     ) =
         transaction(exposedDatabase, transactionIsolation, readOnly, statement)
 
-    // alternative name: `exposedTransactionNoneReadOnlyTransaction`
     /**
      * @see DatabaseClientConfig.statementPreparationTransactionIsolationLevel
      */
