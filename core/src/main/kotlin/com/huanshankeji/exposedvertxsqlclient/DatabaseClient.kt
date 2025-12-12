@@ -265,7 +265,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
         toExposedResultRow(query.getFieldExpressionSetWithTransaction())
 
     @PublishedApi
-    internal inline fun <T> runWithOptionalReadOnlyExposedTransaction(
+    internal inline fun <T> runWithOptionalStatementPreparationExposedTransaction(
         withExposedTransaction: Boolean, crossinline block: () -> T
     ): T =
         if (withExposedTransaction)
@@ -275,7 +275,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
 
     @ExperimentalEvscApi
     fun Query.getFieldExpressionSetWithOptionalReadOnlyExposedTransaction(getFieldExpressionSetWithExposedTransaction: Boolean) =
-        runWithOptionalReadOnlyExposedTransaction(getFieldExpressionSetWithExposedTransaction) { getFieldExpressionSet() }
+        runWithOptionalStatementPreparationExposedTransaction(getFieldExpressionSetWithExposedTransaction) { getFieldExpressionSet() }
 
     /**
      * @param getFieldExpressionSetWithExposedTransaction see [DatabaseClientConfig.autoExposedTransaction]
@@ -441,7 +441,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
         crossinline resultRowMapper: ResultRow.() -> Data
     ): Sequence<RowSet<Data>> {
         val fieldExpressionSet =
-            runWithOptionalReadOnlyExposedTransaction(getFieldExpressionSetWithExposedTransaction) { fieldSet.getFieldExpressionSet() }
+            runWithOptionalStatementPreparationExposedTransaction(getFieldExpressionSetWithExposedTransaction) { fieldSet.getFieldExpressionSet() }
         return executeBatch(queries) {
             mapping { row -> row.toExposedResultRow(fieldExpressionSet).resultRowMapper() }
         }
