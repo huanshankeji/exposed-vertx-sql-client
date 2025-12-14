@@ -25,6 +25,12 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
         transaction(database) {}
     }
 
+    @Benchmark
+    fun transactionWithDefaultDb() {
+        transaction {}
+    }
+
+
     companion object {
         const val `10K` = 10_000
 
