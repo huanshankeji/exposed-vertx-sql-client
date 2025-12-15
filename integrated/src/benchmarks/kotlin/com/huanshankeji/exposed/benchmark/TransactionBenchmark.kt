@@ -38,10 +38,9 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
     companion object {
         const val `10K` = 10_000
 
-        private fun numProcessors() =
-            Runtime.getRuntime().availableProcessors().also {
-                println("Number of processors: $it")
-            }
+        private val numProcessors = Runtime.getRuntime().availableProcessors().also {
+            println("Number of processors: $it")
+        }
     }
 
     @Benchmark
@@ -74,7 +73,7 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
      */
     @Suppress("SuspendFunctionOnCoroutineScope")
     private suspend inline fun CoroutineScope.awaitAsync10KCountingThreads(crossinline block: () -> Unit) {
-        val threadMap = ConcurrentHashMap.newKeySet<Thread>(numProcessors())
+        val threadMap = ConcurrentHashMap.newKeySet<Thread>(numProcessors)
         List(`10K`) {
             async {
                 threadMap.add(Thread.currentThread())
@@ -110,7 +109,7 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
         //runBlocking { awaitAsync10KTransactions() } // This does not run on multiple threads as tested.
         @OptIn(ExperimentalCoroutinesApi::class, DelicateCoroutinesApi::class)
         // `newFixedThreadPoolContext(numProcessors(), "multiple threads")` yields much poorer results.
-        Executors.newFixedThreadPool(numProcessors()).asCoroutineDispatcher().use {
+        Executors.newFixedThreadPool(numProcessors).asCoroutineDispatcher().use {
             runBlocking(it) {
                 awaitAsync10KTransactions()
             }
@@ -119,7 +118,7 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
     @Benchmark
     fun multiThread_MultiConnection_Each_10K_LocalTransactions() {
         // Note that on a device with heterogeneous architecture some threads may finish earlier than others.
-        List(numProcessors()) {
+        List(numProcessors) {
             thread {
                 val database = databaseConnect()
                 repeat(`10K`) { transaction(database) {} }
@@ -130,7 +129,7 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
     }
 
     private inline fun multiThread_10K_NearlyEvenlyPartitioned_Helper(
-        numThreads: Int = numProcessors(),
+        numThreads: Int = numProcessors,
         crossinline threadBlock: (num: Int) -> Unit
     ) {
         // Note that on a device with heterogeneous architecture some threads may finish earlier than others.
@@ -203,7 +202,7 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
 
     @Benchmark
     fun multiThread_2x_numProcessors_threads_Parallel_10K_suspendTransactions_NearlyEvenlyPartitioned() {
-        multiThread_10K_NearlyEvenlyPartitioned_Helper(2 * numProcessors()) { num ->
+        multiThread_10K_NearlyEvenlyPartitioned_Helper(2 * numProcessors) { num ->
             runBlocking { repeat(num) { suspendTransaction(database) {} } }
         }
     }
@@ -212,9 +211,9 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
     // This performs poorly.
     @Benchmark
     fun multiThread_Parallel_10K_Transactions_NearlyEvenlyPartitioned_With_CoroutineFlow_FlatMapMerge() {
-        val numThreads = numProcessors()
+        val numThreads = numProcessors
         // This dispatcher actually makes performance worse.
-        Executors.newFixedThreadPool(numProcessors()).asCoroutineDispatcher().use {
+        Executors.newFixedThreadPool(numThreads).asCoroutineDispatcher().use {
             runBlocking(it) {
                 (0 until `10K`).asFlow()
                     .flatMapMerge(concurrency = numThreads) {
@@ -280,7 +279,7 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
 
     @Setup
     fun setUpThreadLocalDatabases() {
-        dispatcherWithThreadLocalDatabases = Executors.newFixedThreadPool(numProcessors()) {
+        dispatcherWithThreadLocalDatabases = Executors.newFixedThreadPool(numProcessors) {
             Thread {
                 it.run()
                 databaseThreadLocal.set(databaseConnect())
