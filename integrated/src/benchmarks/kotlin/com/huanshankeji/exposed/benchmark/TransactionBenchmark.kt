@@ -44,17 +44,17 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
     }
 
     @Benchmark
-    fun _10K_Transactions() {
+    fun _10K_transactions() {
         repeat(`10K`) { transaction(database) {} }
     }
 
     @Benchmark
-    fun transactionNone_ReadOnly_10K_Transaction() {
+    fun transactionNone_readOnly_10K_transaction() {
         repeat(`10K`) { transaction(database, Connection.TRANSACTION_NONE, true) {} }
     }
 
     @Benchmark
-    fun transactionReadUncommitted_ReadOnly_10K_Transaction() {
+    fun transactionReadUncommitted_readOnly_10K_transaction() {
         repeat(`10K`) { transaction(database, Connection.TRANSACTION_READ_UNCOMMITTED, true) {} }
     }
 
@@ -91,7 +91,7 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
      * Compare with [RunBlockingAwaitAsyncsBenchmark].
      */
     @Benchmark
-    fun singleThreadConcurrent10KTransactions() =
+    fun singleThread_concurrent_10K_transactions() =
         @OptIn(ExperimentalCoroutinesApi::class, DelicateCoroutinesApi::class)
         // `newSingleThreadContext("single thread")` yields poorer results.
         Executors.newSingleThreadExecutor().asCoroutineDispatcher().use {
@@ -105,7 +105,7 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
      * Compare with [ParameterizedRunBlockingAwaitAsyncsBenchmark].
      */
     @Benchmark
-    fun multiThreadConcurrent10KTransactionsWithSharedDatabase() =
+    fun multiThread_concurrent_10K_transactions_with_shared_database() =
         //runBlocking { awaitAsync10KTransactions() } // This does not run on multiple threads as tested.
         @OptIn(ExperimentalCoroutinesApi::class, DelicateCoroutinesApi::class)
         // `newFixedThreadPoolContext(numProcessors(), "multiple threads")` yields much poorer results.
@@ -116,7 +116,7 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
         }
 
     @Benchmark
-    fun multiThread_MultiConnection_Each_10K_LocalTransactions() {
+    fun multiThread_multiConnection_each_10K_localTransactions() {
         // Note that on a device with heterogeneous architecture some threads may finish earlier than others.
         List(numProcessors) {
             thread {
@@ -128,7 +128,7 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
         }
     }
 
-    private inline fun multiThread_10K_NearlyEvenlyPartitioned_Helper(
+    private inline fun multiThread_10K_nearlyEvenlyPartitioned_helper(
         numThreads: Int = numProcessors,
         crossinline threadBlock: (num: Int) -> Unit
     ) {
@@ -143,36 +143,36 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
     }
 
 
-    private inline fun multiThread_MultiConnection_InTotal_10K_Local_Transactions_NearlyEvenlyPartitioned_Helper(
+    private inline fun multiThread_multiConnection_inTotal_10K_local_transactions_nearlyEvenlyPartitioned_helper(
         crossinline transactionBlock: (database: Database) -> Unit
     ) {
-        multiThread_10K_NearlyEvenlyPartitioned_Helper { num ->
+        multiThread_10K_nearlyEvenlyPartitioned_helper { num ->
             val database = databaseConnect()
             repeat(num) { transactionBlock(database) }
         }
     }
 
     @Benchmark
-    fun multiThread_MultiConnection_InTotal_10K_Local_Transactions_NearlyEvenlyPartitioned() =
-        multiThread_MultiConnection_InTotal_10K_Local_Transactions_NearlyEvenlyPartitioned_Helper { database ->
+    fun multiThread_multiConnection_inTotal_10K_local_transactions_nearlyEvenlyPartitioned() =
+        multiThread_multiConnection_inTotal_10K_local_transactions_nearlyEvenlyPartitioned_helper { database ->
             transaction(database) {}
         }
 
     @Benchmark
-    fun multiThread_MultiConnection_InTotal_10K_Local_TransactionNone_ReadOnly_Transactions_NearlyEvenlyPartitioned() =
-        multiThread_MultiConnection_InTotal_10K_Local_Transactions_NearlyEvenlyPartitioned_Helper { database ->
+    fun multiThread_multiConnection_inTotal_10K_local_transactionNone_readOnly_transactions_nearlyEvenlyPartitioned() =
+        multiThread_multiConnection_inTotal_10K_local_transactions_nearlyEvenlyPartitioned_helper { database ->
             transaction(database, Connection.TRANSACTION_NONE, true) {}
         }
 
     @Benchmark
     fun multiThread_MultiConnection_InTotal_10K_Local_TransactionReadUncommitted_ReadOnly_Transactions_NearlyEvenlyPartitioned() =
-        multiThread_MultiConnection_InTotal_10K_Local_Transactions_NearlyEvenlyPartitioned_Helper { database ->
+        multiThread_multiConnection_inTotal_10K_local_transactions_nearlyEvenlyPartitioned_helper { database ->
             transaction(database, Connection.TRANSACTION_READ_UNCOMMITTED, true) {}
         }
 
 
     private inline fun multiThread_Parallel_10K_Transactions_NearlyEvenlyPartitioned_Helper(crossinline transactionBlock: () -> Unit) {
-        multiThread_10K_NearlyEvenlyPartitioned_Helper { num ->
+        multiThread_10K_nearlyEvenlyPartitioned_helper { num ->
             repeat(num) { transactionBlock() }
         }
     }
@@ -195,14 +195,14 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
 
     @Benchmark
     fun multiThread_Parallel_10K_suspendTransactions_NearlyEvenlyPartitioned() {
-        multiThread_10K_NearlyEvenlyPartitioned_Helper { num ->
+        multiThread_10K_nearlyEvenlyPartitioned_helper { num ->
             runBlocking { repeat(num) { suspendTransaction(database) {} } }
         }
     }
 
     @Benchmark
-    fun multiThread_with_2x_numProcessors_threads_Parallel_10K_suspendTransactions_NearlyEvenlyPartitioned() {
-        multiThread_10K_NearlyEvenlyPartitioned_Helper(2 * numProcessors) { num ->
+    fun multiThread_with_2x_numProcessors_threads_parallel_10K_suspendTransactions_nearlyEvenlyPartitioned() {
+        multiThread_10K_nearlyEvenlyPartitioned_helper(2 * numProcessors) { num ->
             runBlocking { repeat(num) { suspendTransaction(database) {} } }
         }
     }
@@ -210,7 +210,7 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
 
     // This performs poorly.
     @Benchmark
-    fun multiThread_Parallel_10K_Transactions_NearlyEvenlyPartitioned_With_CoroutineFlow_FlatMapMerge() {
+    fun multiThread_parallel_10K_transactions_nearlyEvenlyPartitioned_with_coroutineFlow_flatMapMerge() {
         val numThreads = numProcessors
         // This dispatcher actually makes performance worse.
         Executors.newFixedThreadPool(numThreads).asCoroutineDispatcher().use {
@@ -236,14 +236,14 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
     */
 
     @Benchmark
-    fun multiThread_Parallel_10K_Transactions_NearlyEvenlyPartitioned_With_JavaStream() {
+    fun multiThread_parallel_10K_transactions_nearlyEvenlyPartitioned_with_javaStream() {
         IntStream.range(0, `10K`)
             .parallel()
             .forEach { transaction(database) {} }
     }
 
     @Benchmark
-    fun multiThread_Parallel_10K_Transactions_With_Sleep_NearlyEvenlyPartitioned() =
+    fun multiThread_parallel_10K_transactions_with_sleep_nearlyEvenlyPartitioned() =
         multiThread_Parallel_10K_Transactions_NearlyEvenlyPartitioned_Helper { transaction(database) { Thread.sleep(1) } }
 
     /*
@@ -293,14 +293,14 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
     }
 
     @Benchmark
-    fun multiThread_Concurrent_10K_Transactions_With_ThreadLocal_Databases() {
+    fun multiThread_concurrent_10K_transactions_with_threadLocal_databases() {
         runBlocking(dispatcherWithThreadLocalDatabases) {
             awaitAsync10K { transaction(databaseThreadLocal.get()) {} }
         }
     }
 
     @Benchmark
-    fun multiThread_Concurrent_10K_Transactions_With_Implicit_ThreadLocal_Databases() {
+    fun multiThread_concurrent_10K_transactions_with_implicit_threadLocal_databases() {
         runBlocking(dispatcherWithThreadLocalDatabases) {
             awaitAsync10K { transaction {} }
         }
