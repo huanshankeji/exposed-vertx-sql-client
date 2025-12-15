@@ -201,7 +201,7 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
     }
 
     @Benchmark
-    fun multiThread_2x_numProcessors_threads_Parallel_10K_suspendTransactions_NearlyEvenlyPartitioned() {
+    fun multiThread_with_2x_numProcessors_threads_Parallel_10K_suspendTransactions_NearlyEvenlyPartitioned() {
         multiThread_10K_NearlyEvenlyPartitioned_Helper(2 * numProcessors) { num ->
             runBlocking { repeat(num) { suspendTransaction(database) {} } }
         }
