@@ -18,7 +18,7 @@ import java.util.stream.IntStream
 import kotlin.concurrent.thread
 
 @State(Scope.Benchmark)
-class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
+class TransactionBenchmark : WithContainerizedDatabaseAndExposedDatabaseBenchmark() {
     @Benchmark
     fun transaction() {
         transaction(database) {}
@@ -35,12 +35,9 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
     }
 
 
-    companion object {
-        const val `10K` = 10_000
-
-        private val numProcessors = Runtime.getRuntime().availableProcessors().also {
-            println("Number of processors: $it")
-        }
+    @Setup
+    fun printNumProcessors() {
+        println("Number of processors: $numProcessors")
     }
 
     @Benchmark
@@ -126,20 +123,6 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
         }.forEach {
             it.join()
         }
-    }
-
-    private inline fun multiThread_10K_nearlyEvenlyPartitioned_helper(
-        numThreads: Int = numProcessors,
-        crossinline threadBlock: (num: Int) -> Unit
-    ) {
-        // Note that on a device with heterogeneous architecture some threads may finish earlier than others.
-        List(numThreads) { i ->
-            thread {
-                val start = i * `10K` / numThreads
-                val end = (i + 1) * `10K` / numThreads
-                threadBlock(end - start)
-            }
-        }.forEach { it.join() }
     }
 
 
