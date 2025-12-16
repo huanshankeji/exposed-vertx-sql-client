@@ -165,7 +165,7 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
         }
 
     @Benchmark
-    fun multiThread_MultiConnection_InTotal_10K_Local_TransactionReadUncommitted_ReadOnly_Transactions_NearlyEvenlyPartitioned() =
+    fun multiThread_multiConnection_inTotal_10K_local_transactionReadUncommitted_readOnly_transactions_nearlyEvenlyPartitioned() =
         multiThread_multiConnection_inTotal_10K_local_transactions_nearlyEvenlyPartitioned_helper { database ->
             transaction(database, Connection.TRANSACTION_READ_UNCOMMITTED, true) {}
         }
@@ -194,7 +194,7 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
         }
 
     @Benchmark
-    fun multiThread_Parallel_10K_suspendTransactions_NearlyEvenlyPartitioned() {
+    fun multiThread_parallel_10K_suspendTransactions_nearlyEvenlyPartitioned() {
         multiThread_10K_nearlyEvenlyPartitioned_helper { num ->
             runBlocking { repeat(num) { suspendTransaction(database) {} } }
         }
@@ -244,7 +244,7 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
 
     @Benchmark
     fun multiThread_parallel_10K_transactions_with_sleep_nearlyEvenlyPartitioned() =
-        multiThread_Parallel_10K_Transactions_NearlyEvenlyPartitioned_Helper { transaction(database) { Thread.sleep(1) } }
+        multiThread_parallel_10K_transactions_nearlyEvenlyPartitioned_helper { transaction(database) { Thread.sleep(1) } }
 
     /*
     // These don't work because the block inside `transaction` can't be suspend.
