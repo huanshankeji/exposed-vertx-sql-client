@@ -43,7 +43,7 @@ fun PostgreSQLContainer.hikariConfig(maximumPoolSize: Int, extraConfig: HikariCo
 }
 
 fun PostgreSQLContainer.hikariDataSource(maximumPoolSize: Int, extraConfig: HikariConfig.() -> Unit = {}) =
-    HikariDataSource(hikariConfig(maximumPoolSize))
+    HikariDataSource(hikariConfig(maximumPoolSize, extraConfig))
 
 
 // https://testcontainers.com/modules/mysql/
