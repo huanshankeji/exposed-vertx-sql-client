@@ -171,7 +171,7 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
         }
 
 
-    private inline fun multiThread_Parallel_10K_Transactions_NearlyEvenlyPartitioned_Helper(crossinline transactionBlock: () -> Unit) {
+    private inline fun multiThread_parallel_10K_transactions_nearlyEvenlyPartitioned_helper(crossinline transactionBlock: () -> Unit) {
         multiThread_10K_nearlyEvenlyPartitioned_helper { num ->
             repeat(num) { transactionBlock() }
         }
@@ -179,17 +179,17 @@ class TransactionBenchmark : WithContainerizedDatabaseBenchmark() {
 
     @Benchmark
     fun multiThread_Parallel_10K_Transactions_NearlyEvenlyPartitioned() =
-        multiThread_Parallel_10K_Transactions_NearlyEvenlyPartitioned_Helper { transaction(database) {} }
+        multiThread_parallel_10K_transactions_nearlyEvenlyPartitioned_helper { transaction(database) {} }
 
     @Benchmark
     fun multiThread_Parallel_10K_TransactionNone_ReadOnly_Transactions_NearlyEvenlyPartitioned() =
-        multiThread_Parallel_10K_Transactions_NearlyEvenlyPartitioned_Helper {
+        multiThread_parallel_10K_transactions_nearlyEvenlyPartitioned_helper {
             transaction(database, Connection.TRANSACTION_NONE, true) {}
         }
 
     @Benchmark
     fun multiThread_Parallel_10K_TransactionReadUncommitted_ReadOnly_Transactions_NearlyEvenlyPartitioned() =
-        multiThread_Parallel_10K_Transactions_NearlyEvenlyPartitioned_Helper {
+        multiThread_parallel_10K_transactions_nearlyEvenlyPartitioned_helper {
             transaction(database, Connection.TRANSACTION_READ_UNCOMMITTED, true) {}
         }
 
