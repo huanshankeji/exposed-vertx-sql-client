@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalEvscApi::class)
+
 package com.huanshankeji.exposedvertxsqlclient
 
 import com.huanshankeji.exposedvertxsqlclient.jdbc.postgresqlJdbcUrl
