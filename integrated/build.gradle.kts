@@ -39,6 +39,8 @@ dependencies {
     testRuntimeOnly(commonDependencies.kotest.module("runner-junit5"))
 
     testRuntimeOnly(commonDependencies.slf4j.simple())
+
+    implementation("com.zaxxer:HikariCP:${DependencyVersions.hikaricp}")
 }
 
 // to resolve "no tests discovered" errors when running `check`

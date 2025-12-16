@@ -22,4 +22,6 @@ object DependencyVersions {
     // https://mvnrepository.com/artifact/com.microsoft.sqlserver/mssql-jdbc
     // https://github.com/microsoft/mssql-jdbc/releases
     val mssqlJdbc = "13.2.1.jre11"
+
+    val hikaricp = "7.0.2"
 }
