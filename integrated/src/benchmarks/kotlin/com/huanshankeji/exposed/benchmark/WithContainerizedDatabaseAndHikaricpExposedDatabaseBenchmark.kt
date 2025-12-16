@@ -3,6 +3,7 @@ package com.huanshankeji.exposed.benchmark
 import com.huanshankeji.exposedvertxsqlclient.hikariDataSource
 import com.zaxxer.hikari.HikariDataSource
 import kotlinx.benchmark.Setup
+import kotlinx.benchmark.TearDown
 import org.jetbrains.exposed.v1.jdbc.Database
 
 abstract class WithContainerizedDatabaseAndHikaricpExposedDatabaseBenchmark : WithContainerizedDatabaseBenchmark() {
@@ -20,5 +21,11 @@ abstract class WithContainerizedDatabaseAndHikaricpExposedDatabaseBenchmark : Wi
         super.setUp()
         hikariDataSource = postgreSQLContainer.hikariDataSource(maximumPoolSize)
         database = databaseConnect()
+    }
+
+    @TearDown
+    override fun tearDown() {
+        hikariDataSource.close()
+        super.tearDown()
     }
 }
