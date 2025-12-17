@@ -20,6 +20,8 @@ The APIs are subject to change (especially those marked with `@ExperimentalEvscA
 There are some basic tests, but they are incomplete to cover all the APIs, so please expect bugs and report them.
 We also have some internal consuming code to guarantee the usability of the APIs.
 
+## Exposed DAO APIs are not supported
+
 ## Add to your dependencies
 
 ### The Maven coordinates
