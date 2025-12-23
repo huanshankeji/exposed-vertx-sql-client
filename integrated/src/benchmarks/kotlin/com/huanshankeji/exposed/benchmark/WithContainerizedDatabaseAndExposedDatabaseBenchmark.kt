@@ -10,8 +10,8 @@ abstract class WithContainerizedDatabaseAndExposedDatabaseBenchmark : WithContai
         postgreSQLContainer.exposedDatabaseConnect()
 
     @Setup
-    override fun setUp() {
-        super.setUp()
+    override fun setup() {
+        super.setup()
         database = databaseConnect()
     }
 }

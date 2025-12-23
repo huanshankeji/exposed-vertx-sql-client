@@ -17,8 +17,8 @@ abstract class WithContainerizedDatabaseAndHikaricpExposedDatabaseBenchmark : Wi
     }
 
     @Setup
-    override fun setUp() {
-        super.setUp()
+    override fun setup() {
+        super.setup()
         hikariDataSource = postgreSQLContainer.hikariDataSource(maximumPoolSize)
         database = databaseConnect()
     }

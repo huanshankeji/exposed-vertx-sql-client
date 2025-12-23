@@ -41,6 +41,11 @@ dependencies {
     testRuntimeOnly(commonDependencies.slf4j.simple())
 
     implementation("com.zaxxer:HikariCP:${DependencyVersions.hikaricp}")
+
+    implementation(libs.r2dbc.spi)
+    implementation(libs.r2dbc.postgresql)
+    implementation(libs.r2dbc.pool)
+    implementation(libs.exposed.r2dbc)
 }
 
 // to resolve "no tests discovered" errors when running `check`

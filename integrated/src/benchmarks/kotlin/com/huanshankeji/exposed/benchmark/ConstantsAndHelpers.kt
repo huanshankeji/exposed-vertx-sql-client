@@ -1,5 +1,8 @@
 package com.huanshankeji.exposed.benchmark
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlin.concurrent.thread
 
 val numProcessors = Runtime.getRuntime().availableProcessors()
@@ -26,3 +29,9 @@ inline fun multiThread_10K_nearlyEvenlyPartitioned_helper(
     crossinline threadBlock: (num: Int) -> Unit
 ) =
     multiThread_operations_nearlyEvenlyPartitioned_helper(`10K`, numThreads, threadBlock)
+
+// ! `await` is actually quite expensive.
+@Suppress("SuspendFunctionOnCoroutineScope")
+suspend inline fun CoroutineScope.awaitAsync10K(crossinline block: suspend () -> Unit) =
+    //List(`10K`) { async { block() } }.awaitAll()
+    awaitAll(*Array(`10K`) { async { block() } })

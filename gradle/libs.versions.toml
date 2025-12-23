@@ -1,0 +1,12 @@
+[versions]
+r2dbc-spi = "1.0.0.RELEASE"
+r2dbc-postgresql = "1.1.1.RELEASE"
+r2dbc-pool = "1.0.2.RELEASE"
+exposed = "1.0.0-rc-4"
+
+[libraries]
+r2dbc-spi = { module = "io.r2dbc:r2dbc-spi", version.ref = "r2dbc-spi" }
+r2dbc-postgresql = { module = "org.postgresql:r2dbc-postgresql", version.ref = "r2dbc-postgresql" }
+r2dbc-pool = { module = "io.r2dbc:r2dbc-pool", version.ref = "r2dbc-pool" }
+
+exposed-r2dbc = { module = "org.jetbrains.exposed:exposed-r2dbc", version.ref = "exposed" }
