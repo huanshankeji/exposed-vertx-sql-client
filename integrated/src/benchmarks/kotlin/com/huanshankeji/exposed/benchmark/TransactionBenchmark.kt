@@ -17,6 +17,10 @@ import java.util.concurrent.Executors
 import java.util.stream.IntStream
 import kotlin.concurrent.thread
 
+/*
+TODO Consider separating the less effective benchmarks (those affected by Coroutine overhead) into another such as `LessEffectiveTransactionBenchmark`,
+  extracting common code like the R2DBC benchmarks, and even extracting a common base class for both JDBC and R2DBC benchmarks.
+ */
 @State(Scope.Benchmark)
 class TransactionBenchmark : WithContainerizedDatabaseAndExposedDatabaseBenchmark() {
     @Benchmark
@@ -124,7 +128,7 @@ class TransactionBenchmark : WithContainerizedDatabaseAndExposedDatabaseBenchmar
     private inline fun multiThread_multiConnection_inTotal_10K_local_transactions_nearlyEvenlyPartitioned_helper(
         crossinline transactionBlock: (database: Database) -> Unit
     ) {
-        multiThread_10K_nearlyEvenlyPartitioned_helper { num ->
+        multiThread_10K_ops_nearlyEvenlyPartitioned_helper { num ->
             val database = databaseConnect()
             repeat(num) { transactionBlock(database) }
         }
@@ -150,7 +154,7 @@ class TransactionBenchmark : WithContainerizedDatabaseAndExposedDatabaseBenchmar
 
 
     private inline fun multiThread_parallel_10K_transactions_nearlyEvenlyPartitioned_helper(crossinline transactionBlock: () -> Unit) {
-        multiThread_10K_nearlyEvenlyPartitioned_helper { num ->
+        multiThread_10K_ops_nearlyEvenlyPartitioned_helper { num ->
             repeat(num) { transactionBlock() }
         }
     }
@@ -173,14 +177,14 @@ class TransactionBenchmark : WithContainerizedDatabaseAndExposedDatabaseBenchmar
 
     @Benchmark
     fun multiThread_parallel_10K_suspendTransactions_nearlyEvenlyPartitioned() {
-        multiThread_10K_nearlyEvenlyPartitioned_helper { num ->
+        multiThread_10K_ops_nearlyEvenlyPartitioned_helper { num ->
             runBlocking { repeat(num) { suspendTransaction(database) {} } }
         }
     }
 
     @Benchmark
     fun multiThread_with_2x_numProcessors_threads_parallel_10K_suspendTransactions_nearlyEvenlyPartitioned() {
-        multiThread_10K_nearlyEvenlyPartitioned_helper(2 * numProcessors) { num ->
+        multiThread_10K_ops_nearlyEvenlyPartitioned_helper(2 * numProcessors) { num ->
             runBlocking { repeat(num) { suspendTransaction(database) {} } }
         }
     }
