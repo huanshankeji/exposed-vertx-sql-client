@@ -35,7 +35,7 @@ fun ConnectionConfig.Socket.hikariConfig(maximumPoolSize: Int, extraConfig: Hika
         jdbcUrl = postgresqlJdbcUrl()
         driverClassName = "org.postgresql.Driver" // TODO extract
         username = user
-        this.password = password
+        password = this@hikariConfig.password
         this.maximumPoolSize = maximumPoolSize
         // configurations for SQL preparation for Vert.x SQL Clients
         isReadOnly = true
