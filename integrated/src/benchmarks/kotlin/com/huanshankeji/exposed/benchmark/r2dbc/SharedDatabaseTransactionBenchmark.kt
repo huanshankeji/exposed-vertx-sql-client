@@ -11,7 +11,7 @@ import kotlinx.benchmark.Benchmark
 import kotlinx.benchmark.Setup
 import kotlinx.benchmark.TearDown
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.reactive.awaitSingle
+import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabase
 import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
@@ -42,7 +42,7 @@ abstract class SharedDatabaseTransactionBenchmark : WithContainerizedDatabaseBen
         @TearDown
         override fun tearDown() {
             runBlocking {
-                connectionPool.close().awaitSingle()
+                connectionPool.close().awaitFirstOrNull()
             }
             super.tearDown()
         }
