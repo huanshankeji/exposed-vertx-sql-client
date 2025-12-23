@@ -23,7 +23,7 @@ class MultiThreadMultiConnectionLocalTransactionBenchmark : WithContainerizedDat
     }
 
     @Benchmark
-    fun multiThread_multiConnection_inTotal_10K_runBlocking_local_ReadUncommitted_readOnly_suspendTransactions_nearlyEvenlyPartitioned() =
+    fun mt_mc_inTotal_10K_rb_local_ru_ro_suspendTransactions_nep() =
         multiThread_multiConnection_inTotal_10K_runBlocking_local_suspendTransactions_nearlyEvenlyPartitioned_helper {
             suspendTransaction(it, IsolationLevel.READ_UNCOMMITTED, true) {}
         }
