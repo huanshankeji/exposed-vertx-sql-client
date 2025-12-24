@@ -21,6 +21,7 @@ import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.jdbc.transactions.transactionManager
 import org.slf4j.LoggerFactory
+import java.sql.Connection
 import java.util.function.Function
 import kotlin.Any
 import kotlin.AssertionError
@@ -99,8 +100,62 @@ internal val logger = LoggerFactory.getLogger(DatabaseClient::class.java)
 class DatabaseClient<out VertxSqlClientT : SqlClient>(
     val vertxSqlClient: VertxSqlClientT,
     val exposedDatabase: Database,
-    val config: DatabaseClientConfig
+    val config: Config
 ) : CoroutineAutoCloseable {
+    interface Config {
+        /**
+         * Whether to validate whether the batch statements have the same generated prepared SQL. It's recommended to keep this enabled for tests but disabled for production.
+         */
+        val validateBatch: Boolean
+        val logSql: Boolean
+
+        /**
+         * The transaction isolation level used in [transaction] in [DatabaseClient.statementPreparationExposedTransaction].
+         */
+        val statementPreparationExposedTransactionIsolationLevel: Int?
+
+        /**
+         * Whether to always run some steps that possibly require Exposed [transaction]s in Exposed [transaction]s.
+         *
+         * As some Exposed APIs implicitly require a transaction and the requirements sometimes change between versions,
+         * we provide this option to best suit different scenarios.
+         *
+         * Also see the parameters with `WithExposedTransaction` in their names, which default to this value.
+         *
+         * Enabling this option slightly degrades performance but reduces the likelihood of running into `java.lang.IllegalStateException: No transaction in context.`.
+         */
+        val autoExposedTransaction: Boolean
+
+        /**
+         * Transform Exposed's prepared SQL to Vert.x SQL Client's prepared SQL.
+         */
+        fun transformPreparedSql(exposedPreparedSql: String): String
+    }
+
+    companion object {
+        /**
+         * See the [Config] interface for parameter descriptions.
+         */
+        inline operator fun invoke(
+            // TODO consider adding a `isProduction` parameter whose default depends on the runtime
+            validateBatch: Boolean = true,
+            logSql: Boolean = false,
+            statementPreparationExposedTransactionIsolationLevel: Int? = Connection.TRANSACTION_READ_UNCOMMITTED,
+            autoExposedTransaction: Boolean = false,
+            crossinline exposedPreparedSqlToVertxSqlClientPreparedSql: (preparedSql: String) -> String
+        ): Config =
+            object : Config {
+                override val validateBatch: Boolean = validateBatch
+                override val logSql: Boolean = logSql
+                override val statementPreparationExposedTransactionIsolationLevel: Int? =
+                    statementPreparationExposedTransactionIsolationLevel
+                override val autoExposedTransaction: Boolean = autoExposedTransaction
+                override fun transformPreparedSql(exposedPreparedSql: String): String =
+                    exposedPreparedSqlToVertxSqlClientPreparedSql(exposedPreparedSql)
+            }
+    }
+    
+
     /*
     companion object {
         private const val FUNCTION_TRANSFORMING_ROWS_USING_PREPARED_QUERY_MAPPING_DEPRECATED_MESSAGE =
@@ -138,7 +193,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
         transaction(exposedDatabase, transactionIsolation, readOnly, statement)
 
     /**
-     * @see DatabaseClientConfig.statementPreparationExposedTransactionIsolationLevel
+     * @see Config.statementPreparationExposedTransactionIsolationLevel
      */
     fun <T> statementPreparationExposedTransaction(
         statement: ExposedTransaction.() -> T
@@ -278,7 +333,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
         runWithOptionalStatementPreparationExposedTransaction(getFieldExpressionSetWithExposedTransaction) { getFieldExpressionSet() }
 
     /**
-     * @param getFieldExpressionSetWithExposedTransaction see [DatabaseClientConfig.autoExposedTransaction]
+     * @param getFieldExpressionSetWithExposedTransaction see [Config.autoExposedTransaction]
      */
     /*
     @Deprecated(
@@ -302,7 +357,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
         }
 
     /**
-     * @param getFieldExpressionSetWithExposedTransaction see [DatabaseClientConfig.autoExposedTransaction]
+     * @param getFieldExpressionSetWithExposedTransaction see [Config.autoExposedTransaction]
      */
     /*
     @Deprecated(
@@ -319,7 +374,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
 
     /**
      * An alternative API to [executeQuery] that returns a [List] instead of a [RowSet].
-     * @param getFieldExpressionSetWithExposedTransaction see [DatabaseClientConfig.autoExposedTransaction]
+     * @param getFieldExpressionSetWithExposedTransaction see [Config.autoExposedTransaction]
      */
     @ExperimentalEvscApi
     suspend fun executeQueryForList(
@@ -431,7 +486,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
 
     /**
      * @see executeBatch
-     * @param getFieldExpressionSetWithExposedTransaction see [DatabaseClientConfig.autoExposedTransaction]
+     * @param getFieldExpressionSetWithExposedTransaction see [Config.autoExposedTransaction]
      */
     @ExperimentalEvscApi
     suspend inline fun <Data> executeBatchQuery(

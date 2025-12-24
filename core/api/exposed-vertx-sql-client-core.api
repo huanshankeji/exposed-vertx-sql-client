@@ -35,7 +35,8 @@ public final class com/huanshankeji/exposedvertxsqlclient/ConnectionType : java/
 }
 
 public final class com/huanshankeji/exposedvertxsqlclient/DatabaseClient : com/huanshankeji/kotlinx/coroutine/CoroutineAutoCloseable {
-	public fun <init> (Lio/vertx/sqlclient/SqlClient;Lorg/jetbrains/exposed/v1/jdbc/Database;Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClientConfig;)V
+	public static final field Companion Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClient$Companion;
+	public fun <init> (Lio/vertx/sqlclient/SqlClient;Lorg/jetbrains/exposed/v1/jdbc/Database;Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClient$Config;)V
 	public fun close (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun createTable (Lorg/jetbrains/exposed/v1/core/Table;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun doExecute (Lorg/jetbrains/exposed/v1/core/statements/Statement;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
@@ -65,7 +66,7 @@ public final class com/huanshankeji/exposedvertxsqlclient/DatabaseClient : com/h
 	public final fun exposedTransaction (Ljava/lang/Integer;Ljava/lang/Boolean;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
 	public final synthetic fun exposedTransaction (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
 	public static synthetic fun exposedTransaction$default (Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClient;Ljava/lang/Integer;Ljava/lang/Boolean;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ljava/lang/Object;
-	public final fun getConfig ()Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClientConfig;
+	public final fun getConfig ()Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClient$Config;
 	public final fun getExposedDatabase ()Lorg/jetbrains/exposed/v1/jdbc/Database;
 	public final fun getFieldExpressionSetWithOptionalReadOnlyExposedTransaction (Lorg/jetbrains/exposed/v1/jdbc/Query;Z)Ljava/util/Set;
 	public final fun getFieldExpressionSetWithTransaction (Lorg/jetbrains/exposed/v1/core/FieldSet;)Ljava/util/Set;
@@ -76,7 +77,12 @@ public final class com/huanshankeji/exposedvertxsqlclient/DatabaseClient : com/h
 	public final fun statementPreparationExposedTransaction (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
 }
 
-public abstract interface class com/huanshankeji/exposedvertxsqlclient/DatabaseClientConfig {
+public final class com/huanshankeji/exposedvertxsqlclient/DatabaseClient$Companion {
+	public final fun invoke (ZZLjava/lang/Integer;ZLkotlin/jvm/functions/Function1;)Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClient$Config;
+	public static synthetic fun invoke$default (Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClient$Companion;ZZLjava/lang/Integer;ZLkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClient$Config;
+}
+
+public abstract interface class com/huanshankeji/exposedvertxsqlclient/DatabaseClient$Config {
 	public abstract fun getAutoExposedTransaction ()Z
 	public abstract fun getLogSql ()Z
 	public abstract fun getStatementPreparationExposedTransactionIsolationLevel ()Ljava/lang/Integer;
@@ -85,8 +91,8 @@ public abstract interface class com/huanshankeji/exposedvertxsqlclient/DatabaseC
 }
 
 public final class com/huanshankeji/exposedvertxsqlclient/DatabaseClientConfigKt {
-	public static final fun DatabaseClientConfig (ZZLjava/lang/Integer;ZLkotlin/jvm/functions/Function1;)Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClientConfig;
-	public static synthetic fun DatabaseClientConfig$default (ZZLjava/lang/Integer;ZLkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClientConfig;
+	public static final fun DatabaseClientConfig (ZZLjava/lang/Integer;ZLkotlin/jvm/functions/Function1;)Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClient$Config;
+	public static synthetic fun DatabaseClientConfig$default (ZZLjava/lang/Integer;ZLkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClient$Config;
 }
 
 public final class com/huanshankeji/exposedvertxsqlclient/DatabaseClientKt {

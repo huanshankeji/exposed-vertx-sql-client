@@ -1,6 +1,6 @@
 public final class com/huanshankeji/exposedvertxsqlclient/mysql/DatabaseClientConfigKt {
-	public static final fun MysqlDatabaseClientConfig (ZZLjava/lang/Integer;Z)Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClientConfig;
-	public static synthetic fun MysqlDatabaseClientConfig$default (ZZLjava/lang/Integer;ZILjava/lang/Object;)Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClientConfig;
+	public static final fun MysqlDatabaseClientConfig (ZZLjava/lang/Integer;Z)Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClient$Config;
+	public static synthetic fun MysqlDatabaseClientConfig$default (ZZLjava/lang/Integer;ZILjava/lang/Object;)Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClient$Config;
 }
 
 public final class com/huanshankeji/exposedvertxsqlclient/mysql/DatabaseClientKt {
