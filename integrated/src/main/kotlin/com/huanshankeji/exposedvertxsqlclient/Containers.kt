@@ -25,23 +25,29 @@ fun JdbcDatabaseContainer<*>.connectionConfig() =
 fun LatestPostgreSQLContainer(): PostgreSQLContainer =
     PostgreSQLContainer(DockerImageName.parse("postgres:latest"))
 
+// TODO consider deprecating these functions and recommending the caller to call `connectionConfig()` and then call the extensions function on `ConnectionConfig.Socket` instead
 fun PostgreSQLContainer.exposedDatabaseConnect(): Database =
     connectionConfig().exposedDatabaseConnectPostgresql()
 
 // move to the `postgresql` module if it's proved useful
-fun PostgreSQLContainer.hikariConfig(maximumPoolSize: Int, extraConfig: HikariConfig.() -> Unit = {}): HikariConfig {
-    val connectionConfig = connectionConfig()
-    return HikariConfig().apply {
-        jdbcUrl = connectionConfig.postgresqlJdbcUrl()
+fun ConnectionConfig.Socket.hikariConfig(
+    maximumPoolSize: Int, extraConfig: HikariConfig.() -> Unit = {},
+): HikariConfig =
+    HikariConfig().apply {
+        jdbcUrl = postgresqlJdbcUrl()
         driverClassName = "org.postgresql.Driver" // TODO extract
-        username = connectionConfig.user
-        password = connectionConfig.password
+        username = user
+        password = this@hikariConfig.password
         this.maximumPoolSize = maximumPoolSize
         // configurations for SQL preparation for Vert.x SQL Clients
         isReadOnly = true
         transactionIsolation = "TRANSACTION_READ_UNCOMMITTED"
         extraConfig()
     }
+
+fun PostgreSQLContainer.hikariConfig(maximumPoolSize: Int, extraConfig: HikariConfig.() -> Unit = {}): HikariConfig {
+    val connectionConfig = connectionConfig()
+    return connectionConfig.hikariConfig(maximumPoolSize, extraConfig)
 }
 
 fun PostgreSQLContainer.hikariDataSource(maximumPoolSize: Int, extraConfig: HikariConfig.() -> Unit = {}) =

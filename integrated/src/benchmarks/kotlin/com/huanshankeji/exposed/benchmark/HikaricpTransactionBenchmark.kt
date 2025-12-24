@@ -17,7 +17,7 @@ class HikaricpTransactionBenchmark : WithContainerizedDatabaseAndHikaricpExposed
 
     @Benchmark
     fun multiThread_parallel_10K_transactions_nearlyEvenlyPartitioned() {
-        multiThread_10K_nearlyEvenlyPartitioned_helper { num ->
+        multiThread_10K_ops_nearlyEvenlyPartitioned_helper { num ->
             repeat(num) { transaction(database) {} }
         }
     }
