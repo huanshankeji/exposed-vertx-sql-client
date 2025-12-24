@@ -4,7 +4,8 @@
 [![CI](https://github.com/huanshankeji/exposed-vertx-sql-client/actions/workflows/kotlin-jvm-ci.yml/badge.svg)](https://github.com/huanshankeji/exposed-vertx-sql-client/actions/workflows/kotlin-jvm-ci.yml)
 [![codecov](https://codecov.io/gh/huanshankeji/exposed-vertx-sql-client/graph/badge.svg)](https://codecov.io/gh/huanshankeji/exposed-vertx-sql-client)
 
-[Exposed](https://github.com/JetBrains/Exposed) on top of [Vert.x Reactive SQL Client](https://github.com/eclipse-vertx/vertx-sql-client)
+<!-- [Exposed](https://github.com/JetBrains/Exposed) on top of [Vert.x Reactive SQL Client](https://github.com/eclipse-vertx/vertx-sql-client) -->
+Execute [Exposed](https://github.com/JetBrains/Exposed) statements with [Vert.x Reactive SQL Client](https://github.com/eclipse-vertx/vertx-sql-client)
 
 ## Supported DBs
 
