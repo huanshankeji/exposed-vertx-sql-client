@@ -30,7 +30,9 @@ fun PostgreSQLContainer.exposedDatabaseConnect(): Database =
     connectionConfig().exposedDatabaseConnectPostgresql()
 
 // move to the `postgresql` module if it's proved useful
-fun ConnectionConfig.Socket.hikariConfig(maximumPoolSize: Int, extraConfig: HikariConfig.() -> Unit): HikariConfig =
+fun ConnectionConfig.Socket.hikariConfig(
+    maximumPoolSize: Int, extraConfig: HikariConfig.() -> Unit = {},
+): HikariConfig =
     HikariConfig().apply {
         jdbcUrl = postgresqlJdbcUrl()
         driverClassName = "org.postgresql.Driver" // TODO extract
