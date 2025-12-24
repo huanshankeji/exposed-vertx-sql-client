@@ -42,7 +42,7 @@ fun ConnectionConfig.Socket.connectionPool(size: Int) =
     ConnectionPool(connectionPoolConfiguration(size))
 
 /*
-// Don't call this because the connection pool need to be closed after use.
+// Don't call this because the connection pool needs to be closed after use.
 fun ConnectionConfig.Socket.exposedR2dbcDatabaseConnectPoolPostgresql(connectionPoolSize: Int) =
     R2dbcDatabase.connect(connectionPool(connectionPoolSize), R2dbcDatabaseConfig {
         explicitDialect = PostgreSQLDialect()
