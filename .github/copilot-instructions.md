@@ -21,7 +21,7 @@ This is **Exposed Vert.x SQL Client**, a Kotlin library that provides integratio
 - Supported Databases: PostgreSQL, MySQL, Oracle, Microsoft SQL Server
 - Size: ~18MB repository
 - Current Version: 0.6.0-SNAPSHOT
-- Exposed Version: v1.0.0-rc-3 (important: stick to this exact version for compatibility)
+- Exposed Version: v1.0.0-rc-4 (important: stick to this exact version for compatibility)
 
 ## Project Structure
 
@@ -245,7 +245,7 @@ Before check-in, the following validations run:
 
 ### Key Dependencies
 
-- **Exposed**: 1.0.0-rc-3 (via `commonDependencies.exposed.*`)
+- **Exposed**: 1.0.0-rc-4 (via `commonDependencies.exposed.*`)
 - **Vert.x**: Managed by `vertx.platformStackDepchain()` (uses Vert.x BOM)
 - **Kotlin**: 2.2.21
 - **Arrow**: For functional constructs
