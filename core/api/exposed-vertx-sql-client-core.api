@@ -121,6 +121,9 @@ public final class com/huanshankeji/exposedvertxsqlclient/EvscConfig : com/huans
 public abstract interface annotation class com/huanshankeji/exposedvertxsqlclient/ExperimentalEvscApi : java/lang/annotation/Annotation {
 }
 
+public abstract interface annotation class com/huanshankeji/exposedvertxsqlclient/ExperimentalUnixDomainSocketApi : java/lang/annotation/Annotation {
+}
+
 public abstract interface class com/huanshankeji/exposedvertxsqlclient/IEvscConfig {
 	public abstract fun getExposedConnectionConfig ()Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;
 	public abstract fun getVertxSqlClientConnectionConfig ()Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig;
