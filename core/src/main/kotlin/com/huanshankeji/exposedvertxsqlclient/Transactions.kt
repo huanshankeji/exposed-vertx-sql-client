@@ -24,10 +24,9 @@ suspend fun <T> DatabaseClient<Pool>.withTransaction(function: suspend (Database
         }.coAwait()
     }
 
-suspend fun <SqlConnectionT : SqlConnection, T> DatabaseClient<Pool>.withTypedTransaction(function: suspend (DatabaseClient<SqlConnectionT>) -> T): T =
+suspend inline fun <reified SqlConnectionT : SqlConnection, T> DatabaseClient<Pool>.withTypedTransaction(crossinline function: suspend (DatabaseClient<SqlConnectionT>) -> T): T =
     withTransaction {
-        @Suppress("UNCHECKED_CAST")
-        function(it as DatabaseClient<SqlConnectionT>)
+        function(it.withVertxSqlClientCheckedCastTo<SqlConnectionT>())
     }
 
 
@@ -62,13 +61,11 @@ suspend fun <SqlConnectionT : SqlConnection, T> DatabaseClient<SqlConnectionT>.w
  * Polymorphic transaction function for `DatabaseClient<*>` with either [Pool] and [SqlConnection] as the [DatabaseClient.vertxSqlClient].
  */
 @ExperimentalEvscApi
-suspend fun <SqlConnectionT : SqlConnection, T> DatabaseClient<*>.withTypedTransactionPolymorphic(
-    function: suspend (DatabaseClient<SqlConnectionT>) -> T
-): T =
+suspend fun <T> DatabaseClient<*>.withTransactionPolymorphic(function: suspend (DatabaseClient<SqlConnection>) -> T): T =
     @Suppress("UNCHECKED_CAST")
     when (vertxSqlClient) {
         is Pool -> (this as DatabaseClient<Pool>).withTypedTransaction(function)
-        is SqlConnection -> (this as DatabaseClient<SqlConnectionT>).withTransaction(function)
+        is SqlConnection -> (this as DatabaseClient<SqlConnection>).withTransaction(function)
         else -> throw IllegalArgumentException("${vertxSqlClient::class} is not supported")
     }
 
@@ -76,8 +73,10 @@ suspend fun <SqlConnectionT : SqlConnection, T> DatabaseClient<*>.withTypedTrans
  * Polymorphic transaction function for `DatabaseClient<*>` with either [Pool] and [SqlConnection] as the [DatabaseClient.vertxSqlClient].
  */
 @ExperimentalEvscApi
-suspend fun <T> DatabaseClient<*>.withTransactionPolymorphic(function: suspend (DatabaseClient<SqlConnection>) -> T): T =
-    withTypedTransactionPolymorphic(function)
+suspend inline fun <reified SqlConnectionT : SqlConnection, T> DatabaseClient<*>.withTypedTransactionPolymorphic(
+    noinline function: suspend (DatabaseClient<SqlConnectionT>) -> T
+): T =
+    withTransactionPolymorphic { function(withVertxSqlClientCheckedCastTo()) }
 
 
 // TODO Some these functions related to savepoints can be ported to kotlin-common and can possibly be contributed back to Vert.x
