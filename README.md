@@ -96,6 +96,17 @@ Create a `Database` with the provided Vert.x `SqlClient` and Exposed `Database`,
 val databaseClient = DatabaseClient(vertxSqlClient, exposedDatabase, PgDatabaseClientConfig())
 ```
 
+#### Alternatives to `EvscConfig`
+
+The `EvscConfig` was initially designed to incorporate support for Unix domain sockets and may be overkill for some use cases.
+If you don't use Unix domain sockets in your code, you can create a `ConnectionConfig.Socket` directly as the single source of truth:
+
+```kotlin
+val connectionConfig = ConnectionConfig.Socket("localhost", user = "user", password = "password", database = "database")
+```
+
+Or in a more custom way, you can create the Exposed `Database` with the original `Database.connect` APIs, and the Vert.x `SqlClient` with the original `***Builder` and `***Connection` APIs.
+
 ### Example table definitions
 
 ```kotlin
@@ -174,7 +185,7 @@ if (dialectSupportsDeleteIgnore) {
 
 The extension CRUD APIs are similar to [those in Exposed](https://www.jetbrains.com/help/exposed/dsl-crud-operations.html).
 With them, your code becomes more concise compared to using `buildStatement`,
-but it might be more difficult when you need to compose statements or edit the code.
+but it might be more difficult when you need to compose statements or refactor the code.
 
 Gradle dependency configuration:
 
