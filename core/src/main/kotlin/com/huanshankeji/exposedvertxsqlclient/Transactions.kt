@@ -76,7 +76,7 @@ suspend fun <T> DatabaseClient<*>.withTransactionPolymorphic(function: suspend (
 suspend inline fun <reified SqlConnectionT : SqlConnection, T> DatabaseClient<*>.withTypedTransactionPolymorphic(
     noinline function: suspend (DatabaseClient<SqlConnectionT>) -> T
 ): T =
-    withTransactionPolymorphic { function(withVertxSqlClientCheckedCastTo()) }
+    withTransactionPolymorphic { function(it.withVertxSqlClientCheckedCastTo()) }
 
 
 // TODO Some of these functions related to savepoints can be ported to kotlin-common and can possibly be contributed back to Vert.x
