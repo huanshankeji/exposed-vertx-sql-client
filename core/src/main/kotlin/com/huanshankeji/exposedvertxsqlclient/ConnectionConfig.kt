@@ -19,6 +19,7 @@ sealed interface ConnectionConfig {
     /**
      * @see setRole
      */
+    @ExperimentalUnixDomainSocketApi
     class UnixDomainSocketWithPeerAuthentication(
         val path: String,
         val role: String,

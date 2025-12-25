@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalEvscApi::class)
+@file:OptIn(ExperimentalEvscApi::class, ExperimentalUnixDomainSocketApi::class)
 
 package com.huanshankeji.exposedvertxsqlclient
 
@@ -32,13 +32,16 @@ val tables = arrayOf(Examples)
 val evscConfig = ConnectionConfig.Socket("localhost", user = "user", password = "password", database = "database")
     .toUniversalEvscConfig()
 
-object Alternative {
+object Alternatives {
     // Unix domain socket alternative
     val evscConfig = defaultPostgresqlLocalConnectionConfig(
         user = "user",
         socketConnectionPassword = "password",
         database = "database"
     ).toPerformantUnixEvscConfig()
+
+    val connectionConfig =
+        ConnectionConfig.Socket("localhost", user = "user", password = "password", database = "database")
 }
 
 suspend fun examples(vertx: Vertx) {

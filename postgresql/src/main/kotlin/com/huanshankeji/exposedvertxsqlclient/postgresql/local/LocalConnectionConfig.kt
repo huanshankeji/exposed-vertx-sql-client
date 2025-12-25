@@ -1,6 +1,7 @@
 package com.huanshankeji.exposedvertxsqlclient.postgresql.local
 
 import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
+import com.huanshankeji.exposedvertxsqlclient.ExperimentalUnixDomainSocketApi
 import com.huanshankeji.exposedvertxsqlclient.local.LocalConnectionConfig
 
 // TODO consider moving to "kotlin-common"
@@ -8,6 +9,7 @@ import com.huanshankeji.exposedvertxsqlclient.local.LocalConnectionConfig
 const val DEFAULT_POSTGRESQL_UNIX_DOMAIN_SOCKET_PATH = "/var/run/postgresql"
 
 @ExperimentalEvscApi
+@ExperimentalUnixDomainSocketApi
 fun defaultPostgresqlLocalConnectionConfig(
     socketConnectionPort: Int? = null, user: String, socketConnectionPassword: String, database: String
 ) =
