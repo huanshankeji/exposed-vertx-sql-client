@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalEvscApi::class)
+@file:OptIn(ExperimentalEvscApi::class, ExperimentalUnixDomainSocketApi::class)
 
 package com.huanshankeji.exposedvertxsqlclient
 

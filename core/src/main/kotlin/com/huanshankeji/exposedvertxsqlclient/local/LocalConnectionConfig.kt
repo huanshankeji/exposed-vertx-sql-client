@@ -1,9 +1,6 @@
 package com.huanshankeji.exposedvertxsqlclient.local
 
-import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig
-import com.huanshankeji.exposedvertxsqlclient.ConnectionType
-import com.huanshankeji.exposedvertxsqlclient.EvscConfig
-import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
+import com.huanshankeji.exposedvertxsqlclient.*
 import com.huanshankeji.net.LOCALHOST
 
 // TODO consider adding a prefix word such as "conventional" as this class is not general enough
@@ -13,6 +10,7 @@ import com.huanshankeji.net.LOCALHOST
  * to connect to a local database server.
  */
 @ExperimentalEvscApi
+@ExperimentalUnixDomainSocketApi
 class LocalConnectionConfig(
     val socketConnectionPort: Int? = null,
     val unixDomainSocketPath: String,
@@ -38,9 +36,14 @@ class LocalConnectionConfig(
 }
 
 @ExperimentalEvscApi
+@ExperimentalUnixDomainSocketApi
 fun LocalConnectionConfig.toPerformantUnixEvscConfig() =
     EvscConfig(socketConnectionConfig, unixDomainSocketWithPeerAuthenticationConnectionConfig)
 
+/**
+ * This can be used on OSs without support for Unix domain sockets such as Windows.
+ */
 @ExperimentalEvscApi
+@ExperimentalUnixDomainSocketApi
 fun LocalConnectionConfig.toUniversalEvscConfig() =
     EvscConfig(socketConnectionConfig, socketConnectionConfig)
