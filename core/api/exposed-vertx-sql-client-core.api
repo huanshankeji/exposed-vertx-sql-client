@@ -128,12 +128,16 @@ public final class com/huanshankeji/exposedvertxsqlclient/SingleUpdateException 
 	public fun <init> (I)V
 }
 
+public final class com/huanshankeji/exposedvertxsqlclient/SqlIdentifiersKt {
+	public static final fun getUnquotedSqlIdentifierRegex ()Lkotlin/text/Regex;
+	public static final fun requireSqlIdentifier (Ljava/lang/String;)V
+}
+
 public final class com/huanshankeji/exposedvertxsqlclient/SqlTransformationKt {
 	public static final fun transformPreparedSqlToNumbered (Ljava/lang/String;Lkotlin/jvm/functions/Function1;)Ljava/lang/String;
 }
 
 public final class com/huanshankeji/exposedvertxsqlclient/TransactionsKt {
-	public static final fun getSavepointNameRegex ()Lkotlin/text/Regex;
 	public static final fun withSavepointAndRollbackIfThrows (Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClient;Ljava/lang/String;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static final fun withSavepointAndRollbackIfThrowsOrFalse (Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClient;Ljava/lang/String;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static final fun withSavepointAndRollbackIfThrowsOrLeft (Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClient;Ljava/lang/String;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
