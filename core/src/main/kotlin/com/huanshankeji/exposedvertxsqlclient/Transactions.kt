@@ -60,6 +60,7 @@ private suspend fun DatabaseClient<SqlConnection>.releaseSavepoint(savepointName
  * Not tested yet on DBs other than PostgreSQL.
  * A savepoint destroys one with the same name so be careful.
  */
+@InternalApi
 suspend fun <SqlConnectionT : SqlConnection, RollbackT, ReleaseT> DatabaseClient<SqlConnectionT>.withSavepointAndRollbackIfThrowsOrLeft(
     savepointName: String, function: suspend (DatabaseClient<SqlConnectionT>) -> Either<RollbackT, ReleaseT>
 ): Either<RollbackT, ReleaseT> {
@@ -81,16 +82,19 @@ suspend fun <SqlConnectionT : SqlConnection, RollbackT, ReleaseT> DatabaseClient
     }
 }
 
+@ExperimentalEvscApi
 suspend fun <SqlConnectionT : SqlConnection, T> DatabaseClient<SqlConnectionT>.withSavepointAndRollbackIfThrows(
     savepointName: String, function: suspend (DatabaseClient<SqlConnectionT>) -> T
 ): T =
     withSavepointAndRollbackIfThrowsOrLeft(savepointName) { function(it).right() }.getOrElse { throw AssertionError() }
 
+@ExperimentalEvscApi
 suspend fun <SqlConnectionT : SqlConnection, T> DatabaseClient<SqlConnectionT>.withSavepointAndRollbackIfThrowsOrNone(
     savepointName: String, function: suspend (DatabaseClient<SqlConnectionT>) -> Option<T>
 ): Option<T> =
     withSavepointAndRollbackIfThrowsOrLeft(savepointName) { function(it).toEither { } }.getOrNone()
 
+@ExperimentalEvscApi
 suspend fun <SqlConnectionT : SqlConnection> DatabaseClient<SqlConnectionT>.withSavepointAndRollbackIfThrowsOrFalse(
     savepointName: String, function: suspend (DatabaseClient<SqlConnectionT>) -> Boolean
 ): Boolean =
