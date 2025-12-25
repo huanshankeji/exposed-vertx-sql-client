@@ -40,12 +40,12 @@ suspend fun <SqlConnectionT : SqlConnection, T> DatabaseClient<SqlConnectionT>.w
     return try {
         val result = function(this)
         when (result) {
-            is Some<T> -> transaction.commit()
-            is None -> transaction.rollback()
+            is Some<T> -> transaction.commit().coAwait()
+            is None -> transaction.rollback().coAwait()
         }
         result
     } catch (e: Exception) {
-        transaction.rollback()
+        transaction.rollback().coAwait()
         throw e
     }
 }
