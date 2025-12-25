@@ -80,7 +80,7 @@ suspend inline fun <reified SqlConnectionT : SqlConnection, T> DatabaseClient<*>
 
 
 // TODO Some these functions related to savepoints can be ported to kotlin-common and can possibly be contributed back to Vert.x
-
+@InternalApi
 val savepointNameRegex = Regex("\\w+")
 
 private suspend fun DatabaseClient<SqlConnection>.savepoint(savepointName: String) =
