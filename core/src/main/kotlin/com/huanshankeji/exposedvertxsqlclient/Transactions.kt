@@ -79,7 +79,7 @@ suspend inline fun <reified SqlConnectionT : SqlConnection, T> DatabaseClient<*>
     withTransactionPolymorphic { function(withVertxSqlClientCheckedCastTo()) }
 
 
-// TODO Some these functions related to savepoints can be ported to kotlin-common and can possibly be contributed back to Vert.x
+// TODO Some of these functions related to savepoints can be ported to kotlin-common and can possibly be contributed back to Vert.x
 @InternalApi
 val savepointNameRegex = Regex("\\w+")
 
