@@ -10,7 +10,7 @@ import kotlinx.coroutines.coroutineScope
 // This file contains APIs related to transactions. Note that these are based on Vert.x SQL Client's transaction APIs and not related to Exposed's transaction APIs.
 
 
-// TODO these functions related to transactions and savepoints should be moved to kotlin-common and can possibly be contributed to Vert.x
+// for `DatabaseClient<Pool>`
 
 /**
  * When using this function, it's recommended to name the lambda parameter the same as the outer receiver so that the outer [DatabaseClient] is shadowed,
@@ -29,6 +29,12 @@ suspend fun <SqlConnectionT : SqlConnection, T> DatabaseClient<Pool>.withTypedTr
         function(it as DatabaseClient<SqlConnectionT>)
     }
 
+
+// for `DatabaseClient<SqlConnection>`
+
+/**
+ * @param [function] return [Some] to commit the transaction, or [None] to roll back the transaction.
+ */
 suspend fun <SqlConnectionT : SqlConnection, T> DatabaseClient<SqlConnectionT>.withTransactionCommitOrRollback(function: suspend (DatabaseClient<SqlConnectionT>) -> Option<T>): Option<T> {
     val transaction = vertxSqlClient.begin().coAwait()
     return try {
@@ -44,6 +50,35 @@ suspend fun <SqlConnectionT : SqlConnection, T> DatabaseClient<SqlConnectionT>.w
     }
 }
 
+suspend fun <SqlConnectionT : SqlConnection, T> DatabaseClient<SqlConnectionT>.withTransaction(function: suspend (DatabaseClient<SqlConnectionT>) -> T): T =
+    withTransactionCommitOrRollback { function(it).some() }.getOrElse { throw AssertionError() }
+
+
+// for `DatabaseClient<*>`
+
+/**
+ * Polymorphic transaction function for `DatabaseClient<*>` with either [Pool] and [SqlConnection] as the [DatabaseClient.vertxSqlClient].
+ */
+@ExperimentalEvscApi
+suspend fun <SqlConnectionT : SqlConnection, T> DatabaseClient<*>.withTypedTransactionPolymorphic(
+    function: suspend (DatabaseClient<SqlConnectionT>) -> T
+): T =
+    @Suppress("UNCHECKED_CAST")
+    when (vertxSqlClient) {
+        is Pool -> (this as DatabaseClient<Pool>).withTypedTransaction(function)
+        is SqlConnection -> (this as DatabaseClient<SqlConnectionT>).withTransaction(function)
+        else -> throw IllegalArgumentException("${vertxSqlClient::class} is not supported")
+    }
+
+/**
+ * Polymorphic transaction function for `DatabaseClient<*>` with either [Pool] and [SqlConnection] as the [DatabaseClient.vertxSqlClient].
+ */
+@ExperimentalEvscApi
+suspend fun <T> DatabaseClient<*>.withTransactionPolymorphic(function: suspend (DatabaseClient<SqlConnection>) -> T): T =
+    withTypedTransactionPolymorphic(function)
+
+
+// TODO Some these functions related to savepoints can be ported to kotlin-common and can possibly be contributed back to Vert.x
 
 val savepointNameRegex = Regex("\\w+")
 
