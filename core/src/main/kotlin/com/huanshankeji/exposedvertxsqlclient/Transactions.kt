@@ -88,13 +88,13 @@ suspend inline fun <reified SqlConnectionT : SqlConnection, T> DatabaseClient<*>
 val savepointNameRegex = Regex("\\w+")
 
 private suspend fun DatabaseClient<SqlConnection>.savepoint(savepointName: String) =
-    executePlainSqlUpdate("SAVEPOINT \"$savepointName\"").also { dbAssert(it == 0) }
+    executePlainSqlUpdate("SAVEPOINT $savepointName").also { dbAssert(it == 0) }
 
 private suspend fun DatabaseClient<SqlConnection>.rollbackToSavepoint(savepointName: String) =
-    executePlainSqlUpdate("ROLLBACK TO SAVEPOINT \"$savepointName\"").also { dbAssert(it == 0) }
+    executePlainSqlUpdate("ROLLBACK TO SAVEPOINT $savepointName").also { dbAssert(it == 0) }
 
 private suspend fun DatabaseClient<SqlConnection>.releaseSavepoint(savepointName: String) =
-    executePlainSqlUpdate("RELEASE SAVEPOINT \"$savepointName\"").also { dbAssert(it == 0) }
+    executePlainSqlUpdate("RELEASE SAVEPOINT $savepointName").also { dbAssert(it == 0) }
 
 /**
  * Not tested yet on DBs other than PostgreSQL.
