@@ -70,7 +70,10 @@ suspend fun <T> DatabaseClient<*>.withTransactionPolymorphic(function: suspend (
     when (vertxSqlClient) {
         is Pool -> (this as DatabaseClient<Pool>).withTransaction(function)
         is SqlConnection -> (this as DatabaseClient<SqlConnection>).withTransaction(function)
-        else -> throw IllegalArgumentException("${vertxSqlClient::class} is not supported")
+        else -> throw IllegalArgumentException(
+            "Unsupported vertxSqlClient type: ${vertxSqlClient::class.qualifiedName}. " +
+                "Supported types are ${Pool::class.qualifiedName} and ${SqlConnection::class.qualifiedName}."
+        )
     }
 
 /**

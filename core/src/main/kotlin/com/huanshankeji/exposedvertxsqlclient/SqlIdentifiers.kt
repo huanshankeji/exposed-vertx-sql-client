@@ -8,4 +8,6 @@ val unquotedSqlIdentifierRegex = Regex("\\w+")
  */
 @InternalApi
 fun requireSqlIdentifier(identifier: String) =
-    require(identifier.matches(unquotedSqlIdentifierRegex))
+    require(identifier.matches(unquotedSqlIdentifierRegex)) {
+        "Invalid SQL identifier '$identifier'. Only alphanumeric characters and underscores are allowed."
+    }
