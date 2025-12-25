@@ -98,7 +98,7 @@ val databaseClient = DatabaseClient(vertxSqlClient, exposedDatabase, PgDatabaseC
 
 #### Alternatives to `EvscConfig`
 
-The `EvscConfig` was initially designed to incorporate support for Unix domain sockets and may be an overkill for some use cases.
+The `EvscConfig` was initially designed to incorporate support for Unix domain sockets and may be overkill for some use cases.
 If you don't use Unix domain sockets in your code, you can create a `ConnectionConfig.Socket` directly as the single source of truth:
 
 ```kotlin
