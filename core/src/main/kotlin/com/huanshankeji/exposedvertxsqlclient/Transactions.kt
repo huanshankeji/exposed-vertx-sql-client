@@ -16,6 +16,7 @@ import kotlinx.coroutines.coroutineScope
  * When using this function, it's recommended to name the lambda parameter the same as the outer receiver so that the outer [DatabaseClient] is shadowed,
  * and so that you don't call the outer [DatabaseClient] without a transaction by accident.
  */
+@JvmName("withTransactionForPool")
 suspend fun <T> DatabaseClient<Pool>.withTransaction(function: suspend (DatabaseClient<SqlConnection>) -> T): T =
     coroutineScope {
         vertxSqlClient.withTransaction {
@@ -50,6 +51,7 @@ suspend fun <SqlConnectionT : SqlConnection, T> DatabaseClient<SqlConnectionT>.w
     }
 }
 
+@JvmName("withTransactionForSqlConnection")
 suspend fun <SqlConnectionT : SqlConnection, T> DatabaseClient<SqlConnectionT>.withTransaction(function: suspend (DatabaseClient<SqlConnectionT>) -> T): T =
     withTransactionCommitOrRollback { function(it).some() }.getOrElse { throw AssertionError() }
 
