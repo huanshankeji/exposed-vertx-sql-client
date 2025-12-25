@@ -62,7 +62,7 @@ suspend fun <SqlConnectionT : SqlConnection, T> DatabaseClient<SqlConnectionT>.w
 // for `DatabaseClient<*>`
 
 /**
- * Polymorphic transaction function for `DatabaseClient<*>` with either [Pool] and [SqlConnection] as the [DatabaseClient.vertxSqlClient].
+ * Polymorphic transaction function for `DatabaseClient<*>` with either [Pool] or [SqlConnection] as the [DatabaseClient.vertxSqlClient].
  */
 @ExperimentalEvscApi
 suspend fun <T> DatabaseClient<*>.withTransactionPolymorphic(function: suspend (DatabaseClient<SqlConnection>) -> T): T =
@@ -74,7 +74,7 @@ suspend fun <T> DatabaseClient<*>.withTransactionPolymorphic(function: suspend (
     }
 
 /**
- * Polymorphic transaction function for `DatabaseClient<*>` with either [Pool] and [SqlConnection] as the [DatabaseClient.vertxSqlClient].
+ * Polymorphic transaction function for `DatabaseClient<*>` with either [Pool] or [SqlConnection] as the [DatabaseClient.vertxSqlClient].
  */
 @ExperimentalEvscApi
 suspend inline fun <reified SqlConnectionT : SqlConnection, T> DatabaseClient<*>.withTypedTransactionPolymorphic(
