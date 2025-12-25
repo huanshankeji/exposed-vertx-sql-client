@@ -84,8 +84,6 @@ suspend inline fun <reified SqlConnectionT : SqlConnection, T> DatabaseClient<*>
 
 
 // TODO Some of these functions related to savepoints can be ported to kotlin-common and can possibly be contributed back to Vert.x
-@InternalApi
-val savepointNameRegex = Regex("\\w+")
 
 private suspend fun DatabaseClient<SqlConnection>.savepoint(savepointName: String) =
     executePlainSqlUpdate("SAVEPOINT $savepointName").also { dbAssert(it == 0) }
@@ -106,7 +104,7 @@ suspend fun <SqlConnectionT : SqlConnection, RollbackT, ReleaseT> DatabaseClient
 ): Either<RollbackT, ReleaseT> {
     // Prepared query seems not to work here.
 
-    require(savepointName.matches(savepointNameRegex))
+    requireSqlIdentifier(savepointName)
     savepoint(savepointName)
 
     return try {

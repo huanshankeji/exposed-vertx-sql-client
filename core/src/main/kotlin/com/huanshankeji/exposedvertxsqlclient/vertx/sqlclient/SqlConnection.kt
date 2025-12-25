@@ -1,12 +1,17 @@
 package com.huanshankeji.exposedvertxsqlclient.vertx.sqlclient
 
 import com.huanshankeji.ExperimentalApi
+import com.huanshankeji.exposedvertxsqlclient.requireSqlIdentifier
 import io.vertx.kotlin.coroutines.coAwait
+import io.vertx.sqlclient.Row
+import io.vertx.sqlclient.RowSet
 import io.vertx.sqlclient.SqlConnection
 
 // TODO consider using prepared statements
 // TODO assert and return `Unit`
 // TODO consider moving to "kotlin-common"
 @ExperimentalApi
-suspend fun SqlConnection.setRole(role: String) =
-    query("SET ROLE $role").execute().coAwait()
+suspend fun SqlConnection.setRole(role: String): RowSet<Row> {
+    requireSqlIdentifier(role)
+    return query("SET ROLE $role").execute().coAwait()
+}
