@@ -45,7 +45,11 @@ suspend fun <SqlConnectionT : SqlConnection, T> DatabaseClient<SqlConnectionT>.w
         }
         result
     } catch (e: Exception) {
-        transaction.rollback().coAwait()
+        try {
+            transaction.rollback().coAwait()
+        } catch (rollbackException: Exception) {
+            e.addSuppressed(rollbackException)
+        }
         throw e
     }
 }
@@ -113,7 +117,11 @@ suspend fun <SqlConnectionT : SqlConnection, RollbackT, ReleaseT> DatabaseClient
         }
         result
     } catch (e: Exception) {
-        rollbackToSavepoint(savepointName)
+        try {
+            rollbackToSavepoint(savepointName)
+        } catch (rollbackException: Exception) {
+            e.addSuppressed(rollbackException)
+        }
         throw e
     }
 }
