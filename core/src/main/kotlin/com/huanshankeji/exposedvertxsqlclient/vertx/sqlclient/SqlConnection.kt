@@ -1,8 +1,8 @@
 package com.huanshankeji.exposedvertxsqlclient.vertx.sqlclient
 
 import com.huanshankeji.ExperimentalApi
-import com.huanshankeji.exposedvertxsqlclient.requireSqlIdentifier
 import com.huanshankeji.exposedvertxsqlclient.ExperimentalUnixDomainSocketApi
+import com.huanshankeji.exposedvertxsqlclient.requireSqlIdentifier
 import io.vertx.kotlin.coroutines.coAwait
 import io.vertx.sqlclient.Row
 import io.vertx.sqlclient.RowSet
