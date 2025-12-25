@@ -11,4 +11,5 @@ import io.vertx.sqlclient.SqlConnection
 @ExperimentalApi
 @ExperimentalUnixDomainSocketApi
 suspend fun SqlConnection.setRole(role: String) =
+    // vulnerable to SQL injection as pointed out by Gemini
     query("SET ROLE $role").execute().coAwait()
