@@ -68,7 +68,7 @@ suspend fun <SqlConnectionT : SqlConnection, T> DatabaseClient<SqlConnectionT>.w
 suspend fun <T> DatabaseClient<*>.withTransactionPolymorphic(function: suspend (DatabaseClient<SqlConnection>) -> T): T =
     @Suppress("UNCHECKED_CAST")
     when (vertxSqlClient) {
-        is Pool -> (this as DatabaseClient<Pool>).withTypedTransaction(function)
+        is Pool -> (this as DatabaseClient<Pool>).withTransaction(function)
         is SqlConnection -> (this as DatabaseClient<SqlConnection>).withTransaction(function)
         else -> throw IllegalArgumentException("${vertxSqlClient::class} is not supported")
     }
