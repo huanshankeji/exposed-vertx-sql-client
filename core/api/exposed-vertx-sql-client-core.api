@@ -93,7 +93,6 @@ public final class com/huanshankeji/exposedvertxsqlclient/DatabaseClientKt {
 	public static final fun dbAssert (Z)V
 	public static final fun getFieldExpressionSet (Lorg/jetbrains/exposed/v1/core/FieldSet;)Ljava/util/Set;
 	public static final fun getFieldExpressionSet (Lorg/jetbrains/exposed/v1/jdbc/Query;)Ljava/util/Set;
-	public static final fun getSavepointNameRegex ()Lkotlin/text/Regex;
 	public static final fun getVertxSqlClientArgTuple (Lorg/jetbrains/exposed/v1/core/statements/Statement;)Lio/vertx/sqlclient/Tuple;
 	public static final fun singleOrNoResult (Lio/vertx/sqlclient/RowSet;)Ljava/lang/Object;
 	public static final fun singleOrNoUpdate (I)Z
@@ -103,13 +102,6 @@ public final class com/huanshankeji/exposedvertxsqlclient/DatabaseClientKt {
 	public static final fun toExposedResultRow (Lio/vertx/sqlclient/Row;Lorg/jetbrains/exposed/v1/jdbc/Query;)Lorg/jetbrains/exposed/v1/core/ResultRow;
 	public static final fun toVertxTuple (Ljava/lang/Iterable;)Lio/vertx/sqlclient/Tuple;
 	public static final fun types (Ljava/lang/Iterable;)Ljava/util/List;
-	public static final fun withSavepointAndRollbackIfThrows (Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClient;Ljava/lang/String;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public static final fun withSavepointAndRollbackIfThrowsOrFalse (Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClient;Ljava/lang/String;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public static final fun withSavepointAndRollbackIfThrowsOrLeft (Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClient;Ljava/lang/String;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public static final fun withSavepointAndRollbackIfThrowsOrNone (Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClient;Ljava/lang/String;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public static final fun withTransaction (Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClient;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public static final fun withTransactionCommitOrRollback (Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClient;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public static final fun withTypedTransaction (Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClient;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
 public final class com/huanshankeji/exposedvertxsqlclient/EvscConfig : com/huanshankeji/exposedvertxsqlclient/IEvscConfig {
@@ -136,8 +128,24 @@ public final class com/huanshankeji/exposedvertxsqlclient/SingleUpdateException 
 	public fun <init> (I)V
 }
 
+public final class com/huanshankeji/exposedvertxsqlclient/SqlIdentifiersKt {
+	public static final fun getUnquotedSqlIdentifierRegex ()Lkotlin/text/Regex;
+	public static final fun requireSqlIdentifier (Ljava/lang/String;)V
+}
+
 public final class com/huanshankeji/exposedvertxsqlclient/SqlTransformationKt {
 	public static final fun transformPreparedSqlToNumbered (Ljava/lang/String;Lkotlin/jvm/functions/Function1;)Ljava/lang/String;
+}
+
+public final class com/huanshankeji/exposedvertxsqlclient/TransactionsKt {
+	public static final fun withSavepointAndRollbackIfThrows (Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClient;Ljava/lang/String;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun withSavepointAndRollbackIfThrowsOrFalse (Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClient;Ljava/lang/String;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun withSavepointAndRollbackIfThrowsOrLeft (Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClient;Ljava/lang/String;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun withSavepointAndRollbackIfThrowsOrNone (Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClient;Ljava/lang/String;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun withTransactionCommitOrRollback (Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClient;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun withTransactionForPool (Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClient;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun withTransactionForSqlConnection (Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClient;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun withTransactionPolymorphic (Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClient;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
 public final class com/huanshankeji/exposedvertxsqlclient/exposed/ExposedDatabasesKt {
