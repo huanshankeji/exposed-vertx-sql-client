@@ -3,6 +3,7 @@
 package com.huanshankeji.exposedvertxsqlclient
 
 import com.huanshankeji.exposedvertxsqlclient.crud.*
+import org.jetbrains.exposed.v1.core.Count
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.statements.buildStatement
 import org.jetbrains.exposed.v1.jdbc.select
@@ -128,8 +129,9 @@ suspend fun additionalSelectOperations(
     // Test selectColumnSetExpression - select a count expression
     val count = databaseClient.selectColumnSetExpression(
         Examples,
-        org.jetbrains.exposed.v1.core.Count(Examples.id),
-        { where(Examples.name eq "TestSelect") }
+        Count(Examples.id),
+        { where(Examples.name eq "TestSelect") },
+        true // TODO not working
     ).single()
     assert(count > 0) { "Count should be greater than 0, got $count" }
     
