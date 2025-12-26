@@ -171,7 +171,7 @@ suspend fun <T : Table, E> DatabaseClient<*>.batchInsertIgnore(
 
 
 /**
- * This function is not conventional and it usages are likely to degrade performance.
+ * This function is not conventional and its usages are likely to degrade performance.
  * @see DatabaseClient.executeBatchUpdate
  */
 @ExperimentalEvscApi
