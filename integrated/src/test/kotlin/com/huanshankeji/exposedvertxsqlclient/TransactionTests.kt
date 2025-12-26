@@ -16,7 +16,7 @@ class TransactionTests :
                 }
             }
         }
-        
+
         // Transaction tests for SqlConnection
         context("SqlConnection transactions") {
             test("test basic transaction for Connection") {
@@ -27,7 +27,7 @@ class TransactionTests :
                     }
                 }
             }
-            
+
             test("test transaction rollback on exception") {
                 if (databaseClient.vertxSqlClient is SqlConnection) {
                     withTables {
@@ -36,7 +36,7 @@ class TransactionTests :
                     }
                 }
             }
-            
+
             test("test savepoint operations") {
                 if (databaseClient.vertxSqlClient is SqlConnection) {
                     withTables {
@@ -45,7 +45,7 @@ class TransactionTests :
                     }
                 }
             }
-            
+
             test("test savepoint rollback on exception") {
                 if (databaseClient.vertxSqlClient is SqlConnection) {
                     withTables {
@@ -54,7 +54,7 @@ class TransactionTests :
                     }
                 }
             }
-            
+
             test("test savepoint with false") {
                 if (databaseClient.vertxSqlClient is SqlConnection) {
                     withTables {
@@ -64,7 +64,7 @@ class TransactionTests :
                 }
             }
         }
-        
+
         // Polymorphic transaction tests (work with both Pool and SqlConnection)
         test("test polymorphic transaction") {
             withTables { polymorphicTransaction(databaseClient) }
