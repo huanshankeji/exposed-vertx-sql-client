@@ -27,7 +27,7 @@ We also have some internal consuming code to guarantee the usability of the APIs
 
 ### Brief overview of the implementation
 
-This library works by first producing the prepared SQL from an Exposed `Statement` with an Exposed `transaction`, then translating and passing the SQL to the Vert.x SQL client for execution, and finally transaforming the retrieved result Vert.x SQL client `Row` into the Exposed `ResultSet`. The Exposed `transaction` for preparing the SQL is as short and as lightweight as possible to improve performance. And also when executing without a transaction, Vert.x SQL client's pipeling feature can be enabled, which greatly improves performance for simple queries and is not supported by JDBC and R2DBC for PostgreSQL as far as I know.
+This library works by first producing the prepared SQL from an Exposed `Statement` with an Exposed `transaction`, then translating and passing the SQL to the Vert.x SQL client for execution, and finally transforming the retrieved result Vert.x SQL client `Row` into the Exposed `ResultSet`. The Exposed `transaction` for preparing the SQL is as short and as lightweight as possible to improve performance. And also when executing without a transaction, Vert.x SQL client's pipelining feature can be enabled, which greatly improves performance for simple queries and is not supported by JDBC and R2DBC for PostgreSQL as far as I know.
 
 ## Add to your dependencies
 
