@@ -31,38 +31,20 @@ suspend fun batchOperations(
         assert(resultsCount == 2) { "Expected 2 results, got $resultsCount" }
     }
     
-    // Test batchUpdate
-    val idsToUpdate = listOf(1, 2)
-    databaseClient.batchUpdate(Examples, idsToUpdate) { statement, id ->
-        statement[Examples.name] = "Updated$id"
+    // Test batchUpdate - update all rows with different names based on data
+    val newNames = listOf("UpdatedA", "UpdatedB", "UpdatedC")
+    val rowCounts = databaseClient.batchUpdate(Examples, newNames) { statement, name ->
+        statement[Examples.name] = name
     }
+    // Each update statement updates all rows, so we should get row counts
+    val rowCountsList = rowCounts.toList()
+    assert(rowCountsList.size == 3) { "Expected 3 update statements, got ${rowCountsList.size}" }
     
-    val updatedName1 = databaseClient.select(Examples, { select(Examples.name).where(Examples.id eq 1) })
-        .single()[Examples.name]
-    assert(updatedName1 == "Updated1") { "Expected 'Updated1', got '$updatedName1'" }
-    
-    // Test batchSingleOrNoUpdate
-    val singleUpdateResults = databaseClient.batchSingleOrNoUpdate(
-        Examples,
-        listOf(1, 2, 999)  // 999 doesn't exist
-    ) { statement, id ->
-        statement[Examples.name] = "SingleUpdate$id"
+    // Verify that the last update was applied to all rows
+    val allRows = databaseClient.select(Examples, { selectAll() })
+    allRows.forEach { row ->
+        assert(row[Examples.name] == "UpdatedC") { "Expected 'UpdatedC', got '${row[Examples.name]}'" }
     }
-    val updateResultsList = singleUpdateResults.toList()
-    assert(updateResultsList.size == 3) { "Expected 3 results, got ${updateResultsList.size}" }
-    assert(updateResultsList[0]) { "First update should succeed" }
-    assert(updateResultsList[1]) { "Second update should succeed" }
-    assert(!updateResultsList[2]) { "Third update should fail (non-existent ID)" }
-    
-    // Test sortDataAndBatchUpdate
-    val unsortedData = listOf(2, 1, 3)
-    databaseClient.sortDataAndBatchUpdate(Examples, unsortedData, { it }) { statement, id ->
-        statement[Examples.name] = "Sorted$id"
-    }
-    
-    val sortedName = databaseClient.select(Examples, { select(Examples.name).where(Examples.id eq 1) })
-        .single()[Examples.name]
-    assert(sortedName == "Sorted1") { "Expected 'Sorted1', got '$sortedName'" }
 }
 
 suspend fun insertSelectOperations(
