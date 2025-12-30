@@ -1,5 +1,3 @@
-// TODO rename to "ExamplesAdditionalOperations"; currently not renamed for Git to track changes
-
 @file:OptIn(ExperimentalEvscApi::class)
 
 package com.huanshankeji.exposedvertxsqlclient
