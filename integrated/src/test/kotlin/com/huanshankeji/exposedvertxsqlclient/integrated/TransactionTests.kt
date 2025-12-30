@@ -1,5 +1,6 @@
-package com.huanshankeji.exposedvertxsqlclient
+package com.huanshankeji.exposedvertxsqlclient.integrated
 
+import com.huanshankeji.exposedvertxsqlclient.*
 import io.kotest.core.spec.style.scopes.FunSpecContainerScope
 import io.vertx.sqlclient.Pool
 import io.vertx.sqlclient.SqlConnection

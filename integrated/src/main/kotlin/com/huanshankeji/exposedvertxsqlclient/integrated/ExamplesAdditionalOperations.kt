@@ -1,8 +1,10 @@
 @file:OptIn(ExperimentalEvscApi::class)
 
-package com.huanshankeji.exposedvertxsqlclient
+package com.huanshankeji.exposedvertxsqlclient.integrated
 
 import com.huanshankeji.exposed.v1.core.asterisk
+import com.huanshankeji.exposedvertxsqlclient.DatabaseClient
+import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
 import com.huanshankeji.exposedvertxsqlclient.crud.*
 import io.vertx.sqlclient.RowSet
 import org.jetbrains.exposed.v1.core.Count

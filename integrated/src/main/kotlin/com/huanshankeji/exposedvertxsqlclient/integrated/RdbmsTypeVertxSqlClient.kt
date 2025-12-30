@@ -1,4 +1,4 @@
-package com.huanshankeji.exposedvertxsqlclient
+package com.huanshankeji.exposedvertxsqlclient.integrated
 
 import io.vertx.mssqlclient.MSSQLConnection
 import io.vertx.mysqlclient.MySQLConnection

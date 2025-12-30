@@ -1,5 +1,7 @@
-package com.huanshankeji.exposedvertxsqlclient
+package com.huanshankeji.exposedvertxsqlclient.integrated
 
+import com.huanshankeji.exposedvertxsqlclient.DatabaseClient
+import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
 import com.huanshankeji.exposedvertxsqlclient.jdbc.sqlServerJdbcUrlWithEncryptEqFalse
 import com.huanshankeji.exposedvertxsqlclient.mssql.MssqlDatabaseClientConfig
 import com.huanshankeji.exposedvertxsqlclient.mssql.exposed.exposedDatabaseConnectMssql

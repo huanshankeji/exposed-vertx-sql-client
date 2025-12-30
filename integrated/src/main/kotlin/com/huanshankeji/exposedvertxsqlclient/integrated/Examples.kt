@@ -1,7 +1,8 @@
 @file:OptIn(ExperimentalEvscApi::class, ExperimentalUnixDomainSocketApi::class)
 
-package com.huanshankeji.exposedvertxsqlclient
+package com.huanshankeji.exposedvertxsqlclient.integrated
 
+import com.huanshankeji.exposedvertxsqlclient.*
 import com.huanshankeji.exposedvertxsqlclient.crud.*
 import com.huanshankeji.exposedvertxsqlclient.local.toPerformantUnixEvscConfig
 import com.huanshankeji.exposedvertxsqlclient.postgresql.PgDatabaseClientConfig

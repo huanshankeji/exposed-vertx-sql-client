@@ -17,7 +17,7 @@ import kotlinx.coroutines.coroutineScope
 // for `DatabaseClient<SqlConnection>`
 
 /**
- * @param function return [Right] to commit the transaction, or [Left] to roll back the transaction.
+ * @param function return [Either.Right] to commit the transaction, or [Either.Left] to roll back the transaction.
  */
 @ExperimentalEvscApi
 @JvmName("withTransactionEitherForSqlConnection")
@@ -151,7 +151,7 @@ private suspend fun DatabaseClient<SqlConnection>.releaseSavepoint(savepointName
  * Not tested yet on DBs other than PostgreSQL. TODO delete this line if related tests pass
  * A savepoint destroys one with the same name so be careful.
  *
- * @param function return [Right] to release the savepoint, or [Left] to roll back to the savepoint.
+ * @param function return [Either.Right] to release the savepoint, or [Either.Left] to roll back to the savepoint.
  */
 @ExperimentalEvscApi
 suspend fun <SqlConnectionT : SqlConnection, RollbackResult, ReleaseResult> DatabaseClient<SqlConnectionT>.withSavepointEither(

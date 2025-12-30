@@ -1,10 +1,12 @@
 @file:OptIn(ExperimentalEvscApi::class)
 
-package com.huanshankeji.exposedvertxsqlclient
+package com.huanshankeji.exposedvertxsqlclient.integrated
 
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
+import com.huanshankeji.exposedvertxsqlclient.DatabaseClient
+import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
 import com.huanshankeji.exposedvertxsqlclient.crud.insert
 import io.kotest.matchers.shouldBe
 import io.vertx.sqlclient.SqlClient
@@ -32,7 +34,7 @@ abstract class CommonTransactionOrRollbackTests<VertxSqlClientT : SqlClient>(
 
 class TransactionOrRollbackEitherTests<VertxSqlClientT : SqlClient/*, SqlConnectionT : SqlConnection*/>(
     databaseClient: DatabaseClient<VertxSqlClientT>,
-    val withTransactionOrRollback: suspend DatabaseClient<VertxSqlClientT>.(function: suspend (DatabaseClient<*>) -> Either<Unit, Unit>) -> Either<Unit, Unit>
+    val withTransactionOrRollback: suspend DatabaseClient<VertxSqlClientT>.(function: suspend (DatabaseClient<SqlConnection>) -> Either<Unit, Unit>) -> Either<Unit, Unit>
 ) : CommonTransactionOrRollbackTests<VertxSqlClientT>(databaseClient) {
     suspend fun testSuccess() {
         databaseClient.withTransactionOrRollback { databaseClient ->
