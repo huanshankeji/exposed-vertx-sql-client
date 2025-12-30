@@ -16,6 +16,19 @@ import org.jetbrains.exposed.v1.jdbc.select
 import kotlin.reflect.KClass
 import kotlin.sequences.Sequence
 
+// CRUD DSL functions akin to those in Exposed
+// The function types should be kept consistent with those in Exposed. Corresponding functions are linked in the `@see` annotations in KDoc comments.
+
+// consider making these 2 deprecated `select` functions internal instead of removing them when it's about to remove the deprecated APIs
+
+internal const val SELECT_OVERDESIGN_DEPRECATION_MESSAGE =
+    "This API was an over-design, exert additional cognitive burdens, and has become more redundant with the new Exposed SELECT DSL design. " +
+            "Please use `executeQuery` directly."
+
+@Deprecated(
+    SELECT_OVERDESIGN_DEPRECATION_MESSAGE,
+    ReplaceWith("this.executeQuery(columnSet.buildQuery(), getFieldExpressionSetWithExposedTransaction, resultRowMapper)")
+)
 suspend inline fun <Data> DatabaseClient<*>.select(
     columnSet: ColumnSet,
     buildQuery: ColumnSet.() -> Query,
@@ -24,6 +37,10 @@ suspend inline fun <Data> DatabaseClient<*>.select(
 ): RowSet<Data> =
     executeQuery(columnSet.buildQuery(), getFieldExpressionSetWithExposedTransaction, resultRowMapper)
 
+@Deprecated(
+    SELECT_OVERDESIGN_DEPRECATION_MESSAGE,
+    ReplaceWith("this.executeQuery(columnSet.buildQuery(), getFieldExpressionSetWithExposedTransaction)")
+)
 suspend inline fun DatabaseClient<*>.select(
     columnSet: ColumnSet,
     buildQuery: ColumnSet.() -> Query,
@@ -36,9 +53,12 @@ suspend inline fun DatabaseClient<*>.select(
 /**
  * SQL: `SELECT <expression> FROM <table>;`.
  * Examples: `SELECT COUNT(*) FROM <table>;`, `SELECT SUM(<column>) FROM <table>;`.
+ *
+ * This function distinguishes from the overload without a [columnSet] parameter
+ * in that it selects from a certain [columnSet], which may be a [Table] or a [Join].
  */
 @ExperimentalEvscApi
-suspend fun <T> DatabaseClient<*>.selectColumnSetExpression(
+suspend fun <T> DatabaseClient<*>.selectExpression(
     columnSet: ColumnSet,
     expression: Expression<T>,
     buildQuery: Query.() -> Query,
@@ -49,6 +69,19 @@ suspend fun <T> DatabaseClient<*>.selectColumnSetExpression(
         { select(expression).buildQuery() },
         getFieldExpressionSetWithExposedTransaction,
         { this[expression] })
+
+@Deprecated(
+    "Renamed to `selectExpression`.",
+    ReplaceWith("this.selectExpression(columnSet, expression, buildQuery, getFieldExpressionSetWithExposedTransaction)")
+)
+@ExperimentalEvscApi
+suspend fun <T> DatabaseClient<*>.selectColumnSetExpression(
+    columnSet: ColumnSet,
+    expression: Expression<T>,
+    buildQuery: Query.() -> Query,
+    getFieldExpressionSetWithExposedTransaction: Boolean = config.autoExposedTransaction
+): RowSet<T> =
+    selectExpression(columnSet, expression, buildQuery, getFieldExpressionSetWithExposedTransaction)
 
 // This function with `mapper` is not really useful
 @ExperimentalEvscApi
@@ -79,6 +112,7 @@ suspend fun <T : Comparable<T>> DatabaseClient<*>.selectSingleEntityIdColumn(
 ): RowSet<T> =
     selectSingleColumn(columnSet, column, buildQuery, getFieldExpressionSetWithExposedTransaction) { value }
 
+// consider porting these 2 functions' implementations to `kotlin-common-vertx`
 
 /**
  * SQL: `SELECT <expression>;`.
@@ -92,6 +126,7 @@ suspend fun <T : Any> DatabaseClient<*>.selectExpression(clazz: KClass<T>, expre
 suspend inline fun <reified T> DatabaseClient<*>.selectExpression(expression: Expression<T>): T =
     @Suppress("UNCHECKED_CAST")
     selectExpression(T::class as KClass<Any>, expression as Expression<Any?>) as T
+
 
 @ExperimentalEvscApi
 suspend fun <T : Table> DatabaseClient<*>.insert(table: T, body: T.(InsertStatement<Number>) -> Unit) =
@@ -123,13 +158,43 @@ suspend fun <T : Table> DatabaseClient<*>.executeInsertIgnore(
     insertIgnore(table, body)
 
 
+// TODO consider swapping which ones are primary and which ones are aliases to make them consistent with the Exposed APIs
+
+/**
+ * @see StatementBuilder.insert the overload with `selectQuery` parameter
+ */
+@ExperimentalEvscApi
 suspend fun <T : Table> DatabaseClient<*>.insertSelect(
     table: T, selectQuery: AbstractQuery<*>, columns: List<Column<*>>? = null
-) = executeUpdate(buildStatement { table.insert(selectQuery, columns) })
+) =
+    executeUpdate(buildStatement { table.insert(selectQuery, columns) })
 
+/**
+ * An alias of [insertSelect].
+ */
+@ExperimentalEvscApi
+suspend fun <T : Table> DatabaseClient<*>.insert(
+    table: T, selectQuery: AbstractQuery<*>, columns: List<Column<*>>? = null
+) =
+    insertSelect(table, selectQuery, columns)
+
+/**
+ * @see StatementBuilder.insertIgnore the overload with `selectQuery` parameter
+ */
+@ExperimentalEvscApi
 suspend fun <T : Table> DatabaseClient<*>.insertIgnoreSelect(
     table: T, selectQuery: AbstractQuery<*>, columns: List<Column<*>>? = null
-) = executeUpdate(buildStatement { table.insertIgnore(selectQuery, columns) })
+) =
+    executeUpdate(buildStatement { table.insertIgnore(selectQuery, columns) })
+
+/**
+ * An alias of [insertIgnoreSelect].
+ */
+@ExperimentalEvscApi
+suspend fun <T : Table> DatabaseClient<*>.insertIgnore(
+    table: T, selectQuery: AbstractQuery<*>, columns: List<Column<*>>? = null
+) =
+    insertIgnoreSelect(table, selectQuery, columns)
 
 
 suspend fun <T : Table> DatabaseClient<*>.update(
@@ -139,17 +204,32 @@ suspend fun <T : Table> DatabaseClient<*>.update(
 
 
 /**
- * This function may be very rarely used, as `eq` conditions can usually be combined into an `inList` select query.
+ * This function may be very rarely used, as [eq] conditions of multiple statements can usually be combined into an [inList] or [eq] [anyFrom] select query.
  */
+@ExperimentalEvscApi
+suspend fun <T : ColumnSet, E> DatabaseClient<*>.batchSelect(
+    columnSet: T, data: Iterable<E>, buildQuery: T.(E) -> Query
+): Sequence<RowSet<ResultRow>> =
+    executeBatchQuery(columnSet, data.asSequence().map { columnSet.buildQuery(it) }.asIterable())
+
+@Deprecated(
+    "Renamed to `batchSelect` and the signature updated.",
+    ReplaceWith("this.batchSelect(fieldSet, data, buildQuery)")
+)
 @ExperimentalEvscApi
 suspend fun <E> DatabaseClient<*>.selectBatch(
     fieldSet: FieldSet, buildQuery: FieldSet.(E) -> Query, data: Iterable<E>
 ): Sequence<RowSet<ResultRow>> =
-    executeBatchQuery(fieldSet, data.asSequence().map { fieldSet.buildQuery(it) }.asIterable())
+    batchSelect(fieldSet as ColumnSet, data, buildQuery)
 
+// TODO more params such as `ignoreErrors` and `shouldReturnGeneratedValues`
 /**
  * @see DatabaseClient.executeBatchUpdate
+ * @see org.jetbrains.exposed.v1.jdbc.batchInsert
+ * This function differs from Exposed's [org.jetbrains.exposed.v1.jdbc.batchInsert]
+ * in that it doesn't use [StatementBuilder.batchInsert] or [BatchInsertStatement].
  */
+@ExperimentalEvscApi
 suspend fun <T : Table, E> DatabaseClient<*>.batchInsert(
     table: T, data: Iterable<E>, body: T.(InsertStatement<Number>, E) -> Unit
 ) =
@@ -160,7 +240,10 @@ suspend fun <T : Table, E> DatabaseClient<*>.batchInsert(
 
 /**
  * @see DatabaseClient.executeBatchUpdate
+ * @see org.jetbrains.exposed.v1.jdbc.batchInsert
+ * @see batchInsert
  */
+@ExperimentalEvscApi
 suspend fun <T : Table, E> DatabaseClient<*>.batchInsertIgnore(
     table: T, data: Iterable<E>, body: T.(UpdateBuilder<*>, E) -> Unit
 ) =
@@ -182,25 +265,27 @@ suspend fun DatabaseClient<*>.batchInsertSelect(statements: Iterable<InsertSelec
  * @see DatabaseClient.executeBatchUpdate
  * @see sortDataAndBatchUpdate
  */
+@ExperimentalEvscApi
 suspend fun <T : Table, E> DatabaseClient<*>.batchUpdate(
     table: T,
     data: Iterable<E>,
-    where: (() -> Op<Boolean>)? = null,
+    where: (E) -> Op<Boolean>, // Optional/Nullable `where: ((E) -> Op<Boolean>)? = null` is meaningless here.
     limit: Int? = null,
     body: T.(UpdateStatement, E) -> Unit
 ) =
     executeBatchUpdate(data.asSequence().map { element ->
-        buildStatement { table.update(where, limit) { body(it, element) } }
+        buildStatement { table.update({ where(element) }, limit) { body(it, element) } }
     }.asIterable())
 
 /**
  * @return a sequence indicating whether each update statement is updated in the batch.
  * @see batchUpdate
  */
+@ExperimentalEvscApi
 suspend fun <T : Table, E> DatabaseClient<*>.batchSingleOrNoUpdate(
     table: T,
     data: Iterable<E>,
-    where: (() -> Op<Boolean>)? = null,
+    where: (E) -> Op<Boolean>,
     limit: Int? = null,
     body: T.(UpdateStatement, E) -> Unit
 ): Sequence<Boolean> =
@@ -210,10 +295,11 @@ suspend fun <T : Table, E> DatabaseClient<*>.batchSingleOrNoUpdate(
  * @see sortDataAndExecuteBatch
  * @see batchUpdate
  */
+@ExperimentalEvscApi
 suspend fun <T : Table, E, SelectorResultT : Comparable<SelectorResultT>> DatabaseClient<*>.sortDataAndBatchUpdate(
     table: T,
     data: Iterable<E>, selector: (E) -> SelectorResultT,
-    where: (() -> Op<Boolean>)? = null, limit: Int? = null, body: T.(UpdateStatement, E) -> Unit
+    where: (E) -> Op<Boolean>, limit: Int? = null, body: T.(UpdateStatement, E) -> Unit
 ) =
     batchUpdate(table, data.sortedBy(selector), where, limit, body)
 

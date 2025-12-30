@@ -13,6 +13,7 @@ import com.huanshankeji.exposedvertxsqlclient.postgresql.vertx.pgclient.createPg
 import io.vertx.core.Verticle
 import io.vertx.core.Vertx
 import io.vertx.sqlclient.SqlClient
+import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.exists
@@ -28,6 +29,11 @@ object Examples : IntIdTable("examples") {
 }
 
 val tables = arrayOf(Examples)
+
+data class Example(val id: Int, val name: String)
+
+fun ResultRow.toExample() =
+    Example(this[Examples.id].value, this[Examples.name])
 
 val evscConfig = ConnectionConfig.Socket("localhost", user = "user", password = "password", database = "database")
     .toUniversalEvscConfig()

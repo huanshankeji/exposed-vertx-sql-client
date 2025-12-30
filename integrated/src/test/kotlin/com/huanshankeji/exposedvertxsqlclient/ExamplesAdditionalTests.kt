@@ -1,6 +1,6 @@
 package com.huanshankeji.exposedvertxsqlclient
 
-class BatchOperationsTests :
+class ExamplesAdditionalTests :
     TestsForAllRdbmsTypesAndAllClientTypesWithTestcontainers({ databaseClient, rdbmsType ->
         val crudSupportConfig = CrudSupportConfig.fromRdbmsType(rdbmsType)
 
@@ -20,7 +20,7 @@ class BatchOperationsTests :
             withTables { selectBatchOperations(databaseClient) }
         }
 
-        test("test additional select operations") {
-            withTables { additionalSelectOperations(databaseClient) }
+        test("test select operation shortcuts") {
+            withTables { selectOperationShortcuts(databaseClient) }
         }
     })

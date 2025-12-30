@@ -26,6 +26,7 @@ import io.kotest.extensions.testcontainers.TestContainerSpecExtension
 import io.vertx.core.Vertx
 import java.util.*
 
+@OptIn(ExperimentalEvscApi::class)
 abstract class TestsForAllRdbmsTypesAndAllClientTypesWithTestcontainers(
     tests: suspend FunSpecContainerScope.(databaseClient: DatabaseClient<*>, rdbmsType: RdbmsType) -> Unit,
     // for disabling some tests for debugging
