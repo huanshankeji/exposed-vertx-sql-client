@@ -6,6 +6,8 @@ import com.huanshankeji.exposed.v1.core.asterisk
 import com.huanshankeji.exposedvertxsqlclient.DatabaseClient
 import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
 import com.huanshankeji.exposedvertxsqlclient.crud.*
+import io.kotest.matchers.comparables.shouldBeGreaterThanOrEqualTo
+import io.kotest.matchers.shouldBe
 import io.vertx.sqlclient.RowSet
 import org.jetbrains.exposed.v1.core.Count
 import org.jetbrains.exposed.v1.core.ResultRow
@@ -36,17 +38,18 @@ suspend fun batchOperations(
         statement[this.name] = name
     }
 
-    assert(databaseClient.executeQuery(Examples.selectAll()).map { it.toExample() } ==
-            initialNames.mapIndexed { index, name -> Example(index, name) })
+    databaseClient.executeQuery(Examples.selectAll()).map { it.toExample() } shouldBe
+            initialNames.mapIndexed { index, name -> Example(index + 1, name) }
 
     // Test batchInsertIgnore (if supported)
     if (dialectSupportsInsertIgnore) {
-        val duplicateData = listOf("1", "4")
-        databaseClient.batchInsertIgnore(Examples, duplicateData) { statement, name ->
-            statement[this.name] = name
+        val newIds = listOf(1, 4)
+        databaseClient.batchInsertIgnore(Examples, newIds) { statement, id ->
+            statement[this.id] = id
+            statement[this.name] = id.toString()
         }.also {
             // "1" already exists, so only "4" should be inserted
-            assert(it.toList() == listOf(false, true))
+            it.toList() shouldBe listOf(false, true)
         }
     }
 
@@ -57,26 +60,19 @@ suspend fun batchOperations(
     { statement, name -> statement[this.name] = "$name updated" }.also {
         // Each update statement updates all rows
         // also consider changing this to not update all rows
-        assert(it.toList() == List(3) { 1 })
+        it.toList() shouldBe List(3) { 1 }
     }
 
     // Verify that the last update was applied
-    assert(databaseClient.selectAllExampleNameSequence().take(3).toList() == initialNames.map { "$it updated" })
+    databaseClient.executeQuery(Examples.select(Examples.name).orderBy(Examples.id).limit(3))
+        .map { it[Examples.name] }
+        .toList() shouldBe initialNames.map { "$it updated" }
 }
 
 
-internal fun selectAllWhereNameEq(name: String): Query = Examples.selectAll().where(Examples.name eq name)
-
-internal suspend fun DatabaseClient<*>.insertSelectWhereNameEq(name: String): Int =
-    with(Examples) {
-        insertSelect(this, selectAllWhereNameEq(name), listOf(this.name))
-    }
-
-
-internal suspend fun DatabaseClient<*>.insertIgnoreSelectWhereNameEq(name: String): Int =
-    with(Examples) {
-        insertIgnoreSelect(this, selectAllWhereNameEq(name), listOf(this.name))
-    }
+internal fun selectAllWhereNameEqQuery(name: String): Query = Examples.selectAll().where(Examples.name eq name)
+internal fun selectNameWhereNameEqQuery(name: String): Query =
+    Examples.select(Examples.name).where(Examples.name eq name)
 
 suspend fun insertSelectOperations(
     databaseClient: DatabaseClient<*>, crudSupportConfig: CrudSupportConfig
@@ -85,19 +81,19 @@ suspend fun insertSelectOperations(
     databaseClient.insert(Examples) { it[name] = "Source" }
 
     // Test insertSelect - copy rows from Examples back into Examples
-    databaseClient.insertSelectWhereNameEq("Source").also {
-        assert(it == 1)
+    databaseClient.insertSelect(Examples, selectNameWhereNameEqQuery("Source")).also {
+        it shouldBe 1
     }
 
     // Verify the insert worked
-    assert(databaseClient.selectAllExampleNameSequence().count { it == "Source" } == 2)
+    databaseClient.selectAllExampleNameSequence().count { it == "Source" } shouldBe 2
 
     // Test insertIgnoreSelect (if supported)
     if (dialectSupportsInsertIgnore)
     // also consider testing when some results are ignored
-        databaseClient.insertIgnoreSelectWhereNameEq("Source").also {
+        databaseClient.insertIgnoreSelect(Examples, selectNameWhereNameEqQuery("Source")).also {
             // This might insert or ignore depending on unique constraints
-            assert(it >= 0)
+            it shouldBeGreaterThanOrEqualTo 0
         }
 }
 
@@ -112,16 +108,20 @@ suspend fun batchInsertSelectOperations(
 
     // Test batchInsertSelect - create multiple insert-select statements
 
-    databaseClient.batchInsertSelect(batchNames.map {
+    // originally `batchInsertSelect` but now deprecated
+    databaseClient.executeBatchUpdate(batchNames.map { name ->
         buildStatement {
-            with(Examples) { insert(selectAllWhereNameEq("Batch1"), listOf(name)) }
+            with(Examples) {
+                databaseClient.statementPreparationExposedTransaction {
+                    insert(selectNameWhereNameEqQuery(name))
+                }
+            }
         }
     })
 
-
     // Verify inserts worked
     for (name in batchNames)
-        assert(databaseClient.executeQuery(selectAllWhereNameEq(name)).size() == 2)
+        databaseClient.executeQuery(selectAllWhereNameEqQuery(name)).size() shouldBe 2
 }
 
 suspend fun selectBatchOperations(
@@ -135,10 +135,10 @@ suspend fun selectBatchOperations(
 
     // Test selectBatch - batch select with different IDs
     val ids = listOf(1, 2, 3)
-    val results = databaseClient.batchSelect(Examples, ids, { id ->
-        select(name).where(this.id eq id)
+    val results = databaseClient.batchSelect(ids, { id ->
+        with(Examples) { select(name).where(this.id eq id) }
     })
-    assert(results.map { it.toList() }.toList() == dataToInsert.map { listOf(it) })
+    results.map { it.map { it[Examples.name] } }.toList() shouldBe dataToInsert.map { listOf(it) }
 }
 
 suspend fun selectOperationShortcuts(
@@ -151,10 +151,9 @@ suspend fun selectOperationShortcuts(
     val count = databaseClient.selectExpression(
         Examples,
         Count(asterisk),
-        { where(Examples.name eq "TestSelect") },
-        true // TODO not working
+        { where(Examples.name eq "TestSelect") }
     ).single()
-    assert(count == 1L)
+    count shouldBe 1L
 
     // Test selectSingleEntityIdColumn - select just the ID column as entity ID value
     val insertedId = databaseClient.selectSingleEntityIdColumn(
@@ -162,5 +161,5 @@ suspend fun selectOperationShortcuts(
         Examples.id,
         { where(Examples.name eq "TestSelect") }
     ).single()
-    assert(insertedId == 1)
+    insertedId shouldBe 1
 }

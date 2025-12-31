@@ -165,36 +165,56 @@ suspend fun <T : Table> DatabaseClient<*>.executeInsertIgnore(
  */
 @ExperimentalEvscApi
 suspend fun <T : Table> DatabaseClient<*>.insertSelect(
-    table: T, selectQuery: AbstractQuery<*>, columns: List<Column<*>>? = null
+    table: T,
+    selectQuery: AbstractQuery<*>,
+    columns: List<Column<*>>? = null,
+    createStatementWithExposedTransaction: Boolean = config.autoExposedTransaction || columns == null
 ) =
-    executeUpdate(buildStatement { table.insert(selectQuery, columns) })
+    executeUpdate(buildStatement {
+        optionalStatementPreparationExposedTransaction(createStatementWithExposedTransaction) {
+            table.insert(selectQuery, columns)
+        }
+    })
 
 /**
  * An alias of [insertSelect].
  */
 @ExperimentalEvscApi
 suspend fun <T : Table> DatabaseClient<*>.insert(
-    table: T, selectQuery: AbstractQuery<*>, columns: List<Column<*>>? = null
+    table: T,
+    selectQuery: AbstractQuery<*>,
+    columns: List<Column<*>>? = null,
+    createStatementWithExposedTransaction: Boolean = config.autoExposedTransaction || columns == null
 ) =
-    insertSelect(table, selectQuery, columns)
+    insertSelect(table, selectQuery, columns, createStatementWithExposedTransaction)
 
 /**
  * @see StatementBuilder.insertIgnore the overload with `selectQuery` parameter
  */
 @ExperimentalEvscApi
 suspend fun <T : Table> DatabaseClient<*>.insertIgnoreSelect(
-    table: T, selectQuery: AbstractQuery<*>, columns: List<Column<*>>? = null
+    table: T,
+    selectQuery: AbstractQuery<*>,
+    columns: List<Column<*>>? = null,
+    createStatementWithExposedTransaction: Boolean = config.autoExposedTransaction || columns == null
 ) =
-    executeUpdate(buildStatement { table.insertIgnore(selectQuery, columns) })
+    executeUpdate(buildStatement {
+        optionalStatementPreparationExposedTransaction(createStatementWithExposedTransaction) {
+            table.insertIgnore(selectQuery, columns)
+        }
+    })
 
 /**
  * An alias of [insertIgnoreSelect].
  */
 @ExperimentalEvscApi
 suspend fun <T : Table> DatabaseClient<*>.insertIgnore(
-    table: T, selectQuery: AbstractQuery<*>, columns: List<Column<*>>? = null
+    table: T,
+    selectQuery: AbstractQuery<*>,
+    columns: List<Column<*>>? = null,
+    createStatementWithExposedTransaction: Boolean = config.autoExposedTransaction || columns == null
 ) =
-    insertIgnoreSelect(table, selectQuery, columns)
+    insertIgnoreSelect(table, selectQuery, columns, createStatementWithExposedTransaction)
 
 
 suspend fun <T : Table> DatabaseClient<*>.update(
@@ -203,18 +223,33 @@ suspend fun <T : Table> DatabaseClient<*>.update(
     executeUpdate(buildStatement { table.update(where, limit, body) })
 
 
-/**
- * This function may be very rarely used, as [eq] conditions of multiple statements can usually be combined into an [inList] or [eq] [anyFrom] select query.
- */
+@Deprecated(
+    DatabaseClient.SELECT_BATCH_QUERY_WITH_FIELD_SET_DEPRECATED_MESSAGE,
+    ReplaceWith("this.batchSelect(data, buildQuery)")
+)
 @ExperimentalEvscApi
 suspend fun <T : ColumnSet, E> DatabaseClient<*>.batchSelect(
     columnSet: T, data: Iterable<E>, buildQuery: T.(E) -> Query
 ): Sequence<RowSet<ResultRow>> =
     executeBatchQuery(columnSet, data.asSequence().map { columnSet.buildQuery(it) }.asIterable())
 
+/**
+ * This function may be very rarely used, as [eq] conditions of multiple statements can usually be combined into an [inList] or [eq] [anyFrom] select query.
+ */
+@ExperimentalEvscApi
+suspend fun <E> DatabaseClient<*>.batchSelect(
+    data: Iterable<E>,
+    buildQuery: (E) -> Query,
+    getFieldExpressionSetWithExposedTransaction: Boolean = config.autoExposedTransaction,
+): Sequence<RowSet<ResultRow>> =
+    executeBatchQuery(
+        data.asSequence().map { buildQuery(it) }.asIterable(),
+        getFieldExpressionSetWithExposedTransaction
+    )
+
 @Deprecated(
     "Renamed to `batchSelect` and the signature updated.",
-    ReplaceWith("this.batchSelect(fieldSet, data, buildQuery)")
+    ReplaceWith("this.batchSelect(data, buildQuery)")
 )
 @ExperimentalEvscApi
 suspend fun <E> DatabaseClient<*>.selectBatch(
@@ -257,6 +292,10 @@ suspend fun <T : Table, E> DatabaseClient<*>.batchInsertIgnore(
  * This function is not conventional and its usages are likely to degrade performance.
  * @see DatabaseClient.executeBatchUpdate
  */
+@Deprecated(
+    "Use `executeBatchUpdate` directly with `InsertSelectStatement`s.",
+    ReplaceWith("this.executeBatchUpdate(statements)")
+)
 @ExperimentalEvscApi
 suspend fun DatabaseClient<*>.batchInsertSelect(statements: Iterable<InsertSelectStatement>) =
     executeBatchUpdate(statements)
