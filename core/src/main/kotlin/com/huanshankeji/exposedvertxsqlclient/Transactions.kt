@@ -148,7 +148,7 @@ private suspend fun DatabaseClient<SqlConnection>.releaseSavepoint(savepointName
     executePlainSqlUpdate("RELEASE SAVEPOINT $savepointName").also { dbAssert(it == 0) }
 
 /**
- * Not tested yet on DBs other than PostgreSQL. TODO delete this line if related tests pass
+ * Currently only supported with PostgreSQL.
  * A savepoint destroys one with the same name so be careful.
  *
  * @param function return [Either.Right] to release the savepoint, or [Either.Left] to roll back to the savepoint.
@@ -186,6 +186,9 @@ suspend fun <SqlConnectionT : SqlConnection, RollbackResult, ReleaseResult> Data
 ): Either<RollbackResult, ReleaseResult> =
     withSavepointEither(savepointName, function)
 
+/**
+ * @see withSavepointEither
+ */
 @ExperimentalEvscApi
 suspend fun <SqlConnectionT : SqlConnection, T> DatabaseClient<SqlConnectionT>.withSavepoint(
     savepointName: String, function: suspend (DatabaseClient<SqlConnectionT>) -> T

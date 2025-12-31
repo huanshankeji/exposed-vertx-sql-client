@@ -30,7 +30,7 @@ import java.util.*
 
 @OptIn(ExperimentalEvscApi::class)
 abstract class TestsForAllRdbmsTypesAndAllClientTypesWithTestcontainers(
-    tests: suspend FunSpecContainerScope.(databaseClient: DatabaseClient<*>, rdbmsType: RdbmsType) -> Unit,
+    tests: suspend FunSpecContainerScope.(databaseClient: DatabaseClient<*>, rdbmsType: RdbmsType, sqlClientType: SqlClientType) -> Unit,
     // for disabling some tests for debugging
     enabledRdbmsTypes: EnumSet<RdbmsType> = EnumSet.allOf(RdbmsType::class.java),
     //extraPgConnectOptions: PgConnectOptions.() -> Unit = {}
@@ -49,15 +49,16 @@ abstract class TestsForAllRdbmsTypesAndAllClientTypesWithTestcontainers(
             val connectionConfig = postgresqlContainer.connectionConfig()
             val exposedDatabase = connectionConfig.exposedDatabaseConnectPostgresql()
             val databaseClientConfig = PgDatabaseClientConfig()
-            suspend fun FunSpecContainerScope.tests(databaseClient: DatabaseClient<*>) =
-                tests(databaseClient, RdbmsType.Postgresql)
+            suspend fun FunSpecContainerScope.tests(databaseClient: DatabaseClient<*>, sqlClientType: SqlClientType) =
+                tests(databaseClient, RdbmsType.Postgresql, sqlClientType)
             if (SqlClientType.Client in enabledSqlClientTypes)
                 context("Client") {
                     // TODO Also consider closing the clients. This isn't a big issue now though.
                     tests(
                         DatabaseClient(
                             createPgClient(null, connectionConfig), exposedDatabase, databaseClientConfig
-                        )
+                        ),
+                        SqlClientType.Client
                     )
                 }
             if (SqlClientType.Pool in enabledSqlClientTypes)
@@ -65,7 +66,8 @@ abstract class TestsForAllRdbmsTypesAndAllClientTypesWithTestcontainers(
                     tests(
                         DatabaseClient(
                             createPgPool(null, connectionConfig), exposedDatabase, databaseClientConfig
-                        )
+                        ),
+                        SqlClientType.Pool
                     )
                 }
             if (SqlClientType.SqlConnection in enabledSqlClientTypes)
@@ -73,7 +75,8 @@ abstract class TestsForAllRdbmsTypesAndAllClientTypesWithTestcontainers(
                     tests(
                         DatabaseClient(
                             createPgConnection(vertx, connectionConfig), exposedDatabase, databaseClientConfig
-                        )
+                        ),
+                        SqlClientType.SqlConnection
                     )
                 }
         }
@@ -83,14 +86,15 @@ abstract class TestsForAllRdbmsTypesAndAllClientTypesWithTestcontainers(
             val connectionConfig = mysqlContainer.connectionConfig()
             val exposedDatabase = connectionConfig.exposedDatabaseConnectMysql()
             val databaseClientConfig = MysqlDatabaseClientConfig()
-            suspend fun FunSpecContainerScope.tests(databaseClient: DatabaseClient<*>) =
-                tests(databaseClient, RdbmsType.Mysql)
+            suspend fun FunSpecContainerScope.tests(databaseClient: DatabaseClient<*>, sqlClientType: SqlClientType) =
+                tests(databaseClient, RdbmsType.Mysql, sqlClientType)
             if (SqlClientType.Client in enabledSqlClientTypes)
                 context("Client") {
                     tests(
                         DatabaseClient(
                             createMysqlClient(null, connectionConfig), exposedDatabase, databaseClientConfig
-                        )
+                        ),
+                        SqlClientType.Client
                     )
                 }
             if (SqlClientType.Pool in enabledSqlClientTypes)
@@ -98,7 +102,8 @@ abstract class TestsForAllRdbmsTypesAndAllClientTypesWithTestcontainers(
                     tests(
                         DatabaseClient(
                             createMysqlPool(null, connectionConfig), exposedDatabase, databaseClientConfig
-                        )
+                        ),
+                        SqlClientType.Pool
                     )
                 }
             if (SqlClientType.SqlConnection in enabledSqlClientTypes)
@@ -106,7 +111,8 @@ abstract class TestsForAllRdbmsTypesAndAllClientTypesWithTestcontainers(
                     tests(
                         DatabaseClient(
                             createMysqlConnection(vertx, connectionConfig), exposedDatabase, databaseClientConfig
-                        )
+                        ),
+                        SqlClientType.SqlConnection
                     )
                 }
         }
@@ -116,14 +122,15 @@ abstract class TestsForAllRdbmsTypesAndAllClientTypesWithTestcontainers(
             val connectionConfig = oracleContainer.connectionConfig()
             val exposedDatabase = connectionConfig.exposedDatabaseConnectOracle()
             val databaseClientConfig = OracleDatabaseClientConfig()
-            suspend fun FunSpecContainerScope.tests(databaseClient: DatabaseClient<*>) =
-                tests(databaseClient, RdbmsType.Oracle)
+            suspend fun FunSpecContainerScope.tests(databaseClient: DatabaseClient<*>, sqlClientType: SqlClientType) =
+                tests(databaseClient, RdbmsType.Oracle, sqlClientType)
             if (SqlClientType.Pool in enabledSqlClientTypes)
                 context("Pool") {
                     tests(
                         DatabaseClient(
                             createOraclePool(null, connectionConfig), exposedDatabase, databaseClientConfig
-                        )
+                        ),
+                        SqlClientType.Pool
                     )
                 }
             if (SqlClientType.SqlConnection in enabledSqlClientTypes)
@@ -131,7 +138,8 @@ abstract class TestsForAllRdbmsTypesAndAllClientTypesWithTestcontainers(
                     tests(
                         DatabaseClient(
                             createOracleConnection(vertx, connectionConfig), exposedDatabase, databaseClientConfig
-                        )
+                        ),
+                        SqlClientType.SqlConnection
                     )
                 }
         }
@@ -143,14 +151,15 @@ abstract class TestsForAllRdbmsTypesAndAllClientTypesWithTestcontainers(
                 exposedDatabaseConnectMssql(sqlServerJdbcUrlWithEncryptEqFalse())
             }
             val databaseClientConfig = MssqlDatabaseClientConfig()
-            suspend fun FunSpecContainerScope.tests(databaseClient: DatabaseClient<*>) =
-                tests(databaseClient, RdbmsType.Mssql)
+            suspend fun FunSpecContainerScope.tests(databaseClient: DatabaseClient<*>, sqlClientType: SqlClientType) =
+                tests(databaseClient, RdbmsType.Mssql, sqlClientType)
             if (SqlClientType.Pool in enabledSqlClientTypes)
                 context("Pool") {
                     tests(
                         DatabaseClient(
                             createMssqlPool(null, connectionConfig), exposedDatabase, databaseClientConfig
-                        )
+                        ),
+                        SqlClientType.Pool
                     )
                 }
             if (SqlClientType.SqlConnection in enabledSqlClientTypes)
@@ -158,7 +167,8 @@ abstract class TestsForAllRdbmsTypesAndAllClientTypesWithTestcontainers(
                     tests(
                         DatabaseClient(
                             createMssqlConnection(vertx, connectionConfig), exposedDatabase, databaseClientConfig
-                        )
+                        ),
+                        SqlClientType.SqlConnection
                     )
                 }
         }
