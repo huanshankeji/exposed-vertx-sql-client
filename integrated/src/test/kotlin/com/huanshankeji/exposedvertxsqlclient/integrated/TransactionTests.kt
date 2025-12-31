@@ -4,6 +4,7 @@ import com.huanshankeji.exposedvertxsqlclient.*
 import io.kotest.core.spec.style.scopes.FunSpecContainerScope
 import io.vertx.sqlclient.Pool
 import io.vertx.sqlclient.SqlConnection
+import java.util.*
 
 @OptIn(ExperimentalEvscApi::class)
 class TransactionTests : TestsForAllRdbmsTypesAndAllClientTypesWithTestcontainers({ databaseClient, _ ->
@@ -12,16 +13,16 @@ class TransactionTests : TestsForAllRdbmsTypesAndAllClientTypesWithTestcontainer
         transactionOrRollback: String
     ) {
         context(transactionOrRollback) {
-            test("test success") { tests.testSuccess() }
-            test("test explicit rollback") { tests.testExplicitRollback() }
-            test("test on exception") { tests.testOnException() }
+            test("test success") { withTables { tests.testSuccess() } }
+            test("test explicit rollback") { withTables { tests.testExplicitRollback() } }
+            test("test on exception") { withTables { tests.testOnException() } }
         }
     }
 
     suspend fun FunSpecContainerScope.contextTestsFor(tests: TransactionOrRollbackTests<*>, name: String) {
         context(name) {
-            test("test success") { tests.testSuccess() }
-            test("test on exception") { tests.testOnException() }
+            test("test success") { withTables { tests.testSuccess() } }
+            test("test on exception") { withTables { tests.testOnException() } }
         }
     }
 
@@ -70,4 +71,4 @@ class TransactionTests : TestsForAllRdbmsTypesAndAllClientTypesWithTestcontainer
         TransactionOrRollbackTests(databaseClient, DatabaseClient<*>::withTransactionPolymorphic),
         "withTransactionPolymorphic"
     )
-})
+}, enabledSqlClientTypes = EnumSet.of(SqlClientType.Pool, SqlClientType.SqlConnection))

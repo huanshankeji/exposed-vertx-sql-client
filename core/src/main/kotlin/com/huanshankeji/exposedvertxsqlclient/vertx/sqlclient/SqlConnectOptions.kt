@@ -1,6 +1,7 @@
 package com.huanshankeji.exposedvertxsqlclient.vertx.sqlclient
 
 import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig
+import com.huanshankeji.exposedvertxsqlclient.ExperimentalUnixDomainSocketApi
 import io.vertx.sqlclient.SqlConnectOptions
 
 fun SqlConnectOptions.setFrom(connectionConfig: ConnectionConfig.Socket) {
@@ -11,6 +12,7 @@ fun SqlConnectOptions.setFrom(connectionConfig: ConnectionConfig.Socket) {
     password = connectionConfig.password
 }
 
+@ExperimentalUnixDomainSocketApi
 fun SqlConnectOptions.setFrom(connectionConfig: ConnectionConfig.UnixDomainSocketWithPeerAuthentication) {
     host = connectionConfig.path
     database = connectionConfig.database
@@ -18,6 +20,7 @@ fun SqlConnectOptions.setFrom(connectionConfig: ConnectionConfig.UnixDomainSocke
 }
 
 fun SqlConnectOptions.setFrom(connectionConfig: ConnectionConfig) =
+    @OptIn(ExperimentalUnixDomainSocketApi::class)
     when (connectionConfig) {
         is ConnectionConfig.Socket -> setFrom(connectionConfig)
         is ConnectionConfig.UnixDomainSocketWithPeerAuthentication -> setFrom(connectionConfig)

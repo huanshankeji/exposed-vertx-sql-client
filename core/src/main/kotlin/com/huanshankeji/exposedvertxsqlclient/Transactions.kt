@@ -28,8 +28,8 @@ suspend fun <SqlConnectionT : SqlConnection, RollbackResult, CommitResult> Datab
     return try {
         val result = function(this)
         result.fold(
-            { transaction.commit().coAwait() },
-            { transaction.rollback().coAwait() }
+            { transaction.rollback().coAwait() },
+            { transaction.commit().coAwait() }
         )
         result
     } catch (e: Exception) {
@@ -164,10 +164,10 @@ suspend fun <SqlConnectionT : SqlConnection, RollbackResult, ReleaseResult> Data
 
     return try {
         val result = function(this)
-        when (result) {
-            is Either.Left -> rollbackToSavepoint(savepointName)
-            is Either.Right -> releaseSavepoint(savepointName)
-        }
+        result.fold(
+            { rollbackToSavepoint(savepointName) },
+            { releaseSavepoint(savepointName) }
+        )
         result
     } catch (e: Exception) {
         try {
