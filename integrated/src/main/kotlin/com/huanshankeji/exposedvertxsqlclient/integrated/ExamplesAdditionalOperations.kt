@@ -30,7 +30,7 @@ internal suspend fun DatabaseClient<*>.selectAllExampleNameSequence(): Sequence<
 
 // consider splitting this into multiple functions, one function for each operation
 suspend fun batchOperations(
-    databaseClient: DatabaseClient<*>, crudSupportConfig: CrudSupportConfig
+    databaseClient: DatabaseClient<*>, crudSupportConfig: CrudSupportConfig, rdbmsType: RdbmsType
 ) = with(crudSupportConfig) {
     // Test batchInsert
     val initialNames = listOf("1", "2", "3")
@@ -60,7 +60,7 @@ suspend fun batchOperations(
     { statement, name -> statement[this.name] = "$name updated" }.also {
         // Each update statement updates all rows
         // also consider changing this to not update all rows
-        it.toList() shouldBe List(3) { 1 }
+        it.toList() shouldBe if (rdbmsType != RdbmsType.Oracle) List(3) { 1 } else List(1) { 3 }
     }
 
     // Verify that the last update was applied

@@ -4,7 +4,6 @@ package com.huanshankeji.exposedvertxsqlclient.crud
 
 import com.huanshankeji.exposedvertxsqlclient.DatabaseClient
 import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
-import com.huanshankeji.exposedvertxsqlclient.dbAssert
 import com.huanshankeji.exposedvertxsqlclient.singleOrNoUpdate
 import com.huanshankeji.vertx.sqlclient.sortDataAndExecuteBatch
 import io.vertx.sqlclient.RowSet
@@ -271,7 +270,7 @@ suspend fun <T : Table, E> DatabaseClient<*>.batchInsert(
     executeBatchUpdate(data.asSequence().map { element ->
         buildStatement { table.insert { body(it, element) } }
     }.asIterable())
-        .forEach { dbAssert(it == 1) }
+//.forEach { dbAssert(it == 1) } // The count is not 1 for Oracle.
 
 /**
  * @see DatabaseClient.executeBatchUpdate
