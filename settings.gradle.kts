@@ -28,10 +28,11 @@ dependencyResolutionManagement {
     }
 }
 
+// https://kotlin.github.io/kotlinx-kover/gradle-plugin/aggregated.html
 kover {
     enableCoverage()
     reports {
         excludedProjects.add(":exposed-vertx-sql-client-integrated")
-        excludesAnnotatedBy.add("kotlin.Deprecated") // TODO verify if this works as intended
+        excludesAnnotatedBy.add("kotlin.Deprecated")
     }
 }

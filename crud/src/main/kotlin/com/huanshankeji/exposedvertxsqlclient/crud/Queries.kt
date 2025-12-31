@@ -45,7 +45,7 @@ suspend inline fun DatabaseClient<*>.select(
     buildQuery: ColumnSet.() -> Query,
     getFieldExpressionSetWithExposedTransaction: Boolean = config.autoExposedTransaction
 ): RowSet<ResultRow> =
-    @Suppress("MoveLambdaOutsideParentheses")
+    @Suppress("MoveLambdaOutsideParentheses", "DEPRECATION")
     select(columnSet, buildQuery, getFieldExpressionSetWithExposedTransaction, { this })
 
 
@@ -63,6 +63,7 @@ suspend fun <T> DatabaseClient<*>.selectExpression(
     buildQuery: Query.() -> Query,
     getFieldExpressionSetWithExposedTransaction: Boolean = config.autoExposedTransaction
 ): RowSet<T> =
+    @Suppress("DEPRECATION")
     select(
         columnSet,
         { select(expression).buildQuery() },
@@ -91,6 +92,7 @@ suspend inline fun <ColumnT, DataT> DatabaseClient<*>.selectSingleColumn(
     getFieldExpressionSetWithExposedTransaction: Boolean = config.autoExposedTransaction,
     crossinline mapper: ColumnT.() -> DataT
 ): RowSet<DataT> =
+    @Suppress("DEPRECATION")
     select(
         columnSet,
         { select(column).buildQuery() },
@@ -101,7 +103,7 @@ suspend fun <T> DatabaseClient<*>.selectSingleColumn(
     columnSet: ColumnSet, column: Column<T>, buildQuery: Query.() -> Query,
     getFieldExpressionSetWithExposedTransaction: Boolean = config.autoExposedTransaction
 ): RowSet<T> =
-    selectColumnSetExpression(columnSet, column, buildQuery, getFieldExpressionSetWithExposedTransaction)
+    selectExpression(columnSet, column, buildQuery, getFieldExpressionSetWithExposedTransaction)
 
 suspend fun <T : Comparable<T>> DatabaseClient<*>.selectSingleEntityIdColumn(
     columnSet: ColumnSet,
