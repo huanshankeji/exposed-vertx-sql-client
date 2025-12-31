@@ -157,13 +157,11 @@ suspend fun <T : Table> DatabaseClient<*>.executeInsertIgnore(
     insertIgnore(table, body)
 
 
-// TODO consider swapping which ones are primary and which ones are aliases to make them consistent with the Exposed APIs
-
 /**
  * @see StatementBuilder.insert the overload with `selectQuery` parameter
  */
 @ExperimentalEvscApi
-suspend fun <T : Table> DatabaseClient<*>.insertSelect(
+suspend fun <T : Table> DatabaseClient<*>.insert(
     table: T,
     selectQuery: AbstractQuery<*>,
     columns: List<Column<*>>? = null,
@@ -176,22 +174,22 @@ suspend fun <T : Table> DatabaseClient<*>.insertSelect(
     })
 
 /**
- * An alias of [insertSelect].
+ * An alias of the `INSERT SELECT` overload of [insert].
  */
 @ExperimentalEvscApi
-suspend fun <T : Table> DatabaseClient<*>.insert(
+suspend fun <T : Table> DatabaseClient<*>.insertSelect(
     table: T,
     selectQuery: AbstractQuery<*>,
     columns: List<Column<*>>? = null,
     createStatementWithExposedTransaction: Boolean = config.autoExposedTransaction || columns == null
 ) =
-    insertSelect(table, selectQuery, columns, createStatementWithExposedTransaction)
+    insert(table, selectQuery, columns, createStatementWithExposedTransaction)
 
 /**
  * @see StatementBuilder.insertIgnore the overload with `selectQuery` parameter
  */
 @ExperimentalEvscApi
-suspend fun <T : Table> DatabaseClient<*>.insertIgnoreSelect(
+suspend fun <T : Table> DatabaseClient<*>.insertIgnore(
     table: T,
     selectQuery: AbstractQuery<*>,
     columns: List<Column<*>>? = null,
@@ -204,16 +202,16 @@ suspend fun <T : Table> DatabaseClient<*>.insertIgnoreSelect(
     })
 
 /**
- * An alias of [insertIgnoreSelect].
+ * An alias of the `INSERT SELECT` overload of [insertIgnore].
  */
 @ExperimentalEvscApi
-suspend fun <T : Table> DatabaseClient<*>.insertIgnore(
+suspend fun <T : Table> DatabaseClient<*>.insertIgnoreSelect(
     table: T,
     selectQuery: AbstractQuery<*>,
     columns: List<Column<*>>? = null,
     createStatementWithExposedTransaction: Boolean = config.autoExposedTransaction || columns == null
 ) =
-    insertIgnoreSelect(table, selectQuery, columns, createStatementWithExposedTransaction)
+    insertIgnore(table, selectQuery, columns, createStatementWithExposedTransaction)
 
 
 suspend fun <T : Table> DatabaseClient<*>.update(
