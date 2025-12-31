@@ -25,11 +25,11 @@ abstract class CommonTransactionOrRollbackTests<VertxSqlClientT : SqlClient>(
 ) {
     // The `DatabaseClient` receiver has to be passed explicitly because the transaction clients should be passed.
     protected suspend fun DatabaseClient<*>.insertExampleWithName() =
-        insert(Examples) { it[name] = "" }
+        insert(Examples) { it[name] = "name" }
 
     // On the contrary.
     protected suspend fun getExamplesWithEmptyNameSize() =
-        databaseClient.executeQuery(selectExampleNameWhereEqQuery("")).size()
+        databaseClient.executeQuery(selectExampleNameWhereEqQuery("name")).size()
 }
 
 class TransactionOrRollbackEitherTests<VertxSqlClientT : SqlClient/*, SqlConnectionT : SqlConnection*/>(
