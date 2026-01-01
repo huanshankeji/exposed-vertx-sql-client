@@ -1,7 +1,9 @@
-package com.huanshankeji.exposedvertxsqlclient
+package com.huanshankeji.exposedvertxsqlclient.integrated
 
 import com.huanshankeji.exposed.datamapping.classproperty.PropertyColumnMappingConfig
 import com.huanshankeji.exposed.datamapping.classproperty.reflectionBasedClassPropertyDataMapper
+import com.huanshankeji.exposedvertxsqlclient.DatabaseClient
+import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
 import com.huanshankeji.exposedvertxsqlclient.crud.mapping.insertWithMapper
 import com.huanshankeji.exposedvertxsqlclient.crud.mapping.selectWithMapper
 import org.jetbrains.exposed.v1.core.dao.id.IntIdTable

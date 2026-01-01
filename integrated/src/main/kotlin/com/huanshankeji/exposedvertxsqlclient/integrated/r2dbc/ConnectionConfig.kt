@@ -1,4 +1,4 @@
-package com.huanshankeji.exposedvertxsqlclient.r2dbc
+package com.huanshankeji.exposedvertxsqlclient.integrated.r2dbc
 
 import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig
 import io.r2dbc.pool.ConnectionPool

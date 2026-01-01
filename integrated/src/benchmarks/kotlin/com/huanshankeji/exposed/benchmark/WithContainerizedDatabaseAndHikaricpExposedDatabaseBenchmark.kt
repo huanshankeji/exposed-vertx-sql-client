@@ -1,6 +1,6 @@
 package com.huanshankeji.exposed.benchmark
 
-import com.huanshankeji.exposedvertxsqlclient.hikariDataSource
+import com.huanshankeji.exposedvertxsqlclient.integrated.hikariDataSource
 import com.zaxxer.hikari.HikariDataSource
 import kotlinx.benchmark.Setup
 import kotlinx.benchmark.TearDown

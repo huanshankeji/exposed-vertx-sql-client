@@ -1,4 +1,4 @@
-package com.huanshankeji.exposedvertxsqlclient
+package com.huanshankeji.exposedvertxsqlclient.integrated
 
 enum class RdbmsType {
     Postgresql, Mysql, Oracle, Mssql;

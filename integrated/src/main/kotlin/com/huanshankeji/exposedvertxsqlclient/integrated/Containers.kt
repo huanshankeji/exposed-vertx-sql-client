@@ -1,7 +1,9 @@
 @file:OptIn(ExperimentalEvscApi::class)
 
-package com.huanshankeji.exposedvertxsqlclient
+package com.huanshankeji.exposedvertxsqlclient.integrated
 
+import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig
+import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
 import com.huanshankeji.exposedvertxsqlclient.jdbc.postgresqlJdbcUrl
 import com.huanshankeji.exposedvertxsqlclient.mssql.exposed.exposedDatabaseConnectMssql
 import com.huanshankeji.exposedvertxsqlclient.mysql.exposed.exposedDatabaseConnectMysql

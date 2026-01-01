@@ -4,7 +4,7 @@ import com.huanshankeji.exposed.benchmark.`1M`
 import com.huanshankeji.exposed.benchmark.WithContainerizedDatabaseBenchmark
 import com.huanshankeji.exposed.benchmark.multiThread_ops_nearlyEvenlyPartitioned_helper
 import com.huanshankeji.exposed.benchmark.numProcessors
-import com.huanshankeji.exposedvertxsqlclient.r2dbc.exposedR2dbcDatabaseConnectPostgresql
+import com.huanshankeji.exposedvertxsqlclient.integrated.r2dbc.exposedR2dbcDatabaseConnectPostgresql
 import io.r2dbc.spi.IsolationLevel
 import kotlinx.benchmark.Benchmark
 import kotlinx.coroutines.async
