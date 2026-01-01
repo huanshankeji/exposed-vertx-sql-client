@@ -52,7 +52,7 @@ class TransactionOrRollbackEitherTests<VertxSqlClientT : SqlClient/*, SqlConnect
             Unit.left()
         }
 
-        // Verify data was committed
+        // Verify data was rolled back
         getExamplesWithEmptyNameSize() shouldBe 0
     }
 
