@@ -4,6 +4,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 plugins {
     id("com.huanshankeji.team.with-group")
     kotlin("jvm")
+    id("org.jetbrains.kotlinx.kover")
 }
 
 repositories {
@@ -19,4 +20,15 @@ version = projectVersion
 
 tasks.named<KotlinCompilationTask<*>>("compileKotlin").configure {
     compilerOptions.freeCompilerArgs.add("-opt-in=com.huanshankeji.exposedvertxsqlclient.InternalApi")
+}
+
+// Kover configuration to exclude deprecated APIs from coverage reports
+kover {
+    reports {
+        filters {
+            excludes {
+                annotatedBy("kotlin.Deprecated")
+            }
+        }
+    }
 }
