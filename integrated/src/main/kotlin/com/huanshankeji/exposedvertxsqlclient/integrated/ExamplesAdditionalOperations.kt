@@ -146,7 +146,7 @@ suspend fun selectOperationShortcuts(
     // Insert test data
     databaseClient.insert(Examples) { it[name] = "TestSelect" }
 
-    // Test selectColumnSetExpression - select a count expression
+    // Test selectExpression - select a count expression
     val count = databaseClient.selectExpression(
         Examples,
         Count(asterisk),
