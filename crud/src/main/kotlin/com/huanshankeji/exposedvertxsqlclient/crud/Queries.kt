@@ -224,7 +224,7 @@ suspend fun <T : Table> DatabaseClient<*>.update(
 
 @Deprecated(
     DatabaseClient.SELECT_BATCH_QUERY_WITH_FIELD_SET_DEPRECATED_MESSAGE,
-    ReplaceWith("this.batchSelect(data, buildQuery)")
+    ReplaceWith("this.batchSelect(data, { columnSet.buildQuery(it) })")
 )
 @ExperimentalEvscApi
 suspend fun <T : ColumnSet, E> DatabaseClient<*>.batchSelect(
@@ -248,7 +248,7 @@ suspend fun <E> DatabaseClient<*>.batchSelect(
 
 @Deprecated(
     "Renamed to `batchSelect` and the signature updated.",
-    ReplaceWith("this.batchSelect(data, buildQuery)")
+    ReplaceWith("this.batchSelect(data, { columnSet.buildQuery(it) })")
 )
 @ExperimentalEvscApi
 suspend fun <E> DatabaseClient<*>.selectBatch(
