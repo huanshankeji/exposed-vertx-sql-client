@@ -33,6 +33,11 @@ kover {
     enableCoverage()
     reports {
         excludedProjects.add(":exposed-vertx-sql-client-integrated")
+        /*
+        Not all deprecated APIs are excluded from test coverage,
+        for example, deprecated member methods such as the deprecated `DatabaseClient.executeBatchQuery` overload seems to be included,
+        which seems to be a limitation of Kover.
+         */
         excludesAnnotatedBy.add("kotlin.Deprecated")
     }
 }
