@@ -470,6 +470,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
                 queries.firstOrNull()?.getFieldExpressionSet()
             }
         return executeBatch(queries) {
+            // The not-null assertion is fine here because `fieldExpressionSet` is only null when `queries` is empty, in which case the `mapper` will not be called.
             mapping { row -> row.toExposedResultRow(fieldExpressionSet!!).resultRowMapper() }
         }
     }
