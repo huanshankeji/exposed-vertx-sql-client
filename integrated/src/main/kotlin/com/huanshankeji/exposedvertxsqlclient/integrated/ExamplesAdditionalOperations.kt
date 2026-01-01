@@ -58,8 +58,7 @@ suspend fun batchOperations(
         Examples, initialNames,
         { name -> Examples.name eq name })
     { statement, name -> statement[this.name] = "$name updated" }.also {
-        // Each update statement updates all rows
-        // also consider changing this to not update all rows
+        // Each update statement updates one row.
         it.toList() shouldBe if (rdbmsType != RdbmsType.Oracle) List(3) { 1 } else List(1) { 3 }
     }
 
