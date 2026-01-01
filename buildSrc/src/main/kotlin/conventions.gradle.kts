@@ -21,14 +21,3 @@ version = projectVersion
 tasks.named<KotlinCompilationTask<*>>("compileKotlin").configure {
     compilerOptions.freeCompilerArgs.add("-opt-in=com.huanshankeji.exposedvertxsqlclient.InternalApi")
 }
-
-// Kover configuration to exclude deprecated APIs from coverage reports
-kover {
-    reports {
-        filters {
-            excludes {
-                annotatedBy("kotlin.Deprecated")
-            }
-        }
-    }
-}
