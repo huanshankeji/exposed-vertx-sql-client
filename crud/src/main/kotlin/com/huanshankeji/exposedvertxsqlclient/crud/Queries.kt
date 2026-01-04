@@ -21,7 +21,7 @@ import kotlin.sequences.Sequence
 // consider making these 2 deprecated `select` functions internal instead of removing them when it's about to remove the deprecated APIs
 
 internal const val SELECT_OVERDESIGN_DEPRECATION_MESSAGE =
-    "This API was an over-design, exert additional cognitive burdens, and has become more redundant with the new Exposed SELECT DSL design. " +
+    "This API was an over-design, exerts additional cognitive burdens on the user, and has become more redundant with the new Exposed SELECT DSL design. " +
             "Please use `executeQuery` directly."
 
 @Deprecated(
@@ -54,14 +54,20 @@ suspend inline fun DatabaseClient<*>.select(
  * Examples: `SELECT COUNT(*) FROM <table>;`, `SELECT SUM(<column>) FROM <table>;`.
  *
  * This function distinguishes from the overload without a [columnSet] parameter
- * in that it selects from a certain [columnSet], which may be a [Table] or a [Join].
+ * in that it selects from a certain [ColumnSet], which may be a [Table] or a [Join].
+ *
+ * Also see https://github.com/JetBrains/Exposed/issues/621.
  */
+@Deprecated(
+    "Use the overload without the `getFieldExpressionSetWithExposedTransaction` parameter, which is implemented more efficiently.",
+    ReplaceWith("this.selectExpression(columnSet, expression, buildQuery)")
+)
 @ExperimentalEvscApi
 suspend fun <T> DatabaseClient<*>.selectExpression(
     columnSet: ColumnSet,
     expression: Expression<T>,
     buildQuery: Query.() -> Query,
-    getFieldExpressionSetWithExposedTransaction: Boolean = config.autoExposedTransaction
+    getFieldExpressionSetWithExposedTransaction: Boolean /*= config.autoExposedTransaction*/
 ): RowSet<T> =
     @Suppress("DEPRECATION")
     select(
@@ -70,9 +76,33 @@ suspend fun <T> DatabaseClient<*>.selectExpression(
         getFieldExpressionSetWithExposedTransaction,
         { this[expression] })
 
+/**
+ * SQL: `SELECT <expression> FROM <table>;`.
+ * Examples: `SELECT COUNT(*) FROM <table>;`, `SELECT SUM(<column>) FROM <table>;`.
+ *
+ * This function distinguishes from the overload without a [columnSet] parameter
+ * in that it selects from a certain [ColumnSet], which may be a [Table] or a [Join].
+ *
+ * Also see https://github.com/JetBrains/Exposed/issues/621.
+ */
+@ExperimentalEvscApi
+suspend fun <T> DatabaseClient<*>.selectExpression(
+    columnSet: ColumnSet,
+    expression: Expression<T>,
+    buildQuery: Query.() -> Query
+): RowSet<T> =
+    @Suppress("DEPRECATION")
+    execute(columnSet.select(expression).buildQuery()) {
+        mapping {
+            // not using the `Row.get` taking a `Class` parameter here, in contrast to the overload without `columnSet`
+            @Suppress("UNCHECKED_CAST")
+            it.getValue(0) as T
+        }
+    }
+
 @Deprecated(
     "Renamed to `selectExpression`.",
-    ReplaceWith("this.selectExpression(columnSet, expression, buildQuery, getFieldExpressionSetWithExposedTransaction)")
+    ReplaceWith("this.selectExpression(columnSet, expression, buildQuery)")
 )
 @ExperimentalEvscApi
 suspend fun <T> DatabaseClient<*>.selectColumnSetExpression(
@@ -83,6 +113,10 @@ suspend fun <T> DatabaseClient<*>.selectColumnSetExpression(
 ): RowSet<T> =
     selectExpression(columnSet, expression, buildQuery, getFieldExpressionSetWithExposedTransaction)
 
+@Deprecated(
+    "Use the overload without `mapper` and use Kotlin's `map` instead.",
+    ReplaceWith("this.selectSingleColumn(columnSet, column, buildQuery).asSequence().map(mapper)")
+)
 // This function with `mapper` is not really useful
 @ExperimentalEvscApi
 suspend inline fun <ColumnT, DataT> DatabaseClient<*>.selectSingleColumn(
@@ -99,6 +133,10 @@ suspend inline fun <ColumnT, DataT> DatabaseClient<*>.selectSingleColumn(
         getFieldExpressionSetWithExposedTransaction,
         { this[column].mapper() })
 
+@Deprecated(
+    "Use `selectExpression` directly instead.",
+    ReplaceWith("this.selectExpression(columnSet, column, buildQuery, getFieldExpressionSetWithExposedTransaction)")
+)
 suspend fun <T> DatabaseClient<*>.selectSingleColumn(
     columnSet: ColumnSet, column: Column<T>, buildQuery: Query.() -> Query,
     getFieldExpressionSetWithExposedTransaction: Boolean = config.autoExposedTransaction
@@ -116,14 +154,25 @@ suspend fun <T : Comparable<T>> DatabaseClient<*>.selectSingleEntityIdColumn(
 // consider porting these 2 functions' implementations to `kotlin-common-vertx`
 
 /**
- * SQL: `SELECT <expression>;`.
+ * SQL: `SELECT <expression>;` without `FROM` in the outermost/top-level statement.
  * Example: `SELECT EXISTS(<query>)`.
+ *
+ * Also see https://github.com/JetBrains/Exposed/issues/621.
+ *
+ * I can't think of a case where this function should return multiple results in a [RowSet]. If there are any in your use cases, please submit an issue.
  */
-// see: https://github.com/JetBrains/Exposed/issues/621
-suspend fun <T : Any> DatabaseClient<*>.selectExpression(clazz: KClass<T>, expression: Expression<T?>): T? =
+@ExperimentalEvscApi
+suspend fun <T> DatabaseClient<*>.selectExpression(clazz: KClass<T & Any>, expression: Expression<T>): T =
     executeForVertxSqlClientRowSet(Table.Dual.select(expression))
         .single()[clazz.java, 0]
 
+/**
+ * SQL: `SELECT <expression>;` without `FROM` in the outermost/top-level statement.
+ * Example: `SELECT EXISTS(<query>)`.
+ *
+ * I can't think of a case where this function should return multiple results in a [RowSet]. If there are any in your use cases, please submit an issue.
+ */
+@ExperimentalEvscApi
 suspend inline fun <reified T> DatabaseClient<*>.selectExpression(expression: Expression<T>): T =
     @Suppress("UNCHECKED_CAST")
     selectExpression(T::class as KClass<Any>, expression as Expression<Any?>) as T

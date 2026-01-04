@@ -32,6 +32,7 @@ import kotlin.OptIn
 import kotlin.Pair
 import kotlin.ReplaceWith
 import kotlin.String
+import kotlin.Suppress
 import kotlin.also
 import kotlin.collections.map
 import kotlin.let
@@ -249,6 +250,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     @Deprecated("This function is called nowhere except `Row.toExposedResultRowWithTransaction`. Consider inlining and removing it.")
     @ExperimentalEvscApi
     fun Query.getFieldExpressionSetWithTransaction() =
+        @Suppress("DEPRECATION")
         set.getFieldExpressionSetWithTransaction()
 
     @Deprecated(
@@ -257,6 +259,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     )
     @ExperimentalEvscApi
     private fun Row.toExposedResultRowWithTransaction(query: Query) =
+        @Suppress("DEPRECATION")
         toExposedResultRow(query.getFieldExpressionSetWithTransaction())
 
 
