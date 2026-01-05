@@ -154,6 +154,8 @@ suspend fun selectOperationShortcuts(
     ).single()
     count shouldBe 1L
 
+    // The other `selectExpression` variant which doesn't select from tables / take a query builder is already tested in `crudExtensions`.
+
     // Test selectSingleEntityIdColumn - select just the ID column as entity ID value
     val insertedId = databaseClient.selectSingleEntityIdColumn(
         Examples,

@@ -176,8 +176,7 @@ suspend fun crudExtensions(
     val exampleName1 =
         databaseClient.select(Examples, { select(Examples.name).where(Examples.id eq 1) }).single()[Examples.name]
     assert(exampleName1 == "AA")
-    val exampleName2 =
-        databaseClient.selectSingleColumn(Examples, Examples.name, { where(Examples.id eq 2) }).single()
+    val exampleName2 = databaseClient.selectExpression(Examples, Examples.name, { where(Examples.id eq 2) }).single()
     assert(exampleName2 == "B")
 
     if (dialectSupportsExists) {

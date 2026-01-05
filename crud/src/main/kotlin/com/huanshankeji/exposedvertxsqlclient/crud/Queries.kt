@@ -20,14 +20,19 @@ import kotlin.sequences.Sequence
 
 // consider making these 2 deprecated `select` functions internal instead of removing them when it's about to remove the deprecated APIs
 
+/*
 internal const val SELECT_OVERDESIGN_DEPRECATION_MESSAGE =
     "This API was an over-design, exerts additional cognitive burdens on the user, and has become more redundant with the new Exposed SELECT DSL design. " +
             "Please use `executeQuery` directly."
+*/
 
+/*
 @Deprecated(
     SELECT_OVERDESIGN_DEPRECATION_MESSAGE,
     ReplaceWith("this.executeQuery(columnSet.buildQuery(), getFieldExpressionSetWithExposedTransaction, resultRowMapper)")
 )
+*/
+@ExperimentalEvscApi
 suspend inline fun <Data> DatabaseClient<*>.select(
     columnSet: ColumnSet,
     buildQuery: ColumnSet.() -> Query,
@@ -36,10 +41,13 @@ suspend inline fun <Data> DatabaseClient<*>.select(
 ): RowSet<Data> =
     executeQuery(columnSet.buildQuery(), getFieldExpressionSetWithExposedTransaction, resultRowMapper)
 
+/*
 @Deprecated(
     SELECT_OVERDESIGN_DEPRECATION_MESSAGE,
     ReplaceWith("this.executeQuery(columnSet.buildQuery(), getFieldExpressionSetWithExposedTransaction)")
 )
+*/
+@ExperimentalEvscApi
 suspend inline fun DatabaseClient<*>.select(
     columnSet: ColumnSet,
     buildQuery: ColumnSet.() -> Query,
