@@ -75,7 +75,7 @@ suspend fun <T> DatabaseClient<*>.selectExpression(
     columnSet: ColumnSet,
     expression: Expression<T>,
     buildQuery: Query.() -> Query,
-    getFieldExpressionSetWithExposedTransaction: Boolean /*= config.autoExposedTransaction*/
+    getFieldExpressionSetWithExposedTransaction: Boolean = config.autoExposedTransaction
 ): RowSet<T> =
     @Suppress("DEPRECATION")
     select(
