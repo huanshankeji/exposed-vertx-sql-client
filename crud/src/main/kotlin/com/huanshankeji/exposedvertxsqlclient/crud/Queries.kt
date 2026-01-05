@@ -82,11 +82,10 @@ suspend fun <T> DatabaseClient<*>.selectExpression(
  *
  * This function distinguishes from the overload without a [columnSet] parameter
  * in that it selects from a certain [ColumnSet], which may be a [Table] or a [Join].
- *
- * Also see https://github.com/JetBrains/Exposed/issues/621.
  */
 @ExperimentalEvscApi
 suspend fun <T> DatabaseClient<*>.selectExpression(
+    type: KClass<T & Any>,
     columnSet: ColumnSet,
     expression: Expression<T>,
     buildQuery: Query.() -> Query
@@ -94,11 +93,25 @@ suspend fun <T> DatabaseClient<*>.selectExpression(
     @Suppress("DEPRECATION")
     execute(columnSet.select(expression).buildQuery()) {
         mapping {
-            // not using the `Row.get` taking a `Class` parameter here, in contrast to the overload without `columnSet`
-            @Suppress("UNCHECKED_CAST")
-            it.getValue(0) as T
+            // can not use `getValue(0) as T` here because some database clients don't return numbers of the exact type by default
+            it[type.java, 0]
         }
     }
+
+/**
+ * SQL: `SELECT <expression> FROM <table>;`.
+ * Examples: `SELECT COUNT(*) FROM <table>;`, `SELECT SUM(<column>) FROM <table>;`.
+ *
+ * This function distinguishes from the overload without a [columnSet] parameter
+ * in that it selects from a certain [ColumnSet], which may be a [Table] or a [Join].
+ */
+@ExperimentalEvscApi
+suspend inline fun <reified T> DatabaseClient<*>.selectExpression(
+    columnSet: ColumnSet,
+    expression: Expression<T>,
+    noinline buildQuery: Query.() -> Query
+): RowSet<T> =
+    selectExpression(T::class as KClass<T & Any>, columnSet, expression, buildQuery)
 
 @Deprecated(
     "Renamed to `selectExpression`.",
@@ -162,9 +175,10 @@ suspend fun <T : Comparable<T>> DatabaseClient<*>.selectSingleEntityIdColumn(
  * I can't think of a case where this function should return multiple results in a [RowSet]. If there are any in your use cases, please submit an issue.
  */
 @ExperimentalEvscApi
-suspend fun <T> DatabaseClient<*>.selectExpression(clazz: KClass<T & Any>, expression: Expression<T>): T =
+suspend fun <T> DatabaseClient<*>.selectExpression(type: KClass<T & Any>, expression: Expression<T>): T =
+    // This function can also be implemented with the `selectExpression` overload that selects from tables above.
     executeForVertxSqlClientRowSet(Table.Dual.select(expression))
-        .single()[clazz.java, 0]
+        .single()[type.java, 0]
 
 /**
  * SQL: `SELECT <expression>;` without `FROM` in the outermost/top-level statement.
@@ -175,7 +189,7 @@ suspend fun <T> DatabaseClient<*>.selectExpression(clazz: KClass<T & Any>, expre
 @ExperimentalEvscApi
 suspend inline fun <reified T> DatabaseClient<*>.selectExpression(expression: Expression<T>): T =
     @Suppress("UNCHECKED_CAST")
-    selectExpression(T::class as KClass<Any>, expression as Expression<Any?>) as T
+    selectExpression(T::class as KClass<T & Any>, expression)
 
 
 @ExperimentalEvscApi
