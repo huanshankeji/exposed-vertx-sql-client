@@ -22,7 +22,7 @@ import kotlinx.coroutines.coroutineScope
 @ExperimentalEvscApi
 @JvmName("withTransactionEitherForSqlConnection")
 suspend fun <SqlConnectionT : SqlConnection, RollbackResult, CommitResult> DatabaseClient<SqlConnectionT>.withTransactionEither(
-    // This takes a `DatabaseClient<SqlConnectionT>` as the parameter instead of a `Transaction`, similar to the designed in the Vert.x `withTransaction` API.
+    // This takes a `DatabaseClient<SqlConnectionT>` as the parameter instead of a `Transaction`, similar to the design in the Vert.x `withTransaction` API.
     function: suspend (DatabaseClient<SqlConnectionT>) -> Either<RollbackResult, CommitResult>
 ): Either<RollbackResult, CommitResult> {
     val transaction = vertxSqlClient.begin().coAwait()
