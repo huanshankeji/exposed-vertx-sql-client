@@ -12,8 +12,9 @@ package com.huanshankeji.exposedvertxsqlclient
 @ExperimentalEvscApi
 //@ExperimentalUnixDomainSocketApi
 interface IEvscConfig {
-    /** The connection config for the Exposed [org.jetbrains.exposed.v1.jdbc.Database], used for SQL generation. */
+    /** The connection config for the Exposed [Database], used for SQL generation. */
     val exposedConnectionConfig: ConnectionConfig.Socket
+
     /** The connection config for the Vert.x SQL Client, used for reactive query execution. */
     val vertxSqlClientConnectionConfig: ConnectionConfig
 }

@@ -1,9 +1,12 @@
 package com.huanshankeji.exposedvertxsqlclient
 
 import com.huanshankeji.exposedvertxsqlclient.vertx.sqlclient.setRole
+import io.vertx.sqlclient.SqlClient
+import org.jetbrains.exposed.v1.jdbc.Database
 
 /**
- * Configuration for database connections, supporting both TCP socket and Unix domain socket connections.
+ * Common configuration for database connections to both Vert.x [SqlClient] and Exposed [Database],
+ * currently supporting both TCP socket and Unix domain socket connections.
  *
  * Use [ConnectionConfig.Socket] for standard TCP/IP connections, or [ConnectionConfig.UnixDomainSocketWithPeerAuthentication]
  * for Unix domain socket connections with peer authentication (experimental, primarily tested with PostgreSQL on Linux).
@@ -12,9 +15,10 @@ import com.huanshankeji.exposedvertxsqlclient.vertx.sqlclient.setRole
  * @see UnixDomainSocketWithPeerAuthentication
  */
 sealed interface ConnectionConfig {
-    /** The user or role name used for authentication. */
+    /** The user and role name used for authentication. */
     val userAndRole: String
-    /** The database name to connect to. */
+
+    /** The name of the database to connect to. */
     val database: String
 
     /**
@@ -51,7 +55,7 @@ sealed interface ConnectionConfig {
 }
 
 /**
- * Converts this socket connection config to an [EvscConfig] using the same config for both Exposed and Vert.x SQL Client.
+ * Converts this socket connection config to an [EvscConfig] using the same config for both Vert.x [SqlClient] and Exposed [Database].
  * This is the simplest configuration for standard TCP/IP connections.
  */
 fun ConnectionConfig.Socket.toUniversalEvscConfig() =
