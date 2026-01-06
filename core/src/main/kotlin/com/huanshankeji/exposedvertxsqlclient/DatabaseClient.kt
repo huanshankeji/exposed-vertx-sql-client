@@ -414,7 +414,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
                     val currentElementArgumentTypes = arguments.types()
                     require(currentElementArgumentTypes == argumentTypes!!) {
                         "The statement after set by `setUpStatement` each time should generate the same argument types. " +
-                                "However we have got argument types $argumentTypes set by each previous element (at least one)" +
+                                "However we have got argument types $argumentTypes set by each previous element (at least one) " +
                                 "and argument types $currentElementArgumentTypes set by the current element $element"
                     }
                     */
