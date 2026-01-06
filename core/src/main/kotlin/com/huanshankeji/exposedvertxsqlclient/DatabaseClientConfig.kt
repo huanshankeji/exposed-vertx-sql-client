@@ -5,7 +5,9 @@ import java.sql.Connection
 
 interface DatabaseClientConfig {
     /**
-     * Whether to validate whether the batch statements have the same generated prepared SQL. It's recommended to keep this enabled for tests but disabled for production.
+     * Whether to validate whether the batch statements have the same generated prepared SQL.
+     * It's recommended to keep this enabled for tests but disabled for production.
+     * Actual performance implications as tested are insignificant.
      */
     val validateBatch: Boolean
     val logSql: Boolean

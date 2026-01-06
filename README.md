@@ -187,11 +187,21 @@ if (dialectSupportsDeleteIgnore) {
 }
 ```
 
-#### Extension CRUD operations
+##### Transaction and savepoint APIs (experimental)
 
-The extension CRUD APIs are similar to [those in Exposed](https://www.jetbrains.com/help/exposed/dsl-crud-operations.html).
+Experimental transaction and savepoint APIs named `with*` are provided based on the existing ones in Vert.x SQL Client.
+A transaction or savepoint is rolled back automatically when an exception is thrown inside.
+Note that Vert.x SQL Client `pipelining` is not supported with transactions.
+
+#### Extension CRUD DSLs
+
+The extension CRUD DSL APIs are similar to [those in Exposed](https://www.jetbrains.com/help/exposed/dsl-crud-operations.html).
 With them, your code becomes more concise compared to using `buildStatement`,
-but it might be more difficult when you need to compose statements or refactor the code.
+but it might be more difficult when you need to **share Exposed `Statement`s especially `Query`s for reuse and composition**,
+for example, when adapting a `DatabaseClient.select` extension DSL call for reuse as a subquery.
+In such a case, you may inline the `DatabaseClient.select` with IntelliJ IDEA into code that invokes Exposed's `select` DSL and pass it to `DatabaseClient.executeQuery`, and then extract the `Query` built with Exposed's `select`.
+
+Also, these APIs are **more experimental and subject to change** because of transaction requirement changes between Exposed versions.
 
 Gradle dependency configuration:
 
@@ -233,9 +243,11 @@ if (dialectSupportsDeleteIgnore) {
 }
 ```
 
-#### Extension CRUD APIs with [Exposed GADT mapping](https://github.com/huanshankeji/exposed-gadt-mapping)
+#### Extension CRUD DSLs with [Exposed GADT mapping](https://github.com/huanshankeji/exposed-gadt-mapping)
 
 Please read [that library's basic usage guide](https://github.com/huanshankeji/exposed-gadt-mapping?tab=readme-ov-file#basic-usage-guide) first. Here are examples of this library that correspond to [that library's CRUD operations](https://github.com/huanshankeji/exposed-gadt-mapping?tab=readme-ov-file#crud-operations).
+
+These APIs are also **more experimental and subject to change**.
 
 Gradle dependency configuration (only needed since v0.5.0):
 

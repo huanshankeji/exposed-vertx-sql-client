@@ -1,7 +1,8 @@
 @file:OptIn(ExperimentalEvscApi::class, ExperimentalUnixDomainSocketApi::class)
 
-package com.huanshankeji.exposedvertxsqlclient
+package com.huanshankeji.exposedvertxsqlclient.integrated
 
+import com.huanshankeji.exposedvertxsqlclient.*
 import com.huanshankeji.exposedvertxsqlclient.crud.*
 import com.huanshankeji.exposedvertxsqlclient.local.toPerformantUnixEvscConfig
 import com.huanshankeji.exposedvertxsqlclient.postgresql.PgDatabaseClientConfig
@@ -13,6 +14,7 @@ import com.huanshankeji.exposedvertxsqlclient.postgresql.vertx.pgclient.createPg
 import io.vertx.core.Verticle
 import io.vertx.core.Vertx
 import io.vertx.sqlclient.SqlClient
+import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.exists
@@ -28,6 +30,11 @@ object Examples : IntIdTable("examples") {
 }
 
 val tables = arrayOf(Examples)
+
+data class Example(val id: Int, val name: String)
+
+fun ResultRow.toExample() =
+    Example(this[Examples.id].value, this[Examples.name])
 
 val evscConfig = ConnectionConfig.Socket("localhost", user = "user", password = "password", database = "database")
     .toUniversalEvscConfig()
@@ -169,8 +176,7 @@ suspend fun crudExtensions(
     val exampleName1 =
         databaseClient.select(Examples, { select(Examples.name).where(Examples.id eq 1) }).single()[Examples.name]
     assert(exampleName1 == "AA")
-    val exampleName2 =
-        databaseClient.selectSingleColumn(Examples, Examples.name, { where(Examples.id eq 2) }).single()
+    val exampleName2 = databaseClient.selectExpression(Examples, Examples.name, { where(Examples.id eq 2) }).single()
     assert(exampleName2 == "B")
 
     if (dialectSupportsExists) {

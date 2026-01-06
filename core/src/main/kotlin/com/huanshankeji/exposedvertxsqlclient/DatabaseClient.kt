@@ -30,9 +30,9 @@ import kotlin.Int
 import kotlin.NotImplementedError
 import kotlin.OptIn
 import kotlin.Pair
-import kotlin.PublishedApi
 import kotlin.ReplaceWith
 import kotlin.String
+import kotlin.Suppress
 import kotlin.also
 import kotlin.collections.map
 import kotlin.let
@@ -94,14 +94,17 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     val exposedDatabase: Database,
     val config: DatabaseClientConfig
 ) : CoroutineAutoCloseable {
-    /*
     companion object {
+        /*
         private const val FUNCTION_TRANSFORMING_ROWS_USING_PREPARED_QUERY_MAPPING_DEPRECATED_MESSAGE =
             "This function transforms rows using Vert.x's `PreparedQuery.mapping` and is deprecated. " +
                     "The Vert.x `RowSet` stores all the results in a List rather fetch as needed, so using `PreparedQuery.mapping` doesn't bring any performance benefits compared to using Kotlin's `map`. " +
                     "In addition, the Exposed `transaction` can be created on a finer-grained level only for the Kotlin `map` process from Vert.x `Row`s to Exposed `ResultRow`s."
+        */
+        @InternalApi
+        const val SELECT_BATCH_QUERY_WITH_FIELD_SET_DEPRECATED_MESSAGE =
+            "This function is buggy. The field expression set of the `fieldSet` parameter may be different from the those of the queries. Use the new overload without the `fieldSet` parameter instead."
     }
-    */
 
     override suspend fun close() {
         vertxSqlClient.close().coAwait()
@@ -247,6 +250,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     @Deprecated("This function is called nowhere except `Row.toExposedResultRowWithTransaction`. Consider inlining and removing it.")
     @ExperimentalEvscApi
     fun Query.getFieldExpressionSetWithTransaction() =
+        @Suppress("DEPRECATION")
         set.getFieldExpressionSetWithTransaction()
 
     @Deprecated(
@@ -255,10 +259,16 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     )
     @ExperimentalEvscApi
     private fun Row.toExposedResultRowWithTransaction(query: Query) =
+        @Suppress("DEPRECATION")
         toExposedResultRow(query.getFieldExpressionSetWithTransaction())
 
-    @PublishedApi
-    internal inline fun <T> runWithOptionalStatementPreparationExposedTransaction(
+
+    /**
+     * @param withExposedTransaction whether to run the [block] within the transaction.
+     */
+    // old name: `runWithOptionalStatementPreparationExposedTransaction`
+    @InternalApi
+    inline fun <T> optionalStatementPreparationExposedTransaction(
         withExposedTransaction: Boolean, crossinline block: () -> T
     ): T =
         if (withExposedTransaction)
@@ -268,7 +278,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
 
     @ExperimentalEvscApi
     fun Query.getFieldExpressionSetWithOptionalReadOnlyExposedTransaction(getFieldExpressionSetWithExposedTransaction: Boolean) =
-        runWithOptionalStatementPreparationExposedTransaction(getFieldExpressionSetWithExposedTransaction) { getFieldExpressionSet() }
+        optionalStatementPreparationExposedTransaction(getFieldExpressionSetWithExposedTransaction) { getFieldExpressionSet() }
 
     /**
      * @param getFieldExpressionSetWithExposedTransaction see [DatabaseClientConfig.autoExposedTransaction]
@@ -326,15 +336,22 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
         return rowSet.map { row -> row.toExposedResultRow(fieldExpressionSet) }
     }
 
+    /**
+     * @return the updated row count from [RowSet.rowCount].
+     */
     suspend fun executeUpdate(statement: Statement<Int>): Int =
         executeForVertxSqlClientRowSet(statement).rowCount()
 
+    /**
+     * @return whether exactly one row is updated; `false` if no row is updated; throws [SingleUpdateException] if more than one row is updated.
+     */
     suspend fun executeSingleOrNoUpdate(statement: Statement<Int>): Boolean =
         executeUpdate(statement).singleOrNoUpdate()
 
-    suspend fun executeSingleUpdate(statement: Statement<Int>) =
-        require(executeUpdate(statement) == 1)
-
+    suspend fun executeSingleUpdate(statement: Statement<Int>) {
+        val rowCount = executeUpdate(statement)
+        if (rowCount != 1) throw SingleUpdateException(rowCount)
+    }
 
     @Deprecated(
         "Use `selectExpression` in the `crud` module instead.",
@@ -389,15 +406,15 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
                 } else if (config.validateBatch) {
                     val currentSql = statement.prepareSQL(this)
                     require(currentSql == sql) {
-                        "The statement after set by `setUpStatement` each time should generate the same prepared SQL statement. " +
-                                "However, we have got SQL statement \"$sql\" set by each previous element (at least one)" +
+                        "The statements passed should generate the same prepared SQL statement. " +
+                                "However, we have got SQL statement \"$sql\" set by each previous element (at least one) " +
                                 "and SQL statement \"$currentSql\" set by the current statement $statement."
                     }
                     /*
                     val currentElementArgumentTypes = arguments.types()
                     require(currentElementArgumentTypes == argumentTypes!!) {
                         "The statement after set by `setUpStatement` each time should generate the same argument types. " +
-                                "However we have got argument types $argumentTypes set by each previous element (at least one)" +
+                                "However we have got argument types $argumentTypes set by each previous element (at least one) " +
                                 "and argument types $currentElementArgumentTypes set by the current element $element"
                     }
                     */
@@ -422,10 +439,10 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     suspend fun executeBatchForVertxSqlClientRowSetSequence(statements: Iterable<Statement<*>>): Sequence<RowSet<Row>> =
         executeBatch(statements) { this }
 
-    /**
-     * @see executeBatch
-     * @param getFieldExpressionSetWithExposedTransaction see [DatabaseClientConfig.autoExposedTransaction]
-     */
+    @Deprecated(
+        SELECT_BATCH_QUERY_WITH_FIELD_SET_DEPRECATED_MESSAGE,
+        ReplaceWith("executeBatchQuery(queries, getFieldExpressionSetWithExposedTransaction, resultRowMapper)")
+    )
     @ExperimentalEvscApi
     suspend inline fun <Data> executeBatchQuery(
         fieldSet: FieldSet,
@@ -433,15 +450,48 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
         getFieldExpressionSetWithExposedTransaction: Boolean = config.autoExposedTransaction,
         crossinline resultRowMapper: ResultRow.() -> Data
     ): Sequence<RowSet<Data>> {
+        // Bug here: the field expression set of `fieldSet` may be different from the those of the queries.
         val fieldExpressionSet =
-            runWithOptionalStatementPreparationExposedTransaction(getFieldExpressionSetWithExposedTransaction) { fieldSet.getFieldExpressionSet() }
+            optionalStatementPreparationExposedTransaction(getFieldExpressionSetWithExposedTransaction) { fieldSet.getFieldExpressionSet() }
         return executeBatch(queries) {
             mapping { row -> row.toExposedResultRow(fieldExpressionSet).resultRowMapper() }
         }
     }
 
+    /**
+     * @see executeBatch
+     * @param getFieldExpressionSetWithExposedTransaction also see [DatabaseClientConfig.autoExposedTransaction].
+     */
+    @ExperimentalEvscApi
+    suspend inline fun <Data> executeBatchQuery(
+        queries: Iterable<Query>,
+        getFieldExpressionSetWithExposedTransaction: Boolean = config.autoExposedTransaction,
+        crossinline resultRowMapper: ResultRow.() -> Data
+    ): Sequence<RowSet<Data>> {
+        val fieldExpressionSet =
+            optionalStatementPreparationExposedTransaction(getFieldExpressionSetWithExposedTransaction) {
+                queries.firstOrNull()?.getFieldExpressionSet()
+            }
+        return executeBatch(queries) {
+            // The not-null assertion is fine here because `fieldExpressionSet` is only null when `queries` is empty, in which case the `mapper` will not be called.
+            mapping { row -> row.toExposedResultRow(fieldExpressionSet!!).resultRowMapper() }
+        }
+    }
+
+    @Deprecated(SELECT_BATCH_QUERY_WITH_FIELD_SET_DEPRECATED_MESSAGE, ReplaceWith("executeBatchQuery(queries)"))
+    @ExperimentalEvscApi
     suspend fun executeBatchQuery(fieldSet: FieldSet, queries: Iterable<Query>): Sequence<RowSet<ResultRow>> =
         executeBatchQuery(fieldSet, queries) { this }
+
+    /**
+     * See the KDoc of the overload with `resultRowMapper` parameter.
+     */
+    @ExperimentalEvscApi
+    suspend fun executeBatchQuery(
+        queries: Iterable<Query>,
+        getFieldExpressionSetWithExposedTransaction: Boolean = config.autoExposedTransaction
+    ): Sequence<RowSet<ResultRow>> =
+        executeBatchQuery(queries, getFieldExpressionSetWithExposedTransaction) { this }
 
     /*
     TODO Consider basing it on `Sequence` instead of `Iterable` so there is less wrapping and conversion
@@ -453,6 +503,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
      * @see executeBatch
      * @return a sequence of the update counts of the update statements in the batch.
      */
+    @ExperimentalEvscApi
     suspend fun executeBatchUpdate(
         statements: Iterable<Statement<Int>>,
     ): Sequence<Int> =

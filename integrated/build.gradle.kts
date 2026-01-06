@@ -33,6 +33,7 @@ dependencies {
     }
 
 
+    implementation(commonDependencies.kotest.module("assertions-core"))
     testImplementation(commonDependencies.kotest.module("framework-engine"))
     testImplementation(commonDependencies.kotest.module("extensions-testcontainers"))
     // to resolve "no tests discovered" errors when running `check`

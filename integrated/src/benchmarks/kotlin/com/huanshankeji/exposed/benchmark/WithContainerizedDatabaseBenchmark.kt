@@ -1,7 +1,7 @@
 package com.huanshankeji.exposed.benchmark
 
-import com.huanshankeji.exposedvertxsqlclient.LatestPostgreSQLContainer
-import com.huanshankeji.exposedvertxsqlclient.connectionConfig
+import com.huanshankeji.exposedvertxsqlclient.integrated.LatestPostgreSQLContainer
+import com.huanshankeji.exposedvertxsqlclient.integrated.connectionConfig
 import kotlinx.benchmark.Setup
 import kotlinx.benchmark.TearDown
 
