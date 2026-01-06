@@ -8,6 +8,7 @@ import arrow.core.right
 import com.huanshankeji.exposedvertxsqlclient.DatabaseClient
 import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
 import com.huanshankeji.exposedvertxsqlclient.crud.insert
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.vertx.sqlclient.SqlClient
 import io.vertx.sqlclient.SqlConnection
@@ -58,13 +59,12 @@ class TransactionOrRollbackEitherTests<VertxSqlClientT : SqlClient/*, SqlConnect
 
     suspend fun testOnException() {
         // Test that exception causes rollback
-        try {
+        shouldThrow<RuntimeException> {
             databaseClient.withTransactionOrRollback { databaseClient ->
                 databaseClient.insertExampleWithName()
                 throw RuntimeException()
                 //Unit.right()
             }
-        } catch (_: RuntimeException) {
         }
 
         // Verify data was rolled back
@@ -87,12 +87,11 @@ class TransactionOrRollbackTests<VertxSqlClientT : SqlClient>(
 
     suspend fun testOnException() {
         // Test that exception causes rollback
-        try {
+        shouldThrow<RuntimeException> {
             databaseClient.withTransactionOrRollback { databaseClient ->
                 databaseClient.insertExampleWithName()
                 throw RuntimeException()
             }
-        } catch (_: RuntimeException) {
         }
 
         // Verify data was rolled back
