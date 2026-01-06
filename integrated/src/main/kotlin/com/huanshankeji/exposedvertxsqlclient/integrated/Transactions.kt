@@ -28,7 +28,7 @@ abstract class CommonTransactionOrRollbackTests<VertxSqlClientT : SqlClient>(
         insert(Examples) { it[name] = "name" }
 
     // On the contrary.
-    protected suspend fun getExamplesWithEmptyNameSize() =
+    protected suspend fun getExamplesWithNameSize() =
         databaseClient.executeQuery(selectExampleNameWhereEqQuery("name")).size()
 }
 
@@ -43,7 +43,7 @@ class TransactionOrRollbackEitherTests<VertxSqlClientT : SqlClient/*, SqlConnect
         }
 
         // Verify data was committed
-        getExamplesWithEmptyNameSize() shouldBe 1
+        getExamplesWithNameSize() shouldBe 1
     }
 
     suspend fun testExplicitRollback() {
@@ -53,7 +53,7 @@ class TransactionOrRollbackEitherTests<VertxSqlClientT : SqlClient/*, SqlConnect
         }
 
         // Verify data was rolled back
-        getExamplesWithEmptyNameSize() shouldBe 0
+        getExamplesWithNameSize() shouldBe 0
     }
 
     suspend fun testOnException() {
@@ -68,7 +68,7 @@ class TransactionOrRollbackEitherTests<VertxSqlClientT : SqlClient/*, SqlConnect
         }
 
         // Verify data was rolled back
-        getExamplesWithEmptyNameSize() shouldBe 0
+        getExamplesWithNameSize() shouldBe 0
     }
 }
 
@@ -82,7 +82,7 @@ class TransactionOrRollbackTests<VertxSqlClientT : SqlClient>(
         }
 
         // Verify data was committed
-        getExamplesWithEmptyNameSize() shouldBe 1
+        getExamplesWithNameSize() shouldBe 1
     }
 
     suspend fun testOnException() {
@@ -96,6 +96,6 @@ class TransactionOrRollbackTests<VertxSqlClientT : SqlClient>(
         }
 
         // Verify data was rolled back
-        getExamplesWithEmptyNameSize() shouldBe 0
+        getExamplesWithNameSize() shouldBe 0
     }
 }
