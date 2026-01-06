@@ -53,7 +53,7 @@ suspend inline fun DatabaseClient<*>.select(
     buildQuery: ColumnSet.() -> Query,
     getFieldExpressionSetWithExposedTransaction: Boolean = config.autoExposedTransaction
 ): RowSet<ResultRow> =
-    @Suppress("MoveLambdaOutsideParentheses", "DEPRECATION")
+    @Suppress("MoveLambdaOutsideParentheses"/*, "DEPRECATION"*/)
     select(columnSet, buildQuery, getFieldExpressionSetWithExposedTransaction, { this })
 
 
@@ -77,7 +77,7 @@ suspend fun <T> DatabaseClient<*>.selectExpression(
     buildQuery: Query.() -> Query,
     getFieldExpressionSetWithExposedTransaction: Boolean = config.autoExposedTransaction
 ): RowSet<T> =
-    @Suppress("DEPRECATION")
+    //@Suppress("DEPRECATION")
     select(
         columnSet,
         { select(expression).buildQuery() },
@@ -98,7 +98,7 @@ suspend fun <T> DatabaseClient<*>.selectExpression(
     expression: Expression<T>,
     buildQuery: Query.() -> Query
 ): RowSet<T> =
-    @Suppress("DEPRECATION")
+    //@Suppress("DEPRECATION")
     execute(columnSet.select(expression).buildQuery()) {
         mapping {
             // can not use `getValue(0) as T` here because some database clients don't return numbers of the exact type by default
@@ -119,6 +119,7 @@ suspend inline fun <reified T> DatabaseClient<*>.selectExpression(
     expression: Expression<T>,
     noinline buildQuery: Query.() -> Query
 ): RowSet<T> =
+    @Suppress("UNCHECKED_CAST")
     selectExpression(T::class as KClass<T & Any>, columnSet, expression, buildQuery)
 
 @Deprecated(
@@ -132,6 +133,7 @@ suspend fun <T> DatabaseClient<*>.selectColumnSetExpression(
     buildQuery: Query.() -> Query,
     getFieldExpressionSetWithExposedTransaction: Boolean = config.autoExposedTransaction
 ): RowSet<T> =
+    @Suppress("DEPRECATION")
     selectExpression(columnSet, expression, buildQuery, getFieldExpressionSetWithExposedTransaction)
 
 @Deprecated(
@@ -147,7 +149,7 @@ suspend inline fun <ColumnT, DataT> DatabaseClient<*>.selectSingleColumn(
     getFieldExpressionSetWithExposedTransaction: Boolean = config.autoExposedTransaction,
     crossinline mapper: ColumnT.() -> DataT
 ): RowSet<DataT> =
-    @Suppress("DEPRECATION")
+    //@Suppress("DEPRECATION")
     select(
         columnSet,
         { select(column).buildQuery() },
@@ -162,6 +164,7 @@ suspend fun <T> DatabaseClient<*>.selectSingleColumn(
     columnSet: ColumnSet, column: Column<T>, buildQuery: Query.() -> Query,
     getFieldExpressionSetWithExposedTransaction: Boolean = config.autoExposedTransaction
 ): RowSet<T> =
+    @Suppress("DEPRECATION")
     selectExpression(columnSet, column, buildQuery, getFieldExpressionSetWithExposedTransaction)
 
 suspend fun <T : Comparable<T>> DatabaseClient<*>.selectSingleEntityIdColumn(
@@ -170,6 +173,7 @@ suspend fun <T : Comparable<T>> DatabaseClient<*>.selectSingleEntityIdColumn(
     buildQuery: Query.() -> Query,
     getFieldExpressionSetWithExposedTransaction: Boolean = config.autoExposedTransaction
 ): RowSet<T> =
+    @Suppress("DEPRECATION")
     selectSingleColumn(columnSet, column, buildQuery, getFieldExpressionSetWithExposedTransaction) { value }
 
 // consider porting these 2 functions' implementations to `kotlin-common-vertx`
@@ -301,6 +305,7 @@ suspend fun <T : Table> DatabaseClient<*>.update(
 suspend fun <T : ColumnSet, E> DatabaseClient<*>.batchSelect(
     columnSet: T, data: Iterable<E>, buildQuery: T.(E) -> Query
 ): Sequence<RowSet<ResultRow>> =
+    @Suppress("DEPRECATION")
     executeBatchQuery(columnSet, data.asSequence().map { columnSet.buildQuery(it) }.asIterable())
 
 /**
