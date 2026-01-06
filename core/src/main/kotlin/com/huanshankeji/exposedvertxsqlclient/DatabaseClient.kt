@@ -85,7 +85,18 @@ fun dbAssert(b: Boolean) {
 internal val logger = LoggerFactory.getLogger(DatabaseClient::class.java)
 
 /**
- * A wrapper client around Vert.x [SqlClient] for queries and an Exposed [Database] to generate SQLs working around the limitations of Exposed.
+ * The main entry point for executing database operations using Vert.x SQL Client with Exposed SQL generation.
+ *
+ * This client wraps a Vert.x [SqlClient] for reactive query execution and an Exposed [Database] for SQL generation,
+ * combining the type-safe SQL DSL of Exposed with the reactive, non-blocking capabilities of Vert.x.
+ *
+ * @param VertxSqlClientT the type of Vert.x SQL client, which can be [io.vertx.sqlclient.SqlClient],
+ *   [io.vertx.sqlclient.Pool], or a database-specific [io.vertx.sqlclient.SqlConnection] subtype.
+ * @param vertxSqlClient the Vert.x SQL client used for executing queries.
+ * @param exposedDatabase the Exposed [Database] used for SQL generation. This can be shared across multiple
+ *   [DatabaseClient] instances for better performance.
+ * @param config the configuration for this client, including SQL transformation and transaction settings.
+ * @see DatabaseClientConfig
  */
 @OptIn(ExperimentalApi::class)
 // TODO also consider adding `DatabaseClientConfig` as a type parameter and `PgDatabaseClientConfig` a subtype for specific dialect operations.

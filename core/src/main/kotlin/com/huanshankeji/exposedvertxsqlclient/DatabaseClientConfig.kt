@@ -3,6 +3,15 @@ package com.huanshankeji.exposedvertxsqlclient
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.sql.Connection
 
+/**
+ * Configuration interface for [DatabaseClient] behavior.
+ *
+ * This interface defines settings for SQL transformation, batch validation, logging, and transaction handling.
+ * Use the database-specific factory functions (e.g., `PgDatabaseClientConfig()`, `MysqlDatabaseClientConfig()`)
+ * to create instances with the correct SQL transformation for each database type.
+ *
+ * @see DatabaseClient
+ */
 interface DatabaseClientConfig {
     /**
      * Whether to validate whether the batch statements have the same generated prepared SQL.
@@ -10,6 +19,8 @@ interface DatabaseClientConfig {
      * Actual performance implications as tested are insignificant.
      */
     val validateBatch: Boolean
+
+    /** Whether to log generated SQL statements. Useful for debugging. */
     val logSql: Boolean
 
     /**
