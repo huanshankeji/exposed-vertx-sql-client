@@ -1,4 +1,4 @@
-package com.huanshankeji.exposedvertxsqlclient.classpropertymapping
+package com.huanshankeji.vertx.sqlclient.datamapping.classpropertymapping
 
 import com.huanshankeji.exposed.datamapping.classproperty.ClassPropertyColumnMappings
 import com.huanshankeji.exposed.datamapping.classproperty.ReflectionBasedClassPropertyDataMapper

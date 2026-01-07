@@ -243,11 +243,12 @@ if (dialectSupportsDeleteIgnore) {
 }
 ```
 
-#### Extension CRUD DSLs with [Exposed GADT mapping](https://github.com/huanshankeji/exposed-gadt-mapping)
+#### **Highly experimental
+**: Extension CRUD DSLs with [Exposed GADT mapping](https://github.com/huanshankeji/exposed-gadt-mapping)
 
 Please read [that library's basic usage guide](https://github.com/huanshankeji/exposed-gadt-mapping?tab=readme-ov-file#basic-usage-guide) first. Here are examples of this library that correspond to [that library's CRUD operations](https://github.com/huanshankeji/exposed-gadt-mapping?tab=readme-ov-file#crud-operations).
 
-These APIs are also **more experimental and subject to change**.
+These APIs are also **highly experimental and subject to change**.
 
 Gradle dependency configuration (only needed since v0.5.0):
 
