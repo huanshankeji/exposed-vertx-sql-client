@@ -104,14 +104,21 @@ val databaseClient = DatabaseClient(vertxSqlClient, exposedDatabase, PgDatabaseC
 
 #### Alternatives to `EvscConfig`
 
-The `EvscConfig` was initially designed to incorporate support for Unix domain sockets and may be overkill for some use cases.
+The `EvscConfig` was initially designed to incorporate support for Unix domain sockets, is currently **experimental**
+and subject to change, and may be overkill for some use cases.
+
+##### Alternative 1: use `ConnectionConfig` directly
+
 If you don't use Unix domain sockets in your code, you can create a `ConnectionConfig.Socket` directly as the single source of truth:
 
 ```kotlin
 val connectionConfig = ConnectionConfig.Socket("localhost", user = "user", password = "password", database = "database")
 ```
 
-Or in a more custom way, you can create the Exposed `Database` with the original `Database.connect` APIs, and the Vert.x `SqlClient` with the original `***Builder` and `***Connection` APIs.
+##### Alternative 2: use the original Exposed and Vert.x APIs
+
+In a more custom way, you can create the Exposed `Database` with the original `Database.connect` APIs, and the Vert.x
+`SqlClient` with the original `***Builder` and `***Connection` APIs.
 
 ### Example table definitions
 

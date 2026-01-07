@@ -1,6 +1,10 @@
 package com.huanshankeji.exposedvertxsqlclient
 
+// TODO rename the interface to `EvscConfig` and the implementation to `EvscConfigImpl`
+
 /**
+ * Note that this API is experimental and subject to change.
+ *
  * Interface for Exposed Vert.x SQL Client configuration that holds connection configs
  * for both Exposed (JDBC-based, for SQL generation) and Vert.x SQL Client (for reactive query execution).
  *
@@ -21,6 +25,8 @@ interface IEvscConfig {
 
 // TODO add a type parameter for `exposedConnectionConfig` to better support RDBMSs that don't support Unix domain sockets
 /**
+ * Note that this API is experimental and subject to change.
+ *
  * Default implementation of [IEvscConfig] that serves as the single source of truth for database connection configuration.
  *
  * For simple setups where both Exposed and Vert.x use the same TCP socket connection,
