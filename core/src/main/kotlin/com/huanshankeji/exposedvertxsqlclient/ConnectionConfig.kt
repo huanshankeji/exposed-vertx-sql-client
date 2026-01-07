@@ -42,6 +42,11 @@ sealed interface ConnectionConfig {
 
     /**
      * Unix domain socket connection configuration with peer authentication.
+     *
+     * @param path the filesystem path to the Unix domain socket.
+     * @param role the database role to assume for peer authentication; also exposed as [userAndRole].
+     * @param database the name of the database to connect to.
+     *
      * @see setRole
      */
     @ExperimentalUnixDomainSocketApi
