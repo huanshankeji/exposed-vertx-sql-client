@@ -1,5 +1,7 @@
 package com.huanshankeji.exposedvertxsqlclient
 
+import org.jetbrains.exposed.v1.jdbc.Database
+
 // TODO rename the interface to `EvscConfig` and the implementation to `EvscConfigImpl`
 
 /**
