@@ -91,7 +91,7 @@ internal val logger = LoggerFactory.getLogger(DatabaseClient::class.java)
  * combining the type-safe SQL DSL of Exposed with the reactive, non-blocking capabilities of Vert.x.
  *
  * @param VertxSqlClientT the type of Vert.x SQL client, which can be [SqlClient],
- *   [Pool], or [SqlConnection] or one of its database-specific subtype.
+ *   [Pool], or [SqlConnection] or one of its database-specific subtypes.
  * @param vertxSqlClient the Vert.x SQL client used for executing queries.
  * @param exposedDatabase the Exposed [Database] used for SQL generation. This can be shared across multiple
  *   [DatabaseClient] instances for better performance.
