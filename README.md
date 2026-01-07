@@ -39,7 +39,7 @@ This library works by first producing the prepared SQL from an Exposed `Statemen
 
 ### **Important note : compatibility with Exposed**
 
-If you encounter issues likely caused by compatibility with Exposed, please try using the same version of Exposed this library depends on. The current Exposed version for v0.6.0 of this library is v1.0.0-rc-3.
+If you encounter issues likely caused by compatibility with Exposed, please try using the same version of Exposed this library depends on. The current Exposed version for v0.7.0 of this library is v1.0.0-rc-4.
 
 ## API documentation
 
@@ -104,14 +104,23 @@ val databaseClient = DatabaseClient(vertxSqlClient, exposedDatabase, PgDatabaseC
 
 #### Alternatives to `EvscConfig`
 
-The `EvscConfig` was initially designed to incorporate support for Unix domain sockets and may be overkill for some use cases.
+The `EvscConfig` was initially designed to incorporate support for Unix domain sockets,
+is currently **experimental** and subject to change,
+and may be overkill for some use cases.
+
+##### Alternative 1: use `ConnectionConfig` directly
+
 If you don't use Unix domain sockets in your code, you can create a `ConnectionConfig.Socket` directly as the single source of truth:
 
 ```kotlin
 val connectionConfig = ConnectionConfig.Socket("localhost", user = "user", password = "password", database = "database")
 ```
 
-Or in a more custom way, you can create the Exposed `Database` with the original `Database.connect` APIs, and the Vert.x `SqlClient` with the original `***Builder` and `***Connection` APIs.
+##### Alternative 2: use the original Exposed and Vert.x APIs
+
+In a more custom way,
+you can create the Exposed `Database` with the original `Database.connect` APIs,
+and the Vert.x `SqlClient` with the original `***Builder` and `***Connection` APIs.
 
 ### Example table definitions
 
