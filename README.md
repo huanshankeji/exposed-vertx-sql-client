@@ -104,8 +104,9 @@ val databaseClient = DatabaseClient(vertxSqlClient, exposedDatabase, PgDatabaseC
 
 #### Alternatives to `EvscConfig`
 
-The `EvscConfig` was initially designed to incorporate support for Unix domain sockets, is currently **experimental**
-and subject to change, and may be overkill for some use cases.
+The `EvscConfig` was initially designed to incorporate support for Unix domain sockets,
+is currently **experimental** and subject to change,
+and may be overkill for some use cases.
 
 ##### Alternative 1: use `ConnectionConfig` directly
 
@@ -117,8 +118,9 @@ val connectionConfig = ConnectionConfig.Socket("localhost", user = "user", passw
 
 ##### Alternative 2: use the original Exposed and Vert.x APIs
 
-In a more custom way, you can create the Exposed `Database` with the original `Database.connect` APIs, and the Vert.x
-`SqlClient` with the original `***Builder` and `***Connection` APIs.
+In a more custom way,
+you can create the Exposed `Database` with the original `Database.connect` APIs,
+and the Vert.x `SqlClient` with the original `***Builder` and `***Connection` APIs.
 
 ### Example table definitions
 
