@@ -1,5 +1,6 @@
 package com.huanshankeji.exposedvertxsqlclient
 
+import com.huanshankeji.ExperimentalApi
 import com.huanshankeji.kotlin.use
 import io.vertx.kotlin.coroutines.coAwait
 import io.vertx.sqlclient.Pool
@@ -21,6 +22,7 @@ suspend fun <T> DatabaseClient<Pool>.withConnectionClient(
 ): T {
     // not using `getConnectionClient().use(...)` here because `DatabaseClient.close` has the semantics of closing the Exposed `Database` though it doesn't do it now
     val connection = getVertxPoolConnection()
+    @OptIn(ExperimentalApi::class)
     return connection.use({
         block(DatabaseClient(connection, exposedDatabase, config))
     }, {

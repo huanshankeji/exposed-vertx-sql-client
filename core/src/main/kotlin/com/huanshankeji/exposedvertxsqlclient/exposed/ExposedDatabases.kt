@@ -23,6 +23,7 @@ fun ConnectionConfig.Socket.exposedDatabaseConnect(
     //connectionAutoRegistration: DatabaseConnectionAutoRegistration = connectionInstanceImpl, // `connectionInstanceImpl` is `private`
     manager: (Database) -> TransactionManager = { TransactionManager(it) }
 ) =
+    @Suppress("DEPRECATION")
     Database.connect(jdbcUrl(rdbms), driver, user, password, setupConnection, databaseConfig, manager = manager)
 
 @Deprecated(JDBC_URL_FORMAT_NOT_UNIVERSAL_DEPRECATION_MESSAGE)
@@ -35,4 +36,5 @@ fun exposedDatabaseConnect(
     databaseConfig: DatabaseConfig? = null,
     manager: (Database) -> TransactionManager = { TransactionManager(it) }
 ) =
+    @Suppress("DEPRECATION")
     socketConnectionConfig.exposedDatabaseConnect(rdbms, driver, setupConnection, databaseConfig, manager)

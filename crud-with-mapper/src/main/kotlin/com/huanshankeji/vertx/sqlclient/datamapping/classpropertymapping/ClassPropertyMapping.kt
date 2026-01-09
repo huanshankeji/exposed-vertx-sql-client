@@ -1,7 +1,10 @@
+@file:OptIn(ExperimentalEvscApi::class)
+
 package com.huanshankeji.vertx.sqlclient.datamapping.classpropertymapping
 
 import com.huanshankeji.exposed.datamapping.classproperty.ClassPropertyColumnMappings
 import com.huanshankeji.exposed.datamapping.classproperty.ReflectionBasedClassPropertyDataMapper
+import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
 import com.huanshankeji.vertx.sqlclient.datamapping.RowDataQueryMapper
 import io.vertx.sqlclient.Row
 import kotlin.reflect.KClass

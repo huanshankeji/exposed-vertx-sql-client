@@ -330,6 +330,7 @@ suspend fun <E> DatabaseClient<*>.batchSelect(
 suspend fun <E> DatabaseClient<*>.selectBatch(
     fieldSet: FieldSet, buildQuery: FieldSet.(E) -> Query, data: Iterable<E>
 ): Sequence<RowSet<ResultRow>> =
+    @Suppress("DEPRECATION")
     batchSelect(fieldSet as ColumnSet, data, buildQuery)
 
 // TODO more params such as `ignoreErrors` and `shouldReturnGeneratedValues`
