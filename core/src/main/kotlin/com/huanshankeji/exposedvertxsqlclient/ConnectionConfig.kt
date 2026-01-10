@@ -64,4 +64,5 @@ sealed interface ConnectionConfig {
  * This is the simplest configuration for standard TCP/IP connections.
  */
 fun ConnectionConfig.Socket.toUniversalEvscConfig() =
+    @OptIn(ExperimentalEvscApi::class)
     EvscConfig(this, this)

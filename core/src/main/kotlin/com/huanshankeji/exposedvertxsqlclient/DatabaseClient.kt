@@ -215,6 +215,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
         statement: Statement<*>,
         transformQuery: PreparedQuery<RowSet<Row>>.() -> PreparedQuery<SqlResultT>
     ) =
+        @OptIn(ExperimentalEvscApi::class)
         execute(statement, transformQuery)
 
     /**
@@ -236,6 +237,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     }
 
     suspend fun executeForVertxSqlClientRowSet(statement: Statement<*>): RowSet<Row> =
+        @OptIn(ExperimentalEvscApi::class)
         execute(statement) { this }
 
 
@@ -305,6 +307,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
         getFieldExpressionSetWithExposedTransaction: Boolean = config.autoExposedTransaction,
         crossinline resultRowMapper: ResultRow.() -> Data
     ): RowSet<Data> =
+        @OptIn(ExperimentalEvscApi::class)
         execute(query) {
             @OptIn(ExperimentalEvscApi::class)
             val fieldExpressionSet = query.getFieldExpressionSetWithOptionalReadOnlyExposedTransaction(
@@ -492,6 +495,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     @Deprecated(SELECT_BATCH_QUERY_WITH_FIELD_SET_DEPRECATED_MESSAGE, ReplaceWith("executeBatchQuery(queries)"))
     @ExperimentalEvscApi
     suspend fun executeBatchQuery(fieldSet: FieldSet, queries: Iterable<Query>): Sequence<RowSet<ResultRow>> =
+        @Suppress("DEPRECATION")
         executeBatchQuery(fieldSet, queries) { this }
 
     /**

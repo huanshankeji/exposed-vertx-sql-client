@@ -56,6 +56,7 @@ suspend fun <SqlConnectionT : SqlConnection, T> DatabaseClient<SqlConnectionT>.w
 
 @JvmName("withTransactionForSqlConnection")
 suspend fun <SqlConnectionT : SqlConnection, T> DatabaseClient<SqlConnectionT>.withTransaction(function: suspend (DatabaseClient<SqlConnectionT>) -> T): T =
+    @OptIn(ExperimentalEvscApi::class)
     withTransactionEither { function(it).right() }.getOrElse { throw AssertionError() }
 
 
@@ -185,6 +186,7 @@ suspend fun <SqlConnectionT : SqlConnection, RollbackResult, ReleaseResult> Data
 suspend fun <SqlConnectionT : SqlConnection, RollbackResult, ReleaseResult> DatabaseClient<SqlConnectionT>.withSavepointAndRollbackIfThrowsOrLeft(
     savepointName: String, function: suspend (DatabaseClient<SqlConnectionT>) -> Either<RollbackResult, ReleaseResult>
 ): Either<RollbackResult, ReleaseResult> =
+    @OptIn(ExperimentalEvscApi::class)
     withSavepointEither(savepointName, function)
 
 /**
