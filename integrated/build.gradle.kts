@@ -33,12 +33,20 @@ dependencies {
     }
 
 
+    implementation(commonDependencies.kotest.module("assertions-core"))
     testImplementation(commonDependencies.kotest.module("framework-engine"))
     testImplementation(commonDependencies.kotest.module("extensions-testcontainers"))
     // to resolve "no tests discovered" errors when running `check`
     testRuntimeOnly(commonDependencies.kotest.module("runner-junit5"))
 
     testRuntimeOnly(commonDependencies.slf4j.simple())
+
+    implementation("com.zaxxer:HikariCP:${DependencyVersions.hikaricp}")
+
+    implementation(libs.r2dbc.spi)
+    implementation(libs.r2dbc.postgresql)
+    implementation(libs.r2dbc.pool)
+    implementation(libs.exposed.r2dbc)
 }
 
 // to resolve "no tests discovered" errors when running `check`

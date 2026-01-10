@@ -17,7 +17,7 @@ dependencies {
     implementation(commonDependencies.kotlinCommon.vertx())
 
     implementation(commonDependencies.kotlinCommon.core())
-    implementation(commonDependencies.arrow.core())
+    api(commonDependencies.arrow.core()) // expose `Either`
 
     implementation(commonDependencies.kotlinCommon.net())
 

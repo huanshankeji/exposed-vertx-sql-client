@@ -8,7 +8,8 @@ plugins {
 }
 
 dependencies {
-    dokka(project(":exposed-vertx-sql-client-postgresql"))
+    for (project in subprojects.filterNot { it.name == "exposed-vertx-sql-client-integrated" })
+        dokka(project)
 }
 
 apiValidation {

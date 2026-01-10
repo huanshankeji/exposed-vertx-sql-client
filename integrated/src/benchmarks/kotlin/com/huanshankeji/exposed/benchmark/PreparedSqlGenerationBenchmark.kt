@@ -12,7 +12,7 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 @State(Scope.Benchmark)
-class PreparedSqlGenerationBenchmark : WithContainerizedDatabaseBenchmark() {
+class PreparedSqlGenerationBenchmark : WithContainerizedDatabaseAndExposedDatabaseBenchmark() {
     enum class StatementEnum(val statement: Statement<*>) {
         SelectAll(VarcharTable.selectAll()),
         SelectWhere(VarcharTable.selectAll().where(VarcharTable.id eq 0L)),

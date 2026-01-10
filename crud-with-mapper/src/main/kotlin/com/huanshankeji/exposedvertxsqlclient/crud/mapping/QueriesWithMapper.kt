@@ -64,6 +64,7 @@ suspend fun <Data : Any> DatabaseClient<*>.insertIgnoreWithMapper(
 ) =
     insertIgnore(table, dataUpdateMapper.updateBuilderSetter(data))
 
+@ExperimentalEvscApi
 fun <Data : Any, ColumnSetT : ColumnSet> DataUpdateMapper<Data>.batchUpdateBuilderSetter():
         ColumnSetT.(UpdateBuilder<*>, Data) -> Unit = { insertStatement, element ->
     setUpdateBuilder(element, insertStatement)

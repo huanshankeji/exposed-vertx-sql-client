@@ -27,7 +27,7 @@ inline fun <SqlClientT : SqlClient, SqlConnectOptionsT : SqlConnectOptions, Pool
     create: (Vertx?, SqlConnectOptionsT, PoolOptionsT, CoConnectHandler) -> SqlClientT
 ): SqlClientT {
     val sqlConnectOptions = sqlConnectOptionsFromConstructor.apply {
-        setUpConventionally()
+        setUpConventionally() // enables `cachePreparedStatements`
         setFrom(connectionConfig)
         extraSqlConnectOptions()
     }

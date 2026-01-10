@@ -11,14 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Support all other databases commonly supported by Exposed and Vert.x.
-  - MySQL
-  - Oracle
-  - Microsoft SQL Server
-- Add the `DatabaseClientConfig` config interface which is an abstraction of the configurable options passed to `DatabaseClient` and add corresponding creator functions for each database.
-- Add an `exposedReadOnlyTransaction` variant to prevent accidentally writing to databases with Exposed APIs.
-- Add some basic integration tests adapted from the example code with Testcontainers (and Kotest). `@Untested` annotation usages are removed.
-- Show test coverage with Kover and Codecov.
+- Support all other databases commonly supported by Exposed and Vert.x (#18, #25, #53).
+  - MySQL (#18)
+  - Oracle (#53)
+  - Microsoft SQL Server (#53)
+- Add the `DatabaseClientConfig` interface which is an abstraction of the configurable options passed to `DatabaseClient` and add corresponding creator functions for each database (#25).
+- Add an `exposedReadOnlyTransaction` variant to prevent accidentally writing to databases with Exposed APIs (#48).
+- Add some basic integration tests adapted from the example code with Testcontainers (and Kotest) (#50). `@Untested` annotation usages are removed.
+- Show test coverage with Kover and Codecov (#62, #63).
 
 ### Changed
 
@@ -29,11 +29,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - JVM toolchain / JDK 11 (required by Vert.x)
   - Gradle 9.2.1
   - SLF4J 2.0.17
-- Migrate to Exposed 1.0.0 and Vert.x 5. Some APIs are updated accordingly.
-- Update the instructions including the user guide in README.md.
-- Rename the `sql-dsl` modules to `crud` modules to better reflect their contents.
-- No longer provide Exposed transactions in the APIs where not always necessary. If you encounter "No transaction in context." issues, see the corresponding section in README.md.
-- Update `exposedTransaction` to match the updated Exposed `transaction` API.
+- Migrate to Exposed 1.0.0 and Vert.x 5 (#33, #27). Some APIs are updated accordingly.
+- Update the instructions including the user guide in README.md (#51, #50).
+- Rename the `sql-dsl` modules to `crud` modules to better reflect their contents (part of #33 and #27).
+- Revamp Exposed transaction handling in `DatabaseClient`, not always creating only possibly needed Exposed transactions (#44). If you encounter "No transaction in context." issues, see the corresponding section in README.md.
+- Update `exposedTransaction` to match the updated Exposed `transaction` API (part of #47).
 
 ### Deprecated
 
@@ -47,11 +47,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Internal
 
-- Use extracted CI actions.
+- Use extracted CI actions (#24).
 - Enable Gradle Configuration Cache.
 - Bump Dokka to 2.1.0.
-- Improve the Exposed transaction benchmarks, fixing some bugs, better ruling out the overhead of some implementations, and benchmarking the performance improvements of read-only Exposed transactions, which showed no significant improvements.
-- Onboard with Copilot.
+- Improve the Exposed transaction benchmarks, fixing some bugs, better ruling out the overhead of some implementations, and benchmarking the performance improvements of read-only Exposed transactions, which showed no significant improvements (#45, #47).
+- Onboard with Copilot (#37, #36, #64).
+- Enable CI for pull requests (#65).
 
 ## [0.5.0] - 2024-11-29
 

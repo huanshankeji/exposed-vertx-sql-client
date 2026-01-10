@@ -16,12 +16,12 @@ This is **Exposed Vert.x SQL Client**, a Kotlin library that provides integratio
 
 **Key Facts:**
 - Language: Kotlin (~450 source files)
-- Build: Gradle (Gradle 9.1.0, Kotlin 2.2.21)
+- Build: Gradle (Gradle 9.2.1, Kotlin 2.3.0)
 - JVM Target: JDK 11 (configured via `kotlin.jvmToolchain(11)`)
 - Supported Databases: PostgreSQL, MySQL, Oracle, Microsoft SQL Server
 - Size: ~18MB repository
 - Current Version: 0.6.0-SNAPSHOT
-- Exposed Version: v1.0.0-rc-3 (important: stick to this exact version for compatibility)
+- Exposed Version: v1.0.0-rc-4 (important: stick to this exact version for compatibility)
 
 ## Project Structure
 
@@ -245,9 +245,9 @@ Before check-in, the following validations run:
 
 ### Key Dependencies
 
-- **Exposed**: 1.0.0-rc-3 (via `commonDependencies.exposed.*`)
+- **Exposed**: 1.0.0-rc-4 (via `commonDependencies.exposed.*`)
 - **Vert.x**: Managed by `vertx.platformStackDepchain()` (uses Vert.x BOM)
-- **Kotlin**: 2.2.21
+- **Kotlin**: 2.3.0
 - **Arrow**: For functional constructs
 - **exposed-gadt-mapping**: 0.4.0 (for mapper modules)
 
@@ -314,7 +314,7 @@ module-name/
 The project uses custom dependency management through:
 - `com.huanshankeji:common-gradle-dependencies` for shared dependencies
 - `com.huanshankeji.team:gradle-plugins` for build conventions
-- Kotlin 2.2.21, Dokka 2.1.0
+- Kotlin 2.3.0, Dokka 2.1.0
 
 ## Quick Reference
 

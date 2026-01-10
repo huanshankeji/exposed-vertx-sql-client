@@ -1,6 +1,10 @@
+@file:OptIn(ExperimentalUnixDomainSocketApi::class, ExperimentalApi::class)
+
 package com.huanshankeji.exposedvertxsqlclient.vertx.sqlclient
 
+import com.huanshankeji.ExperimentalApi
 import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig
+import com.huanshankeji.exposedvertxsqlclient.ExperimentalUnixDomainSocketApi
 import io.vertx.sqlclient.SqlConnection
 
 /**
