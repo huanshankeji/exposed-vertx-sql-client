@@ -7,31 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## What's Changed
+## [0.7.0] - 2026-01-10
 
 * Add `readOnlyTransactionIsolationLevel` in `DatabaseClientConfig` and update
-  `exposedReadOnlyTransaction` to use this value, which defaults to
-  `Connection.TRANSACTION_READ_UNCOMMITTED` by @ShreckYe in https://github.com/huanshankeji/exposed-vertx-sql-client/pull/69
-* Rename `exposedReadOnlyTransaction` to
-  `statementPreparationExposedTransaction` by @ShreckYe in https://github.com/huanshankeji/exposed-vertx-sql-client/pull/71
-* Benchmark JDBC `suspendTransaction` and rename other functions adding underscores and unifying capitalization in
-  `TransactionBenchmark` by @ShreckYe in https://github.com/huanshankeji/exposed-vertx-sql-client/pull/74
-* Some more unmerged changes that should've been included in #74 by @ShreckYe in https://github.com/huanshankeji/exposed-vertx-sql-client/pull/75
-* Benchmark Exposed
-  `transaction` with HikariCP and extract some common code by @ShreckYe in https://github.com/huanshankeji/exposed-vertx-sql-client/pull/76
-* Benchmark R2DBC transaction by @ShreckYe in https://github.com/huanshankeji/exposed-vertx-sql-client/pull/77
-* Mark `EvscConfig` and `LocalConnectionConfig` with a newly
-  `ExperimentalUnixDomainSocketApi` opt-in annotation and update README about alternatives by @ShreckYe in https://github.com/huanshankeji/exposed-vertx-sql-client/pull/80
-* Revamp transaction & savepoint APIs by @ShreckYe in https://github.com/huanshankeji/exposed-vertx-sql-client/pull/81
-* Update README adding and organizing the important notes by @ShreckYe in https://github.com/huanshankeji/exposed-vertx-sql-client/pull/83
-* Fix and update dokka-gh-pages.yml by @ShreckYe in https://github.com/huanshankeji/exposed-vertx-sql-client/pull/86
-* Update/Fix the included Dokka modules, which are outdated by @ShreckYe in https://github.com/huanshankeji/exposed-vertx-sql-client/pull/89
-* Add comprehensive tests for, overhaul, and fix bugs in extension CRUD DSL and transaction (including savepoint) APIs by @Copilot in https://github.com/huanshankeji/exposed-vertx-sql-client/pull/82
-* Review and improve library maturity for open source promotion by @Copilot in https://github.com/huanshankeji/exposed-vertx-sql-client/pull/90
-* Review and update the
-  `crud-with-mapper` module by @ShreckYe in https://github.com/huanshankeji/exposed-vertx-sql-client/pull/91
-* Resolve the remaining opt-in and deprecation warnings by @ShreckYe in https://github.com/huanshankeji/exposed-vertx-sql-client/pull/92
-* v0.7.0 release by @ShreckYe in https://github.com/huanshankeji/exposed-vertx-sql-client/pull/93
+  `exposedReadOnlyTransaction` to use this value, which defaults to `Connection.TRANSACTION_READ_UNCOMMITTED` (#69)
+* Rename `exposedReadOnlyTransaction` to `statementPreparationExposedTransaction` (#71)
+* Benchmark JDBC `suspendTransaction` (#74), Exposed
+  `transaction` with HikariCP (#76), Exposed R2DBC transaction (#77) and improve related transaction benchmark code
+* Mark more APIs with `ExperimentalEvscApi` and
+  `ExperimentalUnixDomainSocketApi` opt-in annotations and as deprecated (#80 and others)
+* Update README adding and reorganizing the important notes (#83)
+* Fix and update dokka-gh-pages.yml (#86)
+* Update/Fix the included Dokka modules, which are outdated (#89)
+* Add comprehensive tests for, overhaul, and fix bugs in extension CRUD DSL and transaction (including savepoint) APIs (#81, #82)
 
 **Full Changelog**: https://github.com/huanshankeji/exposed-vertx-sql-client/compare/v0.6.0...v0.7.0
 
@@ -128,7 +116,9 @@ Miscellaneous changes:
 * fix a bug that an Exposed transaction is required if a query `FieldSet` contains custom functions depending on dialects and no such a transaction is provided
 * Add a basic usage guide
 
-[Unreleased]: https://github.com/huanshankeji/exposed-vertx-sql-client/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/huanshankeji/exposed-vertx-sql-client/compare/v0.7.0...HEAD
+
+[0.7.0]: https://github.com/huanshankeji/exposed-vertx-sql-client/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/huanshankeji/exposed-vertx-sql-client/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/huanshankeji/exposed-vertx-sql-client/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/huanshankeji/exposed-vertx-sql-client/releases/tag/v0.4.0
