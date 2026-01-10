@@ -20,6 +20,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Mark more APIs with the `ExperimentalEvscApi` and `ExperimentalUnixDomainSocketApi` opt-in annotations (#80, #82, #92, and possibly others)
 - Update README adding and reorganizing the important notes (#83).
 - Overhaul the extension CRUD DSL and transaction (including savepoint) APIs (#81, #82).
+- Bump some dependencies to the latest.
+  - Kotlin 2.3.0
+  - Exposed 1.0.0-rc-4
 
 ### Deprecated
 
