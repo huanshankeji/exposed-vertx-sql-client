@@ -28,7 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 * Fix and update dokka-gh-pages.yml (#86).
-* Update/Fix the included Dokka modules, which are outdated (#89).
+* Update the included Dokka modules, which were outdated (#89).
 * Fix bugs in the extension CRUD DSL and transaction (including savepoint) APIs (#82).
 
 ### Internal
