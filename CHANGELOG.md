@@ -11,29 +11,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-* Add `readOnlyTransactionIsolationLevel` in `DatabaseClientConfig` and update `statementPreparationExposedTransaction` to use this value, which defaults to `Connection.TRANSACTION_READ_UNCOMMITTED` (#69).
-* Add comprehensive tests for the extension CRUD DSL and transaction (including savepoint) APIs (#82).
+- Add `readOnlyTransactionIsolationLevel` in `DatabaseClientConfig` and update `statementPreparationExposedTransaction` to use this value, which defaults to `Connection.TRANSACTION_READ_UNCOMMITTED` (#69).
+- Add comprehensive tests for the extension CRUD DSL and transaction (including savepoint) APIs (#82).
 
 ### Changed
 
-* Rename `exposedReadOnlyTransaction` to `statementPreparationExposedTransaction` (#71).
-* Mark more APIs with the `ExperimentalEvscApi` and `ExperimentalUnixDomainSocketApi` opt-in annotations (#80, #82, #92, and possibly others)
-* Update README adding and reorganizing the important notes (#83).
-* Overhaul the extension CRUD DSL and transaction (including savepoint) APIs (#81, #82).
+- Rename `exposedReadOnlyTransaction` to `statementPreparationExposedTransaction` (#71).
+- Mark more APIs with the `ExperimentalEvscApi` and `ExperimentalUnixDomainSocketApi` opt-in annotations (#80, #82, #92, and possibly others)
+- Update README adding and reorganizing the important notes (#83).
+- Overhaul the extension CRUD DSL and transaction (including savepoint) APIs (#81, #82).
 
 ### Deprecated
 
-* Deprecate some outdated or poorly designed extension CRUD DSL and transaction APIs (#82, #92, and possibly others).
+- Deprecate some outdated or poorly designed extension CRUD DSL and transaction APIs (#82, #92, and possibly others).
 
 ### Fixed
 
-* Fix and update dokka-gh-pages.yml (#86).
-* Update the included Dokka modules, which were outdated (#89).
-* Fix bugs in the extension CRUD DSL and transaction (including savepoint) APIs (#82).
+- Fix and update dokka-gh-pages.yml (#86).
+- Update the included Dokka modules, which were outdated (#89).
+- Fix bugs in the extension CRUD DSL and transaction (including savepoint) APIs (#82).
 
 ### Internal
 
-* Benchmark JDBC `suspendTransaction` (#74, #75), Exposed `transaction` with HikariCP (#76), Exposed R2DBC transaction (#77) and improve related transaction benchmark code.
+- Benchmark JDBC `suspendTransaction` (#74, #75), Exposed `transaction` with HikariCP (#76), Exposed R2DBC transaction (#77) and improve related transaction benchmark code.
 
 ## [0.6.0] - 2025-11-26
 
