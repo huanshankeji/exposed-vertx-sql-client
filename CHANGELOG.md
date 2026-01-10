@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-* Add `readOnlyTransactionIsolationLevel` in `DatabaseClientConfig` and update `exposedReadOnlyTransaction` to use this value, which defaults to `Connection.TRANSACTION_READ_UNCOMMITTED` (#69).
+* Add `readOnlyTransactionIsolationLevel` in `DatabaseClientConfig` and update `statementPreparationExposedTransaction` to use this value, which defaults to `Connection.TRANSACTION_READ_UNCOMMITTED` (#69).
 * Add comprehensive tests for the extension CRUD DSL and transaction (including savepoint) APIs (#82).
 
 ### Changed
