@@ -30,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix some failures with some databases due to the default `Connection.TRANSACTION_NONE` isolation level (#69).
 - Fix and update dokka-gh-pages.yml (#86).
 - Update the included Dokka modules, which were outdated (#89).
 - Fix bugs in the extension CRUD DSL and transaction (including savepoint) APIs (#82).
