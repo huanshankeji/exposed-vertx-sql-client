@@ -7,6 +7,54 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-1-10
+
+### Added
+
+- Add `readOnlyTransactionIsolationLevel` in `DatabaseClientConfig` and update
+  `exposedReadOnlyTransaction` to use this value, which defaults to `Connection.TRANSACTION_READ_UNCOMMITTED` (#69).
+- Add polymorphic transaction functions and savepoint APIs (#81).
+- Introduce the `ExperimentalUnixDomainSocketApi` annotation and mark relevant Unix domain socket APIs with it (#80).
+- Add KDocs to key entry points and improve documentation (#90).
+- Add batch operations and transaction tests to improve test coverage (#82, #83).
+- Add benchmarks for HikariCP, JDBC `suspendTransaction`, and R2DBC transactions (#74, #75, #76, #77).
+
+### Changed
+
+- Bump dependencies to the latest.
+  - Kotlin 2.3.0
+  - Exposed 1.0.0-rc-4
+  - Testcontainers 2.0.3
+  - Kover 0.9.4
+- Rename `exposedReadOnlyTransaction` to `exposedStatementPreparationTransaction` (#71).
+- Rename the "select expression" shortcut extensions, deprecating some redundant functions (#82).
+- Update (refactor) the `selectExpression` variants that select from tables (#82).
+- Overhaul the batch query execution APIs which were buggy and incorrectly designed (#82).
+- Update README adding and organizing the important notes (#83).
+- Update the example code and README about alternatives to `EvscConfig` (#80).
+- Review and update the `crud-with-mapper` module (#91).
+
+### Deprecated
+
+- Deprecate some redundant "select expression" functions (#82).
+
+### Fixed
+
+- Fix `withTransactionEither` where `Left` and `Right` cases were incorrectly reversed (#82).
+- Fix a bug that Vert.x `Future`s are not `coAwait`ed in `withTransactionCommitOrRollback` (#81).
+- Fix a bug that the `extraConfig` parameter is not passed (#76).
+- Fix related `INSERT SELECT` APIs (#82).
+- Fix `ReplaceWith` expressions in the deprecated batch select APIs (#82).
+- Resolve the opt-in and deprecation warnings when running `publishToMavenLocal` from a clean state (#92).
+
+### Internal
+
+- Update/fix the included Dokka modules (#89).
+- Fix and update dokka-gh-pages.yml (#86).
+- Improve benchmarks with multi-thread multi-connection scenarios and different connection pool sizes (#77).
+- Checked-cast `DatabaseClient.vertxSqlClient` to ease debugging for callers (#81).
+- Add suppressed exceptions in the rollback processes in `catch` blocks (#81).
+
 ## [0.6.0] - 2025-11-26
 
 ### Added
@@ -100,7 +148,9 @@ Miscellaneous changes:
 * fix a bug that an Exposed transaction is required if a query `FieldSet` contains custom functions depending on dialects and no such a transaction is provided
 * Add a basic usage guide
 
-[Unreleased]: https://github.com/huanshankeji/exposed-vertx-sql-client/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/huanshankeji/exposed-vertx-sql-client/compare/v0.7.0...HEAD
+
+[0.7.0]: https://github.com/huanshankeji/exposed-vertx-sql-client/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/huanshankeji/exposed-vertx-sql-client/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/huanshankeji/exposed-vertx-sql-client/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/huanshankeji/exposed-vertx-sql-client/releases/tag/v0.4.0
