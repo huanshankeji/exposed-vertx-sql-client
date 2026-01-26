@@ -39,7 +39,7 @@ This library works by first producing the prepared SQL from an Exposed `Statemen
 
 ### **Important note : compatibility with Exposed**
 
-If you encounter issues likely caused by compatibility with Exposed, please try using the same version of Exposed this library depends on. The current Exposed version for v0.7.0 of this library is v1.0.0-rc-4.
+If you encounter issues likely caused by compatibility with Exposed, please try using the same version of Exposed this library depends on. The current Exposed version for v0.7.1 of this library is v1.0.0.
 
 ## API documentation
 
