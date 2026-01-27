@@ -29,6 +29,23 @@ We also have some internal consuming code to guarantee the usability of the APIs
 
 This library works by first producing the prepared SQL from an Exposed `Statement` with an Exposed `transaction`, then translating and passing the SQL to the Vert.x SQL client for execution, and finally transforming the retrieved result Vert.x SQL client `Row` into the Exposed `ResultSet`. The Exposed `transaction` for preparing the SQL is as short and as lightweight as possible to improve performance. And also when executing without a transaction, Vert.x SQL client's pipelining feature can be enabled, which greatly improves performance for simple queries and is not supported by JDBC and R2DBC for PostgreSQL as far as I know.
 
+## Performance
+
+### TechEmpower Framework Benchmarks
+
+[The requests per second results for the related portions from the TechEmpower Framework Benchmarks Continuous Benchmarking results started on 2026-01-18](https://www.techempower.com/benchmarks/#section=test&runid=acc1ad82-ae2c-4d1d-a600-c7ff9d0c5917&l=zhxjwf-pa7&f=zik0zj-zik0zj-zik0zj-zik0zj-zik0zj-zik0zj-zhb2tb-zik0zj-zik0zj-zik0zj-zik0zj-zik0zj-zik0zj-z62j9b-zik0zj-zik0zj-pa7&test=db) are as follows:
+
+| Benchmark portion | Description | Single query | Multiple queries | Fortunes | Data updates |
+| --- | --- | --- | --- | --- | --- |
+| vertx-web-kotlinx-postgresql | baseline with Vert.x | 1,203,778 | 83,683 | 785,442 | 45,715 |
+| vertx-web-kotlinx-exposed-vertx-sql-client-postgresql | with this library | 651,159 | 16,738 | 548,423 | 26,360 |
+| vertx-web-kotlinx-exposed-r2dbc-postgres | replacing the Vert.x SQL client with Exposed R2DBC directly in Vert.x | 95,664 | 5,251 | 30,165 | 1,700 |
+| vertx-web-kotlinx-r2dbc-postgresql | replacing the Vert.x SQL client with R2DBC directly in Vert.x, for comparison | 497,670 | 30,566 | 474,957 | 14,024 |
+| ktor-netty-exposed-jdbc-dsl | Ktor with Exposed JDBC | 169,795 | 31,612 | 142,435 | 23,980 |
+| ktor-netty-exposed-r2dbc-dsl | Ktor with Exposed R2DBC | 105,843 | 21,942 | 83,263 | 6,937 |
+
+This library achieves 54% performance in Single query, and 69% in Fortunes (a single SQL select query of all the records with manipulation and encoding to HTML in each request) compared to the baseline. It performs worse in Multiple queries (20 separate select SQL queries in each request) most likely due to the transaction overhead. We are working on this and trying to resolve this performance issue.
+
 ## Add to your dependencies
 
 ### The Maven coordinates
