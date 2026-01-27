@@ -4,8 +4,6 @@ import com.huanshankeji.exposed.benchmark.`10K`
 import com.huanshankeji.exposed.benchmark.awaitAsync10K
 import com.huanshankeji.exposed.benchmark.multiThread_10K_ops_nearlyEvenlyPartitioned_helper
 import com.huanshankeji.exposed.benchmark.numProcessors
-import com.huanshankeji.kotlinx.coroutines.benchmark.ParameterizedRunBlockingAwaitAsyncsBenchmark
-import com.huanshankeji.kotlinx.coroutines.benchmark.RunBlockingAwaitAsyncsBenchmark
 import kotlinx.benchmark.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.asFlow
