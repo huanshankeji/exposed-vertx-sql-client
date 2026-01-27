@@ -37,8 +37,8 @@ This library works by first producing the prepared SQL from an Exposed `Statemen
 
 | Benchmark portion | Description | Single query | Multiple queries | Fortunes | Data updates |
 | --- | --- | --- | --- | --- | --- |
-| vertx-web-kotlinx-postgresql | baseline with Vert.x | 1,203,778 | 83,683 | 785,442 | 45,715 |
-| vertx-web-kotlinx-exposed-vertx-sql-client-postgresql | with this library | 651,159 | 16,738 | 548,423 | 26,360 |
+| vertx-web-kotlinx-postgresql | Vert.x baseline | 1,203,778 | 83,683 | 785,442 | 45,715 |
+| vertx-web-kotlinx-exposed-vertx-sql-client-postgresql | Vert.x with this library | 651,159 | 16,738 | 548,423 | 26,360 |
 | vertx-web-kotlinx-exposed-r2dbc-postgres | replacing the Vert.x SQL client with Exposed R2DBC directly in Vert.x | 95,664 | 5,251 | 30,165 | 1,700 |
 | vertx-web-kotlinx-r2dbc-postgresql | replacing the Vert.x SQL client with R2DBC directly in Vert.x, for comparison | 497,670 | 30,566 | 474,957 | 14,024 |
 | ktor-netty-exposed-jdbc-dsl | Ktor with Exposed JDBC | 169,795 | 31,612 | 142,435 | 23,980 |
