@@ -1,5 +1,6 @@
-package com.huanshankeji.exposed.benchmark
+package com.huanshankeji.exposed.benchmark.jdbc
 
+import com.huanshankeji.exposed.benchmark.AbstractBenchmark
 import com.huanshankeji.exposed.benchmark.table.EmptyTable
 import com.huanshankeji.exposed.benchmark.table.VarcharTable
 import kotlinx.benchmark.Benchmark
