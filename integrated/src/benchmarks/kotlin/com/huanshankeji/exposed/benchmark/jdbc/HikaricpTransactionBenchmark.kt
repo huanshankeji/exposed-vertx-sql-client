@@ -1,5 +1,7 @@
-package com.huanshankeji.exposed.benchmark
+package com.huanshankeji.exposed.benchmark.jdbc
 
+import com.huanshankeji.exposed.benchmark.multiThread_10K_ops_nearlyEvenlyPartitioned_helper
+import com.huanshankeji.exposed.benchmark.numProcessors
 import kotlinx.benchmark.Benchmark
 import kotlinx.benchmark.Scope
 import kotlinx.benchmark.State
