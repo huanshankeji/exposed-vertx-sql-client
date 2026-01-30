@@ -92,7 +92,7 @@ abstract class TestsForAllRdbmsTypesAndAllClientTypesWithTestcontainers(
                 context("Client") {
                     tests(
                         DatabaseClient(
-                            createMysqlClient(null, connectionConfig), exposedDatabase, databaseClientConfig
+                            createMysqlClient(null, connectionConfig), databaseClientConfig
                         ),
                         SqlClientType.Client
                     )
@@ -101,7 +101,7 @@ abstract class TestsForAllRdbmsTypesAndAllClientTypesWithTestcontainers(
                 context("Pool") {
                     tests(
                         DatabaseClient(
-                            createMysqlPool(null, connectionConfig), exposedDatabase, databaseClientConfig
+                            createMysqlPool(null, connectionConfig), databaseClientConfig
                         ),
                         SqlClientType.Pool
                     )
@@ -110,7 +110,7 @@ abstract class TestsForAllRdbmsTypesAndAllClientTypesWithTestcontainers(
                 context("SqlConnection") {
                     tests(
                         DatabaseClient(
-                            createMysqlConnection(vertx, connectionConfig), exposedDatabase, databaseClientConfig
+                            createMysqlConnection(vertx, connectionConfig), databaseClientConfig
                         ),
                         SqlClientType.SqlConnection
                     )
@@ -121,14 +121,14 @@ abstract class TestsForAllRdbmsTypesAndAllClientTypesWithTestcontainers(
             val oracleContainer = install(TestContainerSpecExtension(LatestOracleContainer()))
             val connectionConfig = oracleContainer.connectionConfig()
             val exposedDatabase = connectionConfig.exposedDatabaseConnectOracle()
-            val databaseClientConfig = OracleDatabaseClientConfig()
+            val databaseClientConfig = OracleDatabaseClientConfig(exposedDatabase)
             suspend fun FunSpecContainerScope.tests(databaseClient: DatabaseClient<*>, sqlClientType: SqlClientType) =
                 tests(databaseClient, RdbmsType.Oracle, sqlClientType)
             if (SqlClientType.Pool in enabledSqlClientTypes)
                 context("Pool") {
                     tests(
                         DatabaseClient(
-                            createOraclePool(null, connectionConfig), exposedDatabase, databaseClientConfig
+                            createOraclePool(null, connectionConfig), databaseClientConfig
                         ),
                         SqlClientType.Pool
                     )
@@ -137,7 +137,7 @@ abstract class TestsForAllRdbmsTypesAndAllClientTypesWithTestcontainers(
                 context("SqlConnection") {
                     tests(
                         DatabaseClient(
-                            createOracleConnection(vertx, connectionConfig), exposedDatabase, databaseClientConfig
+                            createOracleConnection(vertx, connectionConfig), databaseClientConfig
                         ),
                         SqlClientType.SqlConnection
                     )
@@ -150,14 +150,14 @@ abstract class TestsForAllRdbmsTypesAndAllClientTypesWithTestcontainers(
             val exposedDatabase = with(connectionConfig) {
                 exposedDatabaseConnectMssql(sqlServerJdbcUrlWithEncryptEqFalse())
             }
-            val databaseClientConfig = MssqlDatabaseClientConfig()
+            val databaseClientConfig = MssqlDatabaseClientConfig(exposedDatabase)
             suspend fun FunSpecContainerScope.tests(databaseClient: DatabaseClient<*>, sqlClientType: SqlClientType) =
                 tests(databaseClient, RdbmsType.Mssql, sqlClientType)
             if (SqlClientType.Pool in enabledSqlClientTypes)
                 context("Pool") {
                     tests(
                         DatabaseClient(
-                            createMssqlPool(null, connectionConfig), exposedDatabase, databaseClientConfig
+                            createMssqlPool(null, connectionConfig), databaseClientConfig
                         ),
                         SqlClientType.Pool
                     )
@@ -166,7 +166,7 @@ abstract class TestsForAllRdbmsTypesAndAllClientTypesWithTestcontainers(
                 context("SqlConnection") {
                     tests(
                         DatabaseClient(
-                            createMssqlConnection(vertx, connectionConfig), exposedDatabase, databaseClientConfig
+                            createMssqlConnection(vertx, connectionConfig), databaseClientConfig
                         ),
                         SqlClientType.SqlConnection
                     )
