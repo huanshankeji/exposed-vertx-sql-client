@@ -93,18 +93,52 @@ internal val logger = LoggerFactory.getLogger(DatabaseClient::class.java)
  * @param VertxSqlClientT the type of Vert.x SQL client, which can be [SqlClient],
  *   [Pool], or [SqlConnection] or one of its database-specific subtypes.
  * @param vertxSqlClient the Vert.x SQL client used for executing queries.
- * @param exposedDatabase the Exposed [Database] used for SQL generation. This can be shared across multiple
- *   [DatabaseClient] instances for better performance.
+ * @param exposedTransactionProvider the provider for Exposed transactions used for SQL statement preparation.
+ *   This can be shared across multiple [DatabaseClient] instances for better performance.
  * @param config the configuration for this client, including SQL transformation and transaction settings.
  * @see DatabaseClientConfig
+ * @see ExposedTransactionProvider
  */
 @OptIn(ExperimentalApi::class)
+@ExperimentalEvscApi
 // TODO also consider adding `DatabaseClientConfig` as a type parameter and `PgDatabaseClientConfig` a subtype for specific dialect operations.
 class DatabaseClient<out VertxSqlClientT : SqlClient>(
     val vertxSqlClient: VertxSqlClientT,
-    val exposedDatabase: Database,
+    val exposedTransactionProvider: ExposedTransactionProvider,
     val config: DatabaseClientConfig
 ) : CoroutineAutoCloseable {
+    /**
+     * The Exposed [Database] used for SQL generation.
+     * 
+     * This property is available for backward compatibility and returns the database from the transaction provider
+     * if it's a [DatabaseExposedTransactionProvider], or null otherwise.
+     */
+    @Deprecated("Use exposedTransactionProvider instead. This property will be removed in a future version.")
+    val exposedDatabase: Database?
+        get() = (exposedTransactionProvider as? DatabaseExposedTransactionProvider)?.database
+
+    /**
+     * Secondary constructor that accepts an [Database] for backward compatibility.
+     *
+     * @param vertxSqlClient the Vert.x SQL client used for executing queries.
+     * @param exposedDatabase the Exposed [Database] used for SQL generation.
+     * @param config the configuration for this client.
+     */
+    @Deprecated(
+        "Use the primary constructor with ExposedTransactionProvider for better performance. " +
+                "Consider using DatabaseExposedTransactionProvider(database) or createJdbcTransactionExposedTransactionProvider(database).",
+        ReplaceWith("DatabaseClient(vertxSqlClient, DatabaseExposedTransactionProvider(exposedDatabase, config.statementPreparationExposedTransactionIsolationLevel), config)")
+    )
+    constructor(
+        vertxSqlClient: VertxSqlClientT,
+        exposedDatabase: Database,
+        config: DatabaseClientConfig
+    ) : this(
+        vertxSqlClient,
+        DatabaseExposedTransactionProvider(exposedDatabase, config.statementPreparationExposedTransactionIsolationLevel),
+        config
+    )
+
     companion object {
         /*
         private const val FUNCTION_TRANSFORMING_ROWS_USING_PREPARED_QUERY_MAPPING_DEPRECATED_MESSAGE =
@@ -117,6 +151,11 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
             "This function is buggy. The field expression set of the `fieldSet` parameter may be different from the those of the queries. Use the new overload without the `fieldSet` parameter instead."
     }
 
+    @Deprecated(
+        "The underlying clients are passed to the constructor and should be managed by the caller. " +
+                "Close the vertxSqlClient directly if needed.",
+        ReplaceWith("vertxSqlClient.close().coAwait()", "io.vertx.kotlin.coroutines.coAwait")
+    )
     override suspend fun close() {
         vertxSqlClient.close().coAwait()
         // How to close The Exposed `Database`?
@@ -136,13 +175,21 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     fun <T> exposedTransaction(statement: ExposedTransaction.() -> T) =
         exposedTransaction(statement = statement)
 
+    @Deprecated(
+        "Use exposedTransactionProvider instead, or get the database from exposedTransactionProvider if needed."
+    )
     fun <T> exposedTransaction(
         // default arguments copied from `transaction`
-        transactionIsolation: Int? = exposedDatabase/*?*/.transactionManager/*?*/.defaultIsolationLevel,
-        readOnly: Boolean? = exposedDatabase/*?*/.transactionManager/*?*/.defaultReadOnly,
+        transactionIsolation: Int? = exposedDatabase/*?*/?.transactionManager/*?*/?.defaultIsolationLevel,
+        readOnly: Boolean? = exposedDatabase/*?*/?.transactionManager/*?*/?.defaultReadOnly,
         statement: ExposedTransaction.() -> T
-    ) =
-        transaction(exposedDatabase, transactionIsolation, readOnly, statement)
+    ): T {
+        val db = exposedDatabase ?: throw IllegalStateException(
+            "exposedDatabase is not available when using JdbcTransactionExposedTransactionProvider. " +
+                    "Use exposedTransactionProvider.statementPreparationExposedTransaction instead."
+        )
+        return transaction(db, transactionIsolation, readOnly, statement)
+    }
 
     /**
      * @see DatabaseClientConfig.statementPreparationExposedTransactionIsolationLevel
@@ -150,7 +197,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     fun <T> statementPreparationExposedTransaction(
         statement: ExposedTransaction.() -> T
     ) =
-        transaction(exposedDatabase, config.statementPreparationExposedTransactionIsolationLevel, true, statement)
+        exposedTransactionProvider.statementPreparationExposedTransaction(statement)
 
     @Deprecated(
         "Renamed to `statementPreparationExposedTransaction`.",

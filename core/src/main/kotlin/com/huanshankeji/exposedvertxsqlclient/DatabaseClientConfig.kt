@@ -25,6 +25,9 @@ interface DatabaseClientConfig {
 
     /**
      * The transaction isolation level used in [transaction] in [DatabaseClient.statementPreparationExposedTransaction].
+     * 
+     * **Note:** This is only used when using [DatabaseExposedTransactionProvider]. When using
+     * [SharedJdbcTransactionExposedTransactionProvider], the isolation level is set when creating the provider.
      */
     val statementPreparationExposedTransactionIsolationLevel: Int?
 
@@ -37,6 +40,9 @@ interface DatabaseClientConfig {
      * Also see the parameters with `WithExposedTransaction` in their names, which default to this value.
      *
      * Enabling this option slightly degrades performance but reduces the likelihood of running into `java.lang.IllegalStateException: No transaction in context.`.
+     * 
+     * **Note:** When using [SharedJdbcTransactionExposedTransactionProvider], it's recommended to set this to `true`
+     * since the shared transaction is always available.
      */
     val autoExposedTransaction: Boolean
 
