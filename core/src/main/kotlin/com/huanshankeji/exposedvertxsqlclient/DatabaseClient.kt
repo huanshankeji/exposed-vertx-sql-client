@@ -104,7 +104,7 @@ internal val logger = LoggerFactory.getLogger(DatabaseClient::class.java)
 // TODO also consider adding `DatabaseClientConfig` as a type parameter and `PgDatabaseClientConfig` a subtype for specific dialect operations.
 class DatabaseClient<out VertxSqlClientT : SqlClient>(
     val vertxSqlClient: VertxSqlClientT,
-    val exposedTransactionProvider: ExposedTransactionProvider,
+    val exposedTransactionProvider: StatementPreparationExposedTransactionProvider,
     val config: DatabaseClientConfig
 ) : CoroutineAutoCloseable {
     /**
@@ -126,7 +126,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
      */
     @Deprecated(
         "Use the primary constructor with ExposedTransactionProvider for better performance. " +
-                "Consider using DatabaseExposedTransactionProvider(database, config.statementPreparationExposedTransactionIsolationLevel) or SharedJdbcTransactionExposedTransactionProvider(database, isolationLevel).",
+                "Consider using DatabaseExposedTransactionProvider(database, config.statementPreparationExposedTransactionIsolationLevel) or JdbcTransactionExposedTransactionProvider(database, isolationLevel).",
         ReplaceWith("DatabaseClient(vertxSqlClient, DatabaseExposedTransactionProvider(exposedDatabase, config.statementPreparationExposedTransactionIsolationLevel), config)")
     )
     constructor(
@@ -180,12 +180,12 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     )
     fun <T> exposedTransaction(
         // default arguments copied from `transaction`
-        transactionIsolation: Int? = exposedDatabase/*?*/?.transactionManager/*?*/?.defaultIsolationLevel,
-        readOnly: Boolean? = exposedDatabase/*?*/?.transactionManager/*?*/?.defaultReadOnly,
+        transactionIsolation: Int? = exposedDatabase?.transactionManager?.defaultIsolationLevel,
+        readOnly: Boolean? = exposedDatabase?.transactionManager?.defaultReadOnly,
         statement: ExposedTransaction.() -> T
     ): T {
         val db = exposedDatabase ?: throw IllegalStateException(
-            "exposedDatabase is not available when using SharedJdbcTransactionExposedTransactionProvider. " +
+            "exposedDatabase is not available when using JdbcTransactionExposedTransactionProvider. " +
                     "Use exposedTransactionProvider.statementPreparationExposedTransaction instead."
         )
         return transaction(db, transactionIsolation, readOnly, statement)
@@ -452,7 +452,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     ): Sequence<SqlResultT> {
         //if (data.none()) return emptySequence() // This causes "java.lang.IllegalStateException: This sequence can be consumed only once." when `data` is a `ConstrainedOnceSequence`.
 
-        val (sql, argTuples) = statementPreparationExposedTransaction {
+        val (sqlNullable, argTuples) = statementPreparationExposedTransaction {
             var sql: String? = null
             //var argumentTypes: List<IColumnType>? = null
 
@@ -487,10 +487,10 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
             sql to argTuples
         }
 
-        if (sql === null)
+        if (sqlNullable === null)
             return emptySequence()
 
-        val vertxSqlClientSql = config.transformPreparedSql(sql)
+        val vertxSqlClientSql = config.transformPreparedSql(sqlNullable)
         return vertxSqlClient.preparedQuery(vertxSqlClientSql)
             .transformQuery()
             .executeBatchAwaitForSqlResultSequence(argTuples)
