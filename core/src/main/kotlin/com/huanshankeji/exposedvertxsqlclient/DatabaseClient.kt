@@ -88,36 +88,67 @@ internal val logger = LoggerFactory.getLogger(DatabaseClient::class.java)
 /**
  * The main entry point for executing database operations using Vert.x SQL Client with Exposed SQL generation.
  *
- * This client wraps a Vert.x [SqlClient] for reactive query execution and an Exposed [Database] for SQL generation,
+ * This client wraps a Vert.x [SqlClient] for reactive query execution and uses Exposed for SQL generation,
  * combining the type-safe SQL DSL of Exposed with the reactive, non-blocking capabilities of Vert.x.
  *
  * @param VertxSqlClientT the type of Vert.x SQL client, which can be [SqlClient],
  *   [Pool], or [SqlConnection] or one of its database-specific subtypes.
  * @param vertxSqlClient the Vert.x SQL client used for executing queries.
- * @param statementPreparationExposedTransactionProvider the provider for Exposed transactions used for SQL statement preparation.
- *   This can be shared across multiple [DatabaseClient] instances for better performance.
- * @param config the configuration for this client, including SQL transformation and transaction settings.
+ * @param config the configuration for this client, including SQL transformation, transaction settings,
+ *   and the transaction provider for SQL statement preparation.
  * @see DatabaseClientConfig
- * @see ExposedTransactionProvider
+ * @see StatementPreparationExposedTransactionProvider
  */
 @OptIn(ExperimentalApi::class)
 @ExperimentalEvscApi
 // TODO also consider adding `DatabaseClientConfig` as a type parameter and `PgDatabaseClientConfig` a subtype for specific dialect operations.
 class DatabaseClient<out VertxSqlClientT : SqlClient>(
     val vertxSqlClient: VertxSqlClientT,
-    val statementPreparationExposedTransactionProvider: StatementPreparationExposedTransactionProvider,
     val config: DatabaseClientConfig
 ) : CoroutineAutoCloseable,
-    StatementPreparationExposedTransactionProvider by statementPreparationExposedTransactionProvider {
+    StatementPreparationExposedTransactionProvider by config.statementPreparationExposedTransactionProvider {
+    
+    /**
+     * Secondary constructor that accepts a separate transaction provider for backward compatibility.
+     *
+     * @param vertxSqlClient the Vert.x SQL client used for executing queries.
+     * @param statementPreparationExposedTransactionProvider the provider for Exposed transactions.
+     * @param config the configuration for this client.
+     * @deprecated Use the primary constructor with the provider in config instead.
+     */
+    @Deprecated(
+        "Use the primary constructor with statementPreparationExposedTransactionProvider in config. " +
+                "Pass the provider when creating the config via database-specific config functions like PgDatabaseClientConfig(exposedDatabase, statementPreparationExposedTransactionProvider = provider).",
+        ReplaceWith("DatabaseClient(vertxSqlClient, config)")
+    )
+    constructor(
+        vertxSqlClient: VertxSqlClientT,
+        statementPreparationExposedTransactionProvider: StatementPreparationExposedTransactionProvider,
+        config: DatabaseClientConfig
+    ) : this(
+        vertxSqlClient,
+        // Create a new config with the provided transaction provider
+        @Suppress("DEPRECATION")
+        DatabaseClientConfig(
+            validateBatch = config.validateBatch,
+            logSql = config.logSql,
+            statementPreparationExposedTransactionIsolationLevel = config.statementPreparationExposedTransactionIsolationLevel,
+            autoExposedTransaction = config.autoExposedTransaction,
+            statementPreparationExposedTransactionProvider = statementPreparationExposedTransactionProvider,
+            exposedDatabase = null,
+            exposedPreparedSqlToVertxSqlClientPreparedSql = config::transformPreparedSql
+        )
+    )
+    
     /**
      * The Exposed [Database] used for SQL generation.
      * 
      * This property is available for backward compatibility and returns the database from the transaction provider
      * if it's a [DatabaseExposedTransactionProvider], or null otherwise.
      */
-    @Deprecated("Use exposedTransactionProvider instead. This property will be removed in a future version.")
+    @Deprecated("Use config.statementPreparationExposedTransactionProvider instead. This property will be removed in a future version.")
     val exposedDatabase: Database?
-        get() = (statementPreparationExposedTransactionProvider as? DatabaseExposedTransactionProvider)?.database
+        get() = (config.statementPreparationExposedTransactionProvider as? DatabaseExposedTransactionProvider)?.database
 
     /**
      * Secondary constructor that accepts an [Database] for backward compatibility.

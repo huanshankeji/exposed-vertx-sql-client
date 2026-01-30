@@ -48,7 +48,7 @@ abstract class TestsForAllRdbmsTypesAndAllClientTypesWithTestcontainers(
             val postgresqlContainer = install(TestContainerSpecExtension(LatestPostgreSQLContainer()))
             val connectionConfig = postgresqlContainer.connectionConfig()
             val exposedDatabase = connectionConfig.exposedDatabaseConnectPostgresql()
-            val databaseClientConfig = PgDatabaseClientConfig()
+            val databaseClientConfig = PgDatabaseClientConfig(exposedDatabase)
             suspend fun FunSpecContainerScope.tests(databaseClient: DatabaseClient<*>, sqlClientType: SqlClientType) =
                 tests(databaseClient, RdbmsType.Postgresql, sqlClientType)
             if (SqlClientType.Client in enabledSqlClientTypes)
@@ -56,7 +56,7 @@ abstract class TestsForAllRdbmsTypesAndAllClientTypesWithTestcontainers(
                     // TODO Also consider closing the clients. This isn't a big issue now though.
                     tests(
                         DatabaseClient(
-                            createPgClient(null, connectionConfig), exposedDatabase, databaseClientConfig
+                            createPgClient(null, connectionConfig), databaseClientConfig
                         ),
                         SqlClientType.Client
                     )
@@ -65,7 +65,7 @@ abstract class TestsForAllRdbmsTypesAndAllClientTypesWithTestcontainers(
                 context("Pool") {
                     tests(
                         DatabaseClient(
-                            createPgPool(null, connectionConfig), exposedDatabase, databaseClientConfig
+                            createPgPool(null, connectionConfig), databaseClientConfig
                         ),
                         SqlClientType.Pool
                     )
@@ -74,7 +74,7 @@ abstract class TestsForAllRdbmsTypesAndAllClientTypesWithTestcontainers(
                 context("SqlConnection") {
                     tests(
                         DatabaseClient(
-                            createPgConnection(vertx, connectionConfig), exposedDatabase, databaseClientConfig
+                            createPgConnection(vertx, connectionConfig), databaseClientConfig
                         ),
                         SqlClientType.SqlConnection
                     )
@@ -85,7 +85,7 @@ abstract class TestsForAllRdbmsTypesAndAllClientTypesWithTestcontainers(
             val mysqlContainer = install(TestContainerSpecExtension(LatestMySQLContainer()))
             val connectionConfig = mysqlContainer.connectionConfig()
             val exposedDatabase = connectionConfig.exposedDatabaseConnectMysql()
-            val databaseClientConfig = MysqlDatabaseClientConfig()
+            val databaseClientConfig = MysqlDatabaseClientConfig(exposedDatabase)
             suspend fun FunSpecContainerScope.tests(databaseClient: DatabaseClient<*>, sqlClientType: SqlClientType) =
                 tests(databaseClient, RdbmsType.Mysql, sqlClientType)
             if (SqlClientType.Client in enabledSqlClientTypes)

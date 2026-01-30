@@ -83,7 +83,7 @@ suspend fun <RollbackResult, CommitResult> DatabaseClient<Pool>.withTransactionE
 suspend fun <T> DatabaseClient<Pool>.withTransaction(function: suspend (DatabaseClient<SqlConnection>) -> T): T =
     coroutineScope {
         vertxSqlClient.withTransaction {
-            coroutineToFuture { function(DatabaseClient(it, statementPreparationExposedTransactionProvider, config)) }
+            coroutineToFuture { function(DatabaseClient(it, config)) }
         }.coAwait()
     }
 
