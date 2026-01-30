@@ -45,7 +45,7 @@ interface DatabaseClientConfig {
      * Enabling this option slightly degrades performance but reduces the likelihood of running into `java.lang.IllegalStateException: No transaction in context.`.
      * 
      * **Note:** When using [JdbcTransactionExposedTransactionProvider], it's recommended to set this to `true`
-     * since the JDBC transaction is always available.
+     * since the transaction overhead is minimal.
      */
     val autoExposedTransaction: Boolean
 

@@ -26,6 +26,7 @@ import kotlin.Deprecated
 import kotlin.DeprecationLevel
 import kotlin.Exception
 import kotlin.IllegalArgumentException
+import kotlin.IllegalStateException
 import kotlin.Int
 import kotlin.NotImplementedError
 import kotlin.OptIn
@@ -93,7 +94,7 @@ internal val logger = LoggerFactory.getLogger(DatabaseClient::class.java)
  * @param VertxSqlClientT the type of Vert.x SQL client, which can be [SqlClient],
  *   [Pool], or [SqlConnection] or one of its database-specific subtypes.
  * @param vertxSqlClient the Vert.x SQL client used for executing queries.
- * @param exposedTransactionProvider the provider for Exposed transactions used for SQL statement preparation.
+ * @param statementPreparationExposedTransactionProvider the provider for Exposed transactions used for SQL statement preparation.
  *   This can be shared across multiple [DatabaseClient] instances for better performance.
  * @param config the configuration for this client, including SQL transformation and transaction settings.
  * @see DatabaseClientConfig
@@ -104,9 +105,10 @@ internal val logger = LoggerFactory.getLogger(DatabaseClient::class.java)
 // TODO also consider adding `DatabaseClientConfig` as a type parameter and `PgDatabaseClientConfig` a subtype for specific dialect operations.
 class DatabaseClient<out VertxSqlClientT : SqlClient>(
     val vertxSqlClient: VertxSqlClientT,
-    val exposedTransactionProvider: StatementPreparationExposedTransactionProvider,
+    val statementPreparationExposedTransactionProvider: StatementPreparationExposedTransactionProvider,
     val config: DatabaseClientConfig
-) : CoroutineAutoCloseable {
+) : CoroutineAutoCloseable,
+    StatementPreparationExposedTransactionProvider by statementPreparationExposedTransactionProvider {
     /**
      * The Exposed [Database] used for SQL generation.
      * 
@@ -115,7 +117,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
      */
     @Deprecated("Use exposedTransactionProvider instead. This property will be removed in a future version.")
     val exposedDatabase: Database?
-        get() = (exposedTransactionProvider as? DatabaseExposedTransactionProvider)?.database
+        get() = (statementPreparationExposedTransactionProvider as? DatabaseExposedTransactionProvider)?.database
 
     /**
      * Secondary constructor that accepts an [Database] for backward compatibility.
@@ -135,7 +137,10 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
         config: DatabaseClientConfig
     ) : this(
         vertxSqlClient,
-        DatabaseExposedTransactionProvider(exposedDatabase, config.statementPreparationExposedTransactionIsolationLevel),
+        DatabaseExposedTransactionProvider(
+            exposedDatabase,
+            config.statementPreparationExposedTransactionIsolationLevel
+        ),
         config
     )
 
@@ -176,7 +181,8 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
         exposedTransaction(statement = statement)
 
     @Deprecated(
-        "Use exposedTransactionProvider instead, or get the database from exposedTransactionProvider if needed."
+        "This class no longer wraps an Exposed `Database`. Use the `transaction` API from Exposed directly.",
+        ReplaceWith("transaction(this.exposedDatabase, transactionIsolation, readOnly, statement)")
     )
     fun <T> exposedTransaction(
         // default arguments copied from `transaction`
@@ -190,14 +196,6 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
         )
         return transaction(db, transactionIsolation, readOnly, statement)
     }
-
-    /**
-     * @see DatabaseClientConfig.statementPreparationExposedTransactionIsolationLevel
-     */
-    fun <T> statementPreparationExposedTransaction(
-        statement: ExposedTransaction.() -> T
-    ) =
-        exposedTransactionProvider.statementPreparationExposedTransaction(statement)
 
     @Deprecated(
         "Renamed to `statementPreparationExposedTransaction`.",
@@ -273,7 +271,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
         statement: Statement<*>,
         transformQuery: PreparedQuery<RowSet<Row>>.() -> PreparedQuery<SqlResultT>
     ): SqlResultT {
-        val (sql, argTuple) = statementPreparationExposedTransaction {
+        val (sql, argTuple) = withExplicitOnlyStatementPreparationExposedTransaction {
             config.transformPreparedSql(statement.prepareSqlAndLogIfNeeded(this)) to
                     statement.getVertxSqlClientArgTuple()
         }
@@ -452,7 +450,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     ): Sequence<SqlResultT> {
         //if (data.none()) return emptySequence() // This causes "java.lang.IllegalStateException: This sequence can be consumed only once." when `data` is a `ConstrainedOnceSequence`.
 
-        val (sqlNullable, argTuples) = statementPreparationExposedTransaction {
+        val (sql, argTuples) = withExplicitOnlyStatementPreparationExposedTransaction {
             var sql: String? = null
             //var argumentTypes: List<IColumnType>? = null
 
@@ -487,10 +485,10 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
             sql to argTuples
         }
 
-        if (sqlNullable === null)
+        if (sql === null)
             return emptySequence()
 
-        val vertxSqlClientSql = config.transformPreparedSql(sqlNullable)
+        val vertxSqlClientSql = config.transformPreparedSql(sql)
         return vertxSqlClient.preparedQuery(vertxSqlClientSql)
             .transformQuery()
             .executeBatchAwaitForSqlResultSequence(argTuples)
