@@ -49,9 +49,9 @@ class DatabaseExposedTransactionProvider(
  * This approach provides better performance by avoiding the overhead of creating a new transaction
  * for each SQL preparation call. The transaction is created once and reused across multiple SQL preparations.
  *
- * **Note:** The transaction's connection should be disconnected after creation since it's only
- * used for SQL generation, not for actual database operations. The transaction instance members
- * needed for SQL preparation remain usable even after the connection is disconnected.
+ * **Note:** The transaction instance members needed for SQL preparation remain usable even after
+ * the underlying connection is not actively used. The transaction is created in a read-only mode
+ * suitable for SQL generation.
  *
  * @param database the Exposed [Database] to use for creating the shared transaction
  * @param isolationLevel the transaction isolation level, defaults to [Connection.TRANSACTION_READ_UNCOMMITTED]
@@ -63,9 +63,8 @@ class SharedJdbcTransactionExposedTransactionProvider(
 ) : ExposedTransactionProvider {
     private val sharedTransaction: JdbcTransaction = 
         transaction(database, isolationLevel, true) {
-            // Get the current transaction and store it
-            // Close the connection since we only need the transaction for SQL preparation
-            connection.close()
+            // Store reference to the current transaction for reuse
+            // The transaction members needed for SQL preparation are still usable
             this
         }
 
