@@ -49,6 +49,11 @@ class DatabaseExposedTransactionProvider(
  * This approach provides better performance by avoiding the overhead of creating a new transaction
  * for each SQL preparation call. The transaction is created once and reused across multiple SQL preparations.
  *
+ * **Thread safety:** The shared transaction is used only for SQL statement preparation (via `prepareSQL`),
+ * which is typically a read-only operation on Exposed's internal structures. However, if you plan to use
+ * this provider concurrently from multiple threads, ensure that the operations performed within
+ * [statementPreparationExposedTransaction] are thread-safe.
+ *
  * **Note:** The transaction instance members needed for SQL preparation remain usable even after
  * the underlying connection is not actively used. The transaction is created in a read-only mode
  * suitable for SQL generation.

@@ -126,7 +126,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
      */
     @Deprecated(
         "Use the primary constructor with ExposedTransactionProvider for better performance. " +
-                "Consider using DatabaseExposedTransactionProvider(database) or createJdbcTransactionExposedTransactionProvider(database).",
+                "Consider using DatabaseExposedTransactionProvider(database, config.statementPreparationExposedTransactionIsolationLevel) or SharedJdbcTransactionExposedTransactionProvider(database, isolationLevel).",
         ReplaceWith("DatabaseClient(vertxSqlClient, DatabaseExposedTransactionProvider(exposedDatabase, config.statementPreparationExposedTransactionIsolationLevel), config)")
     )
     constructor(
@@ -185,7 +185,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
         statement: ExposedTransaction.() -> T
     ): T {
         val db = exposedDatabase ?: throw IllegalStateException(
-            "exposedDatabase is not available when using JdbcTransactionExposedTransactionProvider. " +
+            "exposedDatabase is not available when using SharedJdbcTransactionExposedTransactionProvider. " +
                     "Use exposedTransactionProvider.statementPreparationExposedTransaction instead."
         )
         return transaction(db, transactionIsolation, readOnly, statement)

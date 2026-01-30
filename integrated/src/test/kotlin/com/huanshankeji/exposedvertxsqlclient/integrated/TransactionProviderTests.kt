@@ -35,6 +35,10 @@ class TransactionProviderTests : FunSpec({
     }
 
     context("SharedJdbcTransactionExposedTransactionProvider") {
+        // Note: The provider holds a shared transaction that was created during initialization.
+        // In this test, the connection is managed by the transaction() block in the provider's constructor,
+        // which commits and closes the connection when the block completes. The transaction object
+        // itself remains usable for SQL preparation purposes.
         val provider = SharedJdbcTransactionExposedTransactionProvider(exposedDatabase)
         val databaseClient = DatabaseClient(
             createPgPool(null, connectionConfig),
