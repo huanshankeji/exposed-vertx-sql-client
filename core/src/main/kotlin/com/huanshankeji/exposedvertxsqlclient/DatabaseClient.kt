@@ -109,37 +109,6 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     StatementPreparationExposedTransactionProvider by config.statementPreparationExposedTransactionProvider {
 
     /**
-     * Secondary constructor that accepts a separate transaction provider for backward compatibility.
-     *
-     * @param vertxSqlClient the Vert.x SQL client used for executing queries.
-     * @param statementPreparationExposedTransactionProvider the provider for Exposed transactions.
-     * @param config the configuration for this client.
-     * @deprecated Use the primary constructor with the provider in config instead.
-     */
-    @Deprecated(
-        "Use the primary constructor with statementPreparationExposedTransactionProvider in config. " +
-                "Pass the provider when creating the config via database-specific config functions like PgDatabaseClientConfig(exposedDatabase, statementPreparationExposedTransactionProvider = provider).",
-        ReplaceWith("DatabaseClient(vertxSqlClient, config)")
-    )
-    constructor(
-        vertxSqlClient: VertxSqlClientT,
-        statementPreparationExposedTransactionProvider: StatementPreparationExposedTransactionProvider,
-        config: DatabaseClientConfig
-    ) : this(
-        vertxSqlClient,
-        // Create a new config with the provided transaction provider
-        @Suppress("DEPRECATION")
-        DatabaseClientConfig(
-            validateBatch = config.validateBatch,
-            logSql = config.logSql,
-            statementPreparationExposedTransactionIsolationLevel = config.statementPreparationExposedTransactionIsolationLevel,
-            autoExposedTransaction = config.autoExposedTransaction,
-            statementPreparationExposedTransactionProvider = statementPreparationExposedTransactionProvider,
-            exposedPreparedSqlToVertxSqlClientPreparedSql = config::transformPreparedSql
-        )
-    )
-
-    /**
      * The Exposed [Database] used for SQL generation.
      * 
      * This property is available for backward compatibility and returns the database from the transaction provider
@@ -157,9 +126,9 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
      * @param config the configuration for this client.
      */
     @Deprecated(
-        "Use the primary constructor with ExposedTransactionProvider for better performance. " +
-                "Consider using DatabaseExposedTransactionProvider(database, config.statementPreparationExposedTransactionIsolationLevel) or JdbcTransactionExposedTransactionProvider(database, isolationLevel).",
-        ReplaceWith("DatabaseClient(vertxSqlClient, DatabaseExposedTransactionProvider(exposedDatabase, config.statementPreparationExposedTransactionIsolationLevel), config)")
+        "Use the primary constructor with a transaction provider in config. " +
+                "Create a config with PgDatabaseClientConfig(JdbcTransactionExposedTransactionProvider(exposedDatabase)) or similar for your database.",
+        ReplaceWith("DatabaseClient(vertxSqlClient, PgDatabaseClientConfig(JdbcTransactionExposedTransactionProvider(exposedDatabase)))")
     )
     constructor(
         vertxSqlClient: VertxSqlClientT,
@@ -167,11 +136,18 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
         config: DatabaseClientConfig
     ) : this(
         vertxSqlClient,
-        DatabaseExposedTransactionProvider(
-            exposedDatabase,
-            config.statementPreparationExposedTransactionIsolationLevel
-        ),
-        config
+        @Suppress("DEPRECATION")
+        DatabaseClientConfig(
+            DatabaseExposedTransactionProvider(
+                exposedDatabase,
+                config.statementPreparationExposedTransactionIsolationLevel
+            ),
+            config.validateBatch,
+            config.logSql,
+            config.statementPreparationExposedTransactionIsolationLevel,
+            config.autoExposedTransaction,
+            config::transformPreparedSql
+        )
     )
 
     companion object {

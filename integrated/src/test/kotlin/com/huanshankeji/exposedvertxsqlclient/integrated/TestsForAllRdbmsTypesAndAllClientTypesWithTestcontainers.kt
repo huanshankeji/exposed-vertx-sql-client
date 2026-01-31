@@ -48,7 +48,7 @@ abstract class TestsForAllRdbmsTypesAndAllClientTypesWithTestcontainers(
             val postgresqlContainer = install(TestContainerSpecExtension(LatestPostgreSQLContainer()))
             val connectionConfig = postgresqlContainer.connectionConfig()
             val exposedDatabase = connectionConfig.exposedDatabaseConnectPostgresql()
-            val databaseClientConfig = PgDatabaseClientConfig(exposedDatabase)
+            val databaseClientConfig = PgDatabaseClientConfig(JdbcTransactionExposedTransactionProvider(exposedDatabase))
             suspend fun FunSpecContainerScope.tests(databaseClient: DatabaseClient<*>, sqlClientType: SqlClientType) =
                 tests(databaseClient, RdbmsType.Postgresql, sqlClientType)
             if (SqlClientType.Client in enabledSqlClientTypes)
