@@ -2,7 +2,7 @@ import com.huanshankeji.CommonDependencies
 import com.huanshankeji.CommonGradleClasspathDependencies
 import com.huanshankeji.CommonVersions
 
-val projectVersion = "0.7.1-SNAPSHOT"
+val projectVersion = "0.8.0-SNAPSHOT"
 
 // don't use a snapshot version in a main branch
 // Note that there is another Exposed version in the version catalog
