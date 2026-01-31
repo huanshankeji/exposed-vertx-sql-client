@@ -100,6 +100,9 @@ class JdbcTransactionExposedTransactionProvider(
         // Call statement directly on the transaction - it will be executed in the transaction context
         withThreadLocalTransaction(jdbcTransaction) { jdbcTransaction.block() }
 
+    @OptIn(InternalApi::class)
     override fun <T> withExplicitOnlyStatementPreparationExposedTransaction(block: ExposedTransaction.() -> T): T =
-        jdbcTransaction.block()
+        // Need to use withThreadLocalTransaction because prepareSQL internally accesses the current dialect
+        // which requires the transaction to be in the thread-local context
+        withThreadLocalTransaction(jdbcTransaction) { jdbcTransaction.block() }
 }
