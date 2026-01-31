@@ -15,6 +15,14 @@ import java.sql.Connection
  */
 interface DatabaseClientConfig {
     /**
+     * The provider for Exposed transactions used for SQL statement preparation.
+     * This can be shared across multiple [DatabaseClient] instances for better performance.
+     *
+     * Defaults to [JdbcTransactionExposedTransactionProvider] for optimal performance.
+     */
+    val statementPreparationExposedTransactionProvider: StatementPreparationExposedTransactionProvider
+
+    /**
      * Whether to validate whether the batch statements have the same generated prepared SQL.
      * It's recommended to keep this enabled for tests but disabled for production.
      * Actual performance implications as tested are insignificant.
@@ -51,14 +59,6 @@ interface DatabaseClientConfig {
     val autoExposedTransaction: Boolean
 
     /**
-     * The provider for Exposed transactions used for SQL statement preparation.
-     * This can be shared across multiple [DatabaseClient] instances for better performance.
-     * 
-     * Defaults to [JdbcTransactionExposedTransactionProvider] for optimal performance.
-     */
-    val statementPreparationExposedTransactionProvider: StatementPreparationExposedTransactionProvider
-
-    /**
      * Transform Exposed's prepared SQL to Vert.x SQL Client's prepared SQL.
      */
     fun transformPreparedSql(exposedPreparedSql: String): String
@@ -72,28 +72,26 @@ interface DatabaseClientConfig {
  * @param exposedDatabase the Exposed [Database] to use for creating the default transaction provider if
  *   [statementPreparationExposedTransactionProvider] is not provided. Required if provider is not specified.
  */
+@OptIn(ExperimentalEvscApi::class)
 inline fun DatabaseClientConfig(
+    statementPreparationExposedTransactionProvider: StatementPreparationExposedTransactionProvider,
     // TODO consider adding a `isProduction` parameter whose default depends on the runtime
     validateBatch: Boolean = true,
     logSql: Boolean = false,
-    @Suppress("DEPRECATION")
     statementPreparationExposedTransactionIsolationLevel: Int? = Connection.TRANSACTION_READ_UNCOMMITTED,
     autoExposedTransaction: Boolean = false,
-    statementPreparationExposedTransactionProvider: StatementPreparationExposedTransactionProvider? = null,
-    exposedDatabase: Database? = null,
     crossinline exposedPreparedSqlToVertxSqlClientPreparedSql: (preparedSql: String) -> String
 ) =
     object : DatabaseClientConfig {
+        override val statementPreparationExposedTransactionProvider: StatementPreparationExposedTransactionProvider =
+            statementPreparationExposedTransactionProvider
         override val validateBatch: Boolean = validateBatch
         override val logSql: Boolean = logSql
-        @Suppress("DEPRECATION")
+
+        @Deprecated("Use transactionIsolation parameter in DatabaseExposedTransactionProvider instead.")
         override val statementPreparationExposedTransactionIsolationLevel: Int? =
             statementPreparationExposedTransactionIsolationLevel
         override val autoExposedTransaction: Boolean = autoExposedTransaction
-        override val statementPreparationExposedTransactionProvider: StatementPreparationExposedTransactionProvider =
-            statementPreparationExposedTransactionProvider
-                ?: exposedDatabase?.let { JdbcTransactionExposedTransactionProvider(it) }
-                ?: throw IllegalArgumentException("Either statementPreparationExposedTransactionProvider or exposedDatabase must be provided")
         override fun transformPreparedSql(exposedPreparedSql: String): String =
             exposedPreparedSqlToVertxSqlClientPreparedSql(exposedPreparedSql)
     }

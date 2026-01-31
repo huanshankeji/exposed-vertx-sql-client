@@ -107,7 +107,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     val config: DatabaseClientConfig
 ) : CoroutineAutoCloseable,
     StatementPreparationExposedTransactionProvider by config.statementPreparationExposedTransactionProvider {
-    
+
     /**
      * Secondary constructor that accepts a separate transaction provider for backward compatibility.
      *
@@ -135,11 +135,10 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
             statementPreparationExposedTransactionIsolationLevel = config.statementPreparationExposedTransactionIsolationLevel,
             autoExposedTransaction = config.autoExposedTransaction,
             statementPreparationExposedTransactionProvider = statementPreparationExposedTransactionProvider,
-            exposedDatabase = null,
             exposedPreparedSqlToVertxSqlClientPreparedSql = config::transformPreparedSql
         )
     )
-    
+
     /**
      * The Exposed [Database] used for SQL generation.
      * 
