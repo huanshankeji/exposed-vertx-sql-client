@@ -111,7 +111,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
      * The Exposed [Database] used for SQL generation.
      * 
      * This property is available for backward compatibility and returns the database from the transaction provider
-     * if it's a [DatabaseExposedTransactionProvider], or null otherwise.
+     * if it's a [DatabaseExposedTransactionProvider], or throws otherwise.
      */
     @Deprecated("Use config.statementPreparationExposedTransactionProvider instead. This property will be removed in a future version.")
     val exposedDatabase: Database
