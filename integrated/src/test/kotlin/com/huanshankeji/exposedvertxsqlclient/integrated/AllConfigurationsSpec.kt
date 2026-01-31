@@ -25,6 +25,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.spec.style.scopes.FunSpecContainerScope
 import io.kotest.extensions.testcontainers.TestContainerSpecExtension
 import io.vertx.core.Vertx
+import org.jetbrains.exposed.v1.jdbc.Database
 import java.util.*
 
 @OptIn(ExperimentalEvscApi::class)
@@ -45,28 +46,32 @@ abstract class AllConfigurationsSpec(
     // This causes passing tests to fail. Not sure why.
     //testExecutionMode = TestExecutionMode.Concurrent
 
+    suspend fun FunSpecContainerScope.testsForAllProviderTypes(
+        exposedDatabase: Database,
+        tests: suspend FunSpecContainerScope.(statementPreparationExposedTransactionProvider: StatementPreparationExposedTransactionProvider) -> Unit
+    ) {
+        for (providerType in enabledStatementPreparationExposedTransactionProviderTypes) {
+            when (providerType) {
+                StatementPreparationExposedTransactionProviderType.Database ->
+                    context("DatabaseExposedTransactionProvider") {
+                        tests(DatabaseExposedTransactionProvider(exposedDatabase))
+                    }
+
+                StatementPreparationExposedTransactionProviderType.JdbcTransaction ->
+                    context("JdbcTransactionExposedTransactionProvider") {
+                        tests(JdbcTransactionExposedTransactionProvider(exposedDatabase))
+                    }
+            }
+        }
+    }
+
     // TODO consider not running all tests against all kinds of `SqlClient`s to save some time
     if (RdbmsType.Postgresql in enabledRdbmsTypes)
         context("PostgreSQL") {
             val postgresqlContainer = install(TestContainerSpecExtension(LatestPostgreSQLContainer()))
             val connectionConfig = postgresqlContainer.connectionConfig()
             val exposedDatabase = connectionConfig.exposedDatabaseConnectPostgresql()
-            suspend fun FunSpecContainerScope.testsForAllProviderTypes(tests: suspend FunSpecContainerScope.(statementPreparationExposedTransactionProvider: StatementPreparationExposedTransactionProvider) -> Unit) {
-                for (providerType in enabledStatementPreparationExposedTransactionProviderTypes) {
-                    when (providerType) {
-                        StatementPreparationExposedTransactionProviderType.Database ->
-                            context("DatabaseExposedTransactionProvider") {
-                                tests(DatabaseExposedTransactionProvider(exposedDatabase))
-                            }
-
-                        StatementPreparationExposedTransactionProviderType.JdbcTransaction ->
-                            context("JdbcTransactionExposedTransactionProvider") {
-                                tests(JdbcTransactionExposedTransactionProvider(exposedDatabase))
-                            }
-                    }
-                }
-            }
-            testsForAllProviderTypes { statementPreparationExposedTransactionProvider ->
+            testsForAllProviderTypes(exposedDatabase) { statementPreparationExposedTransactionProvider ->
                 val databaseClientConfig = PgDatabaseClientConfig(statementPreparationExposedTransactionProvider)
                 suspend fun FunSpecContainerScope.tests(
                     databaseClient: DatabaseClient<*>, sqlClientType: SqlClientType
@@ -107,63 +112,73 @@ abstract class AllConfigurationsSpec(
             val mysqlContainer = install(TestContainerSpecExtension(LatestMySQLContainer()))
             val connectionConfig = mysqlContainer.connectionConfig()
             val exposedDatabase = connectionConfig.exposedDatabaseConnectMysql()
-            val databaseClientConfig = MysqlDatabaseClientConfig(exposedDatabase)
-            suspend fun FunSpecContainerScope.tests(databaseClient: DatabaseClient<*>, sqlClientType: SqlClientType) =
-                tests(databaseClient, RdbmsType.Mysql, sqlClientType)
-            if (SqlClientType.Client in enabledSqlClientTypes)
-                context("Client") {
-                    tests(
-                        DatabaseClient(
-                            createMysqlClient(null, connectionConfig), databaseClientConfig
-                        ),
-                        SqlClientType.Client
-                    )
-                }
-            if (SqlClientType.Pool in enabledSqlClientTypes)
-                context("Pool") {
-                    tests(
-                        DatabaseClient(
-                            createMysqlPool(null, connectionConfig), databaseClientConfig
-                        ),
-                        SqlClientType.Pool
-                    )
-                }
-            if (SqlClientType.SqlConnection in enabledSqlClientTypes)
-                context("SqlConnection") {
-                    tests(
-                        DatabaseClient(
-                            createMysqlConnection(vertx, connectionConfig), databaseClientConfig
-                        ),
-                        SqlClientType.SqlConnection
-                    )
-                }
+            testsForAllProviderTypes(exposedDatabase) { statementPreparationExposedTransactionProvider ->
+                val databaseClientConfig = MysqlDatabaseClientConfig(statementPreparationExposedTransactionProvider)
+                suspend fun FunSpecContainerScope.tests(
+                    databaseClient: DatabaseClient<*>,
+                    sqlClientType: SqlClientType
+                ) =
+                    tests(databaseClient, RdbmsType.Mysql, sqlClientType)
+                if (SqlClientType.Client in enabledSqlClientTypes)
+                    context("Client") {
+                        tests(
+                            DatabaseClient(
+                                createMysqlClient(null, connectionConfig), databaseClientConfig
+                            ),
+                            SqlClientType.Client
+                        )
+                    }
+                if (SqlClientType.Pool in enabledSqlClientTypes)
+                    context("Pool") {
+                        tests(
+                            DatabaseClient(
+                                createMysqlPool(null, connectionConfig), databaseClientConfig
+                            ),
+                            SqlClientType.Pool
+                        )
+                    }
+                if (SqlClientType.SqlConnection in enabledSqlClientTypes)
+                    context("SqlConnection") {
+                        tests(
+                            DatabaseClient(
+                                createMysqlConnection(vertx, connectionConfig), databaseClientConfig
+                            ),
+                            SqlClientType.SqlConnection
+                        )
+                    }
+            }
         }
     if (RdbmsType.Oracle in enabledRdbmsTypes)
         context("Oracle") {
             val oracleContainer = install(TestContainerSpecExtension(LatestOracleContainer()))
             val connectionConfig = oracleContainer.connectionConfig()
             val exposedDatabase = connectionConfig.exposedDatabaseConnectOracle()
-            val databaseClientConfig = OracleDatabaseClientConfig(exposedDatabase)
-            suspend fun FunSpecContainerScope.tests(databaseClient: DatabaseClient<*>, sqlClientType: SqlClientType) =
-                tests(databaseClient, RdbmsType.Oracle, sqlClientType)
-            if (SqlClientType.Pool in enabledSqlClientTypes)
-                context("Pool") {
-                    tests(
-                        DatabaseClient(
-                            createOraclePool(null, connectionConfig), databaseClientConfig
-                        ),
-                        SqlClientType.Pool
-                    )
-                }
-            if (SqlClientType.SqlConnection in enabledSqlClientTypes)
-                context("SqlConnection") {
-                    tests(
-                        DatabaseClient(
-                            createOracleConnection(vertx, connectionConfig), databaseClientConfig
-                        ),
-                        SqlClientType.SqlConnection
-                    )
-                }
+            testsForAllProviderTypes(exposedDatabase) { statementPreparationExposedTransactionProvider ->
+                val databaseClientConfig = OracleDatabaseClientConfig(statementPreparationExposedTransactionProvider)
+                suspend fun FunSpecContainerScope.tests(
+                    databaseClient: DatabaseClient<*>,
+                    sqlClientType: SqlClientType
+                ) =
+                    tests(databaseClient, RdbmsType.Oracle, sqlClientType)
+                if (SqlClientType.Pool in enabledSqlClientTypes)
+                    context("Pool") {
+                        tests(
+                            DatabaseClient(
+                                createOraclePool(null, connectionConfig), databaseClientConfig
+                            ),
+                            SqlClientType.Pool
+                        )
+                    }
+                if (SqlClientType.SqlConnection in enabledSqlClientTypes)
+                    context("SqlConnection") {
+                        tests(
+                            DatabaseClient(
+                                createOracleConnection(vertx, connectionConfig), databaseClientConfig
+                            ),
+                            SqlClientType.SqlConnection
+                        )
+                    }
+            }
         }
     if (RdbmsType.Mssql in enabledRdbmsTypes)
         context("MSSQL") {
@@ -172,26 +187,31 @@ abstract class AllConfigurationsSpec(
             val exposedDatabase = with(connectionConfig) {
                 exposedDatabaseConnectMssql(sqlServerJdbcUrlWithEncryptEqFalse())
             }
-            val databaseClientConfig = MssqlDatabaseClientConfig(exposedDatabase)
-            suspend fun FunSpecContainerScope.tests(databaseClient: DatabaseClient<*>, sqlClientType: SqlClientType) =
-                tests(databaseClient, RdbmsType.Mssql, sqlClientType)
-            if (SqlClientType.Pool in enabledSqlClientTypes)
-                context("Pool") {
-                    tests(
-                        DatabaseClient(
-                            createMssqlPool(null, connectionConfig), databaseClientConfig
-                        ),
-                        SqlClientType.Pool
-                    )
-                }
-            if (SqlClientType.SqlConnection in enabledSqlClientTypes)
-                context("SqlConnection") {
-                    tests(
-                        DatabaseClient(
-                            createMssqlConnection(vertx, connectionConfig), databaseClientConfig
-                        ),
-                        SqlClientType.SqlConnection
-                    )
-                }
+            testsForAllProviderTypes(exposedDatabase) { statementPreparationExposedTransactionProvider ->
+                val databaseClientConfig = MssqlDatabaseClientConfig(statementPreparationExposedTransactionProvider)
+                suspend fun FunSpecContainerScope.tests(
+                    databaseClient: DatabaseClient<*>,
+                    sqlClientType: SqlClientType
+                ) =
+                    tests(databaseClient, RdbmsType.Mssql, sqlClientType)
+                if (SqlClientType.Pool in enabledSqlClientTypes)
+                    context("Pool") {
+                        tests(
+                            DatabaseClient(
+                                createMssqlPool(null, connectionConfig), databaseClientConfig
+                            ),
+                            SqlClientType.Pool
+                        )
+                    }
+                if (SqlClientType.SqlConnection in enabledSqlClientTypes)
+                    context("SqlConnection") {
+                        tests(
+                            DatabaseClient(
+                                createMssqlConnection(vertx, connectionConfig), databaseClientConfig
+                            ),
+                            SqlClientType.SqlConnection
+                        )
+                    }
+            }
         }
 })
