@@ -9,7 +9,7 @@ import java.util.*
 @OptIn(ExperimentalEvscApi::class)
 @Suppress("UNCHECKED_CAST")
 class TransactionTests :
-    TestsForAllRdbmsTypesAndAllClientTypesWithTestcontainers({ databaseClient, rdbmsType, sqlClientType ->
+    AllConfigurationsSpec({ databaseClient, rdbmsType, sqlClientType ->
         suspend fun FunSpecContainerScope.contextTestsForTOREither(
             withTestEnv: suspend (test: suspend TransactionOrRollbackEitherTests<*>.() -> Unit) -> Unit,
             contextName: String

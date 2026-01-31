@@ -108,10 +108,10 @@ suspend fun batchInsertSelectOperations(
     // Test batchInsertSelect - create multiple insert-select statements
 
     // originally `batchInsertSelect` but now deprecated
-    databaseClient.executeBatchUpdate(batchNames.map { name ->
-        buildStatement {
-            with(Examples) {
-                databaseClient.statementPreparationExposedTransaction {
+    databaseClient.executeBatchUpdate(databaseClient.statementPreparationExposedTransaction {
+        batchNames.map { name ->
+            buildStatement {
+                with(Examples) {
                     insert(selectNameWhereNameEqQuery(name))
                 }
             }
