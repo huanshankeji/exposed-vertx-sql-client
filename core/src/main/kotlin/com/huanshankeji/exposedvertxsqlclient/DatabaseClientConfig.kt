@@ -1,6 +1,5 @@
 package com.huanshankeji.exposedvertxsqlclient
 
-import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.sql.Connection
 
@@ -73,8 +72,6 @@ interface DatabaseClientConfig {
  * 
  * @param statementPreparationExposedTransactionProvider the provider for Exposed transactions.
  *   If not specified, creates a [JdbcTransactionExposedTransactionProvider] using the provided [exposedDatabase].
- * @param exposedDatabase the Exposed [Database] to use for creating the default transaction provider if
- *   [statementPreparationExposedTransactionProvider] is not provided. Required if provider is not specified.
  */
 @OptIn(ExperimentalEvscApi::class)
 inline fun DatabaseClientConfig(
