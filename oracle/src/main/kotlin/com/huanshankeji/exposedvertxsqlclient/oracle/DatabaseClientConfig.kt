@@ -3,7 +3,6 @@ package com.huanshankeji.exposedvertxsqlclient.oracle
 import com.huanshankeji.exposedvertxsqlclient.DatabaseClientConfig
 import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
 import com.huanshankeji.exposedvertxsqlclient.StatementPreparationExposedTransactionProvider
-import java.sql.Connection
 
 /**
  * See the [DatabaseClientConfig] interface for parameter descriptions.
