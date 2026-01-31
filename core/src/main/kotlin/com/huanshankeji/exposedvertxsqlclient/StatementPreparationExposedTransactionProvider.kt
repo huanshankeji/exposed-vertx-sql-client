@@ -34,6 +34,7 @@ interface StatementPreparationExposedTransactionProvider {
      *
      * This variant provides explicit transaction handling and may slightly reduce some overhead.
      */
+    @Deprecated("Not currently used by other declarations in this library.")
     fun <T> withExplicitOnlyStatementPreparationExposedTransaction(statement: ExposedTransaction.() -> T): T
 }
 
@@ -53,6 +54,7 @@ class DatabaseExposedTransactionProvider(
     override fun <T> statementPreparationExposedTransaction(block: ExposedTransaction.() -> T): T =
         transaction(database, transactionIsolation, true, block)
 
+    @Deprecated("Not currently used by other declarations in this library.")
     override fun <T> withExplicitOnlyStatementPreparationExposedTransaction(block: ExposedTransaction.() -> T): T =
         statementPreparationExposedTransaction(block)
 }
@@ -100,6 +102,7 @@ class JdbcTransactionExposedTransactionProvider(
         // Call statement directly on the transaction - it will be executed in the transaction context
         withThreadLocalTransaction(jdbcTransaction) { jdbcTransaction.block() }
 
+    @Deprecated("Not currently used by other declarations in this library.")
     override fun <T> withExplicitOnlyStatementPreparationExposedTransaction(block: ExposedTransaction.() -> T): T =
         jdbcTransaction.block()
 }
