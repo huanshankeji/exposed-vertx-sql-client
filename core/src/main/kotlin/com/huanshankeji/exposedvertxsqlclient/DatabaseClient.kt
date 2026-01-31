@@ -26,7 +26,6 @@ import kotlin.Deprecated
 import kotlin.DeprecationLevel
 import kotlin.Exception
 import kotlin.IllegalArgumentException
-import kotlin.IllegalStateException
 import kotlin.Int
 import kotlin.NotImplementedError
 import kotlin.OptIn
@@ -115,8 +114,8 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
      * if it's a [DatabaseExposedTransactionProvider], or null otherwise.
      */
     @Deprecated("Use config.statementPreparationExposedTransactionProvider instead. This property will be removed in a future version.")
-    val exposedDatabase: Database?
-        get() = (config.statementPreparationExposedTransactionProvider as? DatabaseExposedTransactionProvider)?.database
+    val exposedDatabase: Database
+        get() = (config.statementPreparationExposedTransactionProvider as DatabaseExposedTransactionProvider).database
 
     /**
      * Secondary constructor that accepts an [Database] for backward compatibility.
@@ -190,18 +189,14 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
         "This class no longer wraps an Exposed `Database`. Use the `transaction` API from Exposed directly.",
         ReplaceWith("transaction(this.exposedDatabase, transactionIsolation, readOnly, statement)")
     )
+    @Suppress("DEPRECATION")
     fun <T> exposedTransaction(
         // default arguments copied from `transaction`
-        transactionIsolation: Int? = exposedDatabase?.transactionManager?.defaultIsolationLevel,
-        readOnly: Boolean? = exposedDatabase?.transactionManager?.defaultReadOnly,
+        transactionIsolation: Int? = exposedDatabase/*?*/.transactionManager/*?*/.defaultIsolationLevel,
+        readOnly: Boolean? = exposedDatabase/*?*/.transactionManager/*?*/.defaultReadOnly,
         statement: ExposedTransaction.() -> T
-    ): T {
-        val db = exposedDatabase ?: throw IllegalStateException(
-            "exposedDatabase is not available when using JdbcTransactionExposedTransactionProvider. " +
-                    "Use exposedTransactionProvider.statementPreparationExposedTransaction instead."
-        )
-        return transaction(db, transactionIsolation, readOnly, statement)
-    }
+    ): T =
+        transaction(exposedDatabase, transactionIsolation, readOnly, statement)
 
     @Deprecated(
         "Renamed to `statementPreparationExposedTransaction`.",
