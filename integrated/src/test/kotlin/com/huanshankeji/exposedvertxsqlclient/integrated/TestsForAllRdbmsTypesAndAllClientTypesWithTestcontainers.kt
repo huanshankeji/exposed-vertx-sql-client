@@ -125,7 +125,7 @@ abstract class TestsForAllRdbmsTypesAndAllClientTypesWithTestcontainers(
         }
 
     /**
-     * Runs tests for all enabled provider types, SQL client types within a specific RDBMS context.
+     * Runs tests for all enabled provider types and SQL client types within a specific RDBMS context.
      */
     suspend fun FunSpecContainerScope.runTestsForRdbms(ctx: RdbmsTestContext) {
         val supportedSqlClientTypes = rdbmsSupportedSqlClientTypes[ctx.rdbmsType]!!

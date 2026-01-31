@@ -73,7 +73,7 @@ suspend fun examples(vertx: Vertx) {
 
     val vertxSqlClient = sqlClient
 
-    // Using JdbcTransactionExposedTransactionProvider for better performance
+    // Using JdbcTransactionExposedTransactionProvider for typically better performance when preparing multiple statements
     val transactionProvider = JdbcTransactionExposedTransactionProvider(exposedDatabase)
     val databaseClient = DatabaseClient(vertxSqlClient, PgDatabaseClientConfig(transactionProvider))
 
