@@ -80,6 +80,8 @@ And add an RDBMS module, for example, the PostgreSQL module:
 implementation("com.huanshankeji:exposed-vertx-sql-client-postgresql:$libraryVersion")
 ```
 
+<!-- code blocks below copied from `Examples.kt` -->
+
 ### Create a `DatabaseClient`
 
 Create an `EvscConfig` as the single source of truth:
@@ -113,10 +115,13 @@ val pool = createPgPool(vertx, evscConfig.vertxSqlClientConnectionConfig)
 val sqlConnection = createPgConnection(vertx, evscConfig.vertxSqlClientConnectionConfig)
 ```
 
-Create a `Database` with the provided Vert.x `SqlClient` and Exposed `Database`, preferably in a `Verticle`:
+Create a `DatabaseClient` with the provided Vert.x `SqlClient` and Exposed `Database`, preferably in a `Verticle`:
 
 ```kotlin
-val databaseClient = DatabaseClient(vertxSqlClient, exposedDatabase, PgDatabaseClientConfig())
+val databaseClient = DatabaseClient(
+    vertxSqlClient,
+    PgDatabaseClientConfig(JdbcTransactionExposedTransactionProvider(exposedDatabase))
+)
 ```
 
 #### Alternatives to `EvscConfig`

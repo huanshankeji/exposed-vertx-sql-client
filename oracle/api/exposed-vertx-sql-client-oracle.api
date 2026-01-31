@@ -1,6 +1,6 @@
 public final class com/huanshankeji/exposedvertxsqlclient/oracle/DatabaseClientConfigKt {
-	public static final fun OracleDatabaseClientConfig (ZZLjava/lang/Integer;Z)Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClientConfig;
-	public static synthetic fun OracleDatabaseClientConfig$default (ZZLjava/lang/Integer;ZILjava/lang/Object;)Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClientConfig;
+	public static final fun OracleDatabaseClientConfig (Lcom/huanshankeji/exposedvertxsqlclient/StatementPreparationExposedTransactionProvider;ZZLjava/lang/Integer;Z)Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClientConfig;
+	public static synthetic fun OracleDatabaseClientConfig$default (Lcom/huanshankeji/exposedvertxsqlclient/StatementPreparationExposedTransactionProvider;ZZLjava/lang/Integer;ZILjava/lang/Object;)Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClientConfig;
 }
 
 public final class com/huanshankeji/exposedvertxsqlclient/oracle/DatabaseClientKt {

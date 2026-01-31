@@ -34,9 +34,10 @@ public final class com/huanshankeji/exposedvertxsqlclient/ConnectionType : java/
 	public static fun values ()[Lcom/huanshankeji/exposedvertxsqlclient/ConnectionType;
 }
 
-public final class com/huanshankeji/exposedvertxsqlclient/DatabaseClient : com/huanshankeji/kotlinx/coroutine/CoroutineAutoCloseable {
+public final class com/huanshankeji/exposedvertxsqlclient/DatabaseClient : com/huanshankeji/exposedvertxsqlclient/StatementPreparationExposedTransactionProvider, com/huanshankeji/kotlinx/coroutine/CoroutineAutoCloseable {
 	public static final field Companion Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClient$Companion;
 	public static final field SELECT_BATCH_QUERY_WITH_FIELD_SET_DEPRECATED_MESSAGE Ljava/lang/String;
+	public fun <init> (Lio/vertx/sqlclient/SqlClient;Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClientConfig;)V
 	public fun <init> (Lio/vertx/sqlclient/SqlClient;Lorg/jetbrains/exposed/v1/jdbc/Database;Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClientConfig;)V
 	public fun close (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun createTable (Lorg/jetbrains/exposed/v1/core/Table;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
@@ -79,7 +80,8 @@ public final class com/huanshankeji/exposedvertxsqlclient/DatabaseClient : com/h
 	public final fun getVertxSqlClient ()Lio/vertx/sqlclient/SqlClient;
 	public final fun isWorking (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun optionalStatementPreparationExposedTransaction (ZLkotlin/jvm/functions/Function0;)Ljava/lang/Object;
-	public final fun statementPreparationExposedTransaction (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public fun statementPreparationExposedTransaction (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public fun withExplicitOnlyStatementPreparationExposedTransaction (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
 }
 
 public final class com/huanshankeji/exposedvertxsqlclient/DatabaseClient$Companion {
@@ -89,13 +91,14 @@ public abstract interface class com/huanshankeji/exposedvertxsqlclient/DatabaseC
 	public abstract fun getAutoExposedTransaction ()Z
 	public abstract fun getLogSql ()Z
 	public abstract fun getStatementPreparationExposedTransactionIsolationLevel ()Ljava/lang/Integer;
+	public abstract fun getStatementPreparationExposedTransactionProvider ()Lcom/huanshankeji/exposedvertxsqlclient/StatementPreparationExposedTransactionProvider;
 	public abstract fun getValidateBatch ()Z
 	public abstract fun transformPreparedSql (Ljava/lang/String;)Ljava/lang/String;
 }
 
 public final class com/huanshankeji/exposedvertxsqlclient/DatabaseClientConfigKt {
-	public static final fun DatabaseClientConfig (ZZLjava/lang/Integer;ZLkotlin/jvm/functions/Function1;)Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClientConfig;
-	public static synthetic fun DatabaseClientConfig$default (ZZLjava/lang/Integer;ZLkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClientConfig;
+	public static final fun DatabaseClientConfig (Lcom/huanshankeji/exposedvertxsqlclient/StatementPreparationExposedTransactionProvider;ZZLjava/lang/Integer;ZLkotlin/jvm/functions/Function1;)Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClientConfig;
+	public static synthetic fun DatabaseClientConfig$default (Lcom/huanshankeji/exposedvertxsqlclient/StatementPreparationExposedTransactionProvider;ZZLjava/lang/Integer;ZLkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClientConfig;
 }
 
 public final class com/huanshankeji/exposedvertxsqlclient/DatabaseClientKt {
@@ -111,6 +114,15 @@ public final class com/huanshankeji/exposedvertxsqlclient/DatabaseClientKt {
 	public static final fun toExposedResultRow (Lio/vertx/sqlclient/Row;Lorg/jetbrains/exposed/v1/jdbc/Query;)Lorg/jetbrains/exposed/v1/core/ResultRow;
 	public static final fun toVertxTuple (Ljava/lang/Iterable;)Lio/vertx/sqlclient/Tuple;
 	public static final fun types (Ljava/lang/Iterable;)Ljava/util/List;
+}
+
+public final class com/huanshankeji/exposedvertxsqlclient/DatabaseExposedTransactionProvider : com/huanshankeji/exposedvertxsqlclient/StatementPreparationExposedTransactionProvider {
+	public fun <init> (Lorg/jetbrains/exposed/v1/jdbc/Database;Ljava/lang/Integer;)V
+	public synthetic fun <init> (Lorg/jetbrains/exposed/v1/jdbc/Database;Ljava/lang/Integer;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getDatabase ()Lorg/jetbrains/exposed/v1/jdbc/Database;
+	public final fun getTransactionIsolation ()Ljava/lang/Integer;
+	public fun statementPreparationExposedTransaction (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public fun withExplicitOnlyStatementPreparationExposedTransaction (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
 }
 
 public final class com/huanshankeji/exposedvertxsqlclient/EvscConfig : com/huanshankeji/exposedvertxsqlclient/IEvscConfig {
@@ -133,6 +145,14 @@ public abstract interface class com/huanshankeji/exposedvertxsqlclient/IEvscConf
 public abstract interface annotation class com/huanshankeji/exposedvertxsqlclient/InternalApi : java/lang/annotation/Annotation {
 }
 
+public final class com/huanshankeji/exposedvertxsqlclient/JdbcTransactionExposedTransactionProvider : com/huanshankeji/exposedvertxsqlclient/StatementPreparationExposedTransactionProvider {
+	public fun <init> (Lorg/jetbrains/exposed/v1/jdbc/Database;)V
+	public fun <init> (Lorg/jetbrains/exposed/v1/jdbc/JdbcTransaction;)V
+	public final fun getJdbcTransaction ()Lorg/jetbrains/exposed/v1/jdbc/JdbcTransaction;
+	public fun statementPreparationExposedTransaction (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public fun withExplicitOnlyStatementPreparationExposedTransaction (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+}
+
 public final class com/huanshankeji/exposedvertxsqlclient/SingleUpdateException : java/lang/Exception {
 	public fun <init> (I)V
 }
@@ -144,6 +164,11 @@ public final class com/huanshankeji/exposedvertxsqlclient/SqlIdentifiersKt {
 
 public final class com/huanshankeji/exposedvertxsqlclient/SqlTransformationKt {
 	public static final fun transformPreparedSqlToNumbered (Ljava/lang/String;Lkotlin/jvm/functions/Function1;)Ljava/lang/String;
+}
+
+public abstract interface class com/huanshankeji/exposedvertxsqlclient/StatementPreparationExposedTransactionProvider {
+	public abstract fun statementPreparationExposedTransaction (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public abstract fun withExplicitOnlyStatementPreparationExposedTransaction (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
 }
 
 public final class com/huanshankeji/exposedvertxsqlclient/TransactionsKt {

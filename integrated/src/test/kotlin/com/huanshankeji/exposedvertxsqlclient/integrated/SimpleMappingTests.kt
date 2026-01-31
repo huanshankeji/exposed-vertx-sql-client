@@ -1,6 +1,6 @@
 package com.huanshankeji.exposedvertxsqlclient.integrated
 
-class SimpleMappingTests : TestsForAllRdbmsTypesAndAllClientTypesWithTestcontainers({ databaseClient, rdbmsType, _ ->
+class SimpleMappingTests : AllConfigurationsSpec({ databaseClient, rdbmsType, _ ->
     test("test CRUD mapper extensions") {
         withMappingTables {
             /*
