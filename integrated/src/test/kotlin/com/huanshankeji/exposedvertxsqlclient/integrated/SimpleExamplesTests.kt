@@ -1,7 +1,7 @@
 package com.huanshankeji.exposedvertxsqlclient.integrated
 
 class SimpleExamplesTests :
-    TestsForAllRdbmsTypesAndAllClientTypesWithTestcontainers({ databaseClient, rdbmsType, _ ->
+    TestsForAllRdbmsTypesAndAllClientTypesWithTestcontainers({ databaseClient, rdbmsType, _, _ ->
         val crudSupportConfig = CrudSupportConfig.fromRdbmsType(rdbmsType)
         test("test CRUD with Statements") {
             withTables { crudWithStatements(databaseClient, crudSupportConfig) }

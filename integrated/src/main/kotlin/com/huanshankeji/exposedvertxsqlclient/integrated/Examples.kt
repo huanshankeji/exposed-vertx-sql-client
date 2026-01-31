@@ -25,6 +25,18 @@ import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
+/**
+ * Creates a [StatementPreparationExposedTransactionProvider] from a [Database] based on the specified [type].
+ */
+fun createStatementPreparationExposedTransactionProvider(
+    database: Database,
+    type: ExposedStatementPreparationTransactionProviderType
+): StatementPreparationExposedTransactionProvider =
+    when (type) {
+        ExposedStatementPreparationTransactionProviderType.Database -> DatabaseExposedTransactionProvider(database)
+        ExposedStatementPreparationTransactionProviderType.JdbcTransaction -> JdbcTransactionExposedTransactionProvider(database)
+    }
+
 object Examples : IntIdTable("examples") {
     val name = varchar("name", 64)
 }
@@ -61,7 +73,9 @@ suspend fun examples(vertx: Vertx) {
 
     val vertxSqlClient = sqlClient
 
-    val databaseClient = DatabaseClient(vertxSqlClient, PgDatabaseClientConfig(exposedDatabase))
+    // Using JdbcTransactionExposedTransactionProvider for better performance
+    val transactionProvider = JdbcTransactionExposedTransactionProvider(exposedDatabase)
+    val databaseClient = DatabaseClient(vertxSqlClient, PgDatabaseClientConfig(transactionProvider))
 
     // put in `Vertx.executeBlocking` or `Dispatchers.IO` if needed
     createTablesWithExposedTransaction()
