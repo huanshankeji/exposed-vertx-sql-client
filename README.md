@@ -80,6 +80,8 @@ And add an RDBMS module, for example, the PostgreSQL module:
 implementation("com.huanshankeji:exposed-vertx-sql-client-postgresql:$libraryVersion")
 ```
 
+<!-- code blocks below copied from `Examples.kt` -->
+
 ### Create a `DatabaseClient`
 
 Create an `EvscConfig` as the single source of truth:

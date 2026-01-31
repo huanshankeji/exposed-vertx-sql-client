@@ -1,7 +1,6 @@
 package com.huanshankeji.exposedvertxsqlclient.integrated
 
-import com.huanshankeji.exposedvertxsqlclient.DatabaseClient
-import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
+import com.huanshankeji.exposedvertxsqlclient.*
 import com.huanshankeji.exposedvertxsqlclient.jdbc.sqlServerJdbcUrlWithEncryptEqFalse
 import com.huanshankeji.exposedvertxsqlclient.mssql.MssqlDatabaseClientConfig
 import com.huanshankeji.exposedvertxsqlclient.mssql.exposed.exposedDatabaseConnectMssql
@@ -29,12 +28,16 @@ import io.vertx.core.Vertx
 import java.util.*
 
 @OptIn(ExperimentalEvscApi::class)
-abstract class TestsForAllRdbmsTypesAndAllClientTypesWithTestcontainers(
+// name suggested by Copilot
+abstract class AllConfigurationsSpec(
     tests: suspend FunSpecContainerScope.(databaseClient: DatabaseClient<*>, rdbmsType: RdbmsType, sqlClientType: SqlClientType) -> Unit,
     // for disabling some tests for debugging
     enabledRdbmsTypes: EnumSet<RdbmsType> = EnumSet.allOf(RdbmsType::class.java),
     //extraPgConnectOptions: PgConnectOptions.() -> Unit = {}
-    enabledSqlClientTypes: EnumSet<SqlClientType> = EnumSet.allOf(SqlClientType::class.java)
+    enabledSqlClientTypes: EnumSet<SqlClientType> = EnumSet.allOf(SqlClientType::class.java),
+    enabledStatementPreparationExposedTransactionProviderTypes: EnumSet<StatementPreparationExposedTransactionProviderType> = EnumSet.allOf(
+        StatementPreparationExposedTransactionProviderType::class.java
+    )
 ) : FunSpec({
     val vertx = Vertx.vertx()
     afterSpec { vertx.close().await() }
@@ -48,37 +51,56 @@ abstract class TestsForAllRdbmsTypesAndAllClientTypesWithTestcontainers(
             val postgresqlContainer = install(TestContainerSpecExtension(LatestPostgreSQLContainer()))
             val connectionConfig = postgresqlContainer.connectionConfig()
             val exposedDatabase = connectionConfig.exposedDatabaseConnectPostgresql()
-            val databaseClientConfig = PgDatabaseClientConfig(exposedDatabase)
-            suspend fun FunSpecContainerScope.tests(databaseClient: DatabaseClient<*>, sqlClientType: SqlClientType) =
-                tests(databaseClient, RdbmsType.Postgresql, sqlClientType)
-            if (SqlClientType.Client in enabledSqlClientTypes)
-                context("Client") {
-                    // TODO Also consider closing the clients. This isn't a big issue now though.
-                    tests(
-                        DatabaseClient(
-                            createPgClient(null, connectionConfig), databaseClientConfig
-                        ),
-                        SqlClientType.Client
-                    )
+            suspend fun FunSpecContainerScope.testsForAllProviderTypes(tests: suspend FunSpecContainerScope.(statementPreparationExposedTransactionProvider: StatementPreparationExposedTransactionProvider) -> Unit) {
+                for (providerType in enabledStatementPreparationExposedTransactionProviderTypes) {
+                    when (providerType) {
+                        StatementPreparationExposedTransactionProviderType.Database ->
+                            context("DatabaseExposedTransactionProvider") {
+                                tests(DatabaseExposedTransactionProvider(exposedDatabase))
+                            }
+
+                        StatementPreparationExposedTransactionProviderType.JdbcTransaction ->
+                            context("JdbcTransactionExposedTransactionProvider") {
+                                tests(JdbcTransactionExposedTransactionProvider(exposedDatabase))
+                            }
+                    }
                 }
-            if (SqlClientType.Pool in enabledSqlClientTypes)
-                context("Pool") {
-                    tests(
-                        DatabaseClient(
-                            createPgPool(null, connectionConfig), databaseClientConfig
-                        ),
-                        SqlClientType.Pool
-                    )
-                }
-            if (SqlClientType.SqlConnection in enabledSqlClientTypes)
-                context("SqlConnection") {
-                    tests(
-                        DatabaseClient(
-                            createPgConnection(vertx, connectionConfig), databaseClientConfig
-                        ),
-                        SqlClientType.SqlConnection
-                    )
-                }
+            }
+            testsForAllProviderTypes { statementPreparationExposedTransactionProvider ->
+                val databaseClientConfig = PgDatabaseClientConfig(statementPreparationExposedTransactionProvider)
+                suspend fun FunSpecContainerScope.tests(
+                    databaseClient: DatabaseClient<*>, sqlClientType: SqlClientType
+                ) =
+                    tests(databaseClient, RdbmsType.Postgresql, sqlClientType)
+                if (SqlClientType.Client in enabledSqlClientTypes)
+                    context("Client") {
+                        // TODO Also consider closing the clients. This isn't a big issue now though.
+                        tests(
+                            DatabaseClient(
+                                createPgClient(null, connectionConfig), databaseClientConfig
+                            ),
+                            SqlClientType.Client
+                        )
+                    }
+                if (SqlClientType.Pool in enabledSqlClientTypes)
+                    context("Pool") {
+                        tests(
+                            DatabaseClient(
+                                createPgPool(null, connectionConfig), databaseClientConfig
+                            ),
+                            SqlClientType.Pool
+                        )
+                    }
+                if (SqlClientType.SqlConnection in enabledSqlClientTypes)
+                    context("SqlConnection") {
+                        tests(
+                            DatabaseClient(
+                                createPgConnection(vertx, connectionConfig), databaseClientConfig
+                            ),
+                            SqlClientType.SqlConnection
+                        )
+                    }
+            }
         }
     if (RdbmsType.Mysql in enabledRdbmsTypes)
         context("MySQL") {
