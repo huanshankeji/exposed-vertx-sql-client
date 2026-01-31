@@ -118,7 +118,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
         get() = (config.statementPreparationExposedTransactionProvider as DatabaseExposedTransactionProvider).database
 
     /**
-     * Secondary constructor that accepts an [Database] for backward compatibility.
+     * Secondary constructor that accepts a [Database] for backward compatibility.
      *
      * @param vertxSqlClient the Vert.x SQL client used for executing queries.
      * @param exposedDatabase the Exposed [Database] used for SQL generation.
