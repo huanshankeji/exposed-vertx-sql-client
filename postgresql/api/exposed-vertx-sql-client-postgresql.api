@@ -1,6 +1,6 @@
 public final class com/huanshankeji/exposedvertxsqlclient/postgresql/DatabaseClientConfigKt {
-	public static final fun PgDatabaseClientConfig (Lcom/huanshankeji/exposedvertxsqlclient/StatementPreparationExposedTransactionProvider;ZZLjava/lang/Integer;Z)Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClientConfig;
-	public static synthetic fun PgDatabaseClientConfig$default (Lcom/huanshankeji/exposedvertxsqlclient/StatementPreparationExposedTransactionProvider;ZZLjava/lang/Integer;ZILjava/lang/Object;)Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClientConfig;
+	public static final fun PgDatabaseClientConfig (Lcom/huanshankeji/exposedvertxsqlclient/StatementPreparationExposedTransactionProvider;ZZZ)Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClientConfig;
+	public static synthetic fun PgDatabaseClientConfig$default (Lcom/huanshankeji/exposedvertxsqlclient/StatementPreparationExposedTransactionProvider;ZZZILjava/lang/Object;)Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClientConfig;
 }
 
 public final class com/huanshankeji/exposedvertxsqlclient/postgresql/DatabaseClientKt {

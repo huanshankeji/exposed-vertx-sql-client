@@ -90,15 +90,19 @@ public final class com/huanshankeji/exposedvertxsqlclient/DatabaseClient$Compani
 public abstract interface class com/huanshankeji/exposedvertxsqlclient/DatabaseClientConfig {
 	public abstract fun getAutoExposedTransaction ()Z
 	public abstract fun getLogSql ()Z
-	public abstract fun getStatementPreparationExposedTransactionIsolationLevel ()Ljava/lang/Integer;
+	public fun getStatementPreparationExposedTransactionIsolationLevel ()Ljava/lang/Integer;
 	public abstract fun getStatementPreparationExposedTransactionProvider ()Lcom/huanshankeji/exposedvertxsqlclient/StatementPreparationExposedTransactionProvider;
 	public abstract fun getValidateBatch ()Z
 	public abstract fun transformPreparedSql (Ljava/lang/String;)Ljava/lang/String;
 }
 
+public final class com/huanshankeji/exposedvertxsqlclient/DatabaseClientConfig$DefaultImpls {
+	public static fun getStatementPreparationExposedTransactionIsolationLevel (Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClientConfig;)Ljava/lang/Integer;
+}
+
 public final class com/huanshankeji/exposedvertxsqlclient/DatabaseClientConfigKt {
-	public static final fun DatabaseClientConfig (Lcom/huanshankeji/exposedvertxsqlclient/StatementPreparationExposedTransactionProvider;ZZLjava/lang/Integer;ZLkotlin/jvm/functions/Function1;)Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClientConfig;
-	public static synthetic fun DatabaseClientConfig$default (Lcom/huanshankeji/exposedvertxsqlclient/StatementPreparationExposedTransactionProvider;ZZLjava/lang/Integer;ZLkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClientConfig;
+	public static final fun DatabaseClientConfig (Lcom/huanshankeji/exposedvertxsqlclient/StatementPreparationExposedTransactionProvider;ZZZLkotlin/jvm/functions/Function1;)Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClientConfig;
+	public static synthetic fun DatabaseClientConfig$default (Lcom/huanshankeji/exposedvertxsqlclient/StatementPreparationExposedTransactionProvider;ZZZLkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClientConfig;
 }
 
 public final class com/huanshankeji/exposedvertxsqlclient/DatabaseClientKt {
