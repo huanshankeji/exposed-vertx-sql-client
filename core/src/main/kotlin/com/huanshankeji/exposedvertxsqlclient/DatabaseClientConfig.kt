@@ -2,6 +2,7 @@ package com.huanshankeji.exposedvertxsqlclient
 
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import java.sql.Connection
 
 /**
  * Configuration interface for [DatabaseClient] behavior.
@@ -41,7 +42,10 @@ interface DatabaseClientConfig {
      */
     @Deprecated("Use transactionIsolation parameter in DatabaseExposedTransactionProvider instead.")
     val statementPreparationExposedTransactionIsolationLevel: Int?
-        get() = throw AssertionError("This should no longer be called")
+        get() {
+            logger.warn("`DatabaseClientConfig.statementPreparationExposedTransactionIsolationLevel` should no longer be called")
+            return Connection.TRANSACTION_READ_UNCOMMITTED
+        }
 
     /**
      * Whether to always run some steps that possibly require Exposed [transaction]s in Exposed [transaction]s.
