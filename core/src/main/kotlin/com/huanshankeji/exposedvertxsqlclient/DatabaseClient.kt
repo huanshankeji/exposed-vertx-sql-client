@@ -143,7 +143,6 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
             ),
             config.validateBatch,
             config.logSql,
-            config.statementPreparationExposedTransactionIsolationLevel,
             config.autoExposedTransaction,
             config::transformPreparedSql
         )

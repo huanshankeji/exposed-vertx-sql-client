@@ -13,7 +13,6 @@ fun OracleDatabaseClientConfig(
     statementPreparationExposedTransactionProvider: StatementPreparationExposedTransactionProvider,
     validateBatch: Boolean = true,
     logSql: Boolean = false,
-    statementPreparationExposedTransactionIsolationLevel: Int? = Connection.TRANSACTION_READ_UNCOMMITTED,
     autoExposedTransaction: Boolean = false
 ) =
     @OptIn(ExperimentalEvscApi::class)
@@ -21,7 +20,6 @@ fun OracleDatabaseClientConfig(
         statementPreparationExposedTransactionProvider,
         validateBatch,
         logSql,
-        statementPreparationExposedTransactionIsolationLevel,
         autoExposedTransaction,
         { it }
     )

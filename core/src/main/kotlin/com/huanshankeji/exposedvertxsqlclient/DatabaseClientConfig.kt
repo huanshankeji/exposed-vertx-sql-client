@@ -2,7 +2,6 @@ package com.huanshankeji.exposedvertxsqlclient
 
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
-import java.sql.Connection
 
 /**
  * Configuration interface for [DatabaseClient] behavior.
@@ -42,6 +41,7 @@ interface DatabaseClientConfig {
      */
     @Deprecated("Use transactionIsolation parameter in DatabaseExposedTransactionProvider instead.")
     val statementPreparationExposedTransactionIsolationLevel: Int?
+        get() = throw AssertionError("This should no longer be called")
 
     /**
      * Whether to always run some steps that possibly require Exposed [transaction]s in Exposed [transaction]s.
@@ -78,7 +78,6 @@ inline fun DatabaseClientConfig(
     // TODO consider adding a `isProduction` parameter whose default depends on the runtime
     validateBatch: Boolean = true,
     logSql: Boolean = false,
-    statementPreparationExposedTransactionIsolationLevel: Int? = Connection.TRANSACTION_READ_UNCOMMITTED,
     autoExposedTransaction: Boolean = false,
     crossinline exposedPreparedSqlToVertxSqlClientPreparedSql: (preparedSql: String) -> String
 ) =
@@ -87,10 +86,6 @@ inline fun DatabaseClientConfig(
             statementPreparationExposedTransactionProvider
         override val validateBatch: Boolean = validateBatch
         override val logSql: Boolean = logSql
-
-        @Deprecated("Use transactionIsolation parameter in DatabaseExposedTransactionProvider instead.")
-        override val statementPreparationExposedTransactionIsolationLevel: Int? =
-            statementPreparationExposedTransactionIsolationLevel
         override val autoExposedTransaction: Boolean = autoExposedTransaction
         override fun transformPreparedSql(exposedPreparedSql: String): String =
             exposedPreparedSqlToVertxSqlClientPreparedSql(exposedPreparedSql)
