@@ -56,7 +56,7 @@ Based on the requests-per-second numbers above, this library achieves roughly 54
 
 ### **Important note : compatibility with Exposed**
 
-If you encounter issues likely caused by compatibility with Exposed, please try using the same version of Exposed this library depends on. The current development version (v0.7.1-SNAPSHOT) depends on Exposed v1.0.0, while the latest released version v0.7.0 depends on Exposed v1.0.0-rc-4.
+If you encounter issues likely caused by compatibility with Exposed, please try using the same version of Exposed this library depends on. The current development version (v0.8.0-SNAPSHOT) depends on Exposed v1.0.0, while the latest released version v0.7.0 depends on Exposed v1.0.0-rc-4.
 
 ## API documentation
 
@@ -115,7 +115,7 @@ val pool = createPgPool(vertx, evscConfig.vertxSqlClientConnectionConfig)
 val sqlConnection = createPgConnection(vertx, evscConfig.vertxSqlClientConnectionConfig)
 ```
 
-Create a `DatabaseClient` with the provided Vert.x `SqlClient` and Exposed `Database`, preferably in a `Verticle`:
+Create a `DatabaseClient` with the provided Vert.x `SqlClient` and a transaction provider, preferably in a `Verticle`:
 
 ```kotlin
 val databaseClient = DatabaseClient(
@@ -123,6 +123,18 @@ val databaseClient = DatabaseClient(
     PgDatabaseClientConfig(JdbcTransactionExposedTransactionProvider(exposedDatabase))
 )
 ```
+
+**About `StatementPreparationExposedTransactionProvider`:**
+
+The `DatabaseClient` uses a `StatementPreparationExposedTransactionProvider` to manage Exposed transactions for SQL statement preparation. There are two options:
+
+- **`JdbcTransactionExposedTransactionProvider` (recommended)**: Reuses a single JDBC transaction for all SQL preparation calls. This approach provides better performance by avoiding the overhead of creating a new transaction for each SQL preparation. This is the recommended option for most use cases.
+  
+  **Note:** This depends on a closed `Transaction` (properties and functions used including `identity` and `.db.dialect` etc.). It's not guaranteed that Exposed APIs won't change in the future, and creating `Statement`s and calling `prepareSQL` may require an open `Transaction` based on a connection in future Exposed versions. It also depends on the `withThreadLocalTransaction` API which is marked `@InternalApi` at the moment.
+
+- **`DatabaseExposedTransactionProvider`**: Creates a new transaction for each SQL preparation call. This is kept as a fallback solution in case the `JdbcTransactionExposedTransactionProvider` approach has issues with future Exposed API changes (see note above).
+
+The transaction provider can be shared across multiple `DatabaseClient` instances for better performance.
 
 #### Alternatives to `EvscConfig`
 
@@ -322,6 +334,6 @@ If you encounter
 
    For example, this can happen if you call `Query.forUpdate()` without a transaction. In such a case, you can also use our `Query.forUpdateWithTransaction()` instead.
 
-2. If your function call has a parameter with `WithExposedTransaction` in its name, try setting it to `true`. To make things easier, you can also set `autoExposedTransaction` to `true` in `DatabaseClientConfig` when creating the `DatabaseClient`. Note that this slightly degrades performance though.
+2. If your function call has a parameter with `WithExposedTransaction` in its name, try setting it to `true`. To make things easier, you can also set `autoExposedTransaction` to `true` in `DatabaseClientConfig` when creating the `DatabaseClient`. Note that when using `DatabaseExposedTransactionProvider`, this slightly degrades performance, but with `JdbcTransactionExposedTransactionProvider` (recommended), the overhead is minimal.
 
 Some Exposed APIs implicitly require a transaction and we can't guarantee that such exceptions are always avoided, as Exposed APIs are not fully decoupled and designed to serve this library, the transaction requirements in APIs sometimes change between versions and our APIs may need to evolve accordingly.
