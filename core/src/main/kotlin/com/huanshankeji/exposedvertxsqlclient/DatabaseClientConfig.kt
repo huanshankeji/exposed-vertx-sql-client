@@ -71,7 +71,6 @@ interface DatabaseClientConfig {
  * See the [DatabaseClientConfig] interface for parameter descriptions.
  * 
  * @param statementPreparationExposedTransactionProvider the provider for Exposed transactions.
- *   If not specified, creates a [JdbcTransactionExposedTransactionProvider] using the provided [exposedDatabase].
  */
 @OptIn(ExperimentalEvscApi::class)
 inline fun DatabaseClientConfig(
