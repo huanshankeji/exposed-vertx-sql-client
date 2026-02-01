@@ -129,8 +129,10 @@ val databaseClient = DatabaseClient(
 The `DatabaseClient` uses a `StatementPreparationExposedTransactionProvider` to manage Exposed transactions for SQL statement preparation. There are two options:
 
 - **`JdbcTransactionExposedTransactionProvider` (recommended)**: Reuses a single JDBC transaction for all SQL preparation calls. This approach provides better performance by avoiding the overhead of creating a new transaction for each SQL preparation. This is the recommended option for most use cases.
+  
+  **Note:** This depends on a closed `Transaction` (properties and functions used including `identity` and `.db.dialect` etc.). It's not guaranteed that Exposed APIs won't change in the future, and creating `Statement`s and calling `prepareSQL` may require an open `Transaction` based on a connection in future Exposed versions. It also depends on the `withThreadLocalTransaction` API which is marked `@InternalApi` at the moment.
 
-- **`DatabaseExposedTransactionProvider`**: Creates a new transaction for each SQL preparation call. This is the traditional approach and may be preferred in specific scenarios where transaction isolation is critical.
+- **`DatabaseExposedTransactionProvider`**: Creates a new transaction for each SQL preparation call. This is kept as a fallback solution in case the `JdbcTransactionExposedTransactionProvider` approach has issues with future Exposed API changes (see note above).
 
 The transaction provider can be shared across multiple `DatabaseClient` instances for better performance.
 
