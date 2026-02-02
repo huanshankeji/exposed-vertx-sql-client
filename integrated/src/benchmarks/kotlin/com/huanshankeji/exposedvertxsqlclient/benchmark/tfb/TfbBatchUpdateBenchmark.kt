@@ -5,12 +5,17 @@ import com.huanshankeji.exposedvertxsqlclient.DatabaseClient
 import com.huanshankeji.exposedvertxsqlclient.DatabaseExposedTransactionProvider
 import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
 import com.huanshankeji.exposedvertxsqlclient.JdbcTransactionExposedTransactionProvider
+import com.huanshankeji.exposedvertxsqlclient.integrated.StatementPreparationExposedTransactionProviderType
+import com.huanshankeji.exposedvertxsqlclient.integrated.StatementPreparationExposedTransactionProviderType.Database
+import com.huanshankeji.exposedvertxsqlclient.integrated.StatementPreparationExposedTransactionProviderType.JdbcTransaction
 import com.huanshankeji.exposedvertxsqlclient.postgresql.PgDatabaseClientConfig
 import com.huanshankeji.exposedvertxsqlclient.postgresql.vertx.pgclient.createPgConnection
 import io.vertx.core.Vertx
 import io.vertx.kotlin.coroutines.coAwait
 import io.vertx.pgclient.PgConnection
 import kotlinx.benchmark.*
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.statements.buildStatement
@@ -36,31 +41,21 @@ class TfbBatchUpdateBenchmark : WithContainerizedDatabaseAndExposedDatabaseBench
 
     lateinit var databaseClient: DatabaseClient<PgConnection>
 
-    // TFB uses query counts from 1 to 500
-    @Param("1", "10", "20", "50", "100", "200", "500")
-    var queryCount: Int = 20
+    @Param
+    lateinit var transactionProviderType: StatementPreparationExposedTransactionProviderType
 
-    @Param("JdbcTransaction", "DatabaseTransaction")
-    var transactionProviderType: String = "JdbcTransaction"
-
-    // Pre-generated worlds for consistency
-    lateinit var worldsToUpdate: List<World>
+    val random = Random(0)
 
     @Setup
     override fun setup() {
         super.setup()
 
         transaction(database) {
-            SchemaUtils.drop(WorldTable) // TODO This should be removed?
             SchemaUtils.create(WorldTable)
 
-            val batchSize = 1000
-            repeat(10) { batch ->
-                val idsToInsert = (1..batchSize).map { batch * batchSize + it }
-                WorldTable.batchInsert(idsToInsert) { id ->
-                    this[WorldTable.id] = id
-                    this[WorldTable.randomNumber] = Random.nextInt(1, 10001)
-                }
+            WorldTable.batchInsert(1..10_000) { id ->
+                this[WorldTable.id] = id
+                this[WorldTable.randomNumber] = random.nextInt(1, 10001)
             }
         }
 
@@ -74,9 +69,8 @@ class TfbBatchUpdateBenchmark : WithContainerizedDatabaseAndExposedDatabaseBench
         }
 
         val transactionProvider = when (transactionProviderType) {
-            "JdbcTransaction" -> JdbcTransactionExposedTransactionProvider(database)
-            "DatabaseTransaction" -> DatabaseExposedTransactionProvider(database)
-            else -> error("Unknown transaction provider type: $transactionProviderType")
+            Database -> DatabaseExposedTransactionProvider(database)
+            JdbcTransaction -> JdbcTransactionExposedTransactionProvider(database)
         }
 
         databaseClient = DatabaseClient(
@@ -86,14 +80,6 @@ class TfbBatchUpdateBenchmark : WithContainerizedDatabaseAndExposedDatabaseBench
                 validateBatch = false
             )
         )
-
-        // Pre-generate random worlds to update
-        worldsToUpdate = (1..500).map {
-            World(
-                id = Random.nextInt(1, 10001),
-                randomNumber = Random.nextInt(1, 10001)
-            )
-        }
     }
 
     @TearDown
@@ -108,17 +94,25 @@ class TfbBatchUpdateBenchmark : WithContainerizedDatabaseAndExposedDatabaseBench
         super.tearDown()
     }
 
+    fun Random.nextIntBetween1And10000() =
+        nextInt(1, 10001)
+
     @Benchmark
-    fun batchUpdate() = runBlocking {
-        val worlds = worldsToUpdate.take(queryCount)
-        databaseClient.executeBatchUpdate(
-            worlds.map { world ->
-                buildStatement {
-                    WorldTable.update({ WorldTable.id eq world.id }) {
-                        it[randomNumber] = world.randomNumber
+    fun _1kBatchUpdate() = runBlocking {
+        awaitAll(*Array(1000) {
+            async {
+                val ids = List(20) { random.nextIntBetween1And10000() }
+                val sortedIds = ids.sorted()
+                databaseClient.executeBatchUpdate(
+                    sortedIds.map { id ->
+                        buildStatement {
+                            WorldTable.update({ WorldTable.id eq id }) {
+                                it[randomNumber] = random.nextIntBetween1And10000()
+                            }
+                        }
                     }
-                }
+                )
             }
-        )
+        })
     }
 }
