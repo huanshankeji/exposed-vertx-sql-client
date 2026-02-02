@@ -1,6 +1,7 @@
 package com.huanshankeji.exposedvertxsqlclient.benchmark.tfb
 
 import com.huanshankeji.exposed.benchmark.jdbc.WithContainerizedDatabaseAndExposedDatabaseBenchmark
+import com.huanshankeji.exposed.benchmark.numProcessors
 import com.huanshankeji.exposedvertxsqlclient.DatabaseClient
 import com.huanshankeji.exposedvertxsqlclient.DatabaseExposedTransactionProvider
 import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
@@ -14,6 +15,7 @@ import io.vertx.core.Vertx
 import io.vertx.kotlin.coroutines.coAwait
 import io.vertx.pgclient.PgConnection
 import kotlinx.benchmark.*
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
@@ -22,6 +24,8 @@ import org.jetbrains.exposed.v1.core.statements.buildStatement
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.batchInsert
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 import kotlin.random.Random
 
 /**
@@ -45,6 +49,8 @@ class TfbBatchUpdateBenchmark : WithContainerizedDatabaseAndExposedDatabaseBench
     lateinit var transactionProviderType: StatementPreparationExposedTransactionProviderType
 
     val random = Random(0)
+
+    lateinit var executorService: ExecutorService
 
     @Setup
     override fun setup() {
@@ -80,10 +86,12 @@ class TfbBatchUpdateBenchmark : WithContainerizedDatabaseAndExposedDatabaseBench
                 validateBatch = false
             )
         )
+        executorService = Executors.newFixedThreadPool(numProcessors)
     }
 
     @TearDown
     override fun tearDown() {
+        executorService.shutdown()
         runBlocking {
             pgConnection.close().coAwait()
             vertx.close().coAwait()
@@ -98,7 +106,8 @@ class TfbBatchUpdateBenchmark : WithContainerizedDatabaseAndExposedDatabaseBench
         nextInt(1, 10001)
 
     @Benchmark
-    fun _1kBatchUpdate() = runBlocking {
+    // running on all cores doesn't make much difference
+    fun _1kBatchUpdate() = runBlocking(executorService.asCoroutineDispatcher()) {
         awaitAll(*Array(1000) {
             async {
                 val ids = List(20) { random.nextIntBetween1And10000() }
