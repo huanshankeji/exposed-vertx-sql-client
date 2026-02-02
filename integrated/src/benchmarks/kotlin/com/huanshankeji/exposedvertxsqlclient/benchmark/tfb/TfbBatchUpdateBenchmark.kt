@@ -14,6 +14,7 @@ import com.huanshankeji.exposedvertxsqlclient.postgresql.vertx.pgclient.createPg
 import io.vertx.core.Vertx
 import io.vertx.kotlin.coroutines.coAwait
 import io.vertx.pgclient.PgConnection
+import io.vertx.sqlclient.Tuple
 import kotlinx.benchmark.*
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.async
@@ -121,6 +122,23 @@ class TfbBatchUpdateBenchmark : WithContainerizedDatabaseAndExposedDatabaseBench
                         }
                     }
                 )
+            }
+        })
+    }
+
+    companion object {
+        const val UPDATE_WORLD_SQL = "UPDATE world SET randomnumber = $1 WHERE id = $2"
+    }
+
+    // for comparison
+    @Benchmark
+    fun _1kVertxSqlClientBatchUpdate() = runBlocking(executorService.asCoroutineDispatcher()) {
+        awaitAll(*Array(1000) {
+            async {
+                val ids = List(20) { random.nextIntBetween1And10000() }
+                val sortedIds = ids.sorted()
+                pgConnection.preparedQuery(UPDATE_WORLD_SQL)
+                    .executeBatch(sortedIds.map { id -> Tuple.of(random.nextIntBetween1And10000(), id) }).coAwait()
             }
         })
     }
