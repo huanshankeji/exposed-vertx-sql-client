@@ -6,6 +6,7 @@ plugins {
     conventions
     id("io.kotest") version commonVersions.kotest
     id("com.huanshankeji.benchmark.kotlinx-benchmark-jvm-conventions")
+    application
 }
 
 dependencies {
@@ -67,4 +68,17 @@ afterEvaluate {
         // Vert.x actually already includes an `slf4j-simple` dependency
         "benchmarksRuntimeOnly"(commonDependencies.slf4j.simple())
     }
+}
+
+application {
+    // A lightweight entry point to invoke the TFB batch update benchmark code for profiling.
+    mainClass.set("com.huanshankeji.exposedvertxsqlclient.benchmark.tfb.ProfileTfbBatchUpdateKt")
+}
+
+tasks.register<JavaExec>("runProfileTfbBatchUpdate") {
+    group = "profiling"
+    description = "Runs the TFB batch update benchmark code outside kotlinx-benchmark for profiling."
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass.set("com.huanshankeji.exposedvertxsqlclient.benchmark.tfb.ProfileTfbBatchUpdateKt")
+    args = listOf("5") // default iterations; override with --args
 }
