@@ -105,21 +105,23 @@ class TfbBatchUpdateBenchmark : WithContainerizedDatabaseAndExposedDatabaseBench
         super.tearDown()
     }
 
-    fun Random.nextIntBetween1And10000() =
-        nextInt(1, 10001)
+    fun nextIntBetween1And10000() =
+        random.nextInt(1, 10001)
+    // doesn't make a difference in benchmark results
+    //ThreadLocalRandom.current().nextInt(1, 10000)
 
     @Benchmark
     // running on all cores doesn't make much difference
     fun _1kBatchUpdate() = runBlocking(executorService.asCoroutineDispatcher()) {
         awaitAll(*Array(1000) {
             async {
-                val ids = List(20) { random.nextIntBetween1And10000() }
+                val ids = List(20) { nextIntBetween1And10000() }
                 val sortedIds = ids.sorted()
                 databaseClient.executeBatchUpdate(
                     sortedIds.map { id ->
                         buildStatement {
                             WorldTable.update({ WorldTable.id eq id }) {
-                                it[randomNumber] = random.nextIntBetween1And10000()
+                                it[randomNumber] = nextIntBetween1And10000()
                             }
                         }
                     }
@@ -137,10 +139,10 @@ class TfbBatchUpdateBenchmark : WithContainerizedDatabaseAndExposedDatabaseBench
     fun _1kVertxSqlClientBatchUpdate() = runBlocking(executorService.asCoroutineDispatcher()) {
         awaitAll(*Array(1000) {
             async {
-                val ids = List(20) { random.nextIntBetween1And10000() }
+                val ids = List(20) { nextIntBetween1And10000() }
                 val sortedIds = ids.sorted()
                 pgConnection.preparedQuery(UPDATE_WORLD_SQL)
-                    .executeBatch(sortedIds.map { id -> Tuple.of(random.nextIntBetween1And10000(), id) }).coAwait()
+                    .executeBatch(sortedIds.map { id -> Tuple.of(nextIntBetween1And10000(), id) }).coAwait()
             }
         })
     }
