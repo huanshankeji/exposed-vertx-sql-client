@@ -126,6 +126,7 @@ class TfbBatchUpdateBenchmark : WithContainerizedDatabaseAndExposedDatabaseBench
             async {
                 val ids = List(20) { nextIntBetween1And10000() }
                 val sortedIds = ids.sorted()
+                //println("sortedIds: $sortedIds")
                 databaseClient.executeBatchUpdate(
                     sortedIds.map { id ->
                         buildStatement {
@@ -150,6 +151,7 @@ class TfbBatchUpdateBenchmark : WithContainerizedDatabaseAndExposedDatabaseBench
             async {
                 val ids = List(20) { nextIntBetween1And10000() }
                 val sortedIds = ids.sorted()
+                //println("sortedIds: $sortedIds")
                 pgConnection.preparedQuery(UPDATE_WORLD_SQL)
                     .executeBatch(sortedIds.map { id -> Tuple.of(nextIntBetween1And10000(), id) }).coAwait()
             }
