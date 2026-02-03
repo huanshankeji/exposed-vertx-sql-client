@@ -31,6 +31,8 @@ sealed class TfbBatchUpdateBenchmark : WithContainerizedDatabaseAndExposedDataba
     // to prevent `java.util.concurrent.RejectedExecutionException: event executor terminated`
     val vertx = Vertx.vertx()
     lateinit var pgConnection: PgConnection
+    // `Pool`
+    //lateinit var pgConnection: Pool
 
     val random = Random(0)
 
@@ -56,6 +58,14 @@ sealed class TfbBatchUpdateBenchmark : WithContainerizedDatabaseAndExposedDataba
                 cachePreparedStatements = true
                 pipeliningLimit = 256
             })
+            /*
+            createPgPool(vertx, connectionConfig, {
+                cachePreparedStatements = true
+                pipeliningLimit = 256
+            }, {
+                maxSize = numProcessors
+            })
+            */
         }
         //executorService = Executors.newFixedThreadPool(numProcessors)
     }
@@ -82,11 +92,13 @@ sealed class TfbBatchUpdateBenchmark : WithContainerizedDatabaseAndExposedDataba
 
     @Benchmark
     // running on all cores doesn't make a difference
+    // about 10x performance with `Pool` but it results in "io.vertx.pgclient.PgException: ERROR: deadlock detected (40P01)"
     fun _1kBatchUpdate() = runBlocking/*(executorService.asCoroutineDispatcher())*/ {
         awaitAll(*Array(1000) {
             async {
                 val ids = List(20) { nextIntBetween1And10000() }
                 val sortedIds = ids.sorted()
+                //println("sortedIds: $sortedIds")
                 executeBatchUpdateWithIds(sortedIds)
             }
         })
@@ -97,6 +109,7 @@ sealed class TfbBatchUpdateBenchmark : WithContainerizedDatabaseAndExposedDataba
      */
     sealed class WithDatabaseClient : TfbBatchUpdateBenchmark() {
         lateinit var databaseClient: DatabaseClient<PgConnection>
+        //lateinit var databaseClient: DatabaseClient<Pool>
 
         @Setup
         override fun setup() {
