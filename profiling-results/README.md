@@ -3,16 +3,24 @@
 This directory contains profiling results comparing the performance of two different `StatementPreparationExposedTransactionProvider` implementations:
 
 1. **DatabaseExposedTransactionProvider** - Creates a new transaction for each SQL preparation call (traditional approach)
-2. **JdbcTransactionExposedTransactionProvider** - Reuses a single JDBC transaction for all SQL preparation calls (optimized approach)
+2. **JdbcTransactionExposedTransactionProvider** - Reuses a single JDBC transaction for all SQL preparation calls (performance optimization hypothesis being tested)
 
 ## Flame Graphs
 
 The profiling was performed using [async-profiler](https://github.com/async-profiler/async-profiler) v3.0 with itimer-based CPU sampling. Each provider was profiled with 10 iterations of 1000 batch updates (20 updates each).
 
+### DatabaseExposedTransactionProvider Flame Graph
+
+![DatabaseExposedTransactionProvider Flame Graph](https://github.com/user-attachments/assets/f28a8575-80ab-496f-9bed-4203d94b844e)
+
+### JdbcTransactionExposedTransactionProvider Flame Graph
+
+![JdbcTransactionExposedTransactionProvider Flame Graph](https://github.com/user-attachments/assets/fc8454de-5701-444c-b6b0-d5c2207d317b)
+
 ### Files
 
-- `database_provider_profile.html` - Flame graph for `WithDatabaseExposedTransactionProvider`
-- `jdbc_provider_profile.html` - Flame graph for `WithJdbcTransactionExposedTransactionProvider`
+- `database_provider_profile.html` - Interactive flame graph for `WithDatabaseExposedTransactionProvider`
+- `jdbc_provider_profile.html` - Interactive flame graph for `WithJdbcTransactionExposedTransactionProvider`
 
 ### How to View
 

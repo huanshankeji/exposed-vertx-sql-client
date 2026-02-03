@@ -56,6 +56,8 @@ tasks.test {
 
 // Profiling tasks for TfbBatchUpdateBenchmark
 // These allow running the benchmark code with async-profiler for generating flame graphs
+val profilingOutputDir = "${project.rootDir}/profiling-results"
+
 tasks.register<JavaExec>("profileWithDatabaseProvider") {
     group = "profiling"
     description = "Profile TfbBatchUpdate with DatabaseExposedTransactionProvider"
@@ -66,7 +68,7 @@ tasks.register<JavaExec>("profileWithDatabaseProvider") {
     // Set JVM args for async-profiler if the path is provided
     // Using itimer for CPU profiling when perf_events is not available
     val asyncProfilerPath = project.findProperty("asyncProfilerPath") as String?
-    val outputFile = project.findProperty("profileOutputFile") as String? ?: "${project.rootDir}/profiling-results/database_provider_profile.html"
+    val outputFile = project.findProperty("profileOutputFile") as String? ?: "$profilingOutputDir/database_provider_profile.html"
     if (asyncProfilerPath != null) {
         jvmArgs = listOf("-agentpath:$asyncProfilerPath=start,event=itimer,file=$outputFile")
     }
@@ -82,7 +84,7 @@ tasks.register<JavaExec>("profileWithJdbcProvider") {
     // Set JVM args for async-profiler if the path is provided
     // Using itimer for CPU profiling when perf_events is not available
     val asyncProfilerPath = project.findProperty("asyncProfilerPath") as String?
-    val outputFile = project.findProperty("profileOutputFile") as String? ?: "${project.rootDir}/profiling-results/jdbc_provider_profile.html"
+    val outputFile = project.findProperty("profileOutputFile") as String? ?: "$profilingOutputDir/jdbc_provider_profile.html"
     if (asyncProfilerPath != null) {
         jvmArgs = listOf("-agentpath:$asyncProfilerPath=start,event=itimer,file=$outputFile")
     }
