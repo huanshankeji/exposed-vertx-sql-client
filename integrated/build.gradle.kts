@@ -68,3 +68,13 @@ afterEvaluate {
         "benchmarksRuntimeOnly"(commonDependencies.slf4j.simple())
     }
 }
+
+// Helper task to print the benchmarks classpath for profiling
+tasks.register("printBenchmarksClasspath") {
+    val benchmarksSourceSet = project.extensions.getByType<SourceSetContainer>().named("benchmarks")
+    val classpathProvider = benchmarksSourceSet.map { it.runtimeClasspath.asPath }
+    
+    doLast {
+        println(classpathProvider.get())
+    }
+}

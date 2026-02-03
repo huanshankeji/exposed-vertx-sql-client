@@ -2,3 +2,10 @@
 .kotlin
 build
 .idea
+
+# Profiling results - exclude FlameGraph repo and intermediate files
+profiling-results/FlameGraph/
+profiling-results/*_execution.txt
+profiling-results/*_collapsed.txt
+profiling-results/jfr-flame-graph.jar
+
