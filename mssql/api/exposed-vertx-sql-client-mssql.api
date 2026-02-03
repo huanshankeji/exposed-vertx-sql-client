@@ -1,6 +1,6 @@
 public final class com/huanshankeji/exposedvertxsqlclient/mssql/DatabaseClientConfigKt {
-	public static final fun MssqlDatabaseClientConfig (ZZLjava/lang/Integer;Z)Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClientConfig;
-	public static synthetic fun MssqlDatabaseClientConfig$default (ZZLjava/lang/Integer;ZILjava/lang/Object;)Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClientConfig;
+	public static final fun MssqlDatabaseClientConfig (Lcom/huanshankeji/exposedvertxsqlclient/StatementPreparationExposedTransactionProvider;ZZZ)Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClientConfig;
+	public static synthetic fun MssqlDatabaseClientConfig$default (Lcom/huanshankeji/exposedvertxsqlclient/StatementPreparationExposedTransactionProvider;ZZZILjava/lang/Object;)Lcom/huanshankeji/exposedvertxsqlclient/DatabaseClientConfig;
 }
 
 public final class com/huanshankeji/exposedvertxsqlclient/mssql/DatabaseClientKt {
