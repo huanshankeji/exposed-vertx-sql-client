@@ -54,6 +54,40 @@ tasks.test {
     useJUnitPlatform()
 }
 
+// Profiling tasks for TfbBatchUpdateBenchmark
+// These allow running the benchmark code with async-profiler for generating flame graphs
+tasks.register<JavaExec>("profileWithDatabaseProvider") {
+    group = "profiling"
+    description = "Profile TfbBatchUpdate with DatabaseExposedTransactionProvider"
+    mainClass.set("com.huanshankeji.exposedvertxsqlclient.integrated.profiling.TfbBatchUpdateProfilingMainKt")
+    classpath = sourceSets.main.get().runtimeClasspath
+    args = listOf("database", "10")
+    
+    // Set JVM args for async-profiler if the path is provided
+    // Using itimer for CPU profiling when perf_events is not available
+    val asyncProfilerPath = project.findProperty("asyncProfilerPath") as String?
+    val outputFile = project.findProperty("profileOutputFile") as String? ?: "${project.rootDir}/profiling-results/database_provider_profile.html"
+    if (asyncProfilerPath != null) {
+        jvmArgs = listOf("-agentpath:$asyncProfilerPath=start,event=itimer,file=$outputFile")
+    }
+}
+
+tasks.register<JavaExec>("profileWithJdbcProvider") {
+    group = "profiling"
+    description = "Profile TfbBatchUpdate with JdbcTransactionExposedTransactionProvider"
+    mainClass.set("com.huanshankeji.exposedvertxsqlclient.integrated.profiling.TfbBatchUpdateProfilingMainKt")
+    classpath = sourceSets.main.get().runtimeClasspath
+    args = listOf("jdbc", "10")
+    
+    // Set JVM args for async-profiler if the path is provided
+    // Using itimer for CPU profiling when perf_events is not available
+    val asyncProfilerPath = project.findProperty("asyncProfilerPath") as String?
+    val outputFile = project.findProperty("profileOutputFile") as String? ?: "${project.rootDir}/profiling-results/jdbc_provider_profile.html"
+    if (asyncProfilerPath != null) {
+        jvmArgs = listOf("-agentpath:$asyncProfilerPath=start,event=itimer,file=$outputFile")
+    }
+}
+
 afterEvaluate {
 // for the benchmarks
     dependencies {
