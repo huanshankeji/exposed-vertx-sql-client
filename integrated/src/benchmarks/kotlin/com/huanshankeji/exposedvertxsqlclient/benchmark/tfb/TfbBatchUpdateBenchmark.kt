@@ -41,7 +41,9 @@ import kotlin.random.Random
 @State(Scope.Benchmark)
 @OptIn(ExperimentalEvscApi::class)
 class TfbBatchUpdateBenchmark : WithContainerizedDatabaseAndExposedDatabaseBenchmark() {
-    lateinit var vertx: Vertx
+    //lateinit var vertx: Vertx
+    // to prevent `java.util.concurrent.RejectedExecutionException: event executor terminated`
+    val vertx = Vertx.vertx()
     lateinit var pgConnection: PgConnection
 
     lateinit var databaseClient: DatabaseClient<PgConnection>
@@ -66,7 +68,7 @@ class TfbBatchUpdateBenchmark : WithContainerizedDatabaseAndExposedDatabaseBench
             }
         }
 
-        vertx = Vertx.vertx()
+        //vertx = Vertx.vertx()
 
         pgConnection = runBlocking {
             createPgConnection(vertx, connectionConfig, {
@@ -95,7 +97,7 @@ class TfbBatchUpdateBenchmark : WithContainerizedDatabaseAndExposedDatabaseBench
         executorService.shutdown()
         runBlocking {
             pgConnection.close().coAwait()
-            vertx.close().coAwait()
+            //vertx.close().coAwait()
         }
         transaction(database) {
             SchemaUtils.drop(WorldTable)
