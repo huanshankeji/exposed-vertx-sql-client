@@ -38,6 +38,7 @@ import kotlin.random.Random
  *
  * Based on https://github.com/huanshankeji/FrameworkBenchmarks/blob/aa271b70ff99411c8a47e99a06cfa2d856245dd0/frameworks/Kotlin/vertx-web-kotlinx/with-db/exposed-vertx-sql-client/src/main/kotlin/MainVerticle.kt#L34-L42
  */
+// The benchmark can also be refactored to an abstract class with 3 subclasses to prevent `_1kVertxSqlClientBatchUpdate` from running twice.
 @State(Scope.Benchmark)
 @OptIn(ExperimentalEvscApi::class)
 class TfbBatchUpdateBenchmark : WithContainerizedDatabaseAndExposedDatabaseBenchmark() {
