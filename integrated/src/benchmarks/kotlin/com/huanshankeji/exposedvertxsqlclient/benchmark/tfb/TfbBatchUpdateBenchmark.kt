@@ -2,6 +2,7 @@ package com.huanshankeji.exposedvertxsqlclient.benchmark.tfb
 
 import com.huanshankeji.exposed.benchmark.`1M`
 import com.huanshankeji.exposed.benchmark.jdbc.WithContainerizedDatabaseAndExposedDatabaseBenchmark
+import com.huanshankeji.exposed.benchmark.numProcessors
 import com.huanshankeji.exposedvertxsqlclient.*
 import com.huanshankeji.exposedvertxsqlclient.postgresql.PgDatabaseClientConfig
 import com.huanshankeji.exposedvertxsqlclient.postgresql.vertx.pgclient.createPgConnection
@@ -10,6 +11,7 @@ import io.vertx.kotlin.coroutines.coAwait
 import io.vertx.pgclient.PgConnection
 import io.vertx.sqlclient.Tuple
 import kotlinx.benchmark.*
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
@@ -19,6 +21,7 @@ import org.jetbrains.exposed.v1.core.statements.buildStatement
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.batchInsert
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import java.util.concurrent.Executors
 import kotlin.random.Random
 
 /**
@@ -160,6 +163,23 @@ sealed class TfbBatchUpdateBenchmark : WithContainerizedDatabaseAndExposedDataba
                     repeat(`1M`) {
                         @OptIn(InternalApi::class)
                         prepareBatchSqlAndArgTuplesWithProvidedTransaction(statements(nextSortedIds()))
+                    }
+                }
+            }
+        }
+
+        @Benchmark
+        fun _1mConcurrentPrepareBatchSqlAndArgTuplesWithProvidedTransaction() {
+            with(databaseClient) {
+                statementPreparationExposedTransaction {
+                    // TODO extract this to a reusable dispatcher
+                    runBlocking(Executors.newFixedThreadPool(numProcessors).asCoroutineDispatcher()) {
+                        awaitAll(*Array(`1M`) {
+                            async {
+                                @OptIn(InternalApi::class)
+                                prepareBatchSqlAndArgTuplesWithProvidedTransaction(statements(nextSortedIds()))
+                            }
+                        })
                     }
                 }
             }
