@@ -125,10 +125,11 @@ sealed class TfbBatchUpdateBenchmark : WithContainerizedDatabaseAndExposedDataba
         override fun setup() {
             super.setup()
 
+            val transactionProvider = exposedTransactionProvider()
             databaseClient = DatabaseClient(
                 pgConnection,
                 PgDatabaseClientConfig(
-                    exposedTransactionProvider(),
+                    transactionProvider,
                     validateBatch = false
                 )
             )
