@@ -82,8 +82,8 @@ class TfbBatchUpdateProfiling(private val providerName: String) {
 
     fun nextIntBetween1And10000() = random.nextInt(1, 10001)
 
-    fun run1kBatchUpdateWithDatabaseExposedTransactionProvider(iterations: Int) {
-        println("[$providerName] Running with DatabaseExposedTransactionProvider for $iterations iterations...")
+    fun run1kBatchUpdateWithDatabaseExposedTransactionProvider() {
+        println("[$providerName] Running with DatabaseExposedTransactionProvider...")
         val databaseClient = DatabaseClient(
             pgConnection,
             PgDatabaseClientConfig(
@@ -91,11 +91,11 @@ class TfbBatchUpdateProfiling(private val providerName: String) {
                 validateBatch = false
             )
         )
-        run1kBatchUpdateWithDatabaseClient(databaseClient, iterations)
+        run1kBatchUpdateWithDatabaseClient(databaseClient)
     }
 
-    fun run1kBatchUpdateWithJdbcTransactionExposedTransactionProvider(iterations: Int) {
-        println("[$providerName] Running with JdbcTransactionExposedTransactionProvider for $iterations iterations...")
+    fun run1kBatchUpdateWithJdbcTransactionExposedTransactionProvider() {
+        println("[$providerName] Running with JdbcTransactionExposedTransactionProvider...")
         val databaseClient = DatabaseClient(
             pgConnection,
             PgDatabaseClientConfig(
@@ -103,33 +103,28 @@ class TfbBatchUpdateProfiling(private val providerName: String) {
                 validateBatch = false
             )
         )
-        run1kBatchUpdateWithDatabaseClient(databaseClient, iterations)
+        run1kBatchUpdateWithDatabaseClient(databaseClient)
     }
 
-    private fun run1kBatchUpdateWithDatabaseClient(databaseClient: DatabaseClient<PgConnection>, iterations: Int) {
-        repeat(iterations) { iteration ->
-            if ((iteration + 1) % 10 == 0) {
-                println("[$providerName] Iteration ${iteration + 1}/$iterations")
-            }
-            runBlocking {
-                awaitAll(*Array(1000) {
-                    async {
-                        val ids = List(20) { nextIntBetween1And10000() }
-                        val sortedIds = ids.sorted()
-                        databaseClient.executeBatchUpdate(
-                            sortedIds.map { id ->
-                                buildStatement {
-                                    WorldTable.update({ WorldTable.id eq id }) {
-                                        it[randomNumber] = nextIntBetween1And10000()
-                                    }
+    private fun run1kBatchUpdateWithDatabaseClient(databaseClient: DatabaseClient<PgConnection>) {
+        runBlocking {
+            awaitAll(*Array(1000) {
+                async {
+                    val ids = List(20) { nextIntBetween1And10000() }
+                    val sortedIds = ids.sorted()
+                    databaseClient.executeBatchUpdate(
+                        sortedIds.map { id ->
+                            buildStatement {
+                                WorldTable.update({ WorldTable.id eq id }) {
+                                    it[randomNumber] = nextIntBetween1And10000()
                                 }
                             }
-                        )
-                    }
-                })
-            }
+                        }
+                    )
+                }
+            })
         }
-        println("[$providerName] Completed $iterations iterations.")
+        println("[$providerName] Completed.")
     }
 }
 
@@ -140,18 +135,15 @@ class TfbBatchUpdateProfiling(private val providerName: String) {
  *
  * Command line arguments:
  *   - First arg: "database" or "jdbc" to select the transaction provider type
- *   - Second arg (optional): number of iterations (default: 50)
  *
  * Example usage with async-profiler:
- *   ./gradlew :exposed-vertx-sql-client-integrated:run -PmainClass=com.huanshankeji.exposedvertxsqlclient.integrated.profiling.TfbBatchUpdateProfilingMainKt --args="database 50"
+ *   ./gradlew :exposed-vertx-sql-client-integrated:run -PmainClass=com.huanshankeji.exposedvertxsqlclient.integrated.profiling.TfbBatchUpdateProfilingMainKt --args="database"
  */
 fun main(args: Array<String>) {
     val providerType = args.getOrNull(0) ?: "database"
-    val iterations = args.getOrNull(1)?.toIntOrNull() ?: 50
 
     println("Starting TfbBatchUpdate profiling")
     println("Provider type: $providerType")
-    println("Iterations: $iterations")
     println()
 
     val profiling = TfbBatchUpdateProfiling(providerType)
@@ -160,8 +152,8 @@ fun main(args: Array<String>) {
 
         val startTime = System.currentTimeMillis()
         when (providerType.lowercase()) {
-            "database" -> profiling.run1kBatchUpdateWithDatabaseExposedTransactionProvider(iterations)
-            "jdbc" -> profiling.run1kBatchUpdateWithJdbcTransactionExposedTransactionProvider(iterations)
+            "database" -> profiling.run1kBatchUpdateWithDatabaseExposedTransactionProvider()
+            "jdbc" -> profiling.run1kBatchUpdateWithJdbcTransactionExposedTransactionProvider()
             else -> {
                 println("Unknown provider type: $providerType. Use 'database' or 'jdbc'.")
                 return

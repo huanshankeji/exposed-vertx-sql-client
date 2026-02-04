@@ -7,7 +7,7 @@ This directory contains profiling results comparing the performance of two diffe
 
 ## Flame Graphs
 
-The profiling was performed using [async-profiler](https://github.com/async-profiler/async-profiler) v3.0 with itimer-based CPU sampling. Each provider was profiled with 10 iterations of 1000 batch updates (20 updates each).
+The profiling was performed using [async-profiler](https://github.com/async-profiler/async-profiler) v3.0 with itimer-based CPU sampling. Each provider was profiled with 1000 concurrent batch updates (20 UPDATE statements each).
 
 ### DatabaseExposedTransactionProvider Flame Graph
 
@@ -44,8 +44,7 @@ When comparing the two flame graphs, look for:
 
 - **Tool**: async-profiler 3.0
 - **Event type**: itimer (interval timer - used when perf_events is not available)
-- **Iterations**: 10
-- **Batch size per iteration**: 1000 async updates, 20 UPDATE statements each
+- **Batch size**: 1000 concurrent async updates, 20 UPDATE statements each
 - **Database**: PostgreSQL via Testcontainers
 
 ## Regenerating the Profiles

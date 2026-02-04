@@ -63,7 +63,7 @@ tasks.register<JavaExec>("profileWithDatabaseProvider") {
     description = "Profile TfbBatchUpdate with DatabaseExposedTransactionProvider"
     mainClass.set("com.huanshankeji.exposedvertxsqlclient.integrated.profiling.TfbBatchUpdateProfilingMainKt")
     classpath = sourceSets.main.get().runtimeClasspath
-    args = listOf("database", "10")
+    args = listOf("database")
     
     // Set JVM args for async-profiler if the path is provided
     // Using itimer for CPU profiling when perf_events is not available
@@ -79,7 +79,7 @@ tasks.register<JavaExec>("profileWithJdbcProvider") {
     description = "Profile TfbBatchUpdate with JdbcTransactionExposedTransactionProvider"
     mainClass.set("com.huanshankeji.exposedvertxsqlclient.integrated.profiling.TfbBatchUpdateProfilingMainKt")
     classpath = sourceSets.main.get().runtimeClasspath
-    args = listOf("jdbc", "10")
+    args = listOf("jdbc")
     
     // Set JVM args for async-profiler if the path is provided
     // Using itimer for CPU profiling when perf_events is not available
