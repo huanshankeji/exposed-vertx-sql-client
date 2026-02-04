@@ -1,5 +1,6 @@
 package com.huanshankeji.exposedvertxsqlclient.benchmark.tfb
 
+import com.huanshankeji.exposed.benchmark.`1M`
 import com.huanshankeji.exposed.benchmark.jdbc.WithContainerizedDatabaseAndExposedDatabaseBenchmark
 import com.huanshankeji.exposedvertxsqlclient.*
 import com.huanshankeji.exposedvertxsqlclient.postgresql.PgDatabaseClientConfig
@@ -150,6 +151,18 @@ sealed class TfbBatchUpdateBenchmark : WithContainerizedDatabaseAndExposedDataba
         fun prepareBatchSqlAndArgTuples() {
             @OptIn(InternalApi::class)
             databaseClient.prepareBatchSqlAndArgTuples(statements(nextSortedIds()))
+        }
+
+        @Benchmark
+        fun _1mPrepareBatchSqlAndArgTuplesWithProvidedTransaction() {
+            with(databaseClient) {
+                statementPreparationExposedTransaction {
+                    repeat(`1M`) {
+                        @OptIn(InternalApi::class)
+                        prepareBatchSqlAndArgTuplesWithProvidedTransaction(statements(nextSortedIds()))
+                    }
+                }
+            }
         }
 
         class WithDatabaseExposedTransactionProvider : WithDatabaseClient() {

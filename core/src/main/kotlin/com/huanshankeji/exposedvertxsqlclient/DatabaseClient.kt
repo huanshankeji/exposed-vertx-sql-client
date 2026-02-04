@@ -440,41 +440,44 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
         }
 
     @InternalApi
-    fun prepareBatchSqlAndArgTuples(statements: Iterable<Statement<*>>): Pair<String?, List<Tuple>> =
-        statementPreparationExposedTransaction {
-            var sql: String? = null
-            //var argumentTypes: List<IColumnType>? = null
+    fun ExposedTransaction.prepareBatchSqlAndArgTuplesWithProvidedTransaction(statements: Iterable<Statement<*>>): Pair<String?, List<Tuple>> {
+        var sql: String? = null
+        //var argumentTypes: List<IColumnType>? = null
 
-            val argTuples = statements.map { statement ->
-                // The `map` is currently not parallelized.
+        val argTuples = statements.map { statement ->
+            // The `map` is currently not parallelized.
 
-                val arguments = statement.singleStatementArguments()
-                    ?: throw IllegalArgumentException("the prepared query of a batch statement should have arguments")
-                if (sql === null) {
-                    sql = statement.prepareSqlAndLogIfNeeded(this)
-                    //argumentTypes = arguments.types()
-                } else if (config.validateBatch) {
-                    val currentSql = statement.prepareSQL(this)
-                    require(currentSql == sql) {
-                        "The statements passed should generate the same prepared SQL statement. " +
-                                "However, we have got SQL statement \"$sql\" set by each previous element (at least one) " +
-                                "and SQL statement \"$currentSql\" set by the current statement $statement."
-                    }
-                    /*
-                    val currentElementArgumentTypes = arguments.types()
-                    require(currentElementArgumentTypes == argumentTypes!!) {
-                        "The statement after set by `setUpStatement` each time should generate the same argument types. " +
-                                "However we have got argument types $argumentTypes set by each previous element (at least one) " +
-                                "and argument types $currentElementArgumentTypes set by the current element $element"
-                    }
-                    */
+            val arguments = statement.singleStatementArguments()
+                ?: throw IllegalArgumentException("the prepared query of a batch statement should have arguments")
+            if (sql === null) {
+                sql = statement.prepareSqlAndLogIfNeeded(this)
+                //argumentTypes = arguments.types()
+            } else if (config.validateBatch) {
+                val currentSql = statement.prepareSQL(this)
+                require(currentSql == sql) {
+                    "The statements passed should generate the same prepared SQL statement. " +
+                            "However, we have got SQL statement \"$sql\" set by each previous element (at least one) " +
+                            "and SQL statement \"$currentSql\" set by the current statement $statement."
                 }
-
-                arguments.toVertxTuple()
+                /*
+                val currentElementArgumentTypes = arguments.types()
+                require(currentElementArgumentTypes == argumentTypes!!) {
+                    "The statement after set by `setUpStatement` each time should generate the same argument types. " +
+                            "However we have got argument types $argumentTypes set by each previous element (at least one) " +
+                            "and argument types $currentElementArgumentTypes set by the current element $element"
+                }
+                */
             }
 
-            sql to argTuples
+            arguments.toVertxTuple()
         }
+
+        return sql to argTuples
+    }
+
+    @InternalApi
+    fun prepareBatchSqlAndArgTuples(statements: Iterable<Statement<*>>): Pair<String?, List<Tuple>> =
+        statementPreparationExposedTransaction { prepareBatchSqlAndArgTuplesWithProvidedTransaction(statements) }
 
     /**
      * @see org.jetbrains.exposed.v1.jdbc.batchInsert
