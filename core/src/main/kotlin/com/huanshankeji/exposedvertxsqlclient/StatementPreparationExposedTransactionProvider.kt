@@ -100,15 +100,14 @@ class JdbcTransactionExposedTransactionProvider(
 
     @OptIn(InternalApi::class)
     override fun <T> statementPreparationExposedTransaction(block: ExposedTransaction.() -> T): T {
-        logger.info("transaction id: ${jdbcTransaction.transactionId}")
+        System.err.println("transaction id: ${jdbcTransaction.transactionId}")
         System.err.println("before `withThreadLocalTransaction`, transaction stack size: ${ThreadLocalTransactionsStack.threadTransactions()?.size}")
-        logger.info("before `withThreadLocalTransaction`, transaction stack size: ${ThreadLocalTransactionsStack.threadTransactions()?.size}")
         // Call statement directly on the transaction - it will be executed in the transaction context
         val result = withThreadLocalTransaction(jdbcTransaction) {
-            logger.info("in `withThreadLocalTransaction`, transaction stack size: ${ThreadLocalTransactionsStack.threadTransactions()?.size}")
+            System.err.println("in `withThreadLocalTransaction`, transaction stack size: ${ThreadLocalTransactionsStack.threadTransactions()?.size}")
             jdbcTransaction.block()
         }
-        logger.info("after `withThreadLocalTransaction`, transaction stack size: ${ThreadLocalTransactionsStack.threadTransactions()?.size}")
+        System.err.println("after `withThreadLocalTransaction`, transaction stack size: ${ThreadLocalTransactionsStack.threadTransactions()?.size}")
         return result
     }
 
