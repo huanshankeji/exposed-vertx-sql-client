@@ -13,6 +13,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.statements.UpdateStatement
 import org.jetbrains.exposed.v1.core.statements.buildStatement
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.batchInsert
@@ -90,14 +91,19 @@ sealed class TfbBatchUpdateBenchmark : WithContainerizedDatabaseAndExposedDataba
 
     protected abstract suspend fun executeBatchUpdateWithIds(sortedIds: List<Int>)
 
+    protected fun nextSortedIds(): List<Int> {
+        val ids = List(20) { nextIntBetween1And10000() }
+        val sortedIds = ids.sorted()
+        return sortedIds
+    }
+
     @Benchmark
     // running on all cores doesn't make a difference
     // about 10x performance with `Pool` but it results in "io.vertx.pgclient.PgException: ERROR: deadlock detected (40P01)"
     fun _1kBatchUpdate() = runBlocking/*(executorService.asCoroutineDispatcher())*/ {
         awaitAll(*Array(1000) {
             async {
-                val ids = List(20) { nextIntBetween1And10000() }
-                val sortedIds = ids.sorted()
+                val sortedIds = nextSortedIds()
                 //println("sortedIds: $sortedIds")
                 executeBatchUpdateWithIds(sortedIds)
             }
@@ -126,16 +132,24 @@ sealed class TfbBatchUpdateBenchmark : WithContainerizedDatabaseAndExposedDataba
 
         abstract fun exposedTransactionProvider(): StatementPreparationExposedTransactionProvider
 
+        private fun statements(sortedIds: List<Int>): List<UpdateStatement> = sortedIds.map { id ->
+            buildStatement {
+                WorldTable.update({ WorldTable.id eq id }) {
+                    it[randomNumber] = nextIntBetween1And10000()
+                }
+            }
+        }
+
         override suspend fun executeBatchUpdateWithIds(sortedIds: List<Int>) {
             databaseClient.executeBatchUpdate(
-                sortedIds.map { id ->
-                    buildStatement {
-                        WorldTable.update({ WorldTable.id eq id }) {
-                            it[randomNumber] = nextIntBetween1And10000()
-                        }
-                    }
-                }
+                statements(sortedIds)
             )
+        }
+
+        @Benchmark
+        fun prepareBatchSqlAndArgTuples() {
+            @OptIn(InternalApi::class)
+            databaseClient.prepareBatchSqlAndArgTuples(statements(nextSortedIds()))
         }
 
         class WithDatabaseExposedTransactionProvider : WithDatabaseClient() {
