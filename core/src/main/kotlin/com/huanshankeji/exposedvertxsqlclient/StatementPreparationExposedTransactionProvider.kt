@@ -1,6 +1,7 @@
 package com.huanshankeji.exposedvertxsqlclient
 
 import org.jetbrains.exposed.v1.core.InternalApi
+import org.jetbrains.exposed.v1.core.transactions.ThreadLocalTransactionsStack
 import org.jetbrains.exposed.v1.core.transactions.withThreadLocalTransaction
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
@@ -98,9 +99,18 @@ class JdbcTransactionExposedTransactionProvider(
     )
 
     @OptIn(InternalApi::class)
-    override fun <T> statementPreparationExposedTransaction(block: ExposedTransaction.() -> T): T =
+    override fun <T> statementPreparationExposedTransaction(block: ExposedTransaction.() -> T): T {
+        logger.info("transaction id: ${jdbcTransaction.transactionId}")
+        System.err.println("before `withThreadLocalTransaction`, transaction stack size: ${ThreadLocalTransactionsStack.threadTransactions()?.size}")
+        logger.info("before `withThreadLocalTransaction`, transaction stack size: ${ThreadLocalTransactionsStack.threadTransactions()?.size}")
         // Call statement directly on the transaction - it will be executed in the transaction context
-        withThreadLocalTransaction(jdbcTransaction) { jdbcTransaction.block() }
+        val result = withThreadLocalTransaction(jdbcTransaction) {
+            logger.info("in `withThreadLocalTransaction`, transaction stack size: ${ThreadLocalTransactionsStack.threadTransactions()?.size}")
+            jdbcTransaction.block()
+        }
+        logger.info("after `withThreadLocalTransaction`, transaction stack size: ${ThreadLocalTransactionsStack.threadTransactions()?.size}")
+        return result
+    }
 
     @Deprecated("Not currently used by other declarations in this library.")
     override fun <T> withExplicitOnlyStatementPreparationExposedTransaction(block: ExposedTransaction.() -> T): T =
