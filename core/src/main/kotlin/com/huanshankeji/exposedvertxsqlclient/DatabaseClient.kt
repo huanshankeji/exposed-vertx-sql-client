@@ -263,6 +263,13 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
         @OptIn(ExperimentalEvscApi::class)
         execute(statement, transformQuery)
 
+    @InternalApi
+    fun prepareSqlAndArgTuple(statement: Statement<*>): Pair<String, Tuple?> =
+        statementPreparationExposedTransaction {
+            config.transformPreparedSql(statement.prepareSqlAndLogIfNeeded(this)) to
+                    statement.getVertxSqlClientArgTuple()
+        }
+
     /**
      * @param transformQuery transform the query by calling [PreparedQuery.mapping] and [PreparedQuery.collecting].
      */
@@ -271,10 +278,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
         statement: Statement<*>,
         transformQuery: PreparedQuery<RowSet<Row>>.() -> PreparedQuery<SqlResultT>
     ): SqlResultT {
-        val (sql, argTuple) = statementPreparationExposedTransaction {
-            config.transformPreparedSql(statement.prepareSqlAndLogIfNeeded(this)) to
-                    statement.getVertxSqlClientArgTuple()
-        }
+        val (sql, argTuple) = prepareSqlAndArgTuple(statement)
         return vertxSqlClient.preparedQuery(sql)
             .transformQuery()
             .run { if (argTuple === null) execute() else execute(argTuple) }
@@ -435,22 +439,9 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
             false
         }
 
-
-    /**
-     * @see org.jetbrains.exposed.v1.jdbc.batchInsert
-     * @see org.jetbrains.exposed.v1.jdbc.executeBatch
-     * @see org.jetbrains.exposed.v1.core.statements.BatchUpdateStatement.addBatch though this function seems never used in Exposed
-     * @see PreparedQuery.executeBatch
-     * @see execute
-     */
-    @ExperimentalEvscApi
-    suspend /*inline*/ fun <SqlResultT : SqlResult<*>> executeBatch(
-        statements: Iterable<Statement<*>>,
-        transformQuery: PreparedQuery<RowSet<Row>>.() -> PreparedQuery<SqlResultT>
-    ): Sequence<SqlResultT> {
-        //if (data.none()) return emptySequence() // This causes "java.lang.IllegalStateException: This sequence can be consumed only once." when `data` is a `ConstrainedOnceSequence`.
-
-        val (sql, argTuples) = statementPreparationExposedTransaction {
+    @InternalApi
+    fun prepareBatchSqlAndArgTuples(statements: Iterable<Statement<*>>): Pair<String?, List<Tuple>> =
+        statementPreparationExposedTransaction {
             var sql: String? = null
             //var argumentTypes: List<IColumnType>? = null
 
@@ -484,6 +475,22 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
 
             sql to argTuples
         }
+
+    /**
+     * @see org.jetbrains.exposed.v1.jdbc.batchInsert
+     * @see org.jetbrains.exposed.v1.jdbc.executeBatch
+     * @see org.jetbrains.exposed.v1.core.statements.BatchUpdateStatement.addBatch though this function seems never used in Exposed
+     * @see PreparedQuery.executeBatch
+     * @see execute
+     */
+    @ExperimentalEvscApi
+    suspend /*inline*/ fun <SqlResultT : SqlResult<*>> executeBatch(
+        statements: Iterable<Statement<*>>,
+        transformQuery: PreparedQuery<RowSet<Row>>.() -> PreparedQuery<SqlResultT>
+    ): Sequence<SqlResultT> {
+        //if (data.none()) return emptySequence() // This causes "java.lang.IllegalStateException: This sequence can be consumed only once." when `data` is a `ConstrainedOnceSequence`.
+
+        val (sql, argTuples) = prepareBatchSqlAndArgTuples(statements)
 
         if (sql === null)
             return emptySequence()
