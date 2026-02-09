@@ -54,7 +54,13 @@ This document presents the profiling results for the `_1kBatchUpdate` benchmark 
 ### Key Observations from Flame Graphs
 
 1. **Stack Complexity**: 
-   - The `JdbcTransactionExposedTransactionProvider` shows 22% more unique stack traces (104 vs 85), suggesting slightly more complex execution paths.
+   - The `JdbcTransactionExposedTransactionProvider` shows 22% more unique stack traces (104 vs 85), indicating more complex execution paths.
+   - **Detailed Analysis**: See [DETAILED_EXECUTION_PATH_ANALYSIS.md](./DETAILED_EXECUTION_PATH_ANALYSIS.md) for a comprehensive breakdown of the additional execution paths, including:
+     - 34 unique transaction context management paths (ThreadLocal operations, lambda wrappers)
+     - 14 unique JDBC batch execution paths (different prepared statement lifecycle)
+     - 5 unique connection management paths (SSL/TLS initialization, connection pooling)
+     - Additional argument processing and type conversion patterns
+   - Despite 22% more paths, performance impact is <1% because these additional functions are lightweight and database I/O remains the bottleneck.
 
 2. **Call Stack Depth**:
    - Both configurations show deep call stacks involving:
@@ -62,6 +68,7 @@ This document presents the profiling results for the `_1kBatchUpdate` benchmark 
      - Vert.x async operations (`io.vertx`)
      - Exposed database operations (`org.jetbrains.exposed`)
      - PostgreSQL client operations
+   - `JdbcTransactionExposedTransactionProvider` adds 1-2 extra frames on average due to `withThreadLocalTransaction()` wrapper and lambda indirection.
 
 3. **Hot Paths** (visible in the flame graphs):
    - Database query execution
