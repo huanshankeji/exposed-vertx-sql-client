@@ -109,6 +109,7 @@ sealed class TfbBatchUpdateBenchmark : WithContainerizedDatabaseAndExposedDataba
             async {
                 val sortedIds = nextSortedIds()
                 //println("sortedIds: $sortedIds")
+                // Megamorphic dispatch here affects performance by about 25% as Copilot finds out. See https://github.com/huanshankeji/exposed-vertx-sql-client/pull/105 for more details.
                 executeBatchUpdateWithIds(sortedIds)
             }
         })
