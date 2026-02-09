@@ -169,7 +169,7 @@ sealed class TfbBatchUpdateBenchmark : WithContainerizedDatabaseAndExposedDataba
             }
         }
 
-        @Benchmark
+        //@Benchmark // `java.lang.IllegalStateException: No transaction in context.`
         fun _1mConcurrentPrepareBatchSqlAndArgTuplesWithProvidedTransaction() {
             with(databaseClient) {
                 statementPreparationExposedTransaction {
