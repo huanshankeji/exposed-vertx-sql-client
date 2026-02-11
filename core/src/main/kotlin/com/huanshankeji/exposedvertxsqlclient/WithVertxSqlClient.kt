@@ -13,7 +13,7 @@ suspend fun DatabaseClient<Pool>.getVertxPoolConnection(): SqlConnection =
 
 @ExperimentalEvscApi
 suspend fun DatabaseClient<Pool>.getConnectionClient(): DatabaseClient<SqlConnection> =
-    DatabaseClient(getVertxPoolConnection(), config)
+    DatabaseClient(vertx, getVertxPoolConnection(), config)
 
 
 @ExperimentalEvscApi
@@ -24,7 +24,7 @@ suspend fun <T> DatabaseClient<Pool>.withConnectionClient(
     val connection = getVertxPoolConnection()
     @OptIn(ExperimentalApi::class)
     return connection.use({
-        block(DatabaseClient(connection, config))
+        block(DatabaseClient(vertx, connection, config))
     }, {
         connection.close().coAwait()
     })

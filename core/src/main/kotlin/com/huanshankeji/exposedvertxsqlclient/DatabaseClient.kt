@@ -4,6 +4,7 @@ import com.huanshankeji.ExperimentalApi
 import com.huanshankeji.collections.singleOrNullIfEmpty
 import com.huanshankeji.kotlinx.coroutine.CoroutineAutoCloseable
 import com.huanshankeji.vertx.kotlin.sqlclient.executeBatchAwaitForSqlResultSequence
+import io.vertx.core.Vertx
 import io.vertx.core.buffer.Buffer
 import io.vertx.kotlin.coroutines.coAwait
 import io.vertx.sqlclient.*
@@ -102,6 +103,7 @@ internal val logger = LoggerFactory.getLogger(DatabaseClient::class.java)
 @ExperimentalEvscApi
 // TODO also consider adding `DatabaseClientConfig` as a type parameter and `PgDatabaseClientConfig` a subtype for specific dialect operations.
 class DatabaseClient<out VertxSqlClientT : SqlClient>(
+    val vertx: Vertx,
     val vertxSqlClient: VertxSqlClientT,
     val config: DatabaseClientConfig
 ) : CoroutineAutoCloseable,
@@ -134,6 +136,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
         exposedDatabase: Database,
         config: DatabaseClientConfig
     ) : this(
+        Vertx.vertx(),
         vertxSqlClient,
         @Suppress("DEPRECATION")
         DatabaseClientConfig(
@@ -264,11 +267,13 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
         execute(statement, transformQuery)
 
     @InternalApi
-    fun prepareSqlAndArgTuple(statement: Statement<*>): Pair<String, Tuple?> =
-        statementPreparationExposedTransaction {
-            config.transformPreparedSql(statement.prepareSqlAndLogIfNeeded(this)) to
-                    statement.getVertxSqlClientArgTuple()
-        }
+    suspend fun prepareSqlAndArgTuple(statement: Statement<*>): Pair<String, Tuple?> =
+        vertx.executeBlocking {
+            statementPreparationExposedTransaction {
+                config.transformPreparedSql(statement.prepareSqlAndLogIfNeeded(this)) to
+                        statement.getVertxSqlClientArgTuple()
+            }
+        }.coAwait()
 
     /**
      * @param transformQuery transform the query by calling [PreparedQuery.mapping] and [PreparedQuery.collecting].
@@ -476,8 +481,10 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     }
 
     @InternalApi
-    fun prepareBatchSqlAndArgTuples(statements: Iterable<Statement<*>>): Pair<String?, List<Tuple>> =
-        statementPreparationExposedTransaction { prepareBatchSqlAndArgTuplesWithProvidedTransaction(statements) }
+    suspend fun prepareBatchSqlAndArgTuples(statements: Iterable<Statement<*>>): Pair<String?, List<Tuple>> =
+        vertx.executeBlocking {
+            statementPreparationExposedTransaction { prepareBatchSqlAndArgTuplesWithProvidedTransaction(statements) }
+        }.coAwait()
 
     /**
      * @see org.jetbrains.exposed.v1.jdbc.batchInsert
