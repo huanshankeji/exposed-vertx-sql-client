@@ -1,0 +1,2036 @@
+benchmarks: com.huanshankeji.exposedvertxsqlclient.benchmark.tfb.TfbBatchUpdateBenchmark.WithDatabaseClient.WithDatabaseExposedTransactionProvider._1mConcurrentPrepareBatchSqlAndArgTuplesWithProvidedTransaction
+
+Warm-up 1: 0.315 ops/s
+Warm-up 2: 0.331 ops/s
+Iteration 1: 0.332 ops/s
+<failure>
+
+
+
+0.332 ops/s
+
+benchmarks: com.huanshankeji.exposedvertxsqlclient.benchmark.tfb.TfbBatchUpdateBenchmark.WithDatabaseClient.WithDatabaseExposedTransactionProvider._1mPrepareBatchSqlAndArgTuplesWithProvidedTransaction_with_oneSpet
+
+Warm-up 1: 0.224 ops/s
+Warm-up 2: 0.229 ops/s
+Iteration 1: 0.234 ops/s
+<failure>
+
+
+<JMH had finished, but forked VM did not exit, are there stray running threads? Waiting 24 seconds more...>
+
+Non-finished threads:
+
+Thread[vert.x-acceptor-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+Thread[DestroyJavaVM,5,main]
+
+Thread[vert.x-eventloop-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+
+<JMH had finished, but forked VM did not exit, are there stray running threads? Waiting 19 seconds more...>
+
+Non-finished threads:
+
+Thread[vert.x-acceptor-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+Thread[DestroyJavaVM,5,main]
+
+Thread[vert.x-eventloop-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+
+<JMH had finished, but forked VM did not exit, are there stray running threads? Waiting 14 seconds more...>
+
+Non-finished threads:
+
+Thread[vert.x-acceptor-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+Thread[DestroyJavaVM,5,main]
+
+Thread[vert.x-eventloop-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+
+<JMH had finished, but forked VM did not exit, are there stray running threads? Waiting 9 seconds more...>
+
+Non-finished threads:
+
+Thread[vert.x-acceptor-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+Thread[DestroyJavaVM,5,main]
+
+Thread[vert.x-eventloop-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+
+<JMH had finished, but forked VM did not exit, are there stray running threads? Waiting 4 seconds more...>
+
+Non-finished threads:
+
+Thread[vert.x-acceptor-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+Thread[DestroyJavaVM,5,main]
+
+Thread[vert.x-eventloop-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+
+<JMH had finished, but forked VM did not exit, are there stray running threads? Waiting 0 seconds more...>
+
+Non-finished threads:
+
+Thread[vert.x-acceptor-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+Thread[DestroyJavaVM,5,main]
+
+Thread[vert.x-eventloop-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+
+<shutdown timeout of 30 seconds expired, forcing forked VM to exit>
+
+0.234 ops/s
+
+benchmarks: com.huanshankeji.exposedvertxsqlclient.benchmark.tfb.TfbBatchUpdateBenchmark.WithDatabaseClient.WithDatabaseExposedTransactionProvider._1mPrepareBatchSqlAndArgTuplesWithProvidedTransaction_with_oneSpetEach
+
+Warm-up 1: 0.197 ops/s
+Warm-up 2: 0.205 ops/s
+Iteration 1: 0.206 ops/s
+<failure>
+
+
+<JMH had finished, but forked VM did not exit, are there stray running threads? Waiting 24 seconds more...>
+
+Non-finished threads:
+
+Thread[vert.x-acceptor-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+Thread[DestroyJavaVM,5,main]
+
+Thread[vert.x-eventloop-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+
+<JMH had finished, but forked VM did not exit, are there stray running threads? Waiting 19 seconds more...>
+
+Non-finished threads:
+
+Thread[vert.x-acceptor-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+Thread[DestroyJavaVM,5,main]
+
+Thread[vert.x-eventloop-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+
+<JMH had finished, but forked VM did not exit, are there stray running threads? Waiting 14 seconds more...>
+
+Non-finished threads:
+
+Thread[vert.x-acceptor-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+Thread[DestroyJavaVM,5,main]
+
+Thread[vert.x-eventloop-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+
+<JMH had finished, but forked VM did not exit, are there stray running threads? Waiting 9 seconds more...>
+
+Non-finished threads:
+
+Thread[vert.x-acceptor-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+Thread[DestroyJavaVM,5,main]
+
+Thread[vert.x-eventloop-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+
+<JMH had finished, but forked VM did not exit, are there stray running threads? Waiting 4 seconds more...>
+
+Non-finished threads:
+
+Thread[vert.x-acceptor-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+Thread[DestroyJavaVM,5,main]
+
+Thread[vert.x-eventloop-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+
+<JMH had finished, but forked VM did not exit, are there stray running threads? Waiting 0 seconds more...>
+
+Non-finished threads:
+
+Thread[vert.x-acceptor-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+Thread[DestroyJavaVM,5,main]
+
+Thread[vert.x-eventloop-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+
+<shutdown timeout of 30 seconds expired, forcing forked VM to exit>
+
+0.206 ops/s
+
+benchmarks: com.huanshankeji.exposedvertxsqlclient.benchmark.tfb.TfbBatchUpdateBenchmark.WithDatabaseClient.WithDatabaseExposedTransactionProvider.inTotal1mParallelBatchSqlAndArgTuplesWithProvidedTransaction
+
+Warm-up 1: 0.505 ops/s
+Warm-up 2: 0.531 ops/s
+Iteration 1: 0.540 ops/s
+<failure>
+
+
+<JMH had finished, but forked VM did not exit, are there stray running threads? Waiting 24 seconds more...>
+
+Non-finished threads:
+
+Thread[DestroyJavaVM,5,main]
+
+Thread[vert.x-eventloop-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+Thread[vert.x-acceptor-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+
+<JMH had finished, but forked VM did not exit, are there stray running threads? Waiting 19 seconds more...>
+
+Non-finished threads:
+
+Thread[DestroyJavaVM,5,main]
+
+Thread[vert.x-eventloop-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+Thread[vert.x-acceptor-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+
+<JMH had finished, but forked VM did not exit, are there stray running threads? Waiting 14 seconds more...>
+
+Non-finished threads:
+
+Thread[DestroyJavaVM,5,main]
+
+Thread[vert.x-eventloop-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+Thread[vert.x-acceptor-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+
+<JMH had finished, but forked VM did not exit, are there stray running threads? Waiting 9 seconds more...>
+
+Non-finished threads:
+
+Thread[DestroyJavaVM,5,main]
+
+Thread[vert.x-eventloop-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+Thread[vert.x-acceptor-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+
+<JMH had finished, but forked VM did not exit, are there stray running threads? Waiting 4 seconds more...>
+
+Non-finished threads:
+
+Thread[DestroyJavaVM,5,main]
+
+Thread[vert.x-eventloop-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+Thread[vert.x-acceptor-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+
+<JMH had finished, but forked VM did not exit, are there stray running threads? Waiting 0 seconds more...>
+
+Non-finished threads:
+
+Thread[DestroyJavaVM,5,main]
+
+Thread[vert.x-eventloop-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+Thread[vert.x-acceptor-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+
+<shutdown timeout of 30 seconds expired, forcing forked VM to exit>
+
+0.540 ops/s
+
+benchmarks: com.huanshankeji.exposedvertxsqlclient.benchmark.tfb.TfbBatchUpdateBenchmark.WithDatabaseClient.WithDatabaseExposedTransactionProvider.prepareBatchSqlAndArgTuples
+
+Warm-up 1: 176934.213 ops/s
+Warm-up 2: 191367.407 ops/s
+Iteration 1: 200491.189 ops/s
+<failure>
+
+org.jetbrains.exposed.v1.exceptions.ExposedSQLException: org.postgresql.util.PSQLException: Connection to localhost:34969 refused. Check that the hostname and port are correct and that the postmaster is accepting TCP/IP connections.
+SQL: [DROP TABLE IF EXISTS world]
+	at org.jetbrains.exposed.v1.jdbc.statements.BlockingExecutableKt.executeIn(BlockingExecutable.kt:142)
+	at org.jetbrains.exposed.v1.jdbc.JdbcTransaction.exec$lambda$3(JdbcTransaction.kt:237)
+	at org.jetbrains.exposed.v1.core.transactions.TransactionsKt.withThreadLocalTransaction(Transactions.kt:47)
+	at org.jetbrains.exposed.v1.jdbc.JdbcTransaction.exec(JdbcTransaction.kt:233)
+	at org.jetbrains.exposed.v1.jdbc.JdbcTransaction.exec(JdbcTransaction.kt:209)
+	at org.jetbrains.exposed.v1.jdbc.JdbcTransaction.exec(JdbcTransaction.kt:170)
+	at org.jetbrains.exposed.v1.jdbc.JdbcTransaction.exec(JdbcTransaction.kt:140)
+	at org.jetbrains.exposed.v1.jdbc.JdbcTransaction.exec$default(JdbcTransaction.kt:136)
+	at org.jetbrains.exposed.v1.jdbc.SchemaUtils.execStatements(SchemaUtils.kt:138)
+	at org.jetbrains.exposed.v1.jdbc.SchemaUtils.drop(SchemaUtils.kt:453)
+	at org.jetbrains.exposed.v1.jdbc.SchemaUtils.drop$default(SchemaUtils.kt:445)
+	at com.huanshankeji.exposedvertxsqlclient.benchmark.tfb.TfbBatchUpdateBenchmark.tearDown$lambda$0(TfbBatchUpdateBenchmark.kt:87)
+	at org.jetbrains.exposed.v1.jdbc.transactions.TransactionsKt.inTopLevelTransaction$lambda$0(Transactions.kt:193)
+	at org.jetbrains.exposed.v1.core.transactions.TransactionsKt.withThreadLocalTransaction(Transactions.kt:53)
+	at org.jetbrains.exposed.v1.jdbc.transactions.TransactionsKt.inTopLevelTransaction(Transactions.kt:189)
+	at org.jetbrains.exposed.v1.jdbc.transactions.TransactionsKt.transaction(Transactions.kt:134)
+	at org.jetbrains.exposed.v1.jdbc.transactions.TransactionsKt.transaction$default(Transactions.kt:107)
+	at com.huanshankeji.exposedvertxsqlclient.benchmark.tfb.TfbBatchUpdateBenchmark.tearDown(TfbBatchUpdateBenchmark.kt:86)
+	at com.huanshankeji.exposedvertxsqlclient.benchmark.tfb.generated.TfbBatchUpdateBenchmark_WithDatabaseClient_WithDatabaseExposedTransactionProvider_prepareBatchSqlAndArgTuples_jmhTest.prepareBatchSqlAndArgTuples_Throughput(TfbBatchUpdateBenchmark_WithDatabaseClient_WithDatabaseExposedTransactionProvider_prepareBatchSqlAndArgTuples_jmhTest.java:102)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:566)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:453)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:437)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:515)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
+	at java.base/java.lang.Thread.run(Thread.java:829)
+Caused by: org.postgresql.util.PSQLException: Connection to localhost:34969 refused. Check that the hostname and port are correct and that the postmaster is accepting TCP/IP connections.
+	at org.postgresql.core.v3.ConnectionFactoryImpl.openConnectionImpl(ConnectionFactoryImpl.java:373)
+	at org.postgresql.core.ConnectionFactory.openConnection(ConnectionFactory.java:57)
+	at org.postgresql.jdbc.PgConnection.<init>(PgConnection.java:279)
+	at org.postgresql.Driver.makeConnection(Driver.java:448)
+	at org.postgresql.Driver.connect(Driver.java:298)
+	at java.sql/java.sql.DriverManager.getConnection(DriverManager.java:677)
+	at java.sql/java.sql.DriverManager.getConnection(DriverManager.java:228)
+	at org.jetbrains.exposed.v1.jdbc.Database$Companion.connect$lambda$7(Database.kt:276)
+	at org.jetbrains.exposed.v1.jdbc.Database$Companion.doConnect$lambda$2(Database.kt:178)
+	at org.jetbrains.exposed.v1.jdbc.transactions.TransactionManager$ThreadLocalTransaction.connectionLazy$lambda$0(TransactionManager.kt:215)
+	at kotlin.UnsafeLazyImpl.getValue(Lazy.kt:100)
+	at org.jetbrains.exposed.v1.jdbc.transactions.TransactionManager$ThreadLocalTransaction.getConnection(TransactionManager.kt:250)
+	at org.jetbrains.exposed.v1.jdbc.JdbcTransaction.getConnection(JdbcTransaction.kt)
+	at org.jetbrains.exposed.v1.jdbc.statements.BlockingExecutable.prepared(BlockingExecutable.kt:61)
+	at org.jetbrains.exposed.v1.jdbc.JdbcTransaction$exec$2.prepared(JdbcTransaction.kt:170)
+	at org.jetbrains.exposed.v1.jdbc.statements.BlockingExecutableKt.executeIn(BlockingExecutable.kt:138)
+	... 30 more
+Caused by: java.net.ConnectException: Connection refused (Connection refused)
+	at java.base/java.net.PlainSocketImpl.socketConnect(Native Method)
+	at java.base/java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:412)
+	at java.base/java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:255)
+	at java.base/java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:237)
+	at java.base/java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392)
+	at java.base/java.net.Socket.connect(Socket.java:609)
+	at org.postgresql.core.PGStream.createSocket(PGStream.java:261)
+	at org.postgresql.core.PGStream.<init>(PGStream.java:122)
+	at org.postgresql.core.v3.ConnectionFactoryImpl.tryConnect(ConnectionFactoryImpl.java:146)
+	at org.postgresql.core.v3.ConnectionFactoryImpl.openConnectionImpl(ConnectionFactoryImpl.java:289)
+	... 45 more
+
+
+<JMH had finished, but forked VM did not exit, are there stray running threads? Waiting 24 seconds more...>
+
+Non-finished threads:
+
+Thread[vert.x-eventloop-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+Thread[DestroyJavaVM,5,main]
+
+Thread[vert.x-acceptor-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+
+<JMH had finished, but forked VM did not exit, are there stray running threads? Waiting 19 seconds more...>
+
+Non-finished threads:
+
+Thread[vert.x-eventloop-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+Thread[DestroyJavaVM,5,main]
+
+Thread[vert.x-acceptor-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+
+<JMH had finished, but forked VM did not exit, are there stray running threads? Waiting 14 seconds more...>
+
+Non-finished threads:
+
+Thread[vert.x-eventloop-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+Thread[DestroyJavaVM,5,main]
+
+Thread[vert.x-acceptor-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+
+<JMH had finished, but forked VM did not exit, are there stray running threads? Waiting 9 seconds more...>
+
+Non-finished threads:
+
+Thread[vert.x-eventloop-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+Thread[DestroyJavaVM,5,main]
+
+Thread[vert.x-acceptor-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+
+<JMH had finished, but forked VM did not exit, are there stray running threads? Waiting 4 seconds more...>
+
+Non-finished threads:
+
+Thread[vert.x-eventloop-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+Thread[DestroyJavaVM,5,main]
+
+Thread[vert.x-acceptor-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+
+<JMH had finished, but forked VM did not exit, are there stray running threads? Waiting 0 seconds more...>
+
+Non-finished threads:
+
+Thread[vert.x-eventloop-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+Thread[DestroyJavaVM,5,main]
+
+Thread[vert.x-acceptor-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+
+<shutdown timeout of 30 seconds expired, forcing forked VM to exit>
+
+200491.189 ops/s
+
+benchmarks: com.huanshankeji.exposedvertxsqlclient.benchmark.tfb.TfbBatchUpdateBenchmark.WithDatabaseClient.WithJdbcTransactionExposedTransactionProvider._1mConcurrentPrepareBatchSqlAndArgTuplesWithProvidedTransaction
+
+Warm-up 1: 0.422 ops/s
+Warm-up 2: 0.525 ops/s
+Iteration 1: 0.423 ops/s
+<failure>
+
+
+
+0.423 ops/s
+
+benchmarks: com.huanshankeji.exposedvertxsqlclient.benchmark.tfb.TfbBatchUpdateBenchmark.WithDatabaseClient.WithJdbcTransactionExposedTransactionProvider._1mPrepareBatchSqlAndArgTuplesWithProvidedTransaction_with_oneSpet
+
+Warm-up 1: 0.227 ops/s
+Warm-up 2: 0.230 ops/s
+Iteration 1: 0.236 ops/s
+<failure>
+
+
+<JMH had finished, but forked VM did not exit, are there stray running threads? Waiting 24 seconds more...>
+
+Non-finished threads:
+
+Thread[DestroyJavaVM,5,main]
+
+Thread[vert.x-acceptor-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+Thread[vert.x-eventloop-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+
+<JMH had finished, but forked VM did not exit, are there stray running threads? Waiting 19 seconds more...>
+
+Non-finished threads:
+
+Thread[DestroyJavaVM,5,main]
+
+Thread[vert.x-acceptor-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+Thread[vert.x-eventloop-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+
+<JMH had finished, but forked VM did not exit, are there stray running threads? Waiting 14 seconds more...>
+
+Non-finished threads:
+
+Thread[DestroyJavaVM,5,main]
+
+Thread[vert.x-acceptor-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+Thread[vert.x-eventloop-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+
+<JMH had finished, but forked VM did not exit, are there stray running threads? Waiting 9 seconds more...>
+
+Non-finished threads:
+
+Thread[DestroyJavaVM,5,main]
+
+Thread[vert.x-acceptor-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+Thread[vert.x-eventloop-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+
+<JMH had finished, but forked VM did not exit, are there stray running threads? Waiting 4 seconds more...>
+
+Non-finished threads:
+
+Thread[DestroyJavaVM,5,main]
+
+Thread[vert.x-acceptor-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+Thread[vert.x-eventloop-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+
+<JMH had finished, but forked VM did not exit, are there stray running threads? Waiting 0 seconds more...>
+
+Non-finished threads:
+
+Thread[DestroyJavaVM,5,main]
+
+Thread[vert.x-acceptor-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+Thread[vert.x-eventloop-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+
+<shutdown timeout of 30 seconds expired, forcing forked VM to exit>
+
+0.236 ops/s
+
+benchmarks: com.huanshankeji.exposedvertxsqlclient.benchmark.tfb.TfbBatchUpdateBenchmark.WithDatabaseClient.WithJdbcTransactionExposedTransactionProvider._1mPrepareBatchSqlAndArgTuplesWithProvidedTransaction_with_oneSpetEach
+
+Warm-up 1: 0.219 ops/s
+Warm-up 2: 0.224 ops/s
+Iteration 1: 0.229 ops/s
+<failure>
+
+
+<JMH had finished, but forked VM did not exit, are there stray running threads? Waiting 24 seconds more...>
+
+Non-finished threads:
+
+Thread[vert.x-acceptor-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+Thread[vert.x-eventloop-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+Thread[DestroyJavaVM,5,main]
+
+
+<JMH had finished, but forked VM did not exit, are there stray running threads? Waiting 19 seconds more...>
+
+Non-finished threads:
+
+Thread[vert.x-acceptor-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+Thread[vert.x-eventloop-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+Thread[DestroyJavaVM,5,main]
+
+
+<JMH had finished, but forked VM did not exit, are there stray running threads? Waiting 14 seconds more...>
+
+Non-finished threads:
+
+Thread[vert.x-acceptor-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+Thread[vert.x-eventloop-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+Thread[DestroyJavaVM,5,main]
+
+
+<JMH had finished, but forked VM did not exit, are there stray running threads? Waiting 9 seconds more...>
+
+Non-finished threads:
+
+Thread[vert.x-acceptor-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+Thread[vert.x-eventloop-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+Thread[DestroyJavaVM,5,main]
+
+
+<JMH had finished, but forked VM did not exit, are there stray running threads? Waiting 4 seconds more...>
+
+Non-finished threads:
+
+Thread[vert.x-acceptor-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+Thread[vert.x-eventloop-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+Thread[DestroyJavaVM,5,main]
+
+
+<JMH had finished, but forked VM did not exit, are there stray running threads? Waiting 0 seconds more...>
+
+Non-finished threads:
+
+Thread[vert.x-acceptor-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+Thread[vert.x-eventloop-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+Thread[DestroyJavaVM,5,main]
+
+
+<shutdown timeout of 30 seconds expired, forcing forked VM to exit>
+
+0.229 ops/s
+
+benchmarks: com.huanshankeji.exposedvertxsqlclient.benchmark.tfb.TfbBatchUpdateBenchmark.WithDatabaseClient.WithJdbcTransactionExposedTransactionProvider.inTotal1mParallelBatchSqlAndArgTuplesWithProvidedTransaction
+
+Warm-up 1: 0.538 ops/s
+Warm-up 2: 0.534 ops/s
+Iteration 1: 0.544 ops/s
+<failure>
+
+
+<JMH had finished, but forked VM did not exit, are there stray running threads? Waiting 24 seconds more...>
+
+Non-finished threads:
+
+Thread[DestroyJavaVM,5,main]
+
+Thread[vert.x-acceptor-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+Thread[vert.x-eventloop-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+
+<JMH had finished, but forked VM did not exit, are there stray running threads? Waiting 19 seconds more...>
+
+Non-finished threads:
+
+Thread[DestroyJavaVM,5,main]
+
+Thread[vert.x-acceptor-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+Thread[vert.x-eventloop-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+
+<JMH had finished, but forked VM did not exit, are there stray running threads? Waiting 14 seconds more...>
+
+Non-finished threads:
+
+Thread[DestroyJavaVM,5,main]
+
+Thread[vert.x-acceptor-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+Thread[vert.x-eventloop-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+
+<JMH had finished, but forked VM did not exit, are there stray running threads? Waiting 9 seconds more...>
+
+Non-finished threads:
+
+Thread[DestroyJavaVM,5,main]
+
+Thread[vert.x-acceptor-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+Thread[vert.x-eventloop-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+
+<JMH had finished, but forked VM did not exit, are there stray running threads? Waiting 4 seconds more...>
+
+Non-finished threads:
+
+Thread[DestroyJavaVM,5,main]
+
+Thread[vert.x-acceptor-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+Thread[vert.x-eventloop-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+
+<JMH had finished, but forked VM did not exit, are there stray running threads? Waiting 0 seconds more...>
+
+Non-finished threads:
+
+Thread[DestroyJavaVM,5,main]
+
+Thread[vert.x-acceptor-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+Thread[vert.x-eventloop-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+
+<shutdown timeout of 30 seconds expired, forcing forked VM to exit>
+
+0.544 ops/s
+
+benchmarks: com.huanshankeji.exposedvertxsqlclient.benchmark.tfb.TfbBatchUpdateBenchmark.WithDatabaseClient.WithJdbcTransactionExposedTransactionProvider.prepareBatchSqlAndArgTuples
+
+Warm-up 1: 201933.362 ops/s
+Warm-up 2: 218001.560 ops/s
+Iteration 1: 230754.409 ops/s
+<failure>
+
+org.jetbrains.exposed.v1.exceptions.ExposedSQLException: org.postgresql.util.PSQLException: Connection to localhost:46045 refused. Check that the hostname and port are correct and that the postmaster is accepting TCP/IP connections.
+SQL: [DROP TABLE IF EXISTS world]
+	at org.jetbrains.exposed.v1.jdbc.statements.BlockingExecutableKt.executeIn(BlockingExecutable.kt:142)
+	at org.jetbrains.exposed.v1.jdbc.JdbcTransaction.exec$lambda$3(JdbcTransaction.kt:237)
+	at org.jetbrains.exposed.v1.core.transactions.TransactionsKt.withThreadLocalTransaction(Transactions.kt:47)
+	at org.jetbrains.exposed.v1.jdbc.JdbcTransaction.exec(JdbcTransaction.kt:233)
+	at org.jetbrains.exposed.v1.jdbc.JdbcTransaction.exec(JdbcTransaction.kt:209)
+	at org.jetbrains.exposed.v1.jdbc.JdbcTransaction.exec(JdbcTransaction.kt:170)
+	at org.jetbrains.exposed.v1.jdbc.JdbcTransaction.exec(JdbcTransaction.kt:140)
+	at org.jetbrains.exposed.v1.jdbc.JdbcTransaction.exec$default(JdbcTransaction.kt:136)
+	at org.jetbrains.exposed.v1.jdbc.SchemaUtils.execStatements(SchemaUtils.kt:138)
+	at org.jetbrains.exposed.v1.jdbc.SchemaUtils.drop(SchemaUtils.kt:453)
+	at org.jetbrains.exposed.v1.jdbc.SchemaUtils.drop$default(SchemaUtils.kt:445)
+	at com.huanshankeji.exposedvertxsqlclient.benchmark.tfb.TfbBatchUpdateBenchmark.tearDown$lambda$0(TfbBatchUpdateBenchmark.kt:87)
+	at org.jetbrains.exposed.v1.jdbc.transactions.TransactionsKt.inTopLevelTransaction$lambda$0(Transactions.kt:193)
+	at org.jetbrains.exposed.v1.core.transactions.TransactionsKt.withThreadLocalTransaction(Transactions.kt:53)
+	at org.jetbrains.exposed.v1.jdbc.transactions.TransactionsKt.inTopLevelTransaction(Transactions.kt:189)
+	at org.jetbrains.exposed.v1.jdbc.transactions.TransactionsKt.transaction(Transactions.kt:134)
+	at org.jetbrains.exposed.v1.jdbc.transactions.TransactionsKt.transaction$default(Transactions.kt:107)
+	at com.huanshankeji.exposedvertxsqlclient.benchmark.tfb.TfbBatchUpdateBenchmark.tearDown(TfbBatchUpdateBenchmark.kt:86)
+	at com.huanshankeji.exposedvertxsqlclient.benchmark.tfb.generated.TfbBatchUpdateBenchmark_WithDatabaseClient_WithJdbcTransactionExposedTransactionProvider_prepareBatchSqlAndArgTuples_jmhTest.prepareBatchSqlAndArgTuples_Throughput(TfbBatchUpdateBenchmark_WithDatabaseClient_WithJdbcTransactionExposedTransactionProvider_prepareBatchSqlAndArgTuples_jmhTest.java:102)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:566)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:453)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:437)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:515)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
+	at java.base/java.lang.Thread.run(Thread.java:829)
+Caused by: org.postgresql.util.PSQLException: Connection to localhost:46045 refused. Check that the hostname and port are correct and that the postmaster is accepting TCP/IP connections.
+	at org.postgresql.core.v3.ConnectionFactoryImpl.openConnectionImpl(ConnectionFactoryImpl.java:373)
+	at org.postgresql.core.ConnectionFactory.openConnection(ConnectionFactory.java:57)
+	at org.postgresql.jdbc.PgConnection.<init>(PgConnection.java:279)
+	at org.postgresql.Driver.makeConnection(Driver.java:448)
+	at org.postgresql.Driver.connect(Driver.java:298)
+	at java.sql/java.sql.DriverManager.getConnection(DriverManager.java:677)
+	at java.sql/java.sql.DriverManager.getConnection(DriverManager.java:228)
+	at org.jetbrains.exposed.v1.jdbc.Database$Companion.connect$lambda$7(Database.kt:276)
+	at org.jetbrains.exposed.v1.jdbc.Database$Companion.doConnect$lambda$2(Database.kt:178)
+	at org.jetbrains.exposed.v1.jdbc.transactions.TransactionManager$ThreadLocalTransaction.connectionLazy$lambda$0(TransactionManager.kt:215)
+	at kotlin.UnsafeLazyImpl.getValue(Lazy.kt:100)
+	at org.jetbrains.exposed.v1.jdbc.transactions.TransactionManager$ThreadLocalTransaction.getConnection(TransactionManager.kt:250)
+	at org.jetbrains.exposed.v1.jdbc.JdbcTransaction.getConnection(JdbcTransaction.kt)
+	at org.jetbrains.exposed.v1.jdbc.statements.BlockingExecutable.prepared(BlockingExecutable.kt:61)
+	at org.jetbrains.exposed.v1.jdbc.JdbcTransaction$exec$2.prepared(JdbcTransaction.kt:170)
+	at org.jetbrains.exposed.v1.jdbc.statements.BlockingExecutableKt.executeIn(BlockingExecutable.kt:138)
+	... 30 more
+Caused by: java.net.ConnectException: Connection refused (Connection refused)
+	at java.base/java.net.PlainSocketImpl.socketConnect(Native Method)
+	at java.base/java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:412)
+	at java.base/java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:255)
+	at java.base/java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:237)
+	at java.base/java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392)
+	at java.base/java.net.Socket.connect(Socket.java:609)
+	at org.postgresql.core.PGStream.createSocket(PGStream.java:261)
+	at org.postgresql.core.PGStream.<init>(PGStream.java:122)
+	at org.postgresql.core.v3.ConnectionFactoryImpl.tryConnect(ConnectionFactoryImpl.java:146)
+	at org.postgresql.core.v3.ConnectionFactoryImpl.openConnectionImpl(ConnectionFactoryImpl.java:289)
+	... 45 more
+
+
+<JMH had finished, but forked VM did not exit, are there stray running threads? Waiting 24 seconds more...>
+
+Non-finished threads:
+
+Thread[DestroyJavaVM,5,main]
+
+Thread[vert.x-acceptor-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+Thread[vert.x-eventloop-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+
+<JMH had finished, but forked VM did not exit, are there stray running threads? Waiting 19 seconds more...>
+
+Non-finished threads:
+
+Thread[DestroyJavaVM,5,main]
+
+Thread[vert.x-acceptor-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+Thread[vert.x-eventloop-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+
+<JMH had finished, but forked VM did not exit, are there stray running threads? Waiting 14 seconds more...>
+
+Non-finished threads:
+
+Thread[DestroyJavaVM,5,main]
+
+Thread[vert.x-acceptor-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+Thread[vert.x-eventloop-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+
+<JMH had finished, but forked VM did not exit, are there stray running threads? Waiting 9 seconds more...>
+
+Non-finished threads:
+
+Thread[DestroyJavaVM,5,main]
+
+Thread[vert.x-acceptor-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+Thread[vert.x-eventloop-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+
+<JMH had finished, but forked VM did not exit, are there stray running threads? Waiting 4 seconds more...>
+
+Non-finished threads:
+
+Thread[DestroyJavaVM,5,main]
+
+Thread[vert.x-acceptor-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+Thread[vert.x-eventloop-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+
+<JMH had finished, but forked VM did not exit, are there stray running threads? Waiting 0 seconds more...>
+
+Non-finished threads:
+
+Thread[DestroyJavaVM,5,main]
+
+Thread[vert.x-acceptor-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+Thread[vert.x-eventloop-thread-0,5,main]
+  at java.base@11.0.29/sun.nio.ch.EPoll.wait(Native Method)
+  at java.base@11.0.29/sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:120)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:124)
+  at java.base@11.0.29/sun.nio.ch.SelectorImpl.select(SelectorImpl.java:136)
+  at app//io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+  at app//io.netty.channel.nio.NioIoHandler.select(NioIoHandler.java:657)
+  at app//io.netty.channel.nio.NioIoHandler.run(NioIoHandler.java:434)
+  at app//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+  at app//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+  at app//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1193)
+  at app//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+  at app//io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+  at java.base@11.0.29/java.lang.Thread.run(Thread.java:829)
+
+
+<shutdown timeout of 30 seconds expired, forcing forked VM to exit>
+
+230754.409 ops/s
+
+
+benchmarks summary:
+Benchmark                                                                                                                                                         Mode  Cnt       Score   Error  Units
+TfbBatchUpdateBenchmark.WithDatabaseClient.WithDatabaseExposedTransactionProvider._1mConcurrentPrepareBatchSqlAndArgTuplesWithProvidedTransaction                thrpt            0.332          ops/s
+TfbBatchUpdateBenchmark.WithDatabaseClient.WithDatabaseExposedTransactionProvider._1mPrepareBatchSqlAndArgTuplesWithProvidedTransaction_with_oneSpet             thrpt            0.234          ops/s
+TfbBatchUpdateBenchmark.WithDatabaseClient.WithDatabaseExposedTransactionProvider._1mPrepareBatchSqlAndArgTuplesWithProvidedTransaction_with_oneSpetEach         thrpt            0.206          ops/s
+TfbBatchUpdateBenchmark.WithDatabaseClient.WithDatabaseExposedTransactionProvider.inTotal1mParallelBatchSqlAndArgTuplesWithProvidedTransaction                   thrpt            0.540          ops/s
+TfbBatchUpdateBenchmark.WithDatabaseClient.WithDatabaseExposedTransactionProvider.prepareBatchSqlAndArgTuples                                                    thrpt       200491.189          ops/s
+TfbBatchUpdateBenchmark.WithDatabaseClient.WithJdbcTransactionExposedTransactionProvider._1mConcurrentPrepareBatchSqlAndArgTuplesWithProvidedTransaction         thrpt            0.423          ops/s
+TfbBatchUpdateBenchmark.WithDatabaseClient.WithJdbcTransactionExposedTransactionProvider._1mPrepareBatchSqlAndArgTuplesWithProvidedTransaction_with_oneSpet      thrpt            0.236          ops/s
+TfbBatchUpdateBenchmark.WithDatabaseClient.WithJdbcTransactionExposedTransactionProvider._1mPrepareBatchSqlAndArgTuplesWithProvidedTransaction_with_oneSpetEach  thrpt            0.229          ops/s
+TfbBatchUpdateBenchmark.WithDatabaseClient.WithJdbcTransactionExposedTransactionProvider.inTotal1mParallelBatchSqlAndArgTuplesWithProvidedTransaction            thrpt            0.544          ops/s
+TfbBatchUpdateBenchmark.WithDatabaseClient.WithJdbcTransactionExposedTransactionProvider.prepareBatchSqlAndArgTuples                                             thrpt       230754.409          ops/s
+
