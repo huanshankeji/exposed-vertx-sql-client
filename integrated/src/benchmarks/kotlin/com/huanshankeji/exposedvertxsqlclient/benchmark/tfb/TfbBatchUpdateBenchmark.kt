@@ -2,6 +2,7 @@ package com.huanshankeji.exposedvertxsqlclient.benchmark.tfb
 
 import com.huanshankeji.exposed.benchmark.`1M`
 import com.huanshankeji.exposed.benchmark.jdbc.WithContainerizedDatabaseAndExposedDatabaseBenchmark
+import com.huanshankeji.exposed.benchmark.multiThread_ops_nearlyEvenlyPartitioned_helper
 import com.huanshankeji.exposed.benchmark.numProcessors
 import com.huanshankeji.exposedvertxsqlclient.*
 import com.huanshankeji.exposedvertxsqlclient.postgresql.PgDatabaseClientConfig
@@ -158,7 +159,7 @@ sealed class TfbBatchUpdateBenchmark : WithContainerizedDatabaseAndExposedDataba
         }
 
         @Benchmark
-        fun _1mPrepareBatchSqlAndArgTuplesWithProvidedTransaction() {
+        fun _1mPrepareBatchSqlAndArgTuplesWithProvidedTransaction_with_oneSpet() {
             with(databaseClient) {
                 statementPreparationExposedTransaction {
                     repeat(`1M`) {
@@ -169,18 +170,44 @@ sealed class TfbBatchUpdateBenchmark : WithContainerizedDatabaseAndExposedDataba
             }
         }
 
-        //@Benchmark // `java.lang.IllegalStateException: No transaction in context.`
+        @Benchmark
+        fun _1mPrepareBatchSqlAndArgTuplesWithProvidedTransaction_with_oneSpetEach() {
+            with(databaseClient) {
+                repeat(`1M`) {
+                    statementPreparationExposedTransaction {
+                        @OptIn(InternalApi::class)
+                        prepareBatchSqlAndArgTuplesWithProvidedTransaction(statements(nextSortedIds()))
+                    }
+                }
+            }
+        }
+
+        @Benchmark
         fun _1mConcurrentPrepareBatchSqlAndArgTuplesWithProvidedTransaction() {
             with(databaseClient) {
-                statementPreparationExposedTransaction {
-                    // TODO extract this to a reusable dispatcher
-                    runBlocking(Executors.newFixedThreadPool(numProcessors).asCoroutineDispatcher()) {
-                        awaitAll(*Array(`1M`) {
-                            async {
+                // TODO extract this to a reusable dispatcher
+                runBlocking(Executors.newFixedThreadPool(numProcessors).asCoroutineDispatcher()) {
+                    awaitAll(*Array(`1M`) {
+                        async {
+                            statementPreparationExposedTransaction {
                                 @OptIn(InternalApi::class)
                                 prepareBatchSqlAndArgTuplesWithProvidedTransaction(statements(nextSortedIds()))
                             }
-                        })
+                        }
+                    })
+                }
+            }
+        }
+
+        @Benchmark
+        fun inTotal1mParallelBatchSqlAndArgTuplesWithProvidedTransaction() {
+            with(databaseClient) {
+                multiThread_ops_nearlyEvenlyPartitioned_helper(`1M`) { num ->
+                    repeat(num) {
+                        statementPreparationExposedTransaction {
+                            @OptIn(InternalApi::class)
+                            prepareBatchSqlAndArgTuplesWithProvidedTransaction(statements(nextSortedIds()))
+                        }
                     }
                 }
             }
