@@ -29,13 +29,13 @@ interface StatementPreparationExposedTransactionProvider {
     fun <T> statementPreparationExposedTransaction(block: ExposedTransaction.() -> T): T
 
     /**
-     * Executes the given [statement] within an Exposed transaction context suitable for SQL statement preparation,
+     * Executes the given [block] within an Exposed transaction context suitable for SQL statement preparation,
      * without storing the transaction in ThreadLocal or coroutine context.
      *
      * This variant provides explicit transaction handling and may slightly reduce some overhead.
      */
     @Deprecated("Not currently used by other declarations in this library.")
-    fun <T> withExplicitOnlyStatementPreparationExposedTransaction(statement: ExposedTransaction.() -> T): T
+    fun <T> withExplicitOnlyStatementPreparationExposedTransaction(block: ExposedTransaction.() -> T): T
 }
 
 /**
@@ -105,4 +105,24 @@ class JdbcTransactionExposedTransactionProvider(
     @Deprecated("Not currently used by other declarations in this library.")
     override fun <T> withExplicitOnlyStatementPreparationExposedTransaction(block: ExposedTransaction.() -> T): T =
         jdbcTransaction.block()
+
+    /*
+    // This implementation breaks Exposed's own transactions. See commit a07319e376f0a491e312136ab102a1eb28a7035c for more details.
+    @ExperimentalEvscApi
+    class PushAndGetPermanentThreadLocalTransaction : JdbcTransactionExposedTransactionProvider {
+        constructor(jdbcTransaction: JdbcTransaction) : super(jdbcTransaction)
+        constructor(database: Database) : super(database)
+
+        @OptIn(InternalApi::class)
+        override fun <T> statementPreparationExposedTransaction(block: ExposedTransaction.() -> T): T {
+            val existingTransaction = ThreadLocalTransactionsStack.getTransactionOrNull() as JdbcTransaction?
+            //val existingTransaction = TransactionManager.currentOrNull()
+            val transaction = existingTransaction ?: run {
+                ThreadLocalTransactionsStack.pushTransaction(jdbcTransaction)
+                jdbcTransaction
+            }
+            return transaction.block()
+        }
+    }
+    */
 }
