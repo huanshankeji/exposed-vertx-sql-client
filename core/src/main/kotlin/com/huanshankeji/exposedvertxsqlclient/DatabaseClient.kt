@@ -75,7 +75,7 @@ fun Statement<*>.getVertxSqlClientArgTuple() =
     singleStatementArguments()?.toVertxTuple()
 
 
-@InternalApi
+@EvscInternalApi
 fun dbAssert(b: Boolean) {
     if (!b)
         throw AssertionError()
@@ -155,7 +155,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
                     "The Vert.x `RowSet` stores all the results in a List rather fetch as needed, so using `PreparedQuery.mapping` doesn't bring any performance benefits compared to using Kotlin's `map`. " +
                     "In addition, the Exposed `transaction` can be created on a finer-grained level only for the Kotlin `map` process from Vert.x `Row`s to Exposed `ResultRow`s."
         */
-        @InternalApi
+        @EvscInternalApi
         const val SELECT_BATCH_QUERY_WITH_FIELD_SET_DEPRECATED_MESSAGE =
             "This function is buggy. The field expression set of the `fieldSet` parameter may be different from the those of the queries. Use the new overload without the `fieldSet` parameter instead."
     }
@@ -263,7 +263,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
         @OptIn(ExperimentalEvscApi::class)
         execute(statement, transformQuery)
 
-    @InternalApi
+    @EvscInternalApi
     fun prepareSqlAndArgTuple(statement: Statement<*>): Pair<String, Tuple?> =
         statementPreparationExposedTransaction {
             config.transformPreparedSql(statement.prepareSqlAndLogIfNeeded(this)) to
@@ -329,7 +329,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
      * @param withExposedTransaction whether to run the [block] within the transaction.
      */
     // old name: `runWithOptionalStatementPreparationExposedTransaction`
-    @InternalApi
+    @EvscInternalApi
     inline fun <T> optionalStatementPreparationExposedTransaction(
         withExposedTransaction: Boolean, crossinline block: () -> T
     ): T =
@@ -439,7 +439,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
             false
         }
 
-    @InternalApi
+    @EvscInternalApi
     fun ExposedTransaction.prepareBatchSqlAndArgTuplesWithProvidedTransaction(statements: Iterable<Statement<*>>): Pair<String?, List<Tuple>> {
         var sql: String? = null
         //var argumentTypes: List<IColumnType>? = null
@@ -475,7 +475,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
         return sql to argTuples
     }
 
-    @InternalApi
+    @EvscInternalApi
     fun prepareBatchSqlAndArgTuples(statements: Iterable<Statement<*>>): Pair<String?, List<Tuple>> =
         statementPreparationExposedTransaction { prepareBatchSqlAndArgTuplesWithProvidedTransaction(statements) }
 
