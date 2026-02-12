@@ -99,8 +99,16 @@ class JdbcTransactionExposedTransactionProvider(
 
     @OptIn(InternalApi::class)
     override fun <T> statementPreparationExposedTransaction(block: ExposedTransaction.() -> T): T =
-        // Call statement directly on the transaction - it will be executed in the transaction context
-        withThreadLocalTransaction(jdbcTransaction) { jdbcTransaction.block() }
+        try {
+            // Call statement directly on the transaction - it will be executed in the transaction context
+            withThreadLocalTransaction(jdbcTransaction) {
+                jdbcTransaction.block()
+            }
+        } finally {
+            // Accumulating state needs to be cleared. Otherwise, it causes progressive performance degradation for update statements as found.
+            // `rollback` calls `withThreadLocalTransaction` so it's put outside
+            jdbcTransaction.rollback()
+        }
 
     @Deprecated("Not currently used by other declarations in this library.")
     override fun <T> withExplicitOnlyStatementPreparationExposedTransaction(block: ExposedTransaction.() -> T): T =
