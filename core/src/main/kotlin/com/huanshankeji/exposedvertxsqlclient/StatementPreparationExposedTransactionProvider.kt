@@ -1,6 +1,7 @@
 package com.huanshankeji.exposedvertxsqlclient
 
 import org.jetbrains.exposed.v1.core.InternalApi
+import org.jetbrains.exposed.v1.core.transactions.ThreadLocalTransactionsStack
 import org.jetbrains.exposed.v1.core.transactions.withThreadLocalTransaction
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
@@ -29,13 +30,13 @@ interface StatementPreparationExposedTransactionProvider {
     fun <T> statementPreparationExposedTransaction(block: ExposedTransaction.() -> T): T
 
     /**
-     * Executes the given [statement] within an Exposed transaction context suitable for SQL statement preparation,
+     * Executes the given [block] within an Exposed transaction context suitable for SQL statement preparation,
      * without storing the transaction in ThreadLocal or coroutine context.
      *
      * This variant provides explicit transaction handling and may slightly reduce some overhead.
      */
     @Deprecated("Not currently used by other declarations in this library.")
-    fun <T> withExplicitOnlyStatementPreparationExposedTransaction(statement: ExposedTransaction.() -> T): T
+    fun <T> withExplicitOnlyStatementPreparationExposedTransaction(block: ExposedTransaction.() -> T): T
 }
 
 /**
@@ -77,7 +78,7 @@ class DatabaseExposedTransactionProvider(
  * @param jdbcTransaction the [JdbcTransaction] to use for SQL statement preparation
  */
 @ExperimentalEvscApi
-class JdbcTransactionExposedTransactionProvider(
+abstract class JdbcTransactionExposedTransactionProvider(
     val jdbcTransaction: JdbcTransaction
 ) : StatementPreparationExposedTransactionProvider {
     /**
@@ -97,12 +98,35 @@ class JdbcTransactionExposedTransactionProvider(
         }
     )
 
-    @OptIn(InternalApi::class)
-    override fun <T> statementPreparationExposedTransaction(block: ExposedTransaction.() -> T): T =
-        // Call statement directly on the transaction - it will be executed in the transaction context
-        withThreadLocalTransaction(jdbcTransaction) { jdbcTransaction.block() }
-
     @Deprecated("Not currently used by other declarations in this library.")
     override fun <T> withExplicitOnlyStatementPreparationExposedTransaction(block: ExposedTransaction.() -> T): T =
         jdbcTransaction.block()
+
+    @ExperimentalEvscApi
+    class WithThreadLocalTransaction : JdbcTransactionExposedTransactionProvider {
+        constructor(jdbcTransaction: JdbcTransaction) : super(jdbcTransaction)
+        constructor(database: Database) : super(database)
+
+        @OptIn(InternalApi::class)
+        override fun <T> statementPreparationExposedTransaction(block: ExposedTransaction.() -> T): T =
+            // Call statement directly on the transaction - it will be executed in the transaction context
+            withThreadLocalTransaction(jdbcTransaction) { jdbcTransaction.block() }
+    }
+
+    @ExperimentalEvscApi
+    class PushAndGetPermanentThreadLocalTransaction : JdbcTransactionExposedTransactionProvider {
+        constructor(jdbcTransaction: JdbcTransaction) : super(jdbcTransaction)
+        constructor(database: Database) : super(database)
+
+        @OptIn(InternalApi::class)
+        override fun <T> statementPreparationExposedTransaction(block: ExposedTransaction.() -> T): T {
+            val existingTransaction = ThreadLocalTransactionsStack.getTransactionOrNull() as JdbcTransaction?
+            //val existingTransaction = TransactionManager.currentOrNull()
+            val transaction = existingTransaction ?: run {
+                ThreadLocalTransactionsStack.pushTransaction(jdbcTransaction)
+                jdbcTransaction
+            }
+            return transaction.block()
+        }
+    }
 }

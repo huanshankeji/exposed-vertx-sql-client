@@ -57,9 +57,18 @@ abstract class AllConfigurationsSpec(
                         tests(DatabaseExposedTransactionProvider(exposedDatabase))
                     }
 
-                StatementPreparationExposedTransactionProviderType.JdbcTransaction ->
-                    context("JdbcTransactionExposedTransactionProvider") {
-                        tests(JdbcTransactionExposedTransactionProvider(exposedDatabase))
+                StatementPreparationExposedTransactionProviderType.JdbcTransactionWithThreadLocalTransaction ->
+                    context("JdbcTransactionExposedTransactionProvider.WithThreadLocalTransaction") {
+                        tests(JdbcTransactionExposedTransactionProvider.WithThreadLocalTransaction(exposedDatabase))
+                    }
+
+                StatementPreparationExposedTransactionProviderType.JdbcTransactionPushAndGetPermanentThreadLocalTransaction ->
+                    context("JdbcTransactionExposedTransactionProvider.PushAndGetPermanentThreadLocalTransaction") {
+                        tests(
+                            JdbcTransactionExposedTransactionProvider.PushAndGetPermanentThreadLocalTransaction(
+                                exposedDatabase
+                            )
+                        )
                     }
             }
         }

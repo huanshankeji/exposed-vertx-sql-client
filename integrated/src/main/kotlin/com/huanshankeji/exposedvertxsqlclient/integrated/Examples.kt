@@ -63,7 +63,11 @@ suspend fun examples(vertx: Vertx) {
 
     val databaseClient = DatabaseClient(
         vertxSqlClient,
-        PgDatabaseClientConfig(JdbcTransactionExposedTransactionProvider(exposedDatabase))
+        PgDatabaseClientConfig(
+            JdbcTransactionExposedTransactionProvider.PushAndGetPermanentThreadLocalTransaction(
+                exposedDatabase
+            )
+        )
     )
 
     // put in `Vertx.executeBlocking` or `Dispatchers.IO` if needed

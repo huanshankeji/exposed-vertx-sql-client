@@ -7,8 +7,7 @@ import com.huanshankeji.exposedvertxsqlclient.DatabaseExposedTransactionProvider
 import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
 import com.huanshankeji.exposedvertxsqlclient.JdbcTransactionExposedTransactionProvider
 import com.huanshankeji.exposedvertxsqlclient.integrated.StatementPreparationExposedTransactionProviderType
-import com.huanshankeji.exposedvertxsqlclient.integrated.StatementPreparationExposedTransactionProviderType.Database
-import com.huanshankeji.exposedvertxsqlclient.integrated.StatementPreparationExposedTransactionProviderType.JdbcTransaction
+import com.huanshankeji.exposedvertxsqlclient.integrated.StatementPreparationExposedTransactionProviderType.*
 import com.huanshankeji.exposedvertxsqlclient.postgresql.PgDatabaseClientConfig
 import com.huanshankeji.exposedvertxsqlclient.postgresql.vertx.pgclient.createPgConnection
 import io.vertx.core.Vertx
@@ -79,7 +78,13 @@ class TfbBatchUpdateBenchmark : WithContainerizedDatabaseAndExposedDatabaseBench
 
         val transactionProvider = when (transactionProviderType) {
             Database -> DatabaseExposedTransactionProvider(database)
-            JdbcTransaction -> JdbcTransactionExposedTransactionProvider(database)
+            JdbcTransactionWithThreadLocalTransaction -> JdbcTransactionExposedTransactionProvider.WithThreadLocalTransaction(
+                database
+            )
+
+            JdbcTransactionPushAndGetPermanentThreadLocalTransaction -> JdbcTransactionExposedTransactionProvider.PushAndGetPermanentThreadLocalTransaction(
+                database
+            )
         }
 
         databaseClient = DatabaseClient(

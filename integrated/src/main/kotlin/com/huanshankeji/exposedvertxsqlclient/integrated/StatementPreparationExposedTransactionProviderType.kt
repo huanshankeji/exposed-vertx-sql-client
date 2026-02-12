@@ -10,6 +10,8 @@ enum class StatementPreparationExposedTransactionProviderType {
     /** Uses [DatabaseExposedTransactionProvider] (creates Exposed transaction for each SQL preparation) */
     Database,
 
-    /** Uses [JdbcTransactionExposedTransactionProvider] (reuses JDBC transaction) */
-    JdbcTransaction
+    /** Uses [JdbcTransactionExposedTransactionProvider.WithThreadLocalTransaction] (reuses JDBC transaction) */
+    JdbcTransactionWithThreadLocalTransaction,
+
+    JdbcTransactionPushAndGetPermanentThreadLocalTransaction
 }
