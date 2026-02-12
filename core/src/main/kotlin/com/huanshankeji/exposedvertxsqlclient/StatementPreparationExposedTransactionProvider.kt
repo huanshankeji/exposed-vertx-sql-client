@@ -100,14 +100,26 @@ class JdbcTransactionExposedTransactionProvider(
 
     @OptIn(InternalApi::class)
     override fun <T> statementPreparationExposedTransaction(block: ExposedTransaction.() -> T): T {
-        System.err.println("transaction id: ${jdbcTransaction.transactionId}")
-        System.err.println("before `withThreadLocalTransaction`, transaction stack size: ${ThreadLocalTransactionsStack.threadTransactions()?.size}")
+        fun info() =
+            "thread: ${Thread.currentThread().name}\n" +
+                    "transaction ID: ${jdbcTransaction.transactionId}\n" +
+                    "transaction stack size: ${ThreadLocalTransactionsStack.threadTransactions()?.size}\n"
+
+        val stringBuilder = StringBuilder()
+
+        stringBuilder.append("before `withThreadLocalTransaction`:\n").append(info()).append("\n")
+
         // Call statement directly on the transaction - it will be executed in the transaction context
         val result = withThreadLocalTransaction(jdbcTransaction) {
-            System.err.println("in `withThreadLocalTransaction`, transaction stack size: ${ThreadLocalTransactionsStack.threadTransactions()?.size}")
-            jdbcTransaction.block()
+            stringBuilder.append("in `withThreadLocalTransaction` before `block`:\n").append(info()).append("\n")
+            val r = jdbcTransaction.block()
+            stringBuilder.append("in `withThreadLocalTransaction` after `block`:\n").append(info()).append("\n")
+            r
         }
-        System.err.println("after `withThreadLocalTransaction`, transaction stack size: ${ThreadLocalTransactionsStack.threadTransactions()?.size}")
+        stringBuilder.append("after `withThreadLocalTransaction`:\n").append(info()).append("\n")
+
+        System.err.println(stringBuilder.toString())
+
         return result
     }
 
