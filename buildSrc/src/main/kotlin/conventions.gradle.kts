@@ -18,5 +18,8 @@ version = projectVersion
 
 // configure for all source sets
 tasks.withType<KotlinCompilationTask<*>> {
-    compilerOptions.freeCompilerArgs.add("-opt-in=com.huanshankeji.exposedvertxsqlclient.EvscInternalApi")
+    compilerOptions.optIn.addAll(
+        "com.huanshankeji.exposedvertxsqlclient.EvscInternalApi",
+        "com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi"
+    )
 }
