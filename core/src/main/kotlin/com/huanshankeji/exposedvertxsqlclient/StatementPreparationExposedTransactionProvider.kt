@@ -6,6 +6,7 @@ import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.sql.Connection
+import kotlin.concurrent.getOrSet
 import org.jetbrains.exposed.v1.core.Transaction as ExposedTransaction
 
 /**
@@ -60,6 +61,7 @@ class DatabaseExposedTransactionProvider(
 }
 
 /**
+ * TODO Update the docs here correspondingly: each thread must have a separate transaction to avoid contention/race.
  * A [StatementPreparationExposedTransactionProvider] that reuses a single [JdbcTransaction] for all SQL preparation calls.
  *
  * This approach provides better performance by avoiding the overhead of creating a new transaction
@@ -78,14 +80,20 @@ class DatabaseExposedTransactionProvider(
  */
 @ExperimentalEvscApi
 class JdbcTransactionExposedTransactionProvider(
-    val jdbcTransaction: JdbcTransaction
+    val database: Database
 ) : StatementPreparationExposedTransactionProvider {
+    companion object {
+        @EvscInternalApi
+        val evscThreadLocalTransaction = ThreadLocal<JdbcTransaction>()
+    }
+
     /**
-     * Secondary constructor that creates a [JdbcTransaction] from a [Database].
+     * Creates a [JdbcTransaction] from a [Database].
      *
      * @param database the Exposed [Database] to use for creating the transaction
      */
-    constructor(database: Database) : this(
+    @EvscInternalApi
+    fun createTransaction() =
         /*
         // alternative implementation that keeps that transaction open
         database.transactionManager.newTransaction(Connection.TRANSACTION_READ_UNCOMMITTED, true)
@@ -95,14 +103,19 @@ class JdbcTransactionExposedTransactionProvider(
             // The transaction members needed for SQL preparation are still usable
             this
         }
-    )
 
-    @OptIn(InternalApi::class)
-    override fun <T> statementPreparationExposedTransaction(block: ExposedTransaction.() -> T): T =
+    @EvscInternalApi
+    fun getOrSetEvscThreadLocalTransaction() =
+        evscThreadLocalTransaction.getOrSet { createTransaction() }
+
+    @OptIn(InternalApi::class, EvscInternalApi::class)
+    override fun <T> statementPreparationExposedTransaction(block: ExposedTransaction.() -> T): T {
+        val transaction = getOrSetEvscThreadLocalTransaction()
         // Call statement directly on the transaction - it will be executed in the transaction context
-        withThreadLocalTransaction(jdbcTransaction) { jdbcTransaction.block() }
+        return withThreadLocalTransaction(transaction) { transaction.block() }
+    }
 
     @Deprecated("Not currently used by other declarations in this library.")
     override fun <T> withExplicitOnlyStatementPreparationExposedTransaction(block: ExposedTransaction.() -> T): T =
-        jdbcTransaction.block()
+        getOrSetEvscThreadLocalTransaction().block()
 }

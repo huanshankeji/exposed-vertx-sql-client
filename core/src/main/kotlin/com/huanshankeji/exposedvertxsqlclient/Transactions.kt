@@ -182,7 +182,7 @@ suspend fun <SqlConnectionT : SqlConnection, RollbackResult, ReleaseResult> Data
 }
 
 @Deprecated("Use `withSavepointEither` instead.", ReplaceWith("this.withSavepointEither(savepointName, function)"))
-@InternalApi
+@EvscInternalApi
 suspend fun <SqlConnectionT : SqlConnection, RollbackResult, ReleaseResult> DatabaseClient<SqlConnectionT>.withSavepointAndRollbackIfThrowsOrLeft(
     savepointName: String, function: suspend (DatabaseClient<SqlConnectionT>) -> Either<RollbackResult, ReleaseResult>
 ): Either<RollbackResult, ReleaseResult> =

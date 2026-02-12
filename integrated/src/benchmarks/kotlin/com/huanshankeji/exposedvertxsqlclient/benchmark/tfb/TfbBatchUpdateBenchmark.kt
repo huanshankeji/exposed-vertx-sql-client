@@ -154,7 +154,6 @@ sealed class TfbBatchUpdateBenchmark : WithContainerizedDatabaseAndExposedDataba
 
         @Benchmark
         fun prepareBatchSqlAndArgTuples() {
-            @OptIn(InternalApi::class)
             databaseClient.prepareBatchSqlAndArgTuples(statements(nextSortedIds()))
         }
 
@@ -163,7 +162,6 @@ sealed class TfbBatchUpdateBenchmark : WithContainerizedDatabaseAndExposedDataba
             with(databaseClient) {
                 statementPreparationExposedTransaction {
                     repeat(`1M`) {
-                        @OptIn(InternalApi::class)
                         prepareBatchSqlAndArgTuplesWithProvidedTransaction(statements(nextSortedIds()))
                     }
                 }
@@ -175,7 +173,6 @@ sealed class TfbBatchUpdateBenchmark : WithContainerizedDatabaseAndExposedDataba
             with(databaseClient) {
                 repeat(`1M`) {
                     statementPreparationExposedTransaction {
-                        @OptIn(InternalApi::class)
                         prepareBatchSqlAndArgTuplesWithProvidedTransaction(statements(nextSortedIds()))
                     }
                 }
@@ -190,7 +187,6 @@ sealed class TfbBatchUpdateBenchmark : WithContainerizedDatabaseAndExposedDataba
                     awaitAll(*Array(`1M`) {
                         async {
                             statementPreparationExposedTransaction {
-                                @OptIn(InternalApi::class)
                                 prepareBatchSqlAndArgTuplesWithProvidedTransaction(statements(nextSortedIds()))
                             }
                         }
@@ -205,7 +201,6 @@ sealed class TfbBatchUpdateBenchmark : WithContainerizedDatabaseAndExposedDataba
                 multiThread_ops_nearlyEvenlyPartitioned_helper(`1M`) { num ->
                     repeat(num) {
                         statementPreparationExposedTransaction {
-                            @OptIn(InternalApi::class)
                             prepareBatchSqlAndArgTuplesWithProvidedTransaction(statements(nextSortedIds()))
                         }
                     }
