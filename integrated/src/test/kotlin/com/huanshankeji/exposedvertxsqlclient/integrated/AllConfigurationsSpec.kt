@@ -21,8 +21,10 @@ import com.huanshankeji.exposedvertxsqlclient.postgresql.vertx.pgclient.createPg
 import com.huanshankeji.exposedvertxsqlclient.postgresql.vertx.pgclient.createPgConnection
 import com.huanshankeji.exposedvertxsqlclient.postgresql.vertx.pgclient.createPgPool
 import io.kotest.core.extensions.install
+import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.spec.style.scopes.FunSpecContainerScope
+import io.kotest.core.test.TestCaseOrder
 import io.kotest.extensions.testcontainers.TestContainerSpecExtension
 import io.vertx.core.Vertx
 import org.jetbrains.exposed.v1.jdbc.Database
@@ -40,11 +42,22 @@ abstract class AllConfigurationsSpec(
         StatementPreparationExposedTransactionProviderType::class.java
     )
 ) : FunSpec({
-    val vertx = Vertx.vertx()
-    afterSpec { vertx.close().await() }
-
-    // This causes passing tests to fail. Not sure why.
-    //testExecutionMode = TestExecutionMode.Concurrent
+    // Use InstancePerLeaf isolation to ensure each test leaf gets its own spec instance
+    // This prevents shared state issues when running tests concurrently
+    isolationMode = IsolationMode.InstancePerLeaf
+    
+    // Sequential order within each spec to avoid container conflicts
+    testOrder = TestCaseOrder.Sequential
+    
+    lateinit var vertx: Vertx
+    
+    beforeSpec {
+        vertx = Vertx.vertx()
+    }
+    
+    afterSpec { 
+        vertx.close().await() 
+    }
 
     suspend fun FunSpecContainerScope.testsForAllProviderTypes(
         exposedDatabase: Database,
