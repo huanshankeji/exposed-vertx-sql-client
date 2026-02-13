@@ -24,7 +24,6 @@ import io.kotest.core.extensions.install
 import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.spec.style.scopes.FunSpecContainerScope
-import io.kotest.core.test.TestCaseOrder
 import io.kotest.extensions.testcontainers.TestContainerSpecExtension
 import io.vertx.core.Vertx
 import org.jetbrains.exposed.v1.jdbc.Database
@@ -46,6 +45,8 @@ abstract class AllConfigurationsSpec(
     // This prevents shared state issues and enables safe concurrent execution
     isolationMode = IsolationMode.InstancePerLeaf
     
+    // Vertx instance is initialized in beforeSpec, which runs before any test code.
+    // With InstancePerLeaf, each spec instance gets its own Vertx.
     lateinit var vertx: Vertx
     
     beforeSpec {
