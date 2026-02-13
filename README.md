@@ -27,7 +27,7 @@ We also have some internal consuming code to guarantee the usability of the APIs
 
 ### Brief overview of the implementation
 
-This library works by first producing the prepared SQL from an Exposed `Statement` with an Exposed `transaction`, then translating and passing the SQL to the Vert.x SQL client for execution, and finally transforming the retrieved result Vert.x SQL client `Row` into the Exposed `ResultSet`. The Exposed `transaction` for preparing the SQL is as short and as lightweight as possible to improve performance. With the `JdbcTransactionExposedTransactionProvider` (recommended), a single JDBC transaction can be reused across multiple SQL preparation calls for even better performance. And also when executing without a transaction, Vert.x SQL client's pipelining feature can be enabled, which greatly improves performance for simple queries and is not supported by JDBC and R2DBC for PostgreSQL as far as I know.
+This library works by first producing the prepared SQL from an Exposed `Statement` with an Exposed `transaction`, then translating and passing the SQL to the Vert.x SQL client for execution, and finally transforming the retrieved result Vert.x SQL client `Row` into the Exposed `ResultSet`. With the `JdbcTransactionExposedTransactionProvider` (recommended), a single JDBC transaction can be reused across multiple SQL preparation calls in a single thread/`Verticle` for better performance; with the `DatabaseExposedTransactionProvider` (fallback), the Exposed `transaction` for preparing a SQL is as short and as lightweight as possible to improve performance. And also when executing without a transaction, Vert.x SQL client's pipelining feature can be enabled, which greatly improves performance for simple queries and is not supported by JDBC and R2DBC for PostgreSQL as far as I know.
 
 ## Performance
 
@@ -44,7 +44,9 @@ This library works by first producing the prepared SQL from an Exposed `Statemen
 | ktor-netty-exposed-jdbc-dsl | Ktor with Exposed JDBC | 169,795 | 31,612 | 142,435 | 23,980 |
 | ktor-netty-exposed-r2dbc-dsl | Ktor with Exposed R2DBC | 105,843 | 21,942 | 83,263 | 6,937 |
 
-Based on the requests-per-second numbers above, this library achieves roughly 54% of the baseline throughput in Single query and about 70% in Fortunes (a single SQL select query of all the records with manipulation and encoding to HTML in each request). It performs worse in Multiple queries (20 separate select SQL queries in each request) most likely due to the transaction overhead. We are working on this and trying to resolve this performance issue. The `JdbcTransactionExposedTransactionProvider` introduced in v0.8.0 helps improve performance by reusing a single JDBC transaction for SQL preparation, reducing the per-query transaction overhead.
+Based on the requests-per-second numbers above, this library achieves roughly 54% of the baseline throughput in Single query and about 70% in Fortunes (a single SQL select query of all the records with manipulation and encoding to HTML in each request). It performs worse in Multiple queries (20 separate select SQL queries in each request) most likely due to the transaction overhead. We are working on this and trying to resolve this performance issue.
+
+The `JdbcTransactionExposedTransactionProvider` introduced in v0.8.0 helps improve performance by reusing a single JDBC transaction for SQL preparation, reducing the per-query transaction overhead. With this provider, this library achieves 85% - 100% of the baseline as tested on my device.
 
 ## Add to your dependencies
 
