@@ -15,7 +15,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Bump Exposed to 1.0.0.
+- Bump some dependencies and toolchains to the latest.
+  - Exposed 1.0.0
+  - Kotlin 2.3.10
+  - Gradle 9.3.1
+  - Vert.x 5.0.7
 - Refactor `DatabaseClient` to accept `DatabaseClientConfig` which now includes a `StatementPreparationExposedTransactionProvider` instead of directly depending on an Exposed `Database` (#101).
 
 ### Deprecated

@@ -6,7 +6,8 @@ val projectVersion = "0.8.0-SNAPSHOT"
 
 // don't use a snapshot version in a main branch
 // Note that there is another Exposed version in the version catalog
-val commonVersions = CommonVersions(kotlinCommon = "0.7.0", exposed = "1.0.0", testcontainers = "2.0.3")
+val commonVersions =
+    CommonVersions(kotlinCommon = "0.7.0", exposed = "1.0.0", testcontainers = "2.0.3", vertx = "5.0.7")
 val commonDependencies = CommonDependencies(commonVersions)
 val commonGradleClasspathDependencies = CommonGradleClasspathDependencies(commonVersions)
 
