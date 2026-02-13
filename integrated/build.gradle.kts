@@ -52,6 +52,10 @@ dependencies {
 // to resolve "no tests discovered" errors when running `check`
 tasks.test {
     useJUnitPlatform()
+    
+    // Enable parallel test execution at the JVM level
+    // This allows multiple test classes to run concurrently
+    maxParallelForks = Runtime.getRuntime().availableProcessors()
 }
 
 afterEvaluate {

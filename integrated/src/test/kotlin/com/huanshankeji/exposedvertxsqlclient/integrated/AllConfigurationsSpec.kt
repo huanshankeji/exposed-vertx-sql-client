@@ -43,11 +43,8 @@ abstract class AllConfigurationsSpec(
     )
 ) : FunSpec({
     // Use InstancePerLeaf isolation to ensure each test leaf gets its own spec instance
-    // This prevents shared state issues when running tests concurrently
+    // This prevents shared state issues and enables safe concurrent execution
     isolationMode = IsolationMode.InstancePerLeaf
-    
-    // Sequential order within each spec to avoid container conflicts
-    testOrder = TestCaseOrder.Sequential
     
     lateinit var vertx: Vertx
     
