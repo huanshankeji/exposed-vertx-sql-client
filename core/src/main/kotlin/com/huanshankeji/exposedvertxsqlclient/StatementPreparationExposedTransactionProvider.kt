@@ -78,8 +78,8 @@ class DatabaseExposedTransactionProvider(
  * used for SQL generation, so it is not strictly read-only in terms of object immutability, but it should be used
  * in a way that does not perform database writes.
  *
- * The transaction instance members needed for SQL preparation remain usable even after the underlying connection
- * is no longer actively used for executing statements, as long as the [JdbcTransaction] itself is kept alive.
+ * **Note:** The transaction instance members needed for SQL preparation remain usable even after
+ * the underlying connection is not actively used.
  *
  * @param jdbcTransaction the [JdbcTransaction] to use for SQL statement preparation
  */
