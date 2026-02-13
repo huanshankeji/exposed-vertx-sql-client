@@ -80,6 +80,9 @@ public final class com/huanshankeji/exposedvertxsqlclient/DatabaseClient : com/h
 	public final fun getVertxSqlClient ()Lio/vertx/sqlclient/SqlClient;
 	public final fun isWorking (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun optionalStatementPreparationExposedTransaction (ZLkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+	public final fun prepareBatchSqlAndArgTuples (Ljava/lang/Iterable;)Lkotlin/Pair;
+	public final fun prepareBatchSqlAndArgTuplesWithProvidedTransaction (Lorg/jetbrains/exposed/v1/core/Transaction;Ljava/lang/Iterable;)Lkotlin/Pair;
+	public final fun prepareSqlAndArgTuple (Lorg/jetbrains/exposed/v1/core/statements/Statement;)Lkotlin/Pair;
 	public fun statementPreparationExposedTransaction (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
 	public fun withExplicitOnlyStatementPreparationExposedTransaction (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
 }
@@ -133,6 +136,9 @@ public final class com/huanshankeji/exposedvertxsqlclient/EvscConfig : com/huans
 	public fun <init> (Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig;)V
 	public fun getExposedConnectionConfig ()Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig$Socket;
 	public fun getVertxSqlClientConnectionConfig ()Lcom/huanshankeji/exposedvertxsqlclient/ConnectionConfig;
+}
+
+public abstract interface annotation class com/huanshankeji/exposedvertxsqlclient/EvscInternalApi : java/lang/annotation/Annotation {
 }
 
 public abstract interface annotation class com/huanshankeji/exposedvertxsqlclient/ExperimentalEvscApi : java/lang/annotation/Annotation {
