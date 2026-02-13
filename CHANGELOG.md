@@ -21,7 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Deprecated
 
 - Deprecate the `DatabaseClient` constructor that directly accepts an Exposed `Database` parameter. Use the constructor for your DB that accepts `DatabaseClientConfig` with a `StatementPreparationExposedTransactionProvider` instead (#101).
-- Deprecate `DatabaseClient.exposedDatabase` property(#101). Keep a reference to the Exposed `Database` yourself now if needed.
+- Deprecate `DatabaseClient.exposedDatabase` property (#101). Keep a reference to the Exposed `Database` yourself now if needed.
 - Deprecate `DatabaseClientConfig.statementPreparationExposedTransactionIsolationLevel`. Use the `transactionIsolation` parameter in `DatabaseExposedTransactionProvider` instead (#101).
 
 ## [0.7.0] - 2026-01-10
