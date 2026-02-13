@@ -176,6 +176,8 @@ Always ensure JDK 11 or higher is properly configured before building. The proje
 ./gradlew :exposed-vertx-sql-client-integrated:benchmark
 ```
 
+**Limitation:** There is currently no known way to run selected benchmarks via Gradle command-line filtering. To run a single benchmark, you can temporarily delete the other unused benchmarks and run the `benchmark` task. Since the project uses git, you can always recover the deleted files afterward. Be careful not to delete abstract classes and common code that the benchmark depends on.
+
 **Quality Assurance:** The project's quality is also validated by internal consuming projects (not in this repo).
 
 ## CI/CD Pipeline

@@ -1,4 +1,3 @@
-import com.huanshankeji.team.repositoriesAddTeamGithubPackagesMavenRegistry
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 
 plugins {
@@ -17,6 +16,10 @@ kotlin.jvmToolchain(11)
 
 version = projectVersion
 
-tasks.named<KotlinCompilationTask<*>>("compileKotlin").configure {
-    compilerOptions.freeCompilerArgs.add("-opt-in=com.huanshankeji.exposedvertxsqlclient.InternalApi")
+// configure for all source sets
+tasks.withType<KotlinCompilationTask<*>> {
+    compilerOptions.optIn.addAll(
+        "com.huanshankeji.exposedvertxsqlclient.EvscInternalApi",
+        "com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi"
+    )
 }

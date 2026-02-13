@@ -75,7 +75,7 @@ fun Statement<*>.getVertxSqlClientArgTuple() =
     singleStatementArguments()?.toVertxTuple()
 
 
-@InternalApi
+@EvscInternalApi
 fun dbAssert(b: Boolean) {
     if (!b)
         throw AssertionError()
@@ -155,7 +155,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
                     "The Vert.x `RowSet` stores all the results in a List rather fetch as needed, so using `PreparedQuery.mapping` doesn't bring any performance benefits compared to using Kotlin's `map`. " +
                     "In addition, the Exposed `transaction` can be created on a finer-grained level only for the Kotlin `map` process from Vert.x `Row`s to Exposed `ResultRow`s."
         */
-        @InternalApi
+        @EvscInternalApi
         const val SELECT_BATCH_QUERY_WITH_FIELD_SET_DEPRECATED_MESSAGE =
             "This function is buggy. The field expression set of the `fieldSet` parameter may be different from the those of the queries. Use the new overload without the `fieldSet` parameter instead."
     }
@@ -263,6 +263,13 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
         @OptIn(ExperimentalEvscApi::class)
         execute(statement, transformQuery)
 
+    @EvscInternalApi
+    fun prepareSqlAndArgTuple(statement: Statement<*>): Pair<String, Tuple?> =
+        statementPreparationExposedTransaction {
+            config.transformPreparedSql(statement.prepareSqlAndLogIfNeeded(this)) to
+                    statement.getVertxSqlClientArgTuple()
+        }
+
     /**
      * @param transformQuery transform the query by calling [PreparedQuery.mapping] and [PreparedQuery.collecting].
      */
@@ -271,10 +278,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
         statement: Statement<*>,
         transformQuery: PreparedQuery<RowSet<Row>>.() -> PreparedQuery<SqlResultT>
     ): SqlResultT {
-        val (sql, argTuple) = statementPreparationExposedTransaction {
-            config.transformPreparedSql(statement.prepareSqlAndLogIfNeeded(this)) to
-                    statement.getVertxSqlClientArgTuple()
-        }
+        val (sql, argTuple) = prepareSqlAndArgTuple(statement)
         return vertxSqlClient.preparedQuery(sql)
             .transformQuery()
             .run { if (argTuple === null) execute() else execute(argTuple) }
@@ -325,7 +329,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
      * @param withExposedTransaction whether to run the [block] within the transaction.
      */
     // old name: `runWithOptionalStatementPreparationExposedTransaction`
-    @InternalApi
+    @EvscInternalApi
     inline fun <T> optionalStatementPreparationExposedTransaction(
         withExposedTransaction: Boolean, crossinline block: () -> T
     ): T =
@@ -435,6 +439,45 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
             false
         }
 
+    @EvscInternalApi
+    fun ExposedTransaction.prepareBatchSqlAndArgTuplesWithProvidedTransaction(statements: Iterable<Statement<*>>): Pair<String?, List<Tuple>> {
+        var sql: String? = null
+        //var argumentTypes: List<IColumnType>? = null
+
+        val argTuples = statements.map { statement ->
+            // The `map` is currently not parallelized.
+
+            val arguments = statement.singleStatementArguments()
+                ?: throw IllegalArgumentException("the prepared query of a batch statement should have arguments")
+            if (sql === null) {
+                sql = statement.prepareSqlAndLogIfNeeded(this)
+                //argumentTypes = arguments.types()
+            } else if (config.validateBatch) {
+                val currentSql = statement.prepareSQL(this)
+                require(currentSql == sql) {
+                    "The statements passed should generate the same prepared SQL statement. " +
+                            "However, we have got SQL statement \"$sql\" set by each previous element (at least one) " +
+                            "and SQL statement \"$currentSql\" set by the current statement $statement."
+                }
+                /*
+                val currentElementArgumentTypes = arguments.types()
+                require(currentElementArgumentTypes == argumentTypes!!) {
+                    "The statement after set by `setUpStatement` each time should generate the same argument types. " +
+                            "However we have got argument types $argumentTypes set by each previous element (at least one) " +
+                            "and argument types $currentElementArgumentTypes set by the current element $element"
+                }
+                */
+            }
+
+            arguments.toVertxTuple()
+        }
+
+        return sql to argTuples
+    }
+
+    @EvscInternalApi
+    fun prepareBatchSqlAndArgTuples(statements: Iterable<Statement<*>>): Pair<String?, List<Tuple>> =
+        statementPreparationExposedTransaction { prepareBatchSqlAndArgTuplesWithProvidedTransaction(statements) }
 
     /**
      * @see org.jetbrains.exposed.v1.jdbc.batchInsert
@@ -450,40 +493,7 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
     ): Sequence<SqlResultT> {
         //if (data.none()) return emptySequence() // This causes "java.lang.IllegalStateException: This sequence can be consumed only once." when `data` is a `ConstrainedOnceSequence`.
 
-        val (sql, argTuples) = statementPreparationExposedTransaction {
-            var sql: String? = null
-            //var argumentTypes: List<IColumnType>? = null
-
-            val argTuples = statements.map { statement ->
-                // The `map` is currently not parallelized.
-
-                val arguments = statement.singleStatementArguments()
-                    ?: throw IllegalArgumentException("the prepared query of a batch statement should have arguments")
-                if (sql === null) {
-                    sql = statement.prepareSqlAndLogIfNeeded(this)
-                    //argumentTypes = arguments.types()
-                } else if (config.validateBatch) {
-                    val currentSql = statement.prepareSQL(this)
-                    require(currentSql == sql) {
-                        "The statements passed should generate the same prepared SQL statement. " +
-                                "However, we have got SQL statement \"$sql\" set by each previous element (at least one) " +
-                                "and SQL statement \"$currentSql\" set by the current statement $statement."
-                    }
-                    /*
-                    val currentElementArgumentTypes = arguments.types()
-                    require(currentElementArgumentTypes == argumentTypes!!) {
-                        "The statement after set by `setUpStatement` each time should generate the same argument types. " +
-                                "However we have got argument types $argumentTypes set by each previous element (at least one) " +
-                                "and argument types $currentElementArgumentTypes set by the current element $element"
-                    }
-                    */
-                }
-
-                arguments.toVertxTuple()
-            }
-
-            sql to argTuples
-        }
+        val (sql, argTuples) = prepareBatchSqlAndArgTuples(statements)
 
         if (sql === null)
             return emptySequence()
