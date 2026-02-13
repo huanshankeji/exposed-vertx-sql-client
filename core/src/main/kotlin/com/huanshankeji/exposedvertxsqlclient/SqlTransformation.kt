@@ -1,6 +1,6 @@
 package com.huanshankeji.exposedvertxsqlclient
 
-@InternalApi
+@EvscInternalApi
 inline fun String.transformPreparedSqlToNumbered(appendNumberPrefix: StringBuilder.() -> StringBuilder): String =
     // twice capacity by default
     buildString(length * 2) {

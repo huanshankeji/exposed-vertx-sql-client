@@ -2,22 +2,23 @@ package com.huanshankeji.exposedvertxsqlclient.mysql
 
 import com.huanshankeji.exposedvertxsqlclient.DatabaseClientConfig
 import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
-import java.sql.Connection
+import com.huanshankeji.exposedvertxsqlclient.StatementPreparationExposedTransactionProvider
 
 /**
  * See the [DatabaseClientConfig] interface for parameter descriptions.
  */
 fun MysqlDatabaseClientConfig(
+    @OptIn(ExperimentalEvscApi::class)
+    statementPreparationExposedTransactionProvider: StatementPreparationExposedTransactionProvider,
     validateBatch: Boolean = true,
     logSql: Boolean = false,
-    statementPreparationExposedTransactionIsolationLevel: Int? = Connection.TRANSACTION_READ_UNCOMMITTED,
     autoExposedTransaction: Boolean = false
 ) =
     @OptIn(ExperimentalEvscApi::class)
     DatabaseClientConfig(
+        statementPreparationExposedTransactionProvider,
         validateBatch,
         logSql,
-        statementPreparationExposedTransactionIsolationLevel,
         autoExposedTransaction,
         { it }
     )

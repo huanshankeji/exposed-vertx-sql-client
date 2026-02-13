@@ -7,6 +7,59 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `StatementPreparationExposedTransactionProvider` interface for managing Exposed transactions used for SQL statement preparation (#101, resolves #84).
+  - Add the `JdbcTransactionExposedTransactionProvider` implementation which reuses a single JDBC transaction for all SQL preparation calls, providing better performance by avoiding the overhead of creating a new transaction for each SQL preparation (#101, resolves #84).
+  - Add the `DatabaseExposedTransactionProvider` implementation as a fallback solution that creates a new transaction for each SQL preparation call (#101, resolves #84).
+
+### Changed
+
+- Bump some dependencies and toolchains to the latest.
+  - Exposed 1.0.0
+  - Kotlin 2.3.10
+  - Gradle 9.3.1
+  - Vert.x 5.0.7
+- Refactor `DatabaseClient` to accept `DatabaseClientConfig` which now includes a `StatementPreparationExposedTransactionProvider` instead of directly depending on an Exposed `Database` (#101).
+
+### Deprecated
+
+- Deprecate the `DatabaseClient` constructor that directly accepts an Exposed `Database` parameter. Use the constructor for your DB that accepts `DatabaseClientConfig` with a `StatementPreparationExposedTransactionProvider` instead (#101).
+- Deprecate `DatabaseClient.exposedDatabase` property (#101). Keep a reference to the Exposed `Database` yourself now if needed.
+- Deprecate `DatabaseClientConfig.statementPreparationExposedTransactionIsolationLevel`. Use the `transactionIsolation` parameter in `DatabaseExposedTransactionProvider` instead (#101).
+
+## [0.7.0] - 2026-01-10
+
+### Added
+
+- Add `readOnlyTransactionIsolationLevel` in `DatabaseClientConfig` and update `statementPreparationExposedTransaction` to use this value, which defaults to `Connection.TRANSACTION_READ_UNCOMMITTED` (#69).
+- Add comprehensive tests for the extension CRUD DSL and transaction (including savepoint) APIs (#82).
+
+### Changed
+
+- Rename `exposedReadOnlyTransaction` to `statementPreparationExposedTransaction` (#71).
+- Mark more APIs with the `ExperimentalEvscApi` and `ExperimentalUnixDomainSocketApi` opt-in annotations (#80, #82, #92, and possibly others)
+- Update README adding and reorganizing the important notes (#83).
+- Overhaul the extension CRUD DSL and transaction (including savepoint) APIs (#81, #82).
+- Bump some dependencies to the latest.
+  - Kotlin 2.3.10
+  - Exposed 1.0.0-rc-4
+
+### Deprecated
+
+- Deprecate some outdated or poorly designed extension CRUD DSL and transaction APIs (#82, #92, and possibly others).
+
+### Fixed
+
+- Fix some failures with some databases due to the default `Connection.TRANSACTION_NONE` isolation level (#69).
+- Fix and update dokka-gh-pages.yml (#86).
+- Update the included Dokka modules, which were outdated (#89).
+- Fix bugs in the extension CRUD DSL and transaction (including savepoint) APIs (#82).
+
+### Internal
+
+- Benchmark JDBC `suspendTransaction` (#74, #75), Exposed `transaction` with HikariCP (#76), Exposed R2DBC transaction (#77) and improve related transaction benchmark code.
+
 ## [0.6.0] - 2025-11-26
 
 ### Added
@@ -100,7 +153,8 @@ Miscellaneous changes:
 * fix a bug that an Exposed transaction is required if a query `FieldSet` contains custom functions depending on dialects and no such a transaction is provided
 * Add a basic usage guide
 
-[Unreleased]: https://github.com/huanshankeji/exposed-vertx-sql-client/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/huanshankeji/exposed-vertx-sql-client/compare/v0.7.0...HEAD
+[0.7.0]: https://github.com/huanshankeji/exposed-vertx-sql-client/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/huanshankeji/exposed-vertx-sql-client/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/huanshankeji/exposed-vertx-sql-client/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/huanshankeji/exposed-vertx-sql-client/releases/tag/v0.4.0

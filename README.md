@@ -20,14 +20,33 @@ Execute [Exposed](https://github.com/JetBrains/Exposed) statements with [Vert.x 
 
 This library is experimental now.
 The APIs are subject to change (especially those marked with `@ExperimentalEvscApi`).
-There are some basic tests, but they are incomplete to cover all the APIs, so please expect bugs and report them.
-We also have some internal consuming code to guarantee the usability of the APIs.
+<!-- There are some basic tests, but they are incomplete to cover all the APIs, so please expect bugs and report them.
+We also have some internal consuming code to guarantee the usability of the APIs. -->
 
 ### Exposed DAO APIs are not supported
 
 ### Brief overview of the implementation
 
-This library works by first producing the prepared SQL from an Exposed `Statement` with an Exposed `transaction`, then translating and passing the SQL to the Vert.x SQL client for execution, and finally transforming the retrieved result Vert.x SQL client `Row` into the Exposed `ResultSet`. The Exposed `transaction` for preparing the SQL is as short and as lightweight as possible to improve performance. And also when executing without a transaction, Vert.x SQL client's pipelining feature can be enabled, which greatly improves performance for simple queries and is not supported by JDBC and R2DBC for PostgreSQL as far as I know.
+This library works by first producing the prepared SQL from an Exposed `Statement` with an Exposed `transaction`, then translating and passing the SQL to the Vert.x SQL client for execution, and finally transforming the retrieved result Vert.x SQL client `Row` into the Exposed `ResultSet`. With the `JdbcTransactionExposedTransactionProvider` (recommended), a single JDBC transaction can be reused across multiple SQL preparation calls in a single thread/`Verticle` for better performance; with the `DatabaseExposedTransactionProvider` (fallback), the Exposed `transaction` for preparing a SQL is as short and as lightweight as possible to improve performance. And also when executing without a transaction, Vert.x SQL client's pipelining feature can be enabled, which greatly improves performance for simple queries and is not supported by JDBC and R2DBC for PostgreSQL as far as I know.
+
+## Performance
+
+### TechEmpower Framework Benchmarks
+
+[The requests per second results for the related portions from the TechEmpower Framework Benchmarks Continuous Benchmarking results started on 2026-01-18](https://www.techempower.com/benchmarks/#section=test&runid=acc1ad82-ae2c-4d1d-a600-c7ff9d0c5917&l=zhxjwf-pa7&f=zik0zj-zik0zj-zik0zj-zik0zj-zik0zj-zik0zj-zhb2tb-zik0zj-zik0zj-zik0zj-zik0zj-zik0zj-zik0zj-z62j9b-zik0zj-zik0zj-pa7&test=db) are as follows:
+
+| Benchmark portion | Description | Single query | Multiple queries | Fortunes | Data updates |
+| --- | --- | --- | --- | --- | --- |
+| vertx-web-kotlinx-postgresql | Vert.x baseline | 1,203,778 | 83,683 | 785,442 | 45,715 |
+| vertx-web-kotlinx-exposed-vertx-sql-client-postgresql | Vert.x with this library | 651,159 | 16,738 | 548,423 | 26,360 |
+| vertx-web-kotlinx-exposed-r2dbc-postgresql | Vert.x with Exposed R2DBC directly (replacing the Vert.x SQL client) | 95,664 | 5,251 | 30,165 | 1,700 |
+| vertx-web-kotlinx-r2dbc-postgresql | Vert.x with R2DBC (replacing the Vert.x SQL client), for comparison | 497,670 | 30,566 | 474,957 | 14,024 |
+| ktor-netty-exposed-jdbc-dsl | Ktor with Exposed JDBC | 169,795 | 31,612 | 142,435 | 23,980 |
+| ktor-netty-exposed-r2dbc-dsl | Ktor with Exposed R2DBC | 105,843 | 21,942 | 83,263 | 6,937 |
+
+Based on the requests-per-second numbers above, this library achieves roughly 54% of the baseline throughput in Single query and about 70% in Fortunes (a single SQL select query of all the records with manipulation and encoding to HTML in each request). It performs worse in Multiple queries (20 separate select SQL queries in each request) most likely due to the transaction overhead. We are working on this and trying to resolve this performance issue.
+
+The `JdbcTransactionExposedTransactionProvider` introduced in v0.8.0 helps improve performance by reusing a single JDBC transaction for SQL preparation, reducing the per-query transaction overhead. With this provider, this library achieves 85% - 100% of the baseline as tested on my device.
 
 ## Add to your dependencies
 
@@ -39,7 +58,7 @@ This library works by first producing the prepared SQL from an Exposed `Statemen
 
 ### **Important note : compatibility with Exposed**
 
-If you encounter issues likely caused by compatibility with Exposed, please try using the same version of Exposed this library depends on. The current Exposed version for v0.7.0 of this library is v1.0.0-rc-4.
+If you encounter issues likely caused by compatibility with Exposed, please try using the same version of Exposed this library depends on. The current development version (v0.8.0-SNAPSHOT) depends on Exposed v1.0.0, while the latest released version v0.7.0 depends on Exposed v1.0.0-rc-4.
 
 ## API documentation
 
@@ -62,6 +81,8 @@ And add an RDBMS module, for example, the PostgreSQL module:
 ```kotlin
 implementation("com.huanshankeji:exposed-vertx-sql-client-postgresql:$libraryVersion")
 ```
+
+<!-- code blocks below copied from `Examples.kt` -->
 
 ### Create a `DatabaseClient`
 
@@ -96,11 +117,24 @@ val pool = createPgPool(vertx, evscConfig.vertxSqlClientConnectionConfig)
 val sqlConnection = createPgConnection(vertx, evscConfig.vertxSqlClientConnectionConfig)
 ```
 
-Create a `Database` with the provided Vert.x `SqlClient` and Exposed `Database`, preferably in a `Verticle`:
+Create a `DatabaseClient` with the provided Vert.x `SqlClient` and a transaction provider, preferably in a `Verticle`:
 
 ```kotlin
-val databaseClient = DatabaseClient(vertxSqlClient, exposedDatabase, PgDatabaseClientConfig())
+val databaseClient = DatabaseClient(
+    vertxSqlClient,
+    PgDatabaseClientConfig(JdbcTransactionExposedTransactionProvider(exposedDatabase))
+)
 ```
+
+**About `StatementPreparationExposedTransactionProvider`:**
+
+The `DatabaseClient` uses a `StatementPreparationExposedTransactionProvider` to manage Exposed transactions for SQL statement preparation. There are two options:
+
+- **`JdbcTransactionExposedTransactionProvider` (recommended)**: Reuses a single JDBC transaction for all SQL preparation calls. This approach provides better performance by avoiding the overhead of creating a new transaction for each SQL preparation. This is the recommended option for most use cases.
+  
+  **Note:** This depends on a closed `Transaction` (properties and functions used including `identity` and `.db.dialect` etc.). It's not guaranteed that Exposed APIs won't change in the future, and creating `Statement`s and calling `prepareSQL` may require an open `Transaction` based on a connection in future Exposed versions. It also depends on the `withThreadLocalTransaction` API which is marked `@InternalApi` at the moment.
+
+- **`DatabaseExposedTransactionProvider`**: Creates a new transaction for each SQL preparation call. This is kept as a fallback solution in case the `JdbcTransactionExposedTransactionProvider` approach has issues with future Exposed API changes (see note above).
 
 #### Alternatives to `EvscConfig`
 
@@ -300,6 +334,6 @@ If you encounter
 
    For example, this can happen if you call `Query.forUpdate()` without a transaction. In such a case, you can also use our `Query.forUpdateWithTransaction()` instead.
 
-2. If your function call has a parameter with `WithExposedTransaction` in its name, try setting it to `true`. To make things easier, you can also set `autoExposedTransaction` to `true` in `DatabaseClientConfig` when creating the `DatabaseClient`. Note that this slightly degrades performance though.
+2. If your function call has a parameter with `WithExposedTransaction` in its name, try setting it to `true`. To make things easier, you can also set `autoExposedTransaction` to `true` in `DatabaseClientConfig` when creating the `DatabaseClient`. Note that when using `DatabaseExposedTransactionProvider`, this slightly degrades performance, but with `JdbcTransactionExposedTransactionProvider` (recommended), the overhead is minimal.
 
 Some Exposed APIs implicitly require a transaction and we can't guarantee that such exceptions are always avoided, as Exposed APIs are not fully decoupled and designed to serve this library, the transaction requirements in APIs sometimes change between versions and our APIs may need to evolve accordingly.

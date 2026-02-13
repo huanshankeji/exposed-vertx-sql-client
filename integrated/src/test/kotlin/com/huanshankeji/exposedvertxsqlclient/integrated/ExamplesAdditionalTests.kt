@@ -1,7 +1,7 @@
 package com.huanshankeji.exposedvertxsqlclient.integrated
 
 class ExamplesAdditionalTests :
-    TestsForAllRdbmsTypesAndAllClientTypesWithTestcontainers({ databaseClient, rdbmsType, _ ->
+    AllConfigurationsSpec({ databaseClient, rdbmsType, _ ->
         val crudSupportConfig = CrudSupportConfig.fromRdbmsType(rdbmsType)
 
         test("test batch operations") {
