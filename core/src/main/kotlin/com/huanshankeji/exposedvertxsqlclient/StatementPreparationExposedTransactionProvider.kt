@@ -60,6 +60,8 @@ class DatabaseExposedTransactionProvider(
 }
 
 /**
+ * // TODO review the comments in the code below and update
+ *
  * A [StatementPreparationExposedTransactionProvider] that reuses a single [JdbcTransaction] for all SQL preparation calls.
  *
  * This approach provides better performance by avoiding the overhead of creating a new transaction
@@ -68,11 +70,11 @@ class DatabaseExposedTransactionProvider(
  * **Thread safety:** The JDBC transaction is used only for SQL statement preparation (via statement building and `prepareSQL`),
  * which is typically a read-only operation on Exposed's internal structures. However, if you plan to use
  * this provider concurrently from multiple threads, ensure that the operations performed within
- * [statementPreparationExposedTransaction] are thread-safe.
+ * [statementPreparationExposedTransaction] are thread-safe. // TODO Seems this sentence needs to be updated.
  *
  * **Note:** The transaction instance members needed for SQL preparation remain usable even after
  * the underlying connection is not actively used. The transaction is created in a read-only mode
- * suitable for SQL generation.
+ * suitable for SQL generation. // TODO not actually read-only as there is accumulating state.
  *
  * @param jdbcTransaction the [JdbcTransaction] to use for SQL statement preparation
  */
@@ -106,7 +108,14 @@ class JdbcTransactionExposedTransactionProvider(
             }
         } finally {
             // Accumulating state needs to be cleared. Otherwise, it causes progressive performance degradation for update statements as found.
-            // `rollback` calls `withThreadLocalTransaction` so it's put outside
+            // `rollback` calls `withThreadLocalTransaction` too so it's put outside the `withThreadLocalTransaction` block above.
+            /*
+            `rollback` doesn't have synchronization mechanism as I checked.
+            So when you share a transaction across multiple threads, they may call `rollback` and clear states concurrently.
+            This hasn't caused performance or correctness issues as I have tested.
+            However, to avoid potential issues, you are recommended to provide a separate `transaction` for each thread or `Verticle`.
+            For library users: please also report any concurrency issues you encounter.
+             */
             jdbcTransaction.rollback()
         }
 
