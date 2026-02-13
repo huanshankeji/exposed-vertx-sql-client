@@ -4,19 +4,14 @@ import io.kotest.core.config.AbstractProjectConfig
 import io.kotest.core.spec.SpecExecutionOrder
 
 /**
- * Kotest project configuration to enable parallel test execution.
+ * Kotest project configuration for the integrated test module.
  * 
- * This configuration allows different test specs (classes extending AllConfigurationsSpec)
- * to run in parallel, which significantly reduces total test execution time since
- * each spec tests a different combination of database types and configurations.
- * 
- * Note: With InstancePerLeaf isolation mode set in AllConfigurationsSpec, each test leaf
- * will get its own spec instance, enabling safe concurrent execution.
+ * This configuration provides project-level settings for test execution.
+ * Parallel execution is enabled via Gradle's `maxParallelForks` setting in build.gradle.kts,
+ * combined with `IsolationMode.InstancePerLeaf` in AllConfigurationsSpec which ensures
+ * each test gets its own spec instance with isolated resources.
  */
 class ProjectConfig : AbstractProjectConfig() {
     // Run specs in a deterministic order for reproducibility
     override val specExecutionOrder = SpecExecutionOrder.Lexicographic
-    
-    // Enable parallel execution - with Kotest 5.x+ this is typically controlled by
-    // Gradle's maxParallelForks and Kotest will run specs concurrently by default
 }
