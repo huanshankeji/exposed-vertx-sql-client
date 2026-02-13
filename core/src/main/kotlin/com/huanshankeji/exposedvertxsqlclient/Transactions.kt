@@ -83,7 +83,7 @@ suspend fun <RollbackResult, CommitResult> DatabaseClient<Pool>.withTransactionE
 suspend fun <T> DatabaseClient<Pool>.withTransaction(function: suspend (DatabaseClient<SqlConnection>) -> T): T =
     coroutineScope {
         vertxSqlClient.withTransaction {
-            coroutineToFuture { function(DatabaseClient(it, exposedDatabase, config)) }
+            coroutineToFuture { function(DatabaseClient(it, config)) }
         }.coAwait()
     }
 
@@ -182,7 +182,7 @@ suspend fun <SqlConnectionT : SqlConnection, RollbackResult, ReleaseResult> Data
 }
 
 @Deprecated("Use `withSavepointEither` instead.", ReplaceWith("this.withSavepointEither(savepointName, function)"))
-@InternalApi
+@EvscInternalApi
 suspend fun <SqlConnectionT : SqlConnection, RollbackResult, ReleaseResult> DatabaseClient<SqlConnectionT>.withSavepointAndRollbackIfThrowsOrLeft(
     savepointName: String, function: suspend (DatabaseClient<SqlConnectionT>) -> Either<RollbackResult, ReleaseResult>
 ): Either<RollbackResult, ReleaseResult> =
