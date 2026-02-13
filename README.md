@@ -20,8 +20,8 @@ Execute [Exposed](https://github.com/JetBrains/Exposed) statements with [Vert.x 
 
 This library is experimental now.
 The APIs are subject to change (especially those marked with `@ExperimentalEvscApi`).
-There are some basic tests, but they are incomplete to cover all the APIs, so please expect bugs and report them.
-We also have some internal consuming code to guarantee the usability of the APIs.
+<!-- There are some basic tests, but they are incomplete to cover all the APIs, so please expect bugs and report them.
+We also have some internal consuming code to guarantee the usability of the APIs. -->
 
 ### Exposed DAO APIs are not supported
 
