@@ -290,7 +290,7 @@ module-name/
    - **DatabaseExposedTransactionProvider**: Fallback that creates a new transaction per call
 3. **EvscConfig** is the single-source-of-truth for database configuration (since v0.5.0)
 4. API marked with `@ExperimentalEvscApi` is subject to change
-5. Shared `Database` instances and transaction providers improve performance (can be shared across verticles)
+5. Shared `Database` instances improve performance (can be shared across verticles)
 6. Some Exposed APIs require wrapping in `exposedTransaction { ... }` or `statementPreparationExposedTransaction { ... }`
 
 ### Build System

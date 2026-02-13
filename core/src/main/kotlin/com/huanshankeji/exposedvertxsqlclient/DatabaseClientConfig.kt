@@ -15,7 +15,6 @@ import java.sql.Connection
 interface DatabaseClientConfig {
     /**
      * The provider for Exposed transactions used for SQL statement preparation.
-     * This can be shared across multiple [DatabaseClient] instances for better performance.
      *
      * Defaults to [JdbcTransactionExposedTransactionProvider] for optimal performance.
      */

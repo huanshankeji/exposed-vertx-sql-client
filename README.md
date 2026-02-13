@@ -136,8 +136,6 @@ The `DatabaseClient` uses a `StatementPreparationExposedTransactionProvider` to 
 
 - **`DatabaseExposedTransactionProvider`**: Creates a new transaction for each SQL preparation call. This is kept as a fallback solution in case the `JdbcTransactionExposedTransactionProvider` approach has issues with future Exposed API changes (see note above).
 
-The transaction provider can be shared across multiple `DatabaseClient` instances for better performance.
-
 #### Alternatives to `EvscConfig`
 
 The `EvscConfig` was initially designed to incorporate support for Unix domain sockets,
