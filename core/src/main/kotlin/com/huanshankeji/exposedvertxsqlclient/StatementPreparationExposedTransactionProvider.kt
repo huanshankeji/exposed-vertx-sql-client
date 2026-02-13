@@ -60,21 +60,26 @@ class DatabaseExposedTransactionProvider(
 }
 
 /**
- * // TODO review the comments in the code below and update
- *
  * A [StatementPreparationExposedTransactionProvider] that reuses a single [JdbcTransaction] for all SQL preparation calls.
  *
  * This approach provides better performance by avoiding the overhead of creating a new transaction
  * for each SQL preparation call. The transaction is created once and reused across multiple SQL preparations.
  *
- * **Thread safety:** The JDBC transaction is used only for SQL statement preparation (via statement building and `prepareSQL`),
- * which is typically a read-only operation on Exposed's internal structures. However, if you plan to use
- * this provider concurrently from multiple threads, ensure that the operations performed within
- * [statementPreparationExposedTransaction] are thread-safe. // TODO Seems this sentence needs to be updated.
+ * **Thread safety:** This provider holds a single [JdbcTransaction] instance with internal mutable state and is
+ * not designed for concurrent use from multiple threads. Calling [statementPreparationExposedTransaction] from
+ * multiple threads at the same time on the same provider instance may lead to data races or inconsistent
+ * internal state. If you need to prepare statements concurrently, create a separate
+ * [JdbcTransactionExposedTransactionProvider] (and underlying [JdbcTransaction]) per thread or ensure external
+ * synchronization so that only one thread uses a given instance at a time.
  *
- * **Note:** The transaction instance members needed for SQL preparation remain usable even after
- * the underlying connection is not actively used. The transaction is created in a read-only mode
- * suitable for SQL generation. // TODO not actually read-only as there is accumulating state.
+ * **Read-only behavior:** This provider is intended to be used only for SQL statement preparation (e.g., statement
+ * building and `prepareSQL`) and must not be used to execute DML/DDL statements that modify the database.
+ * The underlying [JdbcTransaction] may still accumulate internal state (such as caches or counters) while being
+ * used for SQL generation, so it is not strictly read-only in terms of object immutability, but it should be used
+ * in a way that does not perform database writes.
+ *
+ * The transaction instance members needed for SQL preparation remain usable even after the underlying connection
+ * is no longer actively used for executing statements, as long as the [JdbcTransaction] itself is kept alive.
  *
  * @param jdbcTransaction the [JdbcTransaction] to use for SQL statement preparation
  */
