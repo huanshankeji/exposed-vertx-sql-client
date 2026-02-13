@@ -7,9 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `StatementPreparationExposedTransactionProvider` interface for managing Exposed transactions used for SQL statement preparation (#101, resolves #84).
+  - Add the `JdbcTransactionExposedTransactionProvider` implementation which reuses a single JDBC transaction for all SQL preparation calls, providing better performance by avoiding the overhead of creating a new transaction for each SQL preparation (#101, resolves #84).
+  - Add the `DatabaseExposedTransactionProvider` implementation as a fallback solution that creates a new transaction for each SQL preparation call (#101, resolves #84).
+
 ### Changed
 
 - Bump Exposed to 1.0.0.
+- Refactor `DatabaseClient` to accept `DatabaseClientConfig` which now includes a `StatementPreparationExposedTransactionProvider` instead of directly depending on an Exposed `Database` (#101).
+
+### Deprecated
+
+- Deprecate the `DatabaseClient` constructor that directly accepts an Exposed `Database` parameter. Use the constructor for your DB that accepts `DatabaseClientConfig` with a `StatementPreparationExposedTransactionProvider` instead (#101).
+- Deprecate `DatabaseClient.exposedDatabase` property (#101). Keep a reference to the Exposed `Database` yourself now if needed.
+- Deprecate `DatabaseClientConfig.statementPreparationExposedTransactionIsolationLevel`. Use the `transactionIsolation` parameter in `DatabaseExposedTransactionProvider` instead (#101).
 
 ## [0.7.0] - 2026-01-10
 
