@@ -37,16 +37,14 @@ This library works by first producing the prepared SQL from an Exposed `Statemen
 
 | Benchmark portion | Description | Single query | Multiple queries | Fortunes | Data updates |
 | --- | --- | --- | --- | --- | --- |
-| vertx-web-kotlinx-postgresql | Vert.x baseline | 1,203,778 | 83,683 | 785,442 | 45,715 |
-| vertx-web-kotlinx-exposed-vertx-sql-client-postgresql | Vert.x with this library | 651,159 [54%] | 16,738 [20%] | 548,423 [70%] | 26,360 [58%] |
-| vertx-web-kotlinx-exposed-r2dbc-postgresql | Vert.x with Exposed R2DBC directly (replacing the Vert.x SQL client) | 95,664 [8%] | 5,251 [6%] | 30,165 [4%] | 1,700 [4%] |
-| vertx-web-kotlinx-r2dbc-postgresql | Vert.x with R2DBC (replacing the Vert.x SQL client), for comparison | 497,670 [41%] | 30,566 [37%] | 474,957 [60%] | 14,024 [31%] |
-| ktor-netty-exposed-jdbc-dsl | Ktor with Exposed JDBC | 169,795 [14%] | 31,612 [38%] | 142,435 [18%] | 23,980 [52%] |
-| ktor-netty-exposed-r2dbc-dsl | Ktor with Exposed R2DBC | 105,843 [9%] | 21,942 [26%] | 83,263 [11%] | 6,937 [15%] |
+| vertx-web-kotlinx-postgresql | Vert.x baseline | 1,214,765 | 82,518 | 788,563 | 45,345 |
+| vertx-web-kotlinx-exposed-vertx-sql-client-postgresql | Vert.x with this library | 1,053,505 [87%] | 85,582 [104%] | 651,354 [83%] | 45,742 [101%] |
+| vertx-web-kotlinx-exposed-r2dbc-postgresql | Vert.x with Exposed R2DBC directly (replacing the Vert.x SQL client) | 167,124 [14%] | 23,609 [29%] | 122,463 [16%] | 9,597 [21%] |
+| vertx-web-kotlinx-r2dbc-postgresql | Vert.x with R2DBC (replacing the Vert.x SQL client), for comparison | 475,865 [39%] | 30,344 [37%] | 453,821 [58%] | 13,252 [29%] |
+| ktor-netty-exposed-jdbc-dsl | Ktor with Exposed JDBC | 179,734 [15%] | 29,846 [36%] | 144,771 [18%] | 24,154 [53%] |
+| ktor-netty-exposed-r2dbc-dsl | Ktor with Exposed R2DBC | 104,288 [9%] | 21,448 [26%] | 75,634 [10%] | 7,140 [16%] |
 
-Based on the requests-per-second numbers above, this library achieves roughly 54% of the baseline throughput in Single query and about 70% in Fortunes (a single SQL select query of all the records with manipulation and encoding to HTML in each request). It performs worse in Multiple queries (20 separate select SQL queries in each request) most likely due to the transaction overhead. We are working on this and trying to resolve this performance issue.
-
-The `JdbcTransactionExposedTransactionProvider` introduced in v0.8.0 helps improve performance by reusing a single JDBC transaction for SQL preparation, reducing the per-query transaction overhead. With this provider, this library achieves 85% - 100% of the baseline as tested on my device.
+Based on the requests-per-second numbers above, with the `JdbcTransactionExposedTransactionProvider` introduced in v0.8.0, this library achieves roughly 87% of the baseline throughput in Single query and about 83% in Fortunes (a single SQL select query of all the records with manipulation and encoding to HTML in each request), and even slightly exceeds the baseline in Multiple queries (20 separate select SQL queries in each request) and Data updates (20 updates per request).
 
 ## Add to your dependencies
 
