@@ -3,11 +3,13 @@
 
 import kotlinx.serialization.json.*
 import java.net.URL
+import java.time.Instant
+import java.time.ZoneOffset
 import kotlin.math.roundToInt
 
 /**
- * Fetches TechEmpower Framework Benchmark results for a given run ID and outputs the Markdown table
- * as used in the README.
+ * Fetches TechEmpower Framework Benchmark results for a given run ID and outputs the start date
+ * and the Markdown table as used in the README.
  *
  * Usage: kotlin tfb-benchmark-table.main.kts [runId]
  *
@@ -35,6 +37,11 @@ fun main(runId: String) {
     val queryIntervals = root["queryIntervals"]!!.jsonArray.map { it.jsonPrimitive.int }
     val idx20 = queryIntervals.indexOf(20)
     require(idx20 >= 0) { "20-query interval not found in $queryIntervals" }
+
+    val startDate = Instant.ofEpochMilli(root["startTime"]!!.jsonPrimitive.long)
+        .atZone(ZoneOffset.UTC).toLocalDate()
+    println("Run started on: $startDate")
+    println()
 
     // Use integer (floor) division to match TFB website display
     fun entryRps(entry: JsonObject): Int {

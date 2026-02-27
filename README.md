@@ -33,7 +33,7 @@ This library works by first producing the prepared SQL from an Exposed `Statemen
 
 ### TechEmpower Framework Benchmarks
 
-[The requests per second results for the related portions from the TechEmpower Framework Benchmarks Continuous Benchmarking results started on 2026-02-17](https://www.techempower.com/benchmarks/#section=test&runid=e4388834-e02e-45e6-92ed-929bfe264a56&l=zhxjwf-pa7&f=zik0zj-zik0zj-zik0zj-zik0zj-zik0zj-zik0zj-zhb2tb-zik0zj-zik0zj-zik0zj-zik0zj-zik0zj-zik0zj-z62j9b-zik0zj-zik0zj-pa7&test=db) are as follows:
+[The requests per second results for the related portions from the TechEmpower Framework Benchmarks Continuous Benchmarking results started on 2026-02-20](https://www.techempower.com/benchmarks/#section=test&runid=e4388834-e02e-45e6-92ed-929bfe264a56&l=zhxjwf-pa7&f=zik0zj-zik0zj-zik0zj-zik0zj-zik0zj-zik0zj-zhb2tb-zik0zj-zik0zj-zik0zj-zik0zj-zik0zj-zik0zj-z62j9b-zik0zj-zik0zj-pa7&test=db) are as follows:
 
 | Benchmark portion | Description | Single query | Multiple queries | Fortunes | Data updates |
 | --- | --- | --- | --- | --- | --- |
