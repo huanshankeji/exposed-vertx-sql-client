@@ -6,7 +6,7 @@ import kotlin.math.roundToInt
 import kotlinx.serialization.json.*
 
 /**
- * Fetches TechEmpower Framework Benchmark results for a given run ID and outputs the markdown table
+ * Fetches TechEmpower Framework Benchmark results for a given run ID and outputs the Markdown table
  * as used in the README.
  *
  * Usage: kotlin tfb-benchmark-table.main.kts [runId]
@@ -20,11 +20,15 @@ fun Int.asFormattedRps() = "%,d".format(this)
 
 fun main(runId: String) {
     // Fetch the run status page to find the raw JSON file URL
-    val statusPage = fetchText("https://tfb-status.techempower.com/results/$runId")
+    val url = "https://tfb-status.techempower.com/results/$runId"
+    println("Status URL: $url")
+    val statusPage = fetchText(url)
     val rawJsonPath = Regex("""href="(/raw/results\.[^"]+\.json)"""")
         .find(statusPage)?.groupValues?.get(1)
         ?: error("Could not find raw JSON link in status page")
     val rawJsonUrl = "https://tfb-status.techempower.com$rawJsonPath"
+    println("Raw JSON URL: $rawJsonUrl")
+    println()
 
     val root = Json.parseToJsonElement(fetchText(rawJsonUrl)).jsonObject
     val rawData = root["rawData"]!!.jsonObject
@@ -53,8 +57,9 @@ fun main(runId: String) {
             "vertx-web-kotlinx-postgresql", "Vert.x baseline"),
         FrameworkSpec("vertx-web-kotlinx-exposed-vertx-sql-client-postgresql",
             "vertx-web-kotlinx-exposed-vertx-sql-client-postgresql", "Vert.x with this library"),
-        FrameworkSpec("vertx-web-kotlinx-exposed-r2dbc-postgresql",
-            "vertx-web-kotlinx-exposed-r2dbc-postgresql", "Vert.x with Exposed R2DBC directly (replacing the Vert.x SQL client)"),
+        // This temporarily replaces "vertx-web-kotlinx-exposed-r2dbc-postgresql" in the run with `defaultRunId`.
+        FrameworkSpec("vertx-web-kotlinx-exposed-r2dbc-postgresql-separate-pool-size-8",
+            "vertx-web-kotlinx-exposed-r2dbc-postgresql-separate-pool-size-8", "Vert.x with Exposed R2DBC directly (replacing the Vert.x SQL client)"),
         FrameworkSpec("vertx-web-kotlinx-r2dbc-postgresql",
             "vertx-web-kotlinx-r2dbc-postgresql", "Vert.x with R2DBC (replacing the Vert.x SQL client), for comparison"),
         FrameworkSpec("ktor-netty-exposed-jdbc-dsl",
