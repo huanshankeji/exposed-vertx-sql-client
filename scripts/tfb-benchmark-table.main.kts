@@ -1,9 +1,9 @@
 #!/usr/bin/env kotlin
 @file:DependsOn("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0")
 
+import kotlinx.serialization.json.*
 import java.net.URL
 import kotlin.math.roundToInt
-import kotlinx.serialization.json.*
 
 /**
  * Fetches TechEmpower Framework Benchmark results for a given run ID and outputs the Markdown table
@@ -53,29 +53,44 @@ fun main(runId: String) {
     data class FrameworkSpec(val displayName: String, val dataKey: String, val description: String)
 
     val frameworks = listOf(
-        FrameworkSpec("vertx-web-kotlinx-postgresql",
-            "vertx-web-kotlinx-postgresql", "Vert.x baseline"),
-        FrameworkSpec("vertx-web-kotlinx-exposed-vertx-sql-client-postgresql",
-            "vertx-web-kotlinx-exposed-vertx-sql-client-postgresql", "Vert.x with this library"),
+        FrameworkSpec(
+            "vertx-web-kotlinx-postgresql",
+            "vertx-web-kotlinx-postgresql", "Vert.x baseline"
+        ),
+        FrameworkSpec(
+            "vertx-web-kotlinx-exposed-vertx-sql-client-postgresql",
+            "vertx-web-kotlinx-exposed-vertx-sql-client-postgresql", "Vert.x with this library"
+        ),
         // This temporarily replaces "vertx-web-kotlinx-exposed-r2dbc-postgresql" in the run with `defaultRunId`.
-        FrameworkSpec("vertx-web-kotlinx-exposed-r2dbc-postgresql-separate-pool-size-8",
-            "vertx-web-kotlinx-exposed-r2dbc-postgresql-separate-pool-size-8", "Vert.x with Exposed R2DBC directly (replacing the Vert.x SQL client)"),
-        FrameworkSpec("vertx-web-kotlinx-r2dbc-postgresql",
-            "vertx-web-kotlinx-r2dbc-postgresql", "Vert.x with R2DBC (replacing the Vert.x SQL client), for comparison"),
-        FrameworkSpec("ktor-netty-exposed-jdbc-dsl",
-            "ktor-exposed-jdbc-dsl", "Ktor with Exposed JDBC"),
-        FrameworkSpec("ktor-netty-exposed-r2dbc-dsl",
-            "ktor-exposed-r2dbc-dsl", "Ktor with Exposed R2DBC"),
+        FrameworkSpec(
+            "vertx-web-kotlinx-exposed-r2dbc-postgresql-separate-pool-size-8",
+            "vertx-web-kotlinx-exposed-r2dbc-postgresql-separate-pool-size-8",
+            "Vert.x with Exposed R2DBC directly (replacing the Vert.x SQL client)"
+        ),
+        FrameworkSpec(
+            "vertx-web-kotlinx-r2dbc-postgresql",
+            "vertx-web-kotlinx-r2dbc-postgresql", "Vert.x with R2DBC (replacing the Vert.x SQL client), for comparison"
+        ),
+        FrameworkSpec(
+            "ktor-netty-exposed-jdbc-dsl",
+            "ktor-exposed-jdbc-dsl", "Ktor with Exposed JDBC"
+        ),
+        FrameworkSpec(
+            "ktor-netty-exposed-r2dbc-dsl",
+            "ktor-exposed-r2dbc-dsl", "Ktor with Exposed R2DBC"
+        ),
     )
 
     data class Row(val spec: FrameworkSpec, val single: Int?, val multi: Int?, val fortune: Int?, val update: Int?)
 
     val rows = frameworks.map { spec ->
-        Row(spec,
+        Row(
+            spec,
             single = maxRps("db", spec.dataKey),
             multi = rpsAt20("query", spec.dataKey),
             fortune = maxRps("fortune", spec.dataKey),
-            update = rpsAt20("update", spec.dataKey))
+            update = rpsAt20("update", spec.dataKey)
+        )
     }
 
     val baseline = rows.first()
@@ -91,8 +106,15 @@ fun main(runId: String) {
     println("| --- | --- | --- | --- | --- | --- |")
     rows.forEachIndexed { idx, row ->
         val (b_s, b_m, b_f, b_u) = if (idx == 0) listOf(null, null, null, null)
-            else listOf(baseline.single, baseline.multi, baseline.fortune, baseline.update)
-        println("| ${row.spec.displayName} | ${row.spec.description} | ${fmtCell(row.single, b_s)} | ${fmtCell(row.multi, b_m)} | ${fmtCell(row.fortune, b_f)} | ${fmtCell(row.update, b_u)} |")
+        else listOf(baseline.single, baseline.multi, baseline.fortune, baseline.update)
+        println(
+            "| ${row.spec.displayName} | ${row.spec.description} | ${
+                fmtCell(
+                    row.single,
+                    b_s
+                )
+            } | ${fmtCell(row.multi, b_m)} | ${fmtCell(row.fortune, b_f)} | ${fmtCell(row.update, b_u)} |"
+        )
     }
 }
 
