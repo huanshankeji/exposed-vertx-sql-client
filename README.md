@@ -44,7 +44,7 @@ This library works by first producing the prepared SQL from an Exposed `Statemen
 | ktor-netty-exposed-jdbc-dsl | Ktor with Exposed JDBC | 179,734 (15%) | 29,846 (36%) | 144,771 (18%) | 24,154 (53%) |
 | ktor-netty-exposed-r2dbc-dsl | Ktor with Exposed R2DBC | 104,288 (9%) | 21,448 (26%) | 75,634 (10%) | 7,140 (16%) |
 
-Based on the requests-per-second numbers above, with the `JdbcTransactionExposedTransactionProvider` introduced in v0.8.0, this library achieves roughly 87% of the baseline throughput in Single query and about 83% in Fortunes (a single SQL select query of all the records with manipulation and encoding to HTML in each request), and even slightly exceeds the baseline in Multiple queries (20 separate select SQL queries in each request) and Data updates (20 updates per request).
+Based on the requests-per-second numbers above, with the `JdbcTransactionExposedTransactionProvider` introduced in v0.8.0, this library achieves 87% of the baseline throughput in Single query and 83% in Fortunes (a single SQL select query of all the records with manipulation and encoding to HTML in each request), and matches the baseline in Multiple queries (20 separate select SQL queries in each request) and Data updates (20 updates per request).
 
 ## Add to your dependencies
 
