@@ -153,7 +153,7 @@ Always ensure JDK 11 or higher is properly configured before building. The proje
 **Common Issues:**
 - **Build fails with package-list download errors**: These are warnings from Dokka and can be ignored - builds still succeed
 - **"No transaction in context" errors**: Wrap code in `databaseClient.exposedTransaction { ... }` or use transaction-aware variants like `forUpdateWithTransaction()`
-- **API validation failures**: Do **not** run `./gradlew apiDump` automatically. Leave `apiDump` for the human developer to run after reviewing the API changes. Instead, validate using `./gradlew :exposed-vertx-sql-client-integrated:test` and `./gradlew publishToMavenLocal`.
+- **API validation failures**: Do **not** run `./gradlew apiDump` automatically. Leave `apiDump` for the human developer to run after reviewing the API changes. Instead, validate using `./gradlew test` and `./gradlew publishToMavenLocal`.
 
 **Never:**
 - DO NOT run tasks without `./` prefix (use `./gradlew`, not `gradlew`)
@@ -165,7 +165,7 @@ Always ensure JDK 11 or higher is properly configured before building. The proje
 
 If `check` fails solely due to `apiCheck` failures (because public APIs have changed and `.api` files are out of date), do **not** run `apiDump` automatically. Instead, validate using:
 ```bash
-./gradlew :exposed-vertx-sql-client-integrated:test
+./gradlew test
 ./gradlew publishToMavenLocal
 ```
 Then leave the `apiDump` step to the human developer to perform after reviewing the API changes.
@@ -176,7 +176,7 @@ Then leave the `apiDump` step to the human developer to perform after reviewing 
 
 **Integration Tests:** Located in `integrated/src/test/kotlin/` using Kotest framework with Testcontainers:
 ```bash
-./gradlew :exposed-vertx-sql-client-integrated:test
+./gradlew test
 ```
 - Tests run against real database instances via Testcontainers
 - Multiple integration tests covering core functionality across different databases
@@ -251,7 +251,7 @@ Before check-in, the following validations run:
 
 4. **If you modified public APIs**: Do **not** run `apiDump` automatically. Leave this for the human developer to run after reviewing the API changes. Instead, validate with:
    ```bash
-   ./gradlew :exposed-vertx-sql-client-integrated:test
+   ./gradlew test
    ./gradlew publishToMavenLocal
    ```
    The only exception: you may run `apiDump` if you are **very confident** you have completely and correctly finished **all** the task goals and are certain no further API edits will be needed — but even then, prefer leaving it to the human developer.
@@ -353,7 +353,7 @@ The project uses custom dependency management through:
 ### When Things Go Wrong
 
 1. **Build fails mysteriously**: Try `./gradlew clean build`
-2. **API check fails**: Do **not** run `./gradlew apiDump` automatically. Instead, validate using `./gradlew :exposed-vertx-sql-client-integrated:test` and `./gradlew publishToMavenLocal`. Leave `apiDump` for the human developer to run after reviewing the API changes.
+2. **API check fails**: Do **not** run `./gradlew apiDump` automatically. Instead, validate using `./gradlew test` and `./gradlew publishToMavenLocal`. Leave `apiDump` for the human developer to run after reviewing the API changes.
 3. **Configuration cache issues**: Delete `.gradle/` directory and rebuild
 4. **Dependency resolution fails**: Check internet connection; mavenCentral() is the primary repository
 5. **Gradle daemon issues**: Use `./gradlew --stop` then retry the build
