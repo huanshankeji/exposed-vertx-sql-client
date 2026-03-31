@@ -56,7 +56,7 @@ Based on the requests-per-second numbers above, with the `JdbcTransactionExposed
 
 ### **Important note : compatibility with Exposed**
 
-If you encounter issues likely caused by compatibility with Exposed, please try using the same version of Exposed this library depends on. The current development version (v0.8.0-SNAPSHOT) depends on Exposed v1.0.0, while the latest released version v0.7.0 depends on Exposed v1.0.0-rc-4.
+If you encounter issues likely caused by compatibility with Exposed, please try using the same version of Exposed this library depends on. The current development version (v0.8.1-SNAPSHOT) depends on Exposed v1.1.1, while the latest released version v0.8.0 depends on Exposed v1.0.0.
 
 ## API documentation
 
