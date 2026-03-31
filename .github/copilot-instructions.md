@@ -16,12 +16,12 @@ This is **Exposed Vert.x SQL Client**, a Kotlin library that provides integratio
 
 **Key Facts:**
 - Language: Kotlin (~450 source files)
-- Build: Gradle (Gradle 9.3.1, Kotlin 2.3.10)
+- Build: Gradle (Gradle 9.4.1, Kotlin 2.3.20)
 - JVM Target: JDK 11 (configured via `kotlin.jvmToolchain(11)`)
 - Supported Databases: PostgreSQL, MySQL, Oracle, Microsoft SQL Server
 - Size: ~18MB repository
-- Current Version: 0.8.0-SNAPSHOT
-- Exposed Version: v1.0.0 (important: stick to this exact version for compatibility)
+- Current Version: 0.8.1-SNAPSHOT
+- Exposed Version: v1.1.1 (important: stick to this exact version for compatibility)
 
 ## Project Structure
 
@@ -146,19 +146,29 @@ Always ensure JDK 11 or higher is properly configured before building. The proje
 ### Important Build Notes
 
 **ALWAYS:**
-- Run `./gradlew check` before committing to ensure API compatibility
+- Run `./gradlew check` before committing to ensure API compatibility. If `check` fails solely due to `apiCheck` (because public APIs have changed and `.api` files are out of date), do **not** run `apiDump` automatically — use the fallback validation in the "API Change Workflow" section below.
 - Use the Gradle daemon (default) for faster builds - DO NOT use `--no-daemon` unless necessary
 - Configuration cache is enabled by default (speeds up subsequent builds)
 
 **Common Issues:**
 - **Build fails with package-list download errors**: These are warnings from Dokka and can be ignored - builds still succeed
 - **"No transaction in context" errors**: Wrap code in `databaseClient.exposedTransaction { ... }` or use transaction-aware variants like `forUpdateWithTransaction()`
-- **API validation failures**: If you intentionally changed APIs, run `./gradlew apiDump` to update the golden API files
+- **API validation failures**: Do **not** run `./gradlew apiDump` automatically. Leave `apiDump` for the human developer to run after reviewing the API changes. Instead, validate using `./gradlew test` and `./gradlew publishToMavenLocal`.
 
 **Never:**
 - DO NOT run tasks without `./` prefix (use `./gradlew`, not `gradlew`)
 - DO NOT modify `.api` files manually - always use `apiDump`
 - DO NOT add custom test runners or linting tools unless specifically requested
+- **DO NOT run `apiDump` automatically** — even if `check` fails due to API changes (`apiCheck` failures). Running `apiDump` automatically generates unnecessary Git-tracked churn before the developer has reviewed the API surface. Leave `apiDump` for the human developer to run after reviewing the API changes. The only exception: you may run `apiDump` if you are **very confident** you have completely and correctly finished **all** the task goals and are certain no further API edits will be needed — but even then, prefer leaving it to the human developer.
+
+### API Change Workflow
+
+If `check` fails solely due to `apiCheck` failures (because public APIs have changed and `.api` files are out of date), do **not** run `apiDump` automatically. Instead, validate using:
+```bash
+./gradlew test
+./gradlew publishToMavenLocal
+```
+Then leave the `apiDump` step to the human developer to perform after reviewing the API changes.
 
 ## Testing
 
@@ -166,7 +176,7 @@ Always ensure JDK 11 or higher is properly configured before building. The proje
 
 **Integration Tests:** Located in `integrated/src/test/kotlin/` using Kotest framework with Testcontainers:
 ```bash
-./gradlew :exposed-vertx-sql-client-integrated:test
+./gradlew test
 ```
 - Tests run against real database instances via Testcontainers
 - Multiple integration tests covering core functionality across different databases
@@ -239,17 +249,18 @@ Before check-in, the following validations run:
    ./gradlew check
    ```
 
-4. **If you modified public APIs**:
+4. **If you modified public APIs**: Do **not** run `apiDump` automatically. Leave this for the human developer to run after reviewing the API changes. Instead, validate with:
    ```bash
-   ./gradlew apiDump
-   git add */api/*.api
+   ./gradlew test
+   ./gradlew publishToMavenLocal
    ```
+   The only exception: you may run `apiDump` if you are **very confident** you have completely and correctly finished **all** the task goals and are certain no further API edits will be needed — but even then, prefer leaving it to the human developer.
 
 ### Key Dependencies
 
-- **Exposed**: 1.0.0 (via `commonDependencies.exposed.*`)
+- **Exposed**: 1.1.1 (via `commonDependencies.exposed.*`)
 - **Vert.x**: Managed by `vertx.platformStackDepchain()` (uses Vert.x BOM)
-- **Kotlin**: 2.3.10
+- **Kotlin**: 2.3.20
 - **Arrow**: For functional constructs
 - **exposed-gadt-mapping**: 0.4.0 (for mapper modules)
 
@@ -298,7 +309,7 @@ module-name/
 - **buildSrc**: Precompiled script plugins with shared conventions
 - **Convention plugins**: `conventions.gradle.kts` and `lib-conventions.gradle.kts`
 - **API Validation**: Uses `binary-compatibility-validator` plugin (v0.18.1)
-- **Documentation**: Uses Dokka plugin (v2.1.0) for KDoc generation
+- **Documentation**: Uses Dokka plugin (v2.2.0) for KDoc generation
 
 ## Key Files Reference
 
@@ -319,7 +330,7 @@ module-name/
 The project uses custom dependency management through:
 - `com.huanshankeji:common-gradle-dependencies` for shared dependencies
 - `com.huanshankeji.team:gradle-plugins` for build conventions
-- Kotlin 2.3.10, Dokka 2.1.0
+- Kotlin 2.3.20, Dokka 2.2.0
 
 ## Quick Reference
 
@@ -327,7 +338,7 @@ The project uses custom dependency management through:
 ```bash
 ./gradlew check                    # Verify all checks pass
 ./gradlew apiCheck                 # Check API compatibility
-./gradlew apiDump                  # Update API files after changes
+./gradlew apiDump                  # Update API files (run by human developer after reviewing API changes, not by Copilot automatically)
 ./gradlew publishToMavenLocal      # Install locally
 ./gradlew clean build              # Full clean build
 ```
@@ -336,13 +347,13 @@ The project uses custom dependency management through:
 - Version management: `buildSrc/src/main/kotlin/VersionsAndDependencies.kt`
 - Main config: `build.gradle.kts`, `settings.gradle.kts`, `gradle.properties`
 - CI config: `.github/workflows/kotlin-jvm-ci.yml`
-- API definitions: `*/api/*.api` (generated, commit after running `apiDump`)
+- API definitions: `*/api/*.api` (generated by `apiDump`; updated by human developer after reviewing API changes, not by Copilot automatically)
 - Convention plugins: `buildSrc/src/main/kotlin/conventions.gradle.kts`, `buildSrc/src/main/kotlin/lib-conventions.gradle.kts`
 
 ### When Things Go Wrong
 
 1. **Build fails mysteriously**: Try `./gradlew clean build`
-2. **API check fails**: Run `./gradlew apiDump` if the API change was intentional, then commit the updated `.api` files
+2. **API check fails**: Do **not** run `./gradlew apiDump` automatically. Instead, validate using `./gradlew test` and `./gradlew publishToMavenLocal`. Leave `apiDump` for the human developer to run after reviewing the API changes.
 3. **Configuration cache issues**: Delete `.gradle/` directory and rebuild
 4. **Dependency resolution fails**: Check internet connection; mavenCentral() is the primary repository
 5. **Gradle daemon issues**: Use `./gradlew --stop` then retry the build

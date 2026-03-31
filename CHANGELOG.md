@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.1] (to be released) - 2026-03-31
+
+### Changed
+
+- Update some dependencies and toolchains to the latest.
+  - Exposed 1.1.1
+  - Kotlin 2.3.20
+  - Gradle 9.4.1
+  - Vert.x 5.0.10
+
+## [0.8.0] - 2026-02-13
+
 ### Added
 
 - Add `StatementPreparationExposedTransactionProvider` interface for managing Exposed transactions used for SQL statement preparation (#101, resolves #84).
@@ -153,7 +165,9 @@ Miscellaneous changes:
 * fix a bug that an Exposed transaction is required if a query `FieldSet` contains custom functions depending on dialects and no such a transaction is provided
 * Add a basic usage guide
 
-[Unreleased]: https://github.com/huanshankeji/exposed-vertx-sql-client/compare/v0.7.0...HEAD
+[Unreleased]: https://github.com/huanshankeji/exposed-vertx-sql-client/compare/v0.8.0...HEAD
+[0.8.1]: https://github.com/huanshankeji/exposed-vertx-sql-client/compare/v0.8.0...v0.8.1
+[0.8.0]: https://github.com/huanshankeji/exposed-vertx-sql-client/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/huanshankeji/exposed-vertx-sql-client/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/huanshankeji/exposed-vertx-sql-client/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/huanshankeji/exposed-vertx-sql-client/compare/v0.4.0...v0.5.0

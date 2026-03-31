@@ -33,20 +33,18 @@ This library works by first producing the prepared SQL from an Exposed `Statemen
 
 ### TechEmpower Framework Benchmarks
 
-[The requests per second results for the related portions from the TechEmpower Framework Benchmarks Continuous Benchmarking results started on 2026-01-18](https://www.techempower.com/benchmarks/#section=test&runid=acc1ad82-ae2c-4d1d-a600-c7ff9d0c5917&l=zhxjwf-pa7&f=zik0zj-zik0zj-zik0zj-zik0zj-zik0zj-zik0zj-zhb2tb-zik0zj-zik0zj-zik0zj-zik0zj-zik0zj-zik0zj-z62j9b-zik0zj-zik0zj-pa7&test=db) are as follows:
+[The requests per second results for the related portions from the TechEmpower Framework Benchmarks Continuous Benchmarking results started on 2026-02-20](https://www.techempower.com/benchmarks/#section=test&runid=e4388834-e02e-45e6-92ed-929bfe264a56&l=zhxjwf-pa7&f=zik0zj-zik0zj-zik0zj-zik0zj-zik0zj-zik0zj-zhb2tb-zik0zj-zik0zj-zik0zj-zik0zj-zik0zj-zik0zj-z62j9b-zik0zj-zik0zj-pa7&test=db) are as follows:
 
 | Benchmark portion | Description | Single query | Multiple queries | Fortunes | Data updates |
 | --- | --- | --- | --- | --- | --- |
-| vertx-web-kotlinx-postgresql | Vert.x baseline | 1,203,778 | 83,683 | 785,442 | 45,715 |
-| vertx-web-kotlinx-exposed-vertx-sql-client-postgresql | Vert.x with this library | 651,159 | 16,738 | 548,423 | 26,360 |
-| vertx-web-kotlinx-exposed-r2dbc-postgresql | Vert.x with Exposed R2DBC directly (replacing the Vert.x SQL client) | 95,664 | 5,251 | 30,165 | 1,700 |
-| vertx-web-kotlinx-r2dbc-postgresql | Vert.x with R2DBC (replacing the Vert.x SQL client), for comparison | 497,670 | 30,566 | 474,957 | 14,024 |
-| ktor-netty-exposed-jdbc-dsl | Ktor with Exposed JDBC | 169,795 | 31,612 | 142,435 | 23,980 |
-| ktor-netty-exposed-r2dbc-dsl | Ktor with Exposed R2DBC | 105,843 | 21,942 | 83,263 | 6,937 |
+| vertx-web-kotlinx-postgresql | Vert.x baseline | 1,214,765 | 82,517 | 788,562 | 45,345 |
+| vertx-web-kotlinx-exposed-vertx-sql-client-postgresql | Vert.x with this library | 1,053,504 (87%) | 85,582 (104%) | 651,353 (83%) | 45,741 (101%) |
+| vertx-web-kotlinx-exposed-r2dbc-postgresql-separate-pool-size-8 | Vert.x with Exposed R2DBC directly (replacing the Vert.x SQL client) | 206,403 (17%) | 25,358 (31%) | 140,590 (18%) | 9,617 (21%) |
+| vertx-web-kotlinx-r2dbc-postgresql | Vert.x with R2DBC (replacing the Vert.x SQL client), for comparison | 475,865 (39%) | 30,344 (37%) | 453,820 (58%) | 13,252 (29%) |
+| ktor-netty-exposed-jdbc-dsl | Ktor with Exposed JDBC | 179,734 (15%) | 29,846 (36%) | 144,771 (18%) | 24,154 (53%) |
+| ktor-netty-exposed-r2dbc-dsl | Ktor with Exposed R2DBC | 104,288 (9%) | 21,448 (26%) | 75,634 (10%) | 7,140 (16%) |
 
-Based on the requests-per-second numbers above, this library achieves roughly 54% of the baseline throughput in Single query and about 70% in Fortunes (a single SQL select query of all the records with manipulation and encoding to HTML in each request). It performs worse in Multiple queries (20 separate select SQL queries in each request) most likely due to the transaction overhead. We are working on this and trying to resolve this performance issue.
-
-The `JdbcTransactionExposedTransactionProvider` introduced in v0.8.0 helps improve performance by reusing a single JDBC transaction for SQL preparation, reducing the per-query transaction overhead. With this provider, this library achieves 85% - 100% of the baseline as tested on my device.
+Based on the requests-per-second numbers above, with the `JdbcTransactionExposedTransactionProvider` introduced in v0.8.0, this library achieves 87% of the baseline throughput in Single query and 83% in Fortunes (a single SQL select query of all the records with manipulation and encoding to HTML in each request), and matches the baseline in Multiple queries (20 separate select SQL queries in each request) and Data updates (20 updates per request).
 
 ## Add to your dependencies
 
@@ -58,7 +56,7 @@ The `JdbcTransactionExposedTransactionProvider` introduced in v0.8.0 helps impro
 
 ### **Important note : compatibility with Exposed**
 
-If you encounter issues likely caused by compatibility with Exposed, please try using the same version of Exposed this library depends on. The current development version (v0.8.0-SNAPSHOT) depends on Exposed v1.0.0, while the latest released version v0.7.0 depends on Exposed v1.0.0-rc-4.
+If you encounter issues likely caused by compatibility with Exposed, please try using the same version of Exposed this library depends on. The current development version (v0.8.1-SNAPSHOT) depends on Exposed v1.1.1, while the latest released version v0.8.0 depends on Exposed v1.0.0.
 
 ## API documentation
 
