@@ -46,6 +46,11 @@ This library works by first producing the prepared SQL from an Exposed `Statemen
 
 Based on the requests-per-second numbers above, with the `JdbcTransactionExposedTransactionProvider` introduced in v0.8.0, this library achieves 87% of the baseline throughput in Single query and 83% in Fortunes (a single SQL select query of all the records with manipulation and encoding to HTML in each request), and matches the baseline in Multiple queries (20 separate select SQL queries in each request) and Data updates (20 updates per request).
 
+Since TFB recently sunset, you can verify this yourself by cloning the repo and running:
+```
+./tfb --test vertx-web-kotlinx-exposed-vertx-sql-client-postgresql vertx-web-kotlinx-postgresql
+```
+
 ## Add to your dependencies
 
 ### The Maven coordinates
