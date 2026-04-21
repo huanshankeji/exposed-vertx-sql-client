@@ -236,7 +236,7 @@ if (dialectSupportsDeleteIgnore) {
 ##### Transaction and savepoint APIs (experimental, especially function names)
 
 Experimental transaction and savepoint APIs named `with*` are provided based on the existing ones in Vert.x SQL Client.
-Some of the APIs are designed using [Arrow]([https://arrow-kt.io/learn/typed-errors/](https://arrow-kt.io/learn/typed-errors/wrappers/) to provide a better interface.
+Some of the APIs are designed using [Arrow](https://arrow-kt.io/learn/typed-errors/wrappers/) to provide a better interface.
 A transaction or savepoint is rolled back automatically when an exception is thrown inside.
 Note that Vert.x SQL Client **pipelining** is not supported with transactions.
 
