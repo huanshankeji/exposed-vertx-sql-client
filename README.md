@@ -61,7 +61,7 @@ Since TFB recently sunset, you can verify this yourself by cloning [the repo](ht
 
 ### **Important note : compatibility with Exposed**
 
-If you encounter issues likely caused by compatibility with Exposed, please try using the same version of Exposed this library depends on. The current development version (v0.8.1-SNAPSHOT) depends on Exposed v1.1.1, while the latest released version v0.8.0 depends on Exposed v1.0.0.
+If you encounter issues likely caused by compatibility with Exposed, please try using the same version of Exposed this library depends on. The current development version (v0.8.2-SNAPSHOT) depends on Exposed v1.1.1, while the latest released version v0.8.1 depends on Exposed v1.1.1.
 
 ## API documentation
 
