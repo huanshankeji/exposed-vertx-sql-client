@@ -1,5 +1,6 @@
 package com.huanshankeji.exposedvertxsqlclient
 
+import io.vertx.core.Verticle
 import org.jetbrains.exposed.v1.core.InternalApi
 import org.jetbrains.exposed.v1.core.transactions.withThreadLocalTransaction
 import org.jetbrains.exposed.v1.jdbc.Database
