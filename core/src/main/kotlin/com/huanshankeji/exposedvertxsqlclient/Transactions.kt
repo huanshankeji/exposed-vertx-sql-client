@@ -5,6 +5,7 @@ import com.huanshankeji.vertx.kotlin.coroutines.coroutineToFuture
 import io.vertx.kotlin.coroutines.coAwait
 import io.vertx.sqlclient.Pool
 import io.vertx.sqlclient.SqlConnection
+import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 
 // This file contains APIs related to transactions. Note that these are based on Vert.x SQL Client's transaction APIs and not related to Exposed's transaction APIs.
@@ -54,6 +55,10 @@ suspend fun <SqlConnectionT : SqlConnection, RollbackResult, CommitResult> Datab
 suspend fun <SqlConnectionT : SqlConnection, T> DatabaseClient<SqlConnectionT>.withTransactionCommitOrRollback(function: suspend (DatabaseClient<SqlConnectionT>) -> Option<T>): Option<T> =
     withTransactionEither { function(it).toEither {} }.getOrNone()
 
+/**
+ * Note that one [SqlConnection] only supports one transaction concurrently.
+ * Avoid calling this function concurrently from multiple coroutines (e.g., via [async]) sharing the same connection.
+ */
 @JvmName("withTransactionForSqlConnection")
 suspend fun <SqlConnectionT : SqlConnection, T> DatabaseClient<SqlConnectionT>.withTransaction(function: suspend (DatabaseClient<SqlConnectionT>) -> T): T =
     @OptIn(ExperimentalEvscApi::class)
