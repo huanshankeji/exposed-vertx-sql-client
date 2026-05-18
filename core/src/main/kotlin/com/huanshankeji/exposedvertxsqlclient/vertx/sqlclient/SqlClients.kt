@@ -10,8 +10,10 @@ import io.vertx.kotlin.coroutines.coAwait
 import io.vertx.sqlclient.*
 
 /**
+ * Creates a [SqlClient] ([SqlClientT]) with a [ConnectionConfig].
+ *
  * Exposed generates prepared statements and [SqlConnectOptions.cachePreparedStatements] improves performance greatly (tested on PostgreSQL)
- * so it's enabled by default.
+ * so it's enabled by default. See [setUpConventionally].
  */
 @ExperimentalEvscApi
 // made inline for possible suspend calls
