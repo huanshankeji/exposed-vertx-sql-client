@@ -19,6 +19,8 @@ dependencies {
     implementation(cpnProject(project, ":crud"))
     implementation("com.huanshankeji:exposed-gadt-mapping:${DependencyVersions.exposedGadtMapping}")
     implementation(cpnProject(project, ":crud-with-mapper"))
+    // Kept for backward compatibility of the deprecated `Containers.kt` shim; delete with the shim in a future release.
+    api(cpnProject(project, ":testcontainers"))
 
     with(commonDependencies.testcontainers) {
         implementation(platformBom())
