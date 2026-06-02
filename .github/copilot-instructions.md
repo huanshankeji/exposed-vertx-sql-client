@@ -76,7 +76,7 @@ The Gradle wrapper (`./gradlew`) handles all tooling. No additional installation
 
 Always ensure JDK 11 or higher is properly configured before building. The project uses Gradle wrapper, so no manual Gradle installation is needed.
 
-**IMPORTANT**: If the project uses snapshot dependencies of other `com.huanshankeji` libraries, especially in a branch other than `main` such as `dev`, refer to the setup instructions at <https://github.com/huanshankeji/.github/blob/main/dev-instructions.md#about-snapshot-dependencies-of-our-library-projects>.
+**IMPORTANT**: If the project uses snapshot dependencies of other `com.huanshankeji` libraries, especially in a branch other than `main` such as `dev`, refer to the setup instructions at <https://github.com/huanshankeji/.github/blob/main/docs/dev-instructions.md#publish-snapshot-dependencies-of-our-library-projects-to-maven-local>.
 
 ### Build Commands (In Order of Priority)
 
@@ -231,7 +231,7 @@ Before check-in, the following validations run:
 5. **Code Coverage**: Coverage reports uploaded to Codecov (in CI)
 
 **Code Style:**
-- Follow [our Kotlin code style guide](https://github.com/huanshankeji/.github/blob/main/kotlin-code-style.md) for all Kotlin code contributions
+- Follow [our Kotlin code style guide](https://github.com/huanshankeji/.github/blob/main/docs/kotlin-code-style.md) for all Kotlin code contributions
 
 ## Development Workflow
 
@@ -267,7 +267,7 @@ Before check-in, the following validations run:
 **Dependency Management:** All versions are centralized in `buildSrc/src/main/kotlin/VersionsAndDependencies.kt` using `common-gradle-dependencies` library.
 
 **Additional Development Resources:**
-- For snapshot dependencies and development branch workflows, see [@huanshankeji/.github/dev-instructions.md](https://github.com/huanshankeji/.github/blob/main/dev-instructions.md)
+- For snapshot dependencies and development branch workflows, see [@huanshankeji/.github/dev-instructions.md](https://github.com/huanshankeji/.github/blob/main/docs/dev-instructions.md)
 
 ## Architecture Notes
 
@@ -323,7 +323,7 @@ module-name/
 ### Documentation
 - `README.md`: Maven coordinates, basic usage guide, API docs link
 - `CONTRIBUTING.md`: Development setup, JDK requirements, workflow guidelines
-- [@huanshankeji/.github/dev-instructions.md](https://github.com/huanshankeji/.github/blob/main/dev-instructions.md): Additional development instructions from the organization
+- [@huanshankeji/.github/dev-instructions.md](https://github.com/huanshankeji/.github/blob/main/docs/dev-instructions.md): Additional development instructions from the organization
 - Each module has `api/` directory for compatibility validation files
 
 ### Dependencies
