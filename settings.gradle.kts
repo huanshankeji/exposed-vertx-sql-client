@@ -12,6 +12,7 @@ include("mysql")
 include("oracle")
 include("mssql")
 include("integrated")
+include("testcontainers")
 
 fun ProjectDescriptor.setProjectConcatenatedNames(prefix: String) {
     name = prefix + name

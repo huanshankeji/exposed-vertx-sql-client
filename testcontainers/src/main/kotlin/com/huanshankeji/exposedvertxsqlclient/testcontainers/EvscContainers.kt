@@ -1,0 +1,69 @@
+@file:OptIn(ExperimentalEvscApi::class)
+
+package com.huanshankeji.exposedvertxsqlclient.testcontainers
+
+import com.huanshankeji.exposedvertxsqlclient.ConnectionConfig
+import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
+import com.huanshankeji.exposedvertxsqlclient.jdbc.postgresqlJdbcUrl
+import com.huanshankeji.exposedvertxsqlclient.mssql.exposed.exposedDatabaseConnectMssql
+import com.huanshankeji.exposedvertxsqlclient.mysql.exposed.exposedDatabaseConnectMysql
+import com.huanshankeji.exposedvertxsqlclient.oracle.exposed.exposedDatabaseConnectOracle
+import com.huanshankeji.exposedvertxsqlclient.postgresql.exposed.exposedDatabaseConnectPostgresql
+import com.zaxxer.hikari.HikariConfig
+import com.zaxxer.hikari.HikariDataSource
+import org.jetbrains.exposed.v1.jdbc.Database
+import org.testcontainers.containers.JdbcDatabaseContainer
+import org.testcontainers.mssqlserver.MSSQLServerContainer
+import org.testcontainers.mysql.MySQLContainer
+import org.testcontainers.oracle.OracleContainer
+import org.testcontainers.postgresql.PostgreSQLContainer
+
+/*
+EVSC-specific Testcontainers helpers.
+Generic, non-EVSC helpers (`LatestPostgreSQLContainer()`, `JdbcDatabaseContainer.hostAndPort()`, etc.)
+live in `com.huanshankeji:kotlin-common-testcontainers`.
+*/
+
+fun JdbcDatabaseContainer<*>.connectionConfig() =
+    ConnectionConfig.Socket(host, firstMappedPort, username, password, databaseName)
+
+// TODO consider deprecating these functions and recommending the caller to call `connectionConfig()` and then call the extensions function on `ConnectionConfig.Socket` instead
+fun PostgreSQLContainer.exposedDatabaseConnect(): Database =
+    connectionConfig().exposedDatabaseConnectPostgresql()
+
+// move to the `postgresql` module if it's proved useful
+fun ConnectionConfig.Socket.hikariConfig(
+    maximumPoolSize: Int, extraConfig: HikariConfig.() -> Unit = {},
+): HikariConfig =
+    HikariConfig().apply {
+        jdbcUrl = postgresqlJdbcUrl()
+        driverClassName = "org.postgresql.Driver" // TODO extract
+        username = user
+        password = this@hikariConfig.password
+        this.maximumPoolSize = maximumPoolSize
+        // configurations for SQL preparation for Vert.x SQL Clients
+        isReadOnly = true
+        transactionIsolation = "TRANSACTION_READ_UNCOMMITTED"
+        extraConfig()
+    }
+
+fun PostgreSQLContainer.hikariConfig(maximumPoolSize: Int, extraConfig: HikariConfig.() -> Unit = {}): HikariConfig {
+    val connectionConfig = connectionConfig()
+    return connectionConfig.hikariConfig(maximumPoolSize, extraConfig)
+}
+
+fun PostgreSQLContainer.hikariDataSource(maximumPoolSize: Int, extraConfig: HikariConfig.() -> Unit = {}) =
+    HikariDataSource(hikariConfig(maximumPoolSize, extraConfig))
+
+fun MySQLContainer.exposedDatabaseConnect(): Database =
+    connectionConfig().exposedDatabaseConnectMysql()
+
+fun OracleContainer.exposedDatabaseConnect(): Database =
+    connectionConfig().exposedDatabaseConnectOracle()
+
+// `MSSQLServerContainer` doesn't support `getDatabaseName()`, so we need a specific implementation.
+fun MSSQLServerContainer.connectionConfig() =
+    ConnectionConfig.Socket(host, firstMappedPort, username, password, "master")
+
+fun MSSQLServerContainer.exposedDatabaseConnect(): Database =
+    connectionConfig().exposedDatabaseConnectMssql()
