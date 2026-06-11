@@ -1,5 +1,20 @@
+pluginManagement {
+    repositories {
+        mavenLocal()
+        gradlePluginPortal()
+    }
+}
+
 plugins {
+    id("public-open-source-dependency-repositories") version
+        "0.13.0-dev-commit-dcac1d6c7871d46082c1fc71b411077daa199c6f"
     id("org.jetbrains.kotlinx.kover.aggregation") version "0.9.4"
+}
+
+publicOpenSourceDependencyRepositories {
+    huanshankejiMavenLocal()
+    githubPackages("exposed-vertx-sql-client", "kotlin-common", "exposed-gadt-mapping", "gradle-common")
+    mavenCentralExcludingHuanshankejiNonStable()
 }
 
 rootProject.name = "exposed-vertx-sql-client"
@@ -19,14 +34,6 @@ fun ProjectDescriptor.setProjectConcatenatedNames(prefix: String) {
         child.setProjectConcatenatedNames("$name-")
 }
 rootProject.setProjectConcatenatedNames("")
-
-// for Dokka
-@Suppress("UnstableApiUsage")
-dependencyResolutionManagement {
-    repositories {
-        mavenCentral()
-    }
-}
 
 // https://kotlin.github.io/kotlinx-kover/gradle-plugin/aggregated.html
 kover {

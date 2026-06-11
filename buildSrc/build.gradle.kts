@@ -5,21 +5,15 @@ plugins {
 repositories {
     mavenLocal()
     gradlePluginPortal()
-    // commented out as it may slow down the build, especially when the GitHub token is incorrect and authentication fails
-    /*
-    maven {
-        url = uri("https://maven.pkg.github.com/huanshankeji/gradle-common")
-        credentials {
-            username = project.findProperty("gpr.user") as String? ?: System.getenv("USERNAME")
-            password = project.findProperty("gpr.key") as String? ?: System.getenv("TOKEN")
-        }
-    }
-    */
 }
 
+val gradleCommonPluginsVersion =
+    "0.13.0-dev-commit-dcac1d6c7871d46082c1fc71b411077daa199c6f"
+
 dependencies {
-    implementation(kotlin("gradle-plugin", "2.3.20"))
-    implementation("com.huanshankeji:common-gradle-dependencies:0.10.0-20251024") // don't use a snapshot version in a main branch
-    implementation("com.huanshankeji.team:gradle-plugins:0.11.0") // don't use a snapshot version in a main branch
+    implementation(kotlin("gradle-plugin", "2.4.0"))
+    implementation("com.huanshankeji:common-gradle-dependencies:0.10.0-20251024")
+    implementation("com.huanshankeji.team:gradle-plugins:$gradleCommonPluginsVersion")
+    implementation("com.huanshankeji:kotlin-common-gradle-plugins:$gradleCommonPluginsVersion")
     implementation("org.jetbrains.dokka:dokka-gradle-plugin:2.2.0")
 }
