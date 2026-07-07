@@ -1,3 +1,4 @@
+import com.huanshankeji.gitversioning.projectVersionFromGitProvider
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 
 plugins {
@@ -6,6 +7,8 @@ plugins {
 }
 
 kotlin.jvmToolchain(11)
+
+version = projectVersionFromGitProvider(projectBaseVersion).get()
 
 // configure for all source sets
 tasks.withType<KotlinCompilationTask<*>> {

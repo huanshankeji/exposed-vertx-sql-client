@@ -4,7 +4,7 @@ tasks.wrapper {
 
 plugins {
     id("org.jetbrains.dokka")
-    id("com.huanshankeji.team.root-project-conventions")
+    id("com.huanshankeji.root-project-conventions")
 }
 
 dependencies {

@@ -5,7 +5,7 @@ import com.huanshankeji.CommonVersions
 val projectBaseVersion = "0.8.2"
 
 val gradleCommonPluginsVersion =
-    "0.12.0-dev-commit-0bca1ba009f63b52ae3d5fe1b4cc5a466b8b61b5"
+    "0.12.0-dev-commit-99eef7d1f0a66457d59584439a68fd3cf5cac1cb"
 
 // Note that there is another Exposed version in the version catalog
 val commonVersions =
