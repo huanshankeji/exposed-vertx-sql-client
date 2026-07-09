@@ -4,9 +4,6 @@ import com.huanshankeji.CommonVersions
 
 val projectBaseVersion = "0.8.2"
 
-val gradleCommonPluginsVersion =
-    "0.12.0-dev-commit-948dfb3cd06e16ccd15ab9c8fc37a78826cfba87"
-
 // Note that there is another Exposed version in the version catalog
 val commonVersions =
     CommonVersions(kotlinCommon = "0.7.0", exposed = "1.1.1", testcontainers = "2.0.4", vertx = "5.0.10")
