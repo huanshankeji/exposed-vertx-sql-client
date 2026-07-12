@@ -1,3 +1,9 @@
+@file:OptIn(com.huanshankeji.GradleCommonExperimentalApi::class)
+
+import com.huanshankeji.artifacts.mavenRepositoryHandlerContext
+import com.huanshankeji.team.artifacts.mavenCentralExcludingHuanshankeji
+import com.huanshankeji.team.gitversioning.opensourcemavenconvention.githubpackages.huanshankejiGithubPackagesOpenSourceMavenConventionProjectRepositories
+
 pluginManagement {
     repositories {
         gradlePluginPortal()
@@ -20,22 +26,36 @@ pluginManagement {
                 }
             }
             filter {
-                includeVersionByRegex("com\\.huanshankeji", ".*", ".*-dev-commit-[0-9a-f]+.*")
+                includeVersionByRegex("""com\.huanshankeji(\..+)?""", ".*", """.*-dev-commit-[0-9a-f]+.*""")
             }
         }
     }
 }
 
+buildscript {
+    val gradleCommonPluginsVersion =
+        "0.12.0-dev-commit-656d3d5f54d76c571b79f96ecc236cb54b013f50"
+    dependencies {
+        classpath("com.huanshankeji.team:settings-gradle-plugins:$gradleCommonPluginsVersion")
+    }
+}
+
 plugins {
-    val gradleCommonPluginsVersion = "0.12.0-dev-commit-ac3e42c6941a896568c6eab78cfbb9c9f0ce50bf"
+    val gradleCommonPluginsVersion =
+        "0.12.0-dev-commit-656d3d5f54d76c571b79f96ecc236cb54b013f50"
     id("com.huanshankeji.base-settings-conventions") version gradleCommonPluginsVersion
-    id("com.huanshankeji.team.gitversioning.public-open-source-dependency-repositories") version gradleCommonPluginsVersion
     id("org.jetbrains.kotlinx.kover.aggregation") version "0.9.4"
 }
 
-publicOpenSourceDependencyRepositories {
-    mavenCentralExcludingHuanshankeji()
-    githubPackages("kotlin-common", "exposed-gadt-mapping")
+@Suppress("UnstableApiUsage")
+dependencyResolutionManagement {
+    repositories {
+        mavenCentralExcludingHuanshankeji()
+        mavenRepositoryHandlerContext(providers, ::uri) {
+            huanshankejiGithubPackagesOpenSourceMavenConventionProjectRepositories("kotlin-common")
+            huanshankejiGithubPackagesOpenSourceMavenConventionProjectRepositories("exposed-gadt-mapping")
+        }
+    }
 }
 
 rootProject.name = "exposed-vertx-sql-client"
