@@ -8,7 +8,7 @@ plugins {
 
 kotlin.jvmToolchain(11)
 
-version = projectVersionFromGitProvider(projectBaseVersion).get()
+version = providers.projectVersionFromGitProvider(projectBaseVersion).get()
 
 // configure for all source sets
 tasks.withType<KotlinCompilationTask<*>> {
