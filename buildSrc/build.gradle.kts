@@ -18,6 +18,7 @@ dependencies {
     implementation("org.jetbrains.dokka:dokka-gradle-plugin:2.2.0")
 }
 
+/*
 kotlin {
     compilerOptions {
         optIn.addAll(
@@ -26,3 +27,4 @@ kotlin {
         //freeCompilerArgs.add("-Xcontext-parameters")
     }
 }
+*/
