@@ -1,5 +1,6 @@
 @file:OptIn(com.huanshankeji.GradleCommonExperimentalApi::class)
 
+import com.huanshankeji.setProjectConcatenatedNames
 import com.huanshankeji.artifacts.mavenRepositoryHandlerContext
 import com.huanshankeji.team.artifacts.mavenCentralExcludingHuanshankeji
 import com.huanshankeji.team.gitversioning.opensourcemavenconvention.githubpackages.huanshankejiGithubPackagesOpenSourceMavenConventionProjectRepositories
@@ -44,12 +45,7 @@ include("oracle")
 include("mssql")
 include("integrated")
 
-fun ProjectDescriptor.setProjectConcatenatedNames(prefix: String) {
-    name = prefix + name
-    for (child in children)
-        child.setProjectConcatenatedNames("$name-")
-}
-rootProject.setProjectConcatenatedNames("")
+setProjectConcatenatedNames()
 
 // https://kotlin.github.io/kotlinx-kover/gradle-plugin/aggregated.html
 kover {
