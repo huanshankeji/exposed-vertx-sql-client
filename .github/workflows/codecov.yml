@@ -23,7 +23,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Set up JDKs and Gradle
-        uses: huanshankeji/.github/actions/setup-javas-and-gradle@improve-cross-repo-dependency
+        uses: huanshankeji/.github/actions/setup-javas-and-gradle@v0.4.0
         with:
           jdk-versions: 11-temurin, 17-temurin
           cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
