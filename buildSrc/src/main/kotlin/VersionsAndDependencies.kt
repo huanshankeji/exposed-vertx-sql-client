@@ -3,6 +3,7 @@ import com.huanshankeji.CommonGradleClasspathDependencies
 import com.huanshankeji.CommonVersions
 
 val projectBaseVersion = "0.8.2"
+val isRelease = false
 
 // Note that there is another Exposed version in the version catalog
 val commonVersions =

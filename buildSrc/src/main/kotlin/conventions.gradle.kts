@@ -1,4 +1,4 @@
-import com.huanshankeji.gitversioning.devCommitVersionProvider
+import com.huanshankeji.gitversioning.devCommitOrReleaseVersionProvider
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 
 plugins {
@@ -8,7 +8,7 @@ plugins {
 
 kotlin.jvmToolchain(11)
 
-version = providers.devCommitVersionProvider(projectBaseVersion).get()
+version = providers.devCommitOrReleaseVersionProvider(projectBaseVersion, isRelease).get()
 
 // configure for all source sets
 tasks.withType<KotlinCompilationTask<*>> {
