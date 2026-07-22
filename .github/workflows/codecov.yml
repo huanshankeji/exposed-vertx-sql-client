@@ -20,7 +20,7 @@ jobs:
       ORG_GRADLE_PROJECT_gprKey: ${{ secrets.GPR_KEY }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Set up JDKs and Gradle
         uses: huanshankeji/.github/actions/setup-javas-and-gradle@v0.4.1
@@ -32,7 +32,7 @@ jobs:
         run: ./gradlew test -Pkover koverXmlReport
 
       - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v7
         with:
           files: ./build/reports/kover/report.xml
           token: ${{ secrets.CODECOV_TOKEN }}
