@@ -12,12 +12,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-    env:
-      # GPR_* (PAT, read:packages): resolve Gradle/Maven dev artifacts from another repo's GitHub
-      # Packages registry. GITHUB_TOKEN is repo-scoped.
-      # https://github.com/huanshankeji/gradle-common/pull/65
-      ORG_GRADLE_PROJECT_gprUser: ${{ secrets.GPR_USER }}
-      ORG_GRADLE_PROJECT_gprKey: ${{ secrets.GPR_KEY }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
@@ -29,6 +23,12 @@ jobs:
           cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
 
       - name: Test and generate Kover Report with Gradle Wrapper
+        env:
+          # GPR_* (PAT, read:packages): resolve Gradle/Maven dev artifacts from another repo's GitHub
+          # Packages registry. GITHUB_TOKEN is repo-scoped.
+          # https://github.com/huanshankeji/gradle-common/pull/65
+          ORG_GRADLE_PROJECT_gprUser: ${{ secrets.GPR_USER }}
+          ORG_GRADLE_PROJECT_gprKey: ${{ secrets.GPR_KEY }}
         run: ./gradlew test -Pkover koverXmlReport
 
       - name: Upload coverage reports to Codecov
