@@ -1,25 +1,29 @@
+import org.gradle.api.artifacts.dsl.RepositoryHandler
+
 plugins {
     `kotlin-dsl`
 }
 
-repositories {
-    mavenLocal()
-    gradlePluginPortal()
-    // commented out as it may slow down the build, especially when the GitHub token is incorrect and authentication fails
-    /*
-    maven {
-        url = uri("https://maven.pkg.github.com/huanshankeji/gradle-common")
-        credentials {
-            username = project.findProperty("gpr.user") as String? ?: System.getenv("USERNAME")
-            password = project.findProperty("gpr.key") as String? ?: System.getenv("TOKEN")
-        }
-    }
-    */
-}
+apply(from = "../gradle/classpath-bootstrap.gradle.kts")
+@Suppress("UNCHECKED_CAST")
+(extra["repositories"] as RepositoryHandler.() -> Unit)(repositories)
+
+val gradleCommonPluginsVersion = extra["gradleCommonPluginsVersion"]
 
 dependencies {
-    implementation(kotlin("gradle-plugin", "2.3.20"))
-    implementation("com.huanshankeji:common-gradle-dependencies:0.10.0-20251024") // don't use a snapshot version in a main branch
-    implementation("com.huanshankeji.team:gradle-plugins:0.11.0") // don't use a snapshot version in a main branch
+    implementation(kotlin("gradle-plugin", "2.4.0"))
+    implementation("com.huanshankeji:common-gradle-dependencies:0.10.0-20251024")
+    implementation("com.huanshankeji.team:project-gradle-plugins:$gradleCommonPluginsVersion")
     implementation("org.jetbrains.dokka:dokka-gradle-plugin:2.2.0")
 }
+
+/*
+kotlin {
+    compilerOptions {
+        optIn.addAll(
+            "com.huanshankeji.GradleCommonExperimentalApi",
+        )
+        //freeCompilerArgs.add("-Xcontext-parameters")
+    }
+}
+*/

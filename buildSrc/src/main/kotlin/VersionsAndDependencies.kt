@@ -2,9 +2,9 @@ import com.huanshankeji.CommonDependencies
 import com.huanshankeji.CommonGradleClasspathDependencies
 import com.huanshankeji.CommonVersions
 
-val projectVersion = "0.8.2-SNAPSHOT"
+val projectBaseVersion = "0.8.2"
+val isRelease = false
 
-// don't use a snapshot version in a main branch
 // Note that there is another Exposed version in the version catalog
 val commonVersions =
     CommonVersions(kotlinCommon = "0.7.0", exposed = "1.1.1", testcontainers = "2.0.4", vertx = "5.0.10")
@@ -12,7 +12,7 @@ val commonDependencies = CommonDependencies(commonVersions)
 val commonGradleClasspathDependencies = CommonGradleClasspathDependencies(commonVersions)
 
 object DependencyVersions {
-    val exposedGadtMapping = "0.4.0" // don't use a snapshot version in a main branch
+    val exposedGadtMapping = "0.4.0"
 
     // https://github.com/mysql/mysql-connector-j/tags
     val mysqlConnectorJ = "9.6.0"

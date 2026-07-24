@@ -12,31 +12,27 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
-      - name: Set up JDK 11
-        uses: actions/setup-java@v5
+      - name: Set up JDKs and Gradle
+        uses: huanshankeji/.github/actions/setup-javas-and-gradle@v0.5.2
         with:
-          java-version: "11"
-          distribution: "temurin"
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v5
-        with:
-          java-version: "17"
-          distribution: "temurin"
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+          jdk-versions: 11-temurin, 17-temurin
+          cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
 
       - name: Test and generate Kover Report with Gradle Wrapper
+        env:
+          # GPR_* (PAT, read:packages): resolve Gradle/Maven dev artifacts from another repo's GitHub
+          # Packages registry. GITHUB_TOKEN is repo-scoped.
+          # https://github.com/huanshankeji/gradle-common/pull/65
+          ORG_GRADLE_PROJECT_gprUser: ${{ secrets.GPR_USER }}
+          ORG_GRADLE_PROJECT_gprKey: ${{ secrets.GPR_KEY }}
         run: ./gradlew test -Pkover koverXmlReport
 
       - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v7
         with:
           files: ./build/reports/kover/report.xml
           token: ${{ secrets.CODECOV_TOKEN }}
