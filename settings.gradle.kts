@@ -44,6 +44,7 @@ include("mysql")
 include("oracle")
 include("mssql")
 include("integrated")
+include("testcontainers")
 
 setProjectConcatenatedNames()
 
