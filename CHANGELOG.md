@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- `crud-with-mapper` depends on experimental data-mapper interfaces from `kotlin-common`'s `exposed` module instead of `exposed-gadt-mapping` ([#72](https://github.com/huanshankeji/exposed-vertx-sql-client/issues/72)). The unfinished Vert.x SQL client reflection mapper sketch that imported the GADT reflection implementation is removed.
+
 ## [0.8.1] - 2026-03-31
 
 ### Changed

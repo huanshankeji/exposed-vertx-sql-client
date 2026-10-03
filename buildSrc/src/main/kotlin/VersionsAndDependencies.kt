@@ -7,12 +7,12 @@ val isRelease = false
 
 // Note that there is another Exposed version in the version catalog
 val commonVersions =
-    CommonVersions(kotlinCommon = "0.7.0", exposed = "1.1.1", testcontainers = "2.0.4", vertx = "5.0.10")
+    CommonVersions(kotlinCommon = "0.8.0-dev-commit-ca41bc43126155e03b26bf84db0eb62fcb504be7", exposed = "1.1.1", testcontainers = "2.0.4", vertx = "5.0.10")
 val commonDependencies = CommonDependencies(commonVersions)
 val commonGradleClasspathDependencies = CommonGradleClasspathDependencies(commonVersions)
 
 object DependencyVersions {
-    val exposedGadtMapping = "0.4.0"
+    val exposedGadtMapping = "0.4.0-dev-commit-b12f5813124a22f8aff12b5c8d51989826ba7cd8"
 
     // https://github.com/mysql/mysql-connector-j/tags
     val mysqlConnectorJ = "9.6.0"

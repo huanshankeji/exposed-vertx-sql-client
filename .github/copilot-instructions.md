@@ -262,7 +262,7 @@ Before check-in, the following validations run:
 - **Vert.x**: Managed by `vertx.platformStackDepchain()` (uses Vert.x BOM)
 - **Kotlin**: 2.3.20
 - **Arrow**: For functional constructs
-- **exposed-gadt-mapping**: 0.4.0 (for mapper modules)
+- **exposed-gadt-mapping**: optional, used by the unpublished `integrated` examples; `crud-with-mapper` uses mapper interfaces from `kotlin-common` `exposed`
 
 **Dependency Management:** All versions are centralized in `buildSrc/src/main/kotlin/VersionsAndDependencies.kt` using `common-gradle-dependencies` library.
 
