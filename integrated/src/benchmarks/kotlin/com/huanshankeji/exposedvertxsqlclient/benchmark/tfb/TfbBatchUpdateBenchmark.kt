@@ -215,7 +215,7 @@ sealed class TfbBatchUpdateBenchmark : WithContainerizedDatabaseAndExposedDataba
 
         class WithJdbcTransactionExposedTransactionProvider : WithDatabaseClient() {
             override fun exposedTransactionProvider(): StatementPreparationExposedTransactionProvider =
-                JdbcTransactionExposedTransactionProvider(database)
+                JdbcTransactionExposedTransactionProvider.createWithClosedTransactionFromNewConnection(database)
         }
     }
 

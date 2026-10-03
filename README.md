@@ -125,7 +125,7 @@ Create a `DatabaseClient` with the provided Vert.x `SqlClient` and a transaction
 ```kotlin
 val databaseClient = DatabaseClient(
     vertxSqlClient,
-    PgDatabaseClientConfig(JdbcTransactionExposedTransactionProvider(exposedDatabase))
+    PgDatabaseClientConfig(JdbcTransactionExposedTransactionProvider.createWithClosedTransactionFromNewConnection(exposedDatabase))
 )
 ```
 

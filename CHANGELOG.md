@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `JdbcTransactionExposedTransactionProvider.createWithClosedTransactionFromNewConnection(Database)`, whose name emphasizes that it involves blocking IO by retrieving a closed transaction from a new connection (#121).
+
+### Deprecated
+
+- Deprecate the `JdbcTransactionExposedTransactionProvider(Database)` constructor. Use `JdbcTransactionExposedTransactionProvider.createWithClosedTransactionFromNewConnection(Database)` instead (#121).
+
 ## [0.8.1] - 2026-03-31
 
 ### Changed
