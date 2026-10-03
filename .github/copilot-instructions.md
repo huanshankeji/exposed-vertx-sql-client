@@ -35,7 +35,7 @@ The repository uses Gradle's `settings.gradle.kts` with concatenated project nam
 4. **oracle** (`exposed-vertx-sql-client-oracle`) - Oracle-specific implementation
 5. **mssql** (`exposed-vertx-sql-client-mssql`) - Implementation specific to Microsoft SQL Server
 6. **crud** (`exposed-vertx-sql-client-crud`) - Extension CRUD operations
-7. **crud-with-mapper** (`exposed-vertx-sql-client-crud-with-mapper`) - CRUD with GADT mapping support
+7. **crud-with-mapper** (`exposed-vertx-sql-client-crud-with-mapper`) - CRUD against the kotlin-common Exposed data-mapper interfaces
 8. **integrated** (`exposed-vertx-sql-client-integrated`) - Integration tests, benchmarks and examples (not published)
 
 ### Key Files and Directories
@@ -262,7 +262,7 @@ Before check-in, the following validations run:
 - **Vert.x**: Managed by `vertx.platformStackDepchain()` (uses Vert.x BOM)
 - **Kotlin**: 2.3.20
 - **Arrow**: For functional constructs
-- **exposed-gadt-mapping**: 0.4.0 (for mapper modules)
+- **exposed-gadt-mapping**: `DependencyVersions.exposedGadtMapping` (integrated module only; reflection mappers). `crud-with-mapper` uses kotlin-common's exposed data-mapper interfaces.
 
 **Dependency Management:** All versions are centralized in `buildSrc/src/main/kotlin/VersionsAndDependencies.kt` using `common-gradle-dependencies` library.
 

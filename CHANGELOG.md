@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- `crud-with-mapper` depends on the experimental Exposed data-mapper interfaces in kotlin-common instead of exposed-gadt-mapping (#72).
+- Remove the unfinished reflection-based Vert.x row mapper in `crud-with-mapper` that imported exposed-gadt-mapping (#72).
+- Depend on the kotlin-common 0.8.0 dev commit that publishes those interfaces, and on the exposed-gadt-mapping dev commit whose reflection implementation uses them (`integrated` only).
+
 ## [0.8.1] - 2026-03-31
 
 ### Changed

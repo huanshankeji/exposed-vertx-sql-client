@@ -290,7 +290,9 @@ if (dialectSupportsDeleteIgnore) {
 }
 ```
 
-#### **Highly experimental**: Extension CRUD DSLs with [Exposed GADT mapping](https://github.com/huanshankeji/exposed-gadt-mapping)
+#### **Highly experimental**: Extension CRUD DSLs with data mappers
+
+`crud-with-mapper` depends on the experimental mapper interfaces in [kotlin-common](https://github.com/huanshankeji/kotlin-common)'s `exposed` module (`DataQueryMapper`, `DataUpdateMapper`, and `updateBuilderSetter`). [Exposed GADT mapping](https://github.com/huanshankeji/exposed-gadt-mapping)'s reflection mappers implement those interfaces. This module does not depend on that reflection implementation.
 
 Please read [that library's basic usage guide](https://github.com/huanshankeji/exposed-gadt-mapping?tab=readme-ov-file#basic-usage-guide) first. Here are examples of this library that correspond to [that library's CRUD operations](https://github.com/huanshankeji/exposed-gadt-mapping?tab=readme-ov-file#crud-operations).
 

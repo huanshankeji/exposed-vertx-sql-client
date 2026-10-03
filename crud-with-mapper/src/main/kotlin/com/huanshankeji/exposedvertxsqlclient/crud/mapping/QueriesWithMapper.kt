@@ -1,5 +1,8 @@
+@file:OptIn(ExperimentalApi::class)
+
 package com.huanshankeji.exposedvertxsqlclient.crud.mapping
 
+import com.huanshankeji.ExperimentalApi
 import com.huanshankeji.exposed.datamapping.DataQueryMapper
 import com.huanshankeji.exposed.datamapping.DataUpdateMapper
 import com.huanshankeji.exposed.datamapping.updateBuilderSetter

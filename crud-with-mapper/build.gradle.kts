@@ -9,5 +9,6 @@ dependencies {
     implementation(cpnProject(project, ":core"))
     implementation(cpnProject(project, ":crud"))
 
-    implementation("com.huanshankeji:exposed-gadt-mapping:${DependencyVersions.exposedGadtMapping}") // for `updateBuilderSetter`, `DataQueryMapper` and `DataUpdateMapper`
+    api(commonDependencies.kotlinCommon.exposed()) // `DataQueryMapper`, `DataUpdateMapper`, and `updateBuilderSetter`
+    implementation(commonDependencies.kotlinCommon.core()) // `@ExperimentalApi` on those mapper interfaces
 }
