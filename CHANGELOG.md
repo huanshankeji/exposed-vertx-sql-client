@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Deprecated
+
+- Deprecate the `JdbcTransactionExposedTransactionProvider` constructor that takes a `Database`. It performs JDBC I/O by retrieving a closed transaction from a new connection. Use `JdbcTransactionExposedTransactionProvider.closedTransactionFromNewConnectionWithIO` instead (#121).
+
 ## [0.8.1] - 2026-03-31
 
 ### Changed

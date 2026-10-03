@@ -81,6 +81,9 @@ class DatabaseExposedTransactionProvider(
  * used for SQL generation, so it is not strictly read-only in terms of object immutability, but it should be used
  * in a way that does not perform database writes.
  *
+ * Create one from a [Database] with [closedTransactionFromNewConnectionWithIO], which performs JDBC I/O
+ * by retrieving a closed transaction from a new connection.
+ *
  * @param jdbcTransaction the [JdbcTransaction] to use for SQL statement preparation
  */
 @ExperimentalEvscApi
@@ -90,19 +93,39 @@ class JdbcTransactionExposedTransactionProvider(
     /**
      * Secondary constructor that creates a [JdbcTransaction] from a [Database].
      *
+     * Performs JDBC I/O by retrieving a closed transaction from a new connection.
+     *
      * @param database the Exposed [Database] to use for creating the transaction
+     * @see closedTransactionFromNewConnectionWithIO
      */
-    constructor(database: Database) : this(
-        /*
-        // alternative implementation that keeps that transaction open
-        database.transactionManager.newTransaction(Connection.TRANSACTION_READ_UNCOMMITTED, true)
-        */
-        transaction(database, Connection.TRANSACTION_READ_UNCOMMITTED, true) {
-            // Store reference to the current transaction for reuse
-            // The transaction members needed for SQL preparation are still usable
-            this
-        }
+    @Deprecated(
+        "Performs JDBC I/O by retrieving a closed transaction from a new connection. " +
+            "Use `closedTransactionFromNewConnectionWithIO`.",
+        ReplaceWith("JdbcTransactionExposedTransactionProvider.closedTransactionFromNewConnectionWithIO(database)")
     )
+    constructor(database: Database) : this(retrieveClosedJdbcTransactionFromNewConnection(database))
+
+    companion object {
+        /**
+         * Creates a provider by performing JDBC I/O: opens a new connection from [database], retrieves its
+         * [JdbcTransaction], and closes that transaction. The closed transaction is then reused for SQL statement preparation.
+         *
+         * @param database the Exposed [Database] used to open the connection
+         */
+        fun closedTransactionFromNewConnectionWithIO(database: Database): JdbcTransactionExposedTransactionProvider =
+            JdbcTransactionExposedTransactionProvider(retrieveClosedJdbcTransactionFromNewConnection(database))
+
+        private fun retrieveClosedJdbcTransactionFromNewConnection(database: Database): JdbcTransaction =
+            /*
+            // alternative implementation that keeps that transaction open
+            database.transactionManager.newTransaction(Connection.TRANSACTION_READ_UNCOMMITTED, true)
+            */
+            transaction(database, Connection.TRANSACTION_READ_UNCOMMITTED, true) {
+                // Store reference to the current transaction for reuse
+                // The transaction members needed for SQL preparation are still usable
+                this
+            }
+    }
 
     @OptIn(InternalApi::class)
     override fun <T> statementPreparationExposedTransaction(block: ExposedTransaction.() -> T): T =

@@ -125,7 +125,9 @@ Create a `DatabaseClient` with the provided Vert.x `SqlClient` and a transaction
 ```kotlin
 val databaseClient = DatabaseClient(
     vertxSqlClient,
-    PgDatabaseClientConfig(JdbcTransactionExposedTransactionProvider(exposedDatabase))
+    PgDatabaseClientConfig(
+        JdbcTransactionExposedTransactionProvider.closedTransactionFromNewConnectionWithIO(exposedDatabase)
+    )
 )
 ```
 
@@ -133,7 +135,7 @@ val databaseClient = DatabaseClient(
 
 The `DatabaseClient` uses a `StatementPreparationExposedTransactionProvider` to manage Exposed transactions for SQL statement preparation. There are two options:
 
-- **`JdbcTransactionExposedTransactionProvider` (recommended)**: Reuses a single JDBC transaction for all SQL preparation calls. This approach provides better performance by avoiding the overhead of creating a new transaction for each SQL preparation. This is the recommended option for most use cases.
+- **`JdbcTransactionExposedTransactionProvider` (recommended)**: Reuses a single JDBC transaction for all SQL preparation calls. This approach provides better performance by avoiding the overhead of creating a new transaction for each SQL preparation. This is the recommended option for most use cases. Create it with `closedTransactionFromNewConnectionWithIO`, which performs JDBC I/O by retrieving a closed transaction from a new connection. The `Database` constructor is deprecated.
   
   **Note:** This depends on a closed `Transaction` (properties and functions used including `identity` and `.db.dialect` etc.). It's not guaranteed that Exposed APIs won't change in the future, and creating `Statement`s and calling `prepareSQL` may require an open `Transaction` based on a connection in future Exposed versions. It also depends on the `withThreadLocalTransaction` API which is marked `@InternalApi` at the moment.
 
