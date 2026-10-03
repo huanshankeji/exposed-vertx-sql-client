@@ -27,7 +27,7 @@ We also have some internal consuming code to guarantee the usability of the APIs
 
 ### Brief overview of the implementation
 
-This library works by first producing the prepared SQL from an Exposed `Statement` with an Exposed `transaction`, then translating and passing the SQL to the Vert.x SQL client for execution, and finally transforming the retrieved result Vert.x SQL client `Row` into the Exposed `ResultSet`. With the `JdbcTransactionExposedTransactionProvider` (recommended), a single JDBC transaction can be reused across multiple SQL preparation calls in a single thread/`Verticle` for better performance; with the `DatabaseExposedTransactionProvider` (fallback), the Exposed `transaction` for preparing a SQL is as short and as lightweight as possible to improve performance. And also when executing without a transaction, Vert.x SQL client's **pipelining** feature can be enabled, which greatly improves performance for simple queries and is not supported by JDBC and R2DBC for PostgreSQL as far as I know.
+This library works by first producing the prepared SQL from an Exposed `Statement` with an Exposed `transaction`, then translating and passing the SQL to the Vert.x SQL client for execution, and finally transforming the retrieved result Vert.x SQL client `Row` into the Exposed `ResultSet`. With the `IoClosedJdbcTransactionFromNewConnectionExposedTransactionProvider` (recommended), a closed JDBC transaction retrieved from a new connection (this construction involves IO) is reused across multiple SQL preparation calls in a single thread/`Verticle` for better performance; with the `DatabaseExposedTransactionProvider` (fallback), the Exposed `transaction` for preparing a SQL is as short and as lightweight as possible to improve performance. And also when executing without a transaction, Vert.x SQL client's **pipelining** feature can be enabled, which greatly improves performance for simple queries and is not supported by JDBC and R2DBC for PostgreSQL as far as I know.
 
 ## Performance
 
@@ -44,7 +44,7 @@ This library works by first producing the prepared SQL from an Exposed `Statemen
 | ktor-netty-exposed-jdbc-dsl | Ktor with Exposed JDBC | 179,734 (15%) | 29,846 (36%) | 144,771 (18%) | 24,154 (53%) |
 | ktor-netty-exposed-r2dbc-dsl | Ktor with Exposed R2DBC | 104,288 (9%) | 21,448 (26%) | 75,634 (10%) | 7,140 (16%) |
 
-Based on the requests-per-second numbers above, with the `JdbcTransactionExposedTransactionProvider` introduced in v0.8.0, this library achieves 87% of the baseline throughput in Single query and 83% in Fortunes (a single SQL select query of all the records with manipulation and encoding to HTML in each request), and matches the baseline in Multiple queries (20 separate select SQL queries in each request) and Data updates (20 updates per request).
+Based on the requests-per-second numbers above, with the `IoClosedJdbcTransactionFromNewConnectionExposedTransactionProvider` introduced in v0.8.0 (originally as `JdbcTransactionExposedTransactionProvider`), this library achieves 87% of the baseline throughput in Single query and 83% in Fortunes (a single SQL select query of all the records with manipulation and encoding to HTML in each request), and matches the baseline in Multiple queries (20 separate select SQL queries in each request) and Data updates (20 updates per request).
 
 Since TFB recently sunset, you can verify this yourself by cloning [the repo](https://github.com/TechEmpower/FrameworkBenchmarks) and running:
 ```
@@ -125,7 +125,7 @@ Create a `DatabaseClient` with the provided Vert.x `SqlClient` and a transaction
 ```kotlin
 val databaseClient = DatabaseClient(
     vertxSqlClient,
-    PgDatabaseClientConfig(JdbcTransactionExposedTransactionProvider(exposedDatabase))
+    PgDatabaseClientConfig(IoClosedJdbcTransactionFromNewConnectionExposedTransactionProvider(exposedDatabase))
 )
 ```
 
@@ -133,11 +133,11 @@ val databaseClient = DatabaseClient(
 
 The `DatabaseClient` uses a `StatementPreparationExposedTransactionProvider` to manage Exposed transactions for SQL statement preparation. There are two options:
 
-- **`JdbcTransactionExposedTransactionProvider` (recommended)**: Reuses a single JDBC transaction for all SQL preparation calls. This approach provides better performance by avoiding the overhead of creating a new transaction for each SQL preparation. This is the recommended option for most use cases.
+- **`IoClosedJdbcTransactionFromNewConnectionExposedTransactionProvider` (recommended)**: Retrieves a closed JDBC transaction from a new connection (this construction involves blocking IO) and reuses it for all SQL preparation calls. This approach provides better performance by avoiding the overhead of creating a new transaction for each SQL preparation. This is the recommended option for most use cases.
   
   **Note:** This depends on a closed `Transaction` (properties and functions used including `identity` and `.db.dialect` etc.). It's not guaranteed that Exposed APIs won't change in the future, and creating `Statement`s and calling `prepareSQL` may require an open `Transaction` based on a connection in future Exposed versions. It also depends on the `withThreadLocalTransaction` API which is marked `@InternalApi` at the moment.
 
-- **`DatabaseExposedTransactionProvider`**: Creates a new transaction for each SQL preparation call. This is kept as a fallback solution in case the `JdbcTransactionExposedTransactionProvider` approach has issues with future Exposed API changes (see note above).
+- **`DatabaseExposedTransactionProvider`**: Creates a new transaction for each SQL preparation call. This is kept as a fallback solution in case the `IoClosedJdbcTransactionFromNewConnectionExposedTransactionProvider` approach has issues with future Exposed API changes (see note above).
 
 #### Alternatives to `EvscConfig`
 
@@ -338,6 +338,6 @@ If you encounter
 
    For example, this can happen if you call `Query.forUpdate()` without a transaction. In such a case, you can also use our `Query.forUpdateWithTransaction()` instead.
 
-2. If your function call has a parameter with `WithExposedTransaction` in its name, try setting it to `true`. To make things easier, you can also set `autoExposedTransaction` to `true` in `DatabaseClientConfig` when creating the `DatabaseClient`. Note that when using `DatabaseExposedTransactionProvider`, this slightly degrades performance, but with `JdbcTransactionExposedTransactionProvider` (recommended), the overhead is minimal.
+2. If your function call has a parameter with `WithExposedTransaction` in its name, try setting it to `true`. To make things easier, you can also set `autoExposedTransaction` to `true` in `DatabaseClientConfig` when creating the `DatabaseClient`. Note that when using `DatabaseExposedTransactionProvider`, this slightly degrades performance, but with `IoClosedJdbcTransactionFromNewConnectionExposedTransactionProvider` (recommended), the overhead is minimal.
 
 Some Exposed APIs implicitly require a transaction and we can't guarantee that such exceptions are always avoided, as Exposed APIs are not fully decoupled and designed to serve this library, the transaction requirements in APIs sometimes change between versions and our APIs may need to evolve accordingly.

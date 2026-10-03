@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Rename `JdbcTransactionExposedTransactionProvider` to `IoClosedJdbcTransactionFromNewConnectionExposedTransactionProvider` to emphasize that constructing it from a `Database` involves IO by retrieving a closed transaction from a new connection (#121).
+
+### Deprecated
+
+- Deprecate `JdbcTransactionExposedTransactionProvider`. Use `IoClosedJdbcTransactionFromNewConnectionExposedTransactionProvider` instead (#121).
+
 ## [0.8.1] - 2026-03-31
 
 ### Changed

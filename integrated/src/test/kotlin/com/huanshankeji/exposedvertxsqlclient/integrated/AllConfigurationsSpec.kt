@@ -58,8 +58,8 @@ abstract class AllConfigurationsSpec(
                     }
 
                 StatementPreparationExposedTransactionProviderType.JdbcTransaction ->
-                    context("JdbcTransactionExposedTransactionProvider") {
-                        tests(JdbcTransactionExposedTransactionProvider(exposedDatabase))
+                    context("IoClosedJdbcTransactionFromNewConnectionExposedTransactionProvider") {
+                        tests(IoClosedJdbcTransactionFromNewConnectionExposedTransactionProvider(exposedDatabase))
                     }
             }
         }

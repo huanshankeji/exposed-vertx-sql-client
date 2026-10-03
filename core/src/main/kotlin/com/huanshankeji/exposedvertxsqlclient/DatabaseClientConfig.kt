@@ -16,7 +16,7 @@ interface DatabaseClientConfig {
     /**
      * The provider for Exposed transactions used for SQL statement preparation.
      *
-     * Defaults to [JdbcTransactionExposedTransactionProvider] for optimal performance.
+     * Defaults to [IoClosedJdbcTransactionFromNewConnectionExposedTransactionProvider] for optimal performance.
      */
     val statementPreparationExposedTransactionProvider: StatementPreparationExposedTransactionProvider
 
@@ -34,7 +34,7 @@ interface DatabaseClientConfig {
      * The transaction isolation level used in [transaction] in [DatabaseClient.statementPreparationExposedTransaction].
      * 
      * **Note:** This is only used when using [DatabaseExposedTransactionProvider]. When using
-     * [JdbcTransactionExposedTransactionProvider], the isolation level is set when creating the provider.
+     * [IoClosedJdbcTransactionFromNewConnectionExposedTransactionProvider], the isolation level is set when creating the provider.
      * 
      * @deprecated This will be replaced by the isolation level parameter in the transaction provider itself.
      */
@@ -55,7 +55,7 @@ interface DatabaseClientConfig {
      *
      * Enabling this option slightly degrades performance but reduces the likelihood of running into `java.lang.IllegalStateException: No transaction in context.`.
      * 
-     * **Note:** When using [JdbcTransactionExposedTransactionProvider], it's recommended to set this to `true`
+     * **Note:** When using [IoClosedJdbcTransactionFromNewConnectionExposedTransactionProvider], it's recommended to set this to `true`
      * since the transaction overhead is minimal.
      */
     val autoExposedTransaction: Boolean

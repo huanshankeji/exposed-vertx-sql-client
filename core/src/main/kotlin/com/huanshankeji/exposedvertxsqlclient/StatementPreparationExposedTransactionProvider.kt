@@ -14,10 +14,10 @@ import org.jetbrains.exposed.v1.core.Transaction as ExposedTransaction
  *
  * This abstraction allows for different strategies of providing transactions:
  * - Database-based: creates a new transaction for each call (traditional approach)
- * - Transaction-based: reuses a single JDBC transaction for better performance
+ * - Closed JDBC transaction from a new connection: involves IO at construction, then reuses the closed transaction
  *
  * @see DatabaseExposedTransactionProvider
- * @see JdbcTransactionExposedTransactionProvider
+ * @see IoClosedJdbcTransactionFromNewConnectionExposedTransactionProvider
  */
 @ExperimentalEvscApi
 interface StatementPreparationExposedTransactionProvider {
@@ -66,6 +66,10 @@ class DatabaseExposedTransactionProvider(
  * This approach provides better performance by avoiding the overhead of creating a new transaction
  * for each SQL preparation call. The transaction is created once, possibly closed, and reused/shared across multiple SQL preparations.
  *
+ * **IO:** The [Database] constructor involves blocking IO by retrieving a closed transaction from a new connection:
+ * it opens a JDBC connection, starts a transaction, closes it, and then reuses that closed [JdbcTransaction].
+ * Do not call that constructor on the Vert.x event loop.
+ *
  * **Implementation note:** The transaction instance members needed for SQL preparation remain usable even after
  * the underlying connection is not actively used.
  *
@@ -73,7 +77,7 @@ class DatabaseExposedTransactionProvider(
  * not designed for concurrent use from multiple threads. Calling [statementPreparationExposedTransaction] from
  * multiple threads at the same time on the same provider instance may lead to inconsistent internal state.
  * If you need to prepare statements concurrently, create a separate
- * [JdbcTransactionExposedTransactionProvider] (and underlying [JdbcTransaction]) per thread/[Verticle].
+ * [IoClosedJdbcTransactionFromNewConnectionExposedTransactionProvider] (and underlying [JdbcTransaction]) per thread/[Verticle].
  *
  * **Read-only behavior:** This provider is intended to be used only for SQL statement preparation (e.g., statement
  * building and `prepareSQL`) and the transaction must not be used to execute DML/DDL statements that modify the database.
@@ -84,11 +88,13 @@ class DatabaseExposedTransactionProvider(
  * @param jdbcTransaction the [JdbcTransaction] to use for SQL statement preparation
  */
 @ExperimentalEvscApi
-class JdbcTransactionExposedTransactionProvider(
+class IoClosedJdbcTransactionFromNewConnectionExposedTransactionProvider(
     val jdbcTransaction: JdbcTransaction
 ) : StatementPreparationExposedTransactionProvider {
     /**
-     * Secondary constructor that creates a [JdbcTransaction] from a [Database].
+     * Secondary constructor that retrieves a closed [JdbcTransaction] from a new JDBC connection.
+     *
+     * This involves blocking IO: open a connection, start a transaction, and close it.
      *
      * @param database the Exposed [Database] to use for creating the transaction
      */
@@ -131,7 +137,7 @@ class JdbcTransactionExposedTransactionProvider(
     /*
     // This implementation breaks Exposed's own transactions. See commit a07319e376f0a491e312136ab102a1eb28a7035c for more details.
     @ExperimentalEvscApi
-    class PushAndGetPermanentThreadLocalTransaction : JdbcTransactionExposedTransactionProvider {
+    class PushAndGetPermanentThreadLocalTransaction : IoClosedJdbcTransactionFromNewConnectionExposedTransactionProvider {
         constructor(jdbcTransaction: JdbcTransaction) : super(jdbcTransaction)
         constructor(database: Database) : super(database)
 
@@ -148,3 +154,15 @@ class JdbcTransactionExposedTransactionProvider(
     }
     */
 }
+
+@Deprecated(
+    "Renamed to `IoClosedJdbcTransactionFromNewConnectionExposedTransactionProvider` to emphasize that it involves IO by retrieving a closed transaction from a new connection.",
+    ReplaceWith(
+        "IoClosedJdbcTransactionFromNewConnectionExposedTransactionProvider",
+        "com.huanshankeji.exposedvertxsqlclient.IoClosedJdbcTransactionFromNewConnectionExposedTransactionProvider"
+    )
+)
+@ExperimentalEvscApi
+typealias JdbcTransactionExposedTransactionProvider =
+    IoClosedJdbcTransactionFromNewConnectionExposedTransactionProvider
+
