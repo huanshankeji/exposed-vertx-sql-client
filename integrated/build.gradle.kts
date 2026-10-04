@@ -9,7 +9,10 @@ plugins {
 }
 
 dependencies {
-    with(commonDependencies.vertx) { implementation(platformStackDepchain()) } // needed
+    with(commonDependencies.vertx) {
+        implementation(platformStackDepchain()) // needed
+        testImplementation(moduleWithoutVersion("lang-kotlin-coroutines"))
+    }
 
     implementation(cpnProject(project, ":core"))
     implementation(cpnProject(project, ":postgresql"))
@@ -35,7 +38,12 @@ dependencies {
 
     implementation(commonDependencies.kotest.module("assertions-core"))
     testImplementation(commonDependencies.kotest.module("framework-engine"))
-    testImplementation(commonDependencies.kotest.module("extensions-testcontainers"))
+    testImplementation(
+        commonDependencies.kotlinCommon.module(
+            "arrow-kotest",
+            "0.8.0-dev-commit-b0c2fff34fe8ca2255e1bc1e909c30ad048cf2cd",
+        )
+    )
     // to resolve "no tests discovered" errors when running `check`
     testRuntimeOnly(commonDependencies.kotest.module("runner-junit5"))
 

@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Adapt integration `FunSpec`s to install Testcontainers, Vert.x, and SQL clients through `TestScope.asResourceScope()` from `kotlin-common-arrow-kotest`, so they are closed in reverse order after each configuration scope.
+- Add a test-only dependency on `kotlin-common-arrow-kotest` `0.8.0-dev-commit-b0c2fff34fe8ca2255e1bc1e909c30ad048cf2cd` and Kotest 6.1.11.
+
 ## [0.8.1] - 2026-03-31
 
 ### Changed

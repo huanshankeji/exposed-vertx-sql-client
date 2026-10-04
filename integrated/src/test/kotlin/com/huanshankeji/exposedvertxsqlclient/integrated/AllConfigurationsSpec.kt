@@ -1,5 +1,7 @@
 package com.huanshankeji.exposedvertxsqlclient.integrated
 
+import com.huanshankeji.ExperimentalApi
+import com.huanshankeji.arrow.fx.coroutines.kotest.asResourceScope
 import com.huanshankeji.exposedvertxsqlclient.*
 import com.huanshankeji.exposedvertxsqlclient.jdbc.sqlServerJdbcUrlWithEncryptEqFalse
 import com.huanshankeji.exposedvertxsqlclient.mssql.MssqlDatabaseClientConfig
@@ -20,15 +22,16 @@ import com.huanshankeji.exposedvertxsqlclient.postgresql.exposed.exposedDatabase
 import com.huanshankeji.exposedvertxsqlclient.postgresql.vertx.pgclient.createPgClient
 import com.huanshankeji.exposedvertxsqlclient.postgresql.vertx.pgclient.createPgConnection
 import com.huanshankeji.exposedvertxsqlclient.postgresql.vertx.pgclient.createPgPool
-import io.kotest.core.extensions.install
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.spec.style.scopes.FunSpecContainerScope
-import io.kotest.extensions.testcontainers.TestContainerSpecExtension
 import io.vertx.core.Vertx
+import io.vertx.kotlin.coroutines.coAwait
+import io.vertx.sqlclient.SqlClient
 import org.jetbrains.exposed.v1.jdbc.Database
+import org.testcontainers.containers.JdbcDatabaseContainer
 import java.util.*
 
-@OptIn(ExperimentalEvscApi::class)
+@OptIn(ExperimentalEvscApi::class, ExperimentalApi::class)
 // name suggested by Copilot
 abstract class AllConfigurationsSpec(
     tests: suspend FunSpecContainerScope.(databaseClient: DatabaseClient<*>, rdbmsType: RdbmsType, sqlClientType: SqlClientType) -> Unit,
@@ -40,11 +43,20 @@ abstract class AllConfigurationsSpec(
         StatementPreparationExposedTransactionProviderType::class.java
     )
 ) : FunSpec({
-    val vertx = Vertx.vertx()
-    afterSpec { vertx.close().await() }
-
     // This causes passing tests to fail. Not sure why.
     //testExecutionMode = TestExecutionMode.Concurrent
+
+    suspend fun <T : JdbcDatabaseContainer<*>> FunSpecContainerScope.startContainer(create: () -> T): T =
+        asResourceScope().install({ create().also { it.start() } }) { container, _ -> container.stop() }
+
+    suspend fun FunSpecContainerScope.installSqlClient(create: suspend () -> SqlClient): SqlClient =
+        asResourceScope().install({ create() }) { client, _ -> client.close().coAwait() }
+
+    suspend fun FunSpecContainerScope.installSqlConnection(create: suspend (Vertx) -> SqlClient): SqlClient =
+        asResourceScope().run {
+            val vertx = install({ Vertx.vertx() }) { it, _ -> it.close().coAwait() }
+            install({ create(vertx) }) { it, _ -> it.close().coAwait() }
+        }
 
     suspend fun FunSpecContainerScope.testsForAllProviderTypes(
         exposedDatabase: Database,
@@ -68,7 +80,7 @@ abstract class AllConfigurationsSpec(
     // TODO consider not running all tests against all kinds of `SqlClient`s to save some time
     if (RdbmsType.Postgresql in enabledRdbmsTypes)
         context("PostgreSQL") {
-            val postgresqlContainer = install(TestContainerSpecExtension(LatestPostgreSQLContainer()))
+            val postgresqlContainer = startContainer { LatestPostgreSQLContainer() }
             val connectionConfig = postgresqlContainer.connectionConfig()
             val exposedDatabase = connectionConfig.exposedDatabaseConnectPostgresql()
             testsForAllProviderTypes(exposedDatabase) { statementPreparationExposedTransactionProvider ->
@@ -79,10 +91,9 @@ abstract class AllConfigurationsSpec(
                     tests(databaseClient, RdbmsType.Postgresql, sqlClientType)
                 if (SqlClientType.Client in enabledSqlClientTypes)
                     context("Client") {
-                        // TODO Also consider closing the clients. This isn't a big issue now though.
                         tests(
                             DatabaseClient(
-                                createPgClient(null, connectionConfig), databaseClientConfig
+                                installSqlClient { createPgClient(null, connectionConfig) }, databaseClientConfig
                             ),
                             SqlClientType.Client
                         )
@@ -91,7 +102,7 @@ abstract class AllConfigurationsSpec(
                     context("Pool") {
                         tests(
                             DatabaseClient(
-                                createPgPool(null, connectionConfig), databaseClientConfig
+                                installSqlClient { createPgPool(null, connectionConfig) }, databaseClientConfig
                             ),
                             SqlClientType.Pool
                         )
@@ -100,7 +111,7 @@ abstract class AllConfigurationsSpec(
                     context("SqlConnection") {
                         tests(
                             DatabaseClient(
-                                createPgConnection(vertx, connectionConfig), databaseClientConfig
+                                installSqlConnection { createPgConnection(it, connectionConfig) }, databaseClientConfig
                             ),
                             SqlClientType.SqlConnection
                         )
@@ -109,7 +120,7 @@ abstract class AllConfigurationsSpec(
         }
     if (RdbmsType.Mysql in enabledRdbmsTypes)
         context("MySQL") {
-            val mysqlContainer = install(TestContainerSpecExtension(LatestMySQLContainer()))
+            val mysqlContainer = startContainer { LatestMySQLContainer() }
             val connectionConfig = mysqlContainer.connectionConfig()
             val exposedDatabase = connectionConfig.exposedDatabaseConnectMysql()
             testsForAllProviderTypes(exposedDatabase) { statementPreparationExposedTransactionProvider ->
@@ -123,7 +134,7 @@ abstract class AllConfigurationsSpec(
                     context("Client") {
                         tests(
                             DatabaseClient(
-                                createMysqlClient(null, connectionConfig), databaseClientConfig
+                                installSqlClient { createMysqlClient(null, connectionConfig) }, databaseClientConfig
                             ),
                             SqlClientType.Client
                         )
@@ -132,7 +143,7 @@ abstract class AllConfigurationsSpec(
                     context("Pool") {
                         tests(
                             DatabaseClient(
-                                createMysqlPool(null, connectionConfig), databaseClientConfig
+                                installSqlClient { createMysqlPool(null, connectionConfig) }, databaseClientConfig
                             ),
                             SqlClientType.Pool
                         )
@@ -141,7 +152,8 @@ abstract class AllConfigurationsSpec(
                     context("SqlConnection") {
                         tests(
                             DatabaseClient(
-                                createMysqlConnection(vertx, connectionConfig), databaseClientConfig
+                                installSqlConnection { createMysqlConnection(it, connectionConfig) },
+                                databaseClientConfig
                             ),
                             SqlClientType.SqlConnection
                         )
@@ -150,7 +162,7 @@ abstract class AllConfigurationsSpec(
         }
     if (RdbmsType.Oracle in enabledRdbmsTypes)
         context("Oracle") {
-            val oracleContainer = install(TestContainerSpecExtension(LatestOracleContainer()))
+            val oracleContainer = startContainer { LatestOracleContainer() }
             val connectionConfig = oracleContainer.connectionConfig()
             val exposedDatabase = connectionConfig.exposedDatabaseConnectOracle()
             testsForAllProviderTypes(exposedDatabase) { statementPreparationExposedTransactionProvider ->
@@ -164,7 +176,7 @@ abstract class AllConfigurationsSpec(
                     context("Pool") {
                         tests(
                             DatabaseClient(
-                                createOraclePool(null, connectionConfig), databaseClientConfig
+                                installSqlClient { createOraclePool(null, connectionConfig) }, databaseClientConfig
                             ),
                             SqlClientType.Pool
                         )
@@ -173,7 +185,8 @@ abstract class AllConfigurationsSpec(
                     context("SqlConnection") {
                         tests(
                             DatabaseClient(
-                                createOracleConnection(vertx, connectionConfig), databaseClientConfig
+                                installSqlConnection { createOracleConnection(it, connectionConfig) },
+                                databaseClientConfig
                             ),
                             SqlClientType.SqlConnection
                         )
@@ -182,7 +195,7 @@ abstract class AllConfigurationsSpec(
         }
     if (RdbmsType.Mssql in enabledRdbmsTypes)
         context("MSSQL") {
-            val mssqlContainer = install(TestContainerSpecExtension(LatestMssqlContainer()))
+            val mssqlContainer = startContainer { LatestMssqlContainer() }
             val connectionConfig = mssqlContainer.connectionConfig()
             val exposedDatabase = with(connectionConfig) {
                 exposedDatabaseConnectMssql(sqlServerJdbcUrlWithEncryptEqFalse())
@@ -198,7 +211,7 @@ abstract class AllConfigurationsSpec(
                     context("Pool") {
                         tests(
                             DatabaseClient(
-                                createMssqlPool(null, connectionConfig), databaseClientConfig
+                                installSqlClient { createMssqlPool(null, connectionConfig) }, databaseClientConfig
                             ),
                             SqlClientType.Pool
                         )
@@ -207,7 +220,8 @@ abstract class AllConfigurationsSpec(
                     context("SqlConnection") {
                         tests(
                             DatabaseClient(
-                                createMssqlConnection(vertx, connectionConfig), databaseClientConfig
+                                installSqlConnection { createMssqlConnection(it, connectionConfig) },
+                                databaseClientConfig
                             ),
                             SqlClientType.SqlConnection
                         )
