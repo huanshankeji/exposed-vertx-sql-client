@@ -34,6 +34,13 @@ dependencies {
 
 
     implementation(commonDependencies.kotest.module("assertions-core"))
+    // `Spec.toResourceScope()`. Other kotlin-common artifacts stay on `commonVersions.kotlinCommon`.
+    testImplementation(
+        commonDependencies.kotlinCommon.module(
+            "arrow-kotest",
+            "0.8.0-dev-commit-36225156ea5a87bdbe9646d9604aa96a24ec5c7f",
+        )
+    )
     testImplementation(commonDependencies.kotest.module("framework-engine"))
     testImplementation(commonDependencies.kotest.module("extensions-testcontainers"))
     // to resolve "no tests discovered" errors when running `check`

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Close the integration-test Vert.x instance with `Spec.toResourceScope()` from `kotlin-common-arrow-kotest`.
+
 ## [0.8.1] - 2026-03-31
 
 ### Changed

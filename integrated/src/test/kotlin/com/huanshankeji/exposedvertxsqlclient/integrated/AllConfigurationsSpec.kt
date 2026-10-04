@@ -1,5 +1,6 @@
 package com.huanshankeji.exposedvertxsqlclient.integrated
 
+import com.huanshankeji.arrow.kotest.toResourceScope
 import com.huanshankeji.exposedvertxsqlclient.*
 import com.huanshankeji.exposedvertxsqlclient.jdbc.sqlServerJdbcUrlWithEncryptEqFalse
 import com.huanshankeji.exposedvertxsqlclient.mssql.MssqlDatabaseClientConfig
@@ -40,8 +41,9 @@ abstract class AllConfigurationsSpec(
         StatementPreparationExposedTransactionProviderType::class.java
     )
 ) : FunSpec({
+    val resources = toResourceScope()
     val vertx = Vertx.vertx()
-    afterSpec { vertx.close().await() }
+    resources.onRelease { vertx.close().await() }
 
     // This causes passing tests to fail. Not sure why.
     //testExecutionMode = TestExecutionMode.Concurrent
