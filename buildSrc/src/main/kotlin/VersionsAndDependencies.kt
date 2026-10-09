@@ -7,7 +7,7 @@ val isRelease = false
 
 // Note that there is another Exposed version in the version catalog
 val commonVersions =
-    CommonVersions(kotlinCommon = "0.8.0-dev-commit-a4e57a50f9e582d136aee2d0b15509f984943e3a", exposed = "1.1.1", testcontainers = "2.0.4", vertx = "5.0.10")
+    CommonVersions(kotlinCommon = "0.8.0-dev-commit-b8c41a8101a736f01f4c95f2f7cb557ac713bf4e", exposed = "1.1.1", testcontainers = "2.0.4", vertx = "5.0.10")
 val commonDependencies = CommonDependencies(commonVersions)
 val commonGradleClasspathDependencies = CommonGradleClasspathDependencies(commonVersions)
 

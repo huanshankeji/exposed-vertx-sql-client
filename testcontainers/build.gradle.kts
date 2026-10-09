@@ -4,23 +4,24 @@ plugins {
     `lib-conventions`
 }
 
+// `MSSQLServerContainer` is only needed for its `connectionConfig()` overload.
+java {
+    registerFeature("mssql") {
+        usingSourceSet(sourceSets["main"])
+    }
+}
+
 dependencies {
     with(commonDependencies.vertx) { implementation(platformStackDepchain()) }
-    implementation(cpnProject(project, ":core"))
-    implementation(cpnProject(project, ":postgresql"))
-    implementation(cpnProject(project, ":mysql"))
-    implementation(cpnProject(project, ":oracle"))
-    implementation(cpnProject(project, ":mssql"))
+    api(cpnProject(project, ":core"))
+    // Hikari needs the JDBC driver; these helpers do not use the PostgreSQL EVSC client.
+    runtimeOnly(commonDependencies.postgreSql())
 
-    api("com.huanshankeji:kotlin-common-testcontainers:${commonVersions.kotlinCommon}")
+    api("com.zaxxer:HikariCP:${DependencyVersions.hikaricp}")
 
     with(commonDependencies.testcontainers) {
         api(platformBom())
-        api(testcontainersPostgresql)
-        api(moduleWithoutVersion("testcontainers-mysql"))
-        api(moduleWithoutVersion("testcontainers-oracle-free"))
-        api(moduleWithoutVersion("testcontainers-mssqlserver"))
+        api(testcontainers)
+        "mssqlApi"(moduleWithoutVersion("testcontainers-mssqlserver"))
     }
-
-    implementation("com.zaxxer:HikariCP:${DependencyVersions.hikaricp}")
 }

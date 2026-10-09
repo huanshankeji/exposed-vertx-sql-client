@@ -43,8 +43,8 @@ include("postgresql")
 include("mysql")
 include("oracle")
 include("mssql")
-include("integrated")
 include("testcontainers")
+include("integrated")
 
 setProjectConcatenatedNames()
 
