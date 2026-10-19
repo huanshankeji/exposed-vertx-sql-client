@@ -1,0 +1,35 @@
+testcontainers/src/main/kotlin/com/huanshankeji/exposedvertxsqlclient/testcontainers/EvscContainers.kt
+  h_6630c9ca8bc8dc 22-23,30,38-40
+integrated/build.gradle.kts
+  h_6630c9ca8bc8dc 22,42-43,50
+  s_863e8a2a7f3c41::t_b4d407475f7247 24-26,40-41,44-49
+buildSrc/src/main/kotlin/VersionsAndDependencies.kt
+  s_863e8a2a7f3c41::t_55f3aa18ce4cd0 10
+integrated/src/benchmarks/kotlin/com/huanshankeji/exposed/benchmark/jdbc/WithContainerizedDatabaseAndHikaricpExposedDatabaseBenchmark.kt
+  s_863e8a2a7f3c41::t_e0027da51fb759 4,23
+testcontainers/build.gradle.kts
+  s_863e8a2a7f3c41::t_c3fa05179b07f8 9-11,18,21,23,27
+testcontainers/api/exposed-vertx-sql-client-testcontainers.api
+  s_863e8a2a7f3c41::t_19d0cf3adc4b86 4-7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "b2642d1376f7faa79381e516ad9f5edae663412c",
+  "prompts": {},
+  "humans": {
+    "h_6630c9ca8bc8dc": {
+      "author": "Yongshun Ye <shreckye@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_863e8a2a7f3c41": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1524c-0294-7751-aa75-2325412d9018",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Yongshun Ye <shreckye@gmail.com>"
+    }
+  }
+}
