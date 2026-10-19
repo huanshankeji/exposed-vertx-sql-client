@@ -5,7 +5,9 @@ plugins {
 }
 
 dependencies {
-    with(commonDependencies.vertx) { implementation(platformStackDepchain()) } // needed
+    // Export the BOM so consumers can resolve the versionless public Vert.x client dependency.
+    // `implementation(:core)` supplies its BOM locally, but hides it from consumers' compile classpaths.
+    with(commonDependencies.vertx) { api(platformStackDepchain()) }
     implementation(cpnProject(project, ":core"))
 
     // TODO remove the Oracle JDBC dependency when there is no need to to generate SQLs with an Exposed transaction

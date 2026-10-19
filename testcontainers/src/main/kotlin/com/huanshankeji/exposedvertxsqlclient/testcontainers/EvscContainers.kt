@@ -19,14 +19,15 @@ fun JdbcDatabaseContainer<*>.connectionConfig() =
     ConnectionConfig.Socket(host, firstMappedPort, username, password, databaseName)
 
 // move to the `postgresql` module if it's proved useful
-fun ConnectionConfig.Socket.hikariConfig(
+@ExperimentalEvscApi
+fun ConnectionConfig.Socket.postgresqlHikariConfig(
     maximumPoolSize: Int, extraConfig: HikariConfig.() -> Unit = {},
 ): HikariConfig =
     HikariConfig().apply {
         jdbcUrl = postgresqlJdbcUrl()
         driverClassName = "org.postgresql.Driver" // TODO extract
         username = user
-        password = this@hikariConfig.password
+        password = this@postgresqlHikariConfig.password
         this.maximumPoolSize = maximumPoolSize
         // configurations for SQL preparation for Vert.x SQL Clients
         isReadOnly = true
@@ -34,8 +35,9 @@ fun ConnectionConfig.Socket.hikariConfig(
         extraConfig()
     }
 
-fun ConnectionConfig.Socket.hikariDataSource(maximumPoolSize: Int, extraConfig: HikariConfig.() -> Unit = {}) =
-    HikariDataSource(hikariConfig(maximumPoolSize, extraConfig))
+@ExperimentalEvscApi
+fun ConnectionConfig.Socket.postgresqlHikariDataSource(maximumPoolSize: Int, extraConfig: HikariConfig.() -> Unit = {}) =
+    HikariDataSource(postgresqlHikariConfig(maximumPoolSize, extraConfig))
 
 // `MSSQLServerContainer` doesn't support `getDatabaseName()`, so we need a specific implementation.
 fun MSSQLServerContainer.connectionConfig() =
