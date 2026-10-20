@@ -1,0 +1,50 @@
+buildSrc/src/main/kotlin/VersionsAndDependencies.kt
+  s_863e8a2a7f3c41::t_55f3aa18ce4cd0 10
+postgresql/build.gradle.kts
+  s_863e8a2a7f3c41::t_63ce6c018859fc 8
+  s_863e8a2a7f3c41::t_531f1bf5ea36da 9-10
+testcontainers/api/exposed-vertx-sql-client-testcontainers.api
+  s_863e8a2a7f3c41::t_19d0cf3adc4b86 4-7
+integrated/src/benchmarks/kotlin/com/huanshankeji/exposed/benchmark/jdbc/WithContainerizedDatabaseAndHikaricpExposedDatabaseBenchmark.kt
+  s_863e8a2a7f3c41::t_e0027da51fb759 4,23
+mysql/build.gradle.kts
+  s_863e8a2a7f3c41::t_3ba4c32c6f01d5 8
+  s_863e8a2a7f3c41::t_705df3118c6268 9-10
+testcontainers/src/main/kotlin/com/huanshankeji/exposedvertxsqlclient/testcontainers/EvscContainers.kt
+  h_6630c9ca8bc8dc 22-23,30,38-40
+integrated/build.gradle.kts
+  s_863e8a2a7f3c41::t_b4d407475f7247 33-34
+  h_6630c9ca8bc8dc 21,35-43,73-77
+core/build.gradle.kts
+  s_863e8a2a7f3c41::t_d58a4494278c69 12
+testcontainers/build.gradle.kts
+  h_6630c9ca8bc8dc 9,24
+  s_863e8a2a7f3c41::t_c3fa05179b07f8 10-11,31
+  s_863e8a2a7f3c41::t_51497512ff76cd 15-18,32
+  s_863e8a2a7f3c41::t_6394541c1693a5 28
+mssql/build.gradle.kts
+  s_863e8a2a7f3c41::t_7e78edc1ec8979 8-10
+oracle/build.gradle.kts
+  s_863e8a2a7f3c41::t_e70f0f93dbb2ed 8-10
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "0db461f1080f101ff809b49c49ceb989acfa125c",
+  "prompts": {},
+  "humans": {
+    "h_6630c9ca8bc8dc": {
+      "author": "Yongshun Ye <shreckye@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_863e8a2a7f3c41": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1524c-0294-7751-aa75-2325412d9018",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Yongshun Ye <shreckye@gmail.com>"
+    }
+  }
+}
