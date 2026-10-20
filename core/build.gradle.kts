@@ -9,7 +9,7 @@ dependencies {
     api(commonDependencies.kotlinCommon.exposed()) // TODO This is only kept to ease migration and is not used any more. Remove in a future release.
 
     with(commonDependencies.vertx) {
-        implementation(platformStackDepchain())
+        api(platformStackDepchain())
         api(moduleWithoutVersion("sql-client")) // TODO: use `implementation` when possible
         implementation(moduleWithoutVersion("lang-kotlin"))
         implementation(moduleWithoutVersion("lang-kotlin-coroutines"))

@@ -5,7 +5,6 @@ plugins {
 }
 
 dependencies {
-    with(commonDependencies.vertx) { implementation(platformStackDepchain()) } // needed
     implementation(cpnProject(project, ":core"))
     implementation(cpnProject(project, ":crud"))
 
