@@ -1,0 +1,25 @@
+mssql/build.gradle.kts
+  s_863e8a2a7f3c41::t_eef43c3a73a68d 12-17
+mysql/build.gradle.kts
+  s_863e8a2a7f3c41::t_e5140fe3cfb21d 12-17
+oracle/build.gradle.kts
+  s_863e8a2a7f3c41::t_7273ae1878b89a 12-17
+postgresql/build.gradle.kts
+  s_863e8a2a7f3c41::t_6d04ee1c1c543d 12-17
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "8824a3623ac83efd1a04d10b6a68184ed06d66f2",
+  "prompts": {},
+  "sessions": {
+    "s_863e8a2a7f3c41": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1524c-0294-7751-aa75-2325412d9018",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Yongshun Ye <shreckye@gmail.com>"
+    }
+  }
+}
