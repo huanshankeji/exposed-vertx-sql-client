@@ -4,6 +4,6 @@ plugins {
 }
 
 dependencies {
-    for (project in subprojects.filterNot { it.name == "exposed-vertx-sql-client-integrated" })
-        dokka(project)
+    for (subproject in subprojects.filterNot { it.name == "exposed-vertx-sql-client-integrated" })
+        dokka(project(subproject.path))
 }
