@@ -336,7 +336,7 @@ If you encounter
 
 1. wrap the `Statement` creation call with `databaseClient.statementPreparationExposedTransaction { ... }`.
 
-   For example, this can happen if you call `Query.forUpdate()` without a transaction. In such a case, you can also use our `Query.forUpdateWithTransaction()` instead.
+   For example, this can happen if you call `Query.forUpdate()` without an Exposed transaction. In such a case, you can also use our `Query.forUpdateWithExposedTransaction()` instead.
 
 2. If your function call has a parameter with `WithExposedTransaction` in its name, try setting it to `true`. To make things easier, you can also set `autoExposedTransaction` to `true` in `DatabaseClientConfig` when creating the `DatabaseClient`. Note that when using `DatabaseExposedTransactionProvider`, this slightly degrades performance, but with `JdbcTransactionExposedTransactionProvider` (recommended), the overhead is minimal.
 

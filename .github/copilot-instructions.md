@@ -152,7 +152,7 @@ Always ensure JDK 11 or higher is properly configured before building. The proje
 
 **Common Issues:**
 - **Build fails with package-list download errors**: These are warnings from Dokka and can be ignored - builds still succeed
-- **"No transaction in context" errors**: Wrap code in `databaseClient.exposedTransaction { ... }` or use transaction-aware variants like `forUpdateWithTransaction()`
+- **"No transaction in context" errors**: Wrap code in `databaseClient.exposedTransaction { ... }` or use transaction-aware variants like `forUpdateWithExposedTransaction()`
 - **API validation failures**: Do **not** run `./gradlew apiDump` automatically. Leave `apiDump` for the human developer to run after reviewing the API changes. Instead, validate using `./gradlew test` and `./gradlew publishToMavenLocal`.
 
 **Never:**
