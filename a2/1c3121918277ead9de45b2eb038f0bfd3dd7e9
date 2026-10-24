@@ -1,0 +1,19 @@
+README.md
+  s_9d96cac3d59d0f::t_55889cb6ecfd40 335-337,345
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "a21c3121918277ead9de45b2eb038f0bfd3dd7e9",
+  "prompts": {},
+  "sessions": {
+    "s_9d96cac3d59d0f": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a16d26-7792-7412-af6d-0e1fa652423c",
+        "model": "unknown"
+      },
+      "human_author": "Yongshun Ye <shreckye@gmail.com>"
+    }
+  }
+}
