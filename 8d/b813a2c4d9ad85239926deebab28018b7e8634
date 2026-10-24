@@ -1,0 +1,24 @@
+core/src/main/kotlin/com/huanshankeji/exposedvertxsqlclient/exposed/Query.kt
+  s_9d96cac3d59d0f::t_7c789ada690174 6,8-17
+.github/copilot-instructions.md
+  s_9d96cac3d59d0f::t_7c789ada690174 155
+README.md
+  s_9d96cac3d59d0f::t_8b2be42c80dc79 335-337,345
+  s_9d96cac3d59d0f::t_7c789ada690174 341
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "8db813a2c4d9ad85239926deebab28018b7e8634",
+  "prompts": {},
+  "sessions": {
+    "s_9d96cac3d59d0f": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a16d26-7792-7412-af6d-0e1fa652423c",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Yongshun Ye <shreckye@gmail.com>"
+    }
+  }
+}
