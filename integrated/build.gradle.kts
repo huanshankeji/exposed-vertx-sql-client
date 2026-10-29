@@ -9,8 +9,6 @@ plugins {
 }
 
 dependencies {
-    with(commonDependencies.vertx) { implementation(platformStackDepchain()) } // needed
-
     implementation(cpnProject(project, ":core"))
     implementation(cpnProject(project, ":postgresql"))
     implementation(cpnProject(project, ":mysql"))
@@ -20,6 +18,7 @@ dependencies {
     implementation("com.huanshankeji:exposed-gadt-mapping:${DependencyVersions.exposedGadtMapping}")
     implementation(cpnProject(project, ":crud-with-mapper"))
 
+    implementation(cpnProject(project, ":testcontainers"))
     with(commonDependencies.testcontainers) {
         implementation(platformBom())
         // https://testcontainers.com/modules/postgresql/
@@ -31,6 +30,17 @@ dependencies {
         // https://testcontainers.com/modules/mssql/
         implementation(moduleWithoutVersion("testcontainers-mssqlserver"))
     }
+    val kotlinCommonTestcontainers = "com.huanshankeji:kotlin-common-testcontainers:${commonVersions.kotlinCommon}"
+    implementation(kotlinCommonTestcontainers)
+    // Select the helper features; the direct Testcontainers dependencies above supply their compile-time types.
+    // see https://github.com/huanshankeji/kotlin-common/blob/fd4d4a690fd73130c3bf0b1fc342156c2d4ac9ed/testcontainers/build.gradle.kts#L9
+    listOf("postgresql", "mysql", "oracle", "mssql").forEach { feature ->
+        implementation(kotlinCommonTestcontainers) {
+            capabilities {
+                requireCapability("com.huanshankeji:kotlin-common-testcontainers-$feature")
+            }
+        }
+    }
 
 
     implementation(commonDependencies.kotest.module("assertions-core"))
@@ -40,8 +50,6 @@ dependencies {
     testRuntimeOnly(commonDependencies.kotest.module("runner-junit5"))
 
     testRuntimeOnly(commonDependencies.slf4j.simple())
-
-    implementation("com.zaxxer:HikariCP:${DependencyVersions.hikaricp}")
 
     implementation(libs.r2dbc.spi)
     implementation(libs.r2dbc.postgresql)
@@ -59,10 +67,14 @@ afterEvaluate {
     dependencies {
         // TODO remove `"benchmarksImplementation"`s that are redundant?
 
-        with(commonDependencies.vertx) { "benchmarksImplementation"(platformStackDepchain()) } // needed
         // The benchmarks run and "check" passes but the code doesn't resolve without this dependency TODO remove if not needed one day
         "benchmarksImplementation"(cpnProject(project, ":core"))
         "benchmarksImplementation"(cpnProject(project, ":postgresql"))
+        "benchmarksImplementation"(cpnProject(project, ":testcontainers")) {
+            capabilities {
+                requireCapability("com.huanshankeji:exposed-vertx-sql-client-testcontainers-hikaricp")
+            }
+        }
 
         // Vert.x actually already includes an `slf4j-simple` dependency
         "benchmarksRuntimeOnly"(commonDependencies.slf4j.simple())

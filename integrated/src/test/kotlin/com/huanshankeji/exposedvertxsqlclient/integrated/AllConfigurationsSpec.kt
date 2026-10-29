@@ -20,6 +20,11 @@ import com.huanshankeji.exposedvertxsqlclient.postgresql.exposed.exposedDatabase
 import com.huanshankeji.exposedvertxsqlclient.postgresql.vertx.pgclient.createPgClient
 import com.huanshankeji.exposedvertxsqlclient.postgresql.vertx.pgclient.createPgConnection
 import com.huanshankeji.exposedvertxsqlclient.postgresql.vertx.pgclient.createPgPool
+import com.huanshankeji.exposedvertxsqlclient.testcontainers.connectionConfig
+import com.huanshankeji.testcontainers.LatestMssqlContainer
+import com.huanshankeji.testcontainers.LatestMySQLContainer
+import com.huanshankeji.testcontainers.LatestOracleContainer
+import com.huanshankeji.testcontainers.LatestPostgreSQLContainer
 import io.kotest.core.extensions.install
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.spec.style.scopes.FunSpecContainerScope

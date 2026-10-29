@@ -2,12 +2,12 @@ import com.huanshankeji.CommonDependencies
 import com.huanshankeji.CommonGradleClasspathDependencies
 import com.huanshankeji.CommonVersions
 
-val projectBaseVersion = "0.8.2"
+val projectBaseVersion = "0.9.0"
 val isRelease = false
 
 // Note that there is another Exposed version in the version catalog
 val commonVersions =
-    CommonVersions(kotlin = "2.4.21", kotlinCommon = "0.7.0", exposed = "1.1.1", testcontainers = "2.0.4", vertx = "5.0.10")
+    CommonVersions(kotlin = "2.4.21", kotlinCommon = "0.8.0-dev-commit-ecf45fcbeec8e47a53021474916ba8b0577096e1", exposed = "1.1.1", testcontainers = "2.0.4", vertx = "5.0.10")
 val commonDependencies = CommonDependencies(commonVersions)
 val commonGradleClasspathDependencies = CommonGradleClasspathDependencies(commonVersions)
 

@@ -332,12 +332,14 @@ assert(fullFilms.size() == 2)
 #### "No transaction in context."
 
 If you encounter
-`java.lang.IllegalStateException: No transaction in context.` in your code, inspect the exception stacktrace and try these options:
+`java.lang.IllegalStateException: No transaction in context.` in your code, the missing context is an **Exposed transaction**. `DatabaseClient.withTransaction { ... }` starts a Vert.x SQL Client transaction and does not establish Exposed's transaction context.
+
+Inspect the exception stacktrace and try these options:
 
 1. wrap the `Statement` creation call with `databaseClient.statementPreparationExposedTransaction { ... }`.
 
-   For example, this can happen if you call `Query.forUpdate()` without a transaction. In such a case, you can also use our `Query.forUpdateWithTransaction()` instead.
+   For example, this can happen if you call `Query.forUpdate()` without an Exposed transaction. In such a case, you can also use our `Query.forUpdateWithExposedTransaction()` instead.
 
 2. If your function call has a parameter with `WithExposedTransaction` in its name, try setting it to `true`. To make things easier, you can also set `autoExposedTransaction` to `true` in `DatabaseClientConfig` when creating the `DatabaseClient`. Note that when using `DatabaseExposedTransactionProvider`, this slightly degrades performance, but with `JdbcTransactionExposedTransactionProvider` (recommended), the overhead is minimal.
 
-Some Exposed APIs implicitly require a transaction and we can't guarantee that such exceptions are always avoided, as Exposed APIs are not fully decoupled and designed to serve this library, the transaction requirements in APIs sometimes change between versions and our APIs may need to evolve accordingly.
+Some Exposed APIs implicitly require an Exposed transaction and we can't guarantee that such exceptions are always avoided, as Exposed APIs are not fully decoupled and designed to serve this library, the Exposed transaction requirements in APIs sometimes change between versions and our APIs may need to evolve accordingly.
