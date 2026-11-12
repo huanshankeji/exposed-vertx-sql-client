@@ -62,21 +62,19 @@ tasks.test {
     useJUnitPlatform()
 }
 
-afterEvaluate {
 // for the benchmarks
-    dependencies {
-        // TODO remove `"benchmarksImplementation"`s that are redundant?
+dependencies {
+    // TODO remove `"benchmarksImplementation"`s that are redundant?
 
-        // The benchmarks run and "check" passes but the code doesn't resolve without this dependency TODO remove if not needed one day
-        "benchmarksImplementation"(cpnProject(project, ":core"))
-        "benchmarksImplementation"(cpnProject(project, ":postgresql"))
-        "benchmarksImplementation"(cpnProject(project, ":testcontainers")) {
-            capabilities {
-                requireCapability("com.huanshankeji:exposed-vertx-sql-client-testcontainers-hikaricp")
-            }
+    // The benchmarks run and "check" passes but the code doesn't resolve without this dependency TODO remove if not needed one day
+    "benchmarksImplementation"(cpnProject(project, ":core"))
+    "benchmarksImplementation"(cpnProject(project, ":postgresql"))
+    "benchmarksImplementation"(cpnProject(project, ":testcontainers")) {
+        capabilities {
+            requireCapability("com.huanshankeji:exposed-vertx-sql-client-testcontainers-hikaricp")
         }
-
-        // Vert.x actually already includes an `slf4j-simple` dependency
-        "benchmarksRuntimeOnly"(commonDependencies.slf4j.simple())
     }
+
+    // Vert.x actually already includes an `slf4j-simple` dependency
+    "benchmarksRuntimeOnly"(commonDependencies.slf4j.simple())
 }
