@@ -1,0 +1,14 @@
+core/api/exposed-vertx-sql-client-core.api
+  h_6630c9ca8bc8dc 214
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "720798efe5abf38010a4128c22e9798433555b90",
+  "prompts": {},
+  "humans": {
+    "h_6630c9ca8bc8dc": {
+      "author": "Yongshun Ye <shreckye@gmail.com>"
+    }
+  }
+}
