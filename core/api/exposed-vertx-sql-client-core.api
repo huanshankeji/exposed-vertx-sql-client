@@ -211,6 +211,7 @@ public final class com/huanshankeji/exposedvertxsqlclient/exposed/ExposedDatabas
 }
 
 public final class com/huanshankeji/exposedvertxsqlclient/exposed/QueryKt {
+	public static final fun forUpdateWithExposedTransaction (Lorg/jetbrains/exposed/v1/jdbc/Query;)Lorg/jetbrains/exposed/v1/jdbc/Query;
 	public static final fun forUpdateWithTransaction (Lorg/jetbrains/exposed/v1/jdbc/Query;)Lorg/jetbrains/exposed/v1/jdbc/Query;
 }
 
