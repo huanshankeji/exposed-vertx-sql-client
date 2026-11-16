@@ -81,6 +81,9 @@ class DatabaseExposedTransactionProvider(
  * used for SQL generation, so it is not strictly read-only in terms of object immutability, but it should be used
  * in a way that does not perform database writes.
  *
+ * Use [fromDatabaseTransaction] to create a provider from a [Database]; that factory runs an Exposed transaction and may perform blocking JDBC I/O.
+ * Wrapping an existing [JdbcTransaction] with the primary constructor does not obtain a connection.
+ *
  * @param jdbcTransaction the [JdbcTransaction] to use for SQL statement preparation
  */
 @ExperimentalEvscApi
@@ -92,17 +95,37 @@ class JdbcTransactionExposedTransactionProvider(
      *
      * @param database the Exposed [Database] to use for creating the transaction
      */
-    constructor(database: Database) : this(
-        /*
-        // alternative implementation that keeps that transaction open
-        database.transactionManager.newTransaction(Connection.TRANSACTION_READ_UNCOMMITTED, true)
-        */
-        transaction(database, Connection.TRANSACTION_READ_UNCOMMITTED, true) {
-            // Store reference to the current transaction for reuse
-            // The transaction members needed for SQL preparation are still usable
-            this
-        }
+    @Deprecated(
+        "Use fromDatabaseTransaction(database) to make transaction initialization and potential blocking JDBC I/O explicit.",
+        ReplaceWith("JdbcTransactionExposedTransactionProvider.fromDatabaseTransaction(database)")
     )
+    constructor(database: Database) : this(fromDatabaseTransaction(database).jdbcTransaction)
+
+    companion object {
+        /**
+         * Creates a provider by running a read-only Exposed [transaction] on [database] and retaining its [JdbcTransaction].
+         *
+         * This function may perform blocking JDBC I/O, for example when Exposed applies a configured default schema.
+         * Call it on a thread where blocking is allowed, not on a Vert.x event-loop thread.
+         * Exposed acquires connections lazily: an empty transaction need not open a connection, and SQL preparation
+         * may later acquire one to read database metadata. Any connection acquired by a top-level transaction here
+         * is closed before this function returns. Inside an existing transaction, Exposed's usual nesting rules apply.
+         *
+         * @param database the Exposed [Database] to use for creating the transaction
+         */
+        fun fromDatabaseTransaction(database: Database): JdbcTransactionExposedTransactionProvider =
+            JdbcTransactionExposedTransactionProvider(
+                /*
+                // alternative implementation that keeps that transaction open
+                database.transactionManager.newTransaction(Connection.TRANSACTION_READ_UNCOMMITTED, true)
+                */
+                transaction(database, Connection.TRANSACTION_READ_UNCOMMITTED, true) {
+                    // Store reference to the current transaction for reuse
+                    // The transaction members needed for SQL preparation are still usable
+                    this
+                }
+            )
+    }
 
     @OptIn(InternalApi::class)
     override fun <T> statementPreparationExposedTransaction(block: ExposedTransaction.() -> T): T =

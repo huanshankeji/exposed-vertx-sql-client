@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `JdbcTransactionExposedTransactionProvider.fromDatabaseTransaction(database)` to make transaction initialization and potential blocking JDBC I/O explicit (#121).
+
+### Changed
+
+- Upgrade Exposed JDBC, core, and experimental R2DBC dependencies to 1.6.1.
+
+### Deprecated
+
+- Deprecate `JdbcTransactionExposedTransactionProvider(database)` in favor of `JdbcTransactionExposedTransactionProvider.fromDatabaseTransaction(database)`; the constructor accepting an existing `JdbcTransaction` remains available (#121).
+
 ## [0.8.1] - 2026-03-31
 
 ### Changed
