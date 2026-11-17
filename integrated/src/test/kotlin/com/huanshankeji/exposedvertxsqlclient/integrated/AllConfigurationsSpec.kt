@@ -63,8 +63,8 @@ abstract class AllConfigurationsSpec(
                     }
 
                 StatementPreparationExposedTransactionProviderType.JdbcTransaction ->
-                    context("JdbcTransactionExposedTransactionProvider") {
-                        tests(JdbcTransactionExposedTransactionProvider.fromDatabaseTransaction(exposedDatabase))
+                    context("ReusingJdbcTransactionExposedTransactionProvider") {
+                        tests(ReusingJdbcTransactionExposedTransactionProvider.fromDatabaseTransaction(exposedDatabase))
                     }
             }
         }

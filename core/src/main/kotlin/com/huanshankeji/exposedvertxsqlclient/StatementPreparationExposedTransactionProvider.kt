@@ -17,7 +17,7 @@ import org.jetbrains.exposed.v1.core.Transaction as ExposedTransaction
  * - Transaction-based: reuses a single JDBC transaction for better performance
  *
  * @see DatabaseExposedTransactionProvider
- * @see JdbcTransactionExposedTransactionProvider
+ * @see ReusingJdbcTransactionExposedTransactionProvider
  */
 @ExperimentalEvscApi
 interface StatementPreparationExposedTransactionProvider {
@@ -73,7 +73,7 @@ class DatabaseExposedTransactionProvider(
  * not designed for concurrent use from multiple threads. Calling [statementPreparationExposedTransaction] from
  * multiple threads at the same time on the same provider instance may lead to inconsistent internal state.
  * If you need to prepare statements concurrently, create a separate
- * [JdbcTransactionExposedTransactionProvider] (and underlying [JdbcTransaction]) per thread/[Verticle].
+ * [ReusingJdbcTransactionExposedTransactionProvider] (and underlying [JdbcTransaction]) per thread/[Verticle].
  *
  * **Read-only behavior:** This provider is intended to be used only for SQL statement preparation (e.g., statement
  * building and `prepareSQL`) and the transaction must not be used to execute DML/DDL statements that modify the database.
@@ -87,20 +87,9 @@ class DatabaseExposedTransactionProvider(
  * @param jdbcTransaction the [JdbcTransaction] to use for SQL statement preparation
  */
 @ExperimentalEvscApi
-class JdbcTransactionExposedTransactionProvider(
+class ReusingJdbcTransactionExposedTransactionProvider(
     val jdbcTransaction: JdbcTransaction
 ) : StatementPreparationExposedTransactionProvider {
-    /**
-     * Secondary constructor that creates a [JdbcTransaction] from a [Database].
-     *
-     * @param database the Exposed [Database] to use for creating the transaction
-     */
-    @Deprecated(
-        "Use fromDatabaseTransaction(database) to make transaction initialization and potential blocking JDBC I/O explicit.",
-        ReplaceWith("JdbcTransactionExposedTransactionProvider.fromDatabaseTransaction(database)")
-    )
-    constructor(database: Database) : this(fromDatabaseTransaction(database).jdbcTransaction)
-
     companion object {
         /**
          * Creates a provider by running a read-only Exposed [transaction] on [database] and retaining its [JdbcTransaction].
@@ -113,8 +102,8 @@ class JdbcTransactionExposedTransactionProvider(
          *
          * @param database the Exposed [Database] to use for creating the transaction
          */
-        fun fromDatabaseTransaction(database: Database): JdbcTransactionExposedTransactionProvider =
-            JdbcTransactionExposedTransactionProvider(
+        fun fromDatabaseTransaction(database: Database): ReusingJdbcTransactionExposedTransactionProvider =
+            ReusingJdbcTransactionExposedTransactionProvider(
                 /*
                 // alternative implementation that keeps that transaction open
                 database.transactionManager.newTransaction(Connection.TRANSACTION_READ_UNCOMMITTED, true)
@@ -170,4 +159,34 @@ class JdbcTransactionExposedTransactionProvider(
         }
     }
     */
+}
+
+/** Compatibility wrapper for [ReusingJdbcTransactionExposedTransactionProvider]. */
+@Deprecated(
+    "Use ReusingJdbcTransactionExposedTransactionProvider instead.",
+    ReplaceWith("ReusingJdbcTransactionExposedTransactionProvider")
+)
+@ExperimentalEvscApi
+class JdbcTransactionExposedTransactionProvider(
+    val jdbcTransaction: JdbcTransaction
+) : StatementPreparationExposedTransactionProvider by ReusingJdbcTransactionExposedTransactionProvider(jdbcTransaction) {
+    /**
+     * Secondary constructor that creates a [JdbcTransaction] from a [Database].
+     *
+     * @param database the Exposed [Database] to use for creating the transaction
+     */
+    @Deprecated(
+        "Use fromDatabaseTransaction(database) to make transaction initialization and potential blocking JDBC I/O explicit.",
+        ReplaceWith("ReusingJdbcTransactionExposedTransactionProvider.fromDatabaseTransaction(database)")
+    )
+    constructor(database: Database) : this(
+        ReusingJdbcTransactionExposedTransactionProvider.fromDatabaseTransaction(database).jdbcTransaction
+    )
+
+    companion object {
+        fun fromDatabaseTransaction(database: Database): JdbcTransactionExposedTransactionProvider =
+            JdbcTransactionExposedTransactionProvider(
+                ReusingJdbcTransactionExposedTransactionProvider.fromDatabaseTransaction(database).jdbcTransaction
+            )
+    }
 }

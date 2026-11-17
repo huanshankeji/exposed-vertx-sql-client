@@ -2,6 +2,7 @@ package com.huanshankeji.exposedvertxsqlclient.integrated
 
 import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
 import com.huanshankeji.exposedvertxsqlclient.JdbcTransactionExposedTransactionProvider
+import com.huanshankeji.exposedvertxsqlclient.ReusingJdbcTransactionExposedTransactionProvider
 import com.huanshankeji.testcontainers.LatestPostgreSQLContainer
 import io.kotest.core.extensions.install
 import io.kotest.core.spec.style.FunSpec
@@ -46,15 +47,17 @@ class JdbcTransactionExposedTransactionProviderTests : FunSpec({
         connections.size shouldBe 0
         transaction(database, Connection.TRANSACTION_READ_UNCOMMITTED, true) {}
         connections.size shouldBe 0
-        val provider = JdbcTransactionExposedTransactionProvider.fromDatabaseTransaction(database)
+        val provider = ReusingJdbcTransactionExposedTransactionProvider.fromDatabaseTransaction(database)
         @Suppress("DEPRECATION")
         val legacyProvider = JdbcTransactionExposedTransactionProvider(database)
         connections.size shouldBe 0
 
-        for (currentProvider in listOf(provider, legacyProvider)) {
+        for ((currentProvider, expectedTransaction) in listOf(
+            provider to provider.jdbcTransaction, legacyProvider to legacyProvider.jdbcTransaction
+        )) {
             repeat(2) {
                 currentProvider.statementPreparationExposedTransaction {
-                    this shouldBeSameInstanceAs currentProvider.jdbcTransaction
+                    this shouldBeSameInstanceAs expectedTransaction
                     table.selectAll().prepareSQL(this) shouldBe "SELECT example.id FROM example"
                 }
             }
@@ -65,7 +68,7 @@ class JdbcTransactionExposedTransactionProviderTests : FunSpec({
     }
 
     test("a configured default schema performs JDBC I/O during provider initialization and closes the connection") {
-        val provider = JdbcTransactionExposedTransactionProvider.fromDatabaseTransaction(database(Schema("public")))
+        val provider = ReusingJdbcTransactionExposedTransactionProvider.fromDatabaseTransaction(database(Schema("public")))
         (connections.size > 0).shouldBeTrue()
         connections.forEach { it.isClosed.shouldBeTrue() }
         val connectionCount = connections.size

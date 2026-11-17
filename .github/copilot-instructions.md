@@ -297,7 +297,7 @@ module-name/
 
 1. **DatabaseClient** is the main entry point for executing reactive database operations
 2. **StatementPreparationExposedTransactionProvider** manages Exposed transactions for SQL statement preparation:
-   - **JdbcTransactionExposedTransactionProvider** (recommended): Reuses a single JDBC transaction for better performance
+   - **ReusingJdbcTransactionExposedTransactionProvider** (recommended): Reuses a single JDBC transaction for better performance
    - **DatabaseExposedTransactionProvider**: Fallback that creates a new transaction per call
 3. **EvscConfig** is the single-source-of-truth for database configuration (since v0.5.0)
 4. API marked with `@ExperimentalEvscApi` is subject to change

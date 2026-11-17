@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add `JdbcTransactionExposedTransactionProvider.fromDatabaseTransaction(database)` to make transaction initialization and potential blocking JDBC I/O explicit (#121).
+- Add `ReusingJdbcTransactionExposedTransactionProvider` with `fromDatabaseTransaction(database)` to make transaction initialization and potential blocking JDBC I/O explicit (#121).
 
 ### Changed
 
@@ -17,7 +17,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
-- Deprecate `JdbcTransactionExposedTransactionProvider(database)` in favor of `JdbcTransactionExposedTransactionProvider.fromDatabaseTransaction(database)`; the constructor accepting an existing `JdbcTransaction` remains available (#121).
+- Deprecate `JdbcTransactionExposedTransactionProvider` in favor of `ReusingJdbcTransactionExposedTransactionProvider`, keeping the old class as a compatibility wrapper (#121).
+
+- Deprecate `JdbcTransactionExposedTransactionProvider(database)` in favor of `ReusingJdbcTransactionExposedTransactionProvider.fromDatabaseTransaction(database)` (#121).
 
 ## [0.8.1] - 2026-03-31
 

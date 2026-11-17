@@ -126,8 +126,8 @@ class DatabaseClient<out VertxSqlClientT : SqlClient>(
      */
     @Deprecated(
         "Use the primary constructor with a transaction provider in config. " +
-                "Create a config appropriate for your database, e.g. PgDatabaseClientConfig(JdbcTransactionExposedTransactionProvider.fromDatabaseTransaction(exposedDatabase)), " +
-                "MysqlDatabaseClientConfig(JdbcTransactionExposedTransactionProvider.fromDatabaseTransaction(exposedDatabase)), OracleDatabaseClientConfig(...), or MssqlDatabaseClientConfig(...)."
+                "Create a config appropriate for your database, e.g. PgDatabaseClientConfig(ReusingJdbcTransactionExposedTransactionProvider.fromDatabaseTransaction(exposedDatabase)), " +
+                "MysqlDatabaseClientConfig(ReusingJdbcTransactionExposedTransactionProvider.fromDatabaseTransaction(exposedDatabase)), OracleDatabaseClientConfig(...), or MssqlDatabaseClientConfig(...)."
     )
     constructor(
         vertxSqlClient: VertxSqlClientT,
