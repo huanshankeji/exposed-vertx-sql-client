@@ -62,40 +62,6 @@ class DatabaseExposedTransactionProvider(
         statementPreparationExposedTransaction(block)
 }
 
-/** Compatibility wrapper for [ReusingJdbcTransactionExposedTransactionProvider]. */
-@Deprecated(
-    "Use ReusingJdbcTransactionExposedTransactionProvider instead.",
-    ReplaceWith("ReusingJdbcTransactionExposedTransactionProvider")
-)
-@ExperimentalEvscApi
-class JdbcTransactionExposedTransactionProvider(
-    val jdbcTransaction: JdbcTransaction
-) : StatementPreparationExposedTransactionProvider by ReusingJdbcTransactionExposedTransactionProvider(jdbcTransaction) {
-    /**
-     * Secondary constructor that creates a [JdbcTransaction] from a [Database].
-     *
-     * @param database the Exposed [Database] to use for creating the transaction
-     */
-    @Deprecated(
-        "Use ReusingJdbcTransactionExposedTransactionProvider.createWithClosedTransaction(database) instead.",
-        ReplaceWith("ReusingJdbcTransactionExposedTransactionProvider.createWithClosedTransaction(database)")
-    )
-    constructor(database: Database) : this(
-        ReusingJdbcTransactionExposedTransactionProvider.createWithClosedTransaction(database).jdbcTransaction
-    )
-
-    companion object {
-        @Deprecated(
-            "Use ReusingJdbcTransactionExposedTransactionProvider.createWithClosedTransaction(database) instead.",
-            ReplaceWith("ReusingJdbcTransactionExposedTransactionProvider.createWithClosedTransaction(database)")
-        )
-        fun fromDatabaseTransaction(database: Database): JdbcTransactionExposedTransactionProvider =
-            JdbcTransactionExposedTransactionProvider(
-                ReusingJdbcTransactionExposedTransactionProvider.createWithClosedTransaction(database).jdbcTransaction
-            )
-    }
-}
-
 /**
  * A [StatementPreparationExposedTransactionProvider] that reuses/shares a single [JdbcTransaction] for SQL preparation calls.
  *
@@ -114,7 +80,8 @@ class JdbcTransactionExposedTransactionProvider(
  * used for SQL generation, so it is not strictly read-only in terms of object immutability, but it should be used
  * in a way that does not perform database writes.
  *
- * Use [createWithClosedTransaction] or [createWithOpenTransaction] to create a provider from a [Database].
+ * Use [createWithClosedTransaction] by default when no SQL preparation failures are observed.
+ * If SQL preparation requires an open transaction, try the experimental [createWithOpenTransaction].
  * Wrapping an existing [JdbcTransaction] with the primary constructor does not obtain a connection.
  *
  * @param jdbcTransaction the [JdbcTransaction] to use for SQL statement preparation
@@ -132,8 +99,11 @@ class ReusingJdbcTransactionExposedTransactionProvider(
          * the underlying connection is not actively used. This workaround depends on Exposed continuing to support
          * SQL preparation with that retained state.
          *
-         * This function may perform blocking JDBC I/O, for example when Exposed applies a configured default schema.
-         * Call it on a thread where blocking is allowed, not on a Vert.x event-loop thread.
+         * Recommended when no SQL preparation failures are observed. If SQL preparation requires an open transaction,
+         * try the experimental [createWithOpenTransaction].
+         *
+         * Create the provider once during initialization, for example in a [Verticle]'s `start` method.
+         * Initialization may perform blocking JDBC I/O, for example when Exposed applies a configured default schema.
          * Any connection acquired during initialization is closed before this function returns.
          * The transaction is independent of any caller's active transaction, which is left untouched.
          *
@@ -155,7 +125,8 @@ class ReusingJdbcTransactionExposedTransactionProvider(
         /**
          * Creates a provider with an independent read-only [JdbcTransaction] that remains open for SQL preparation.
          *
-         * This experimental alternative keeps the transaction available when SQL preparation needs a live connection.
+         * Experimental alternative if [createWithClosedTransaction] fails because SQL preparation requires an open
+         * transaction. It keeps the transaction available when SQL preparation needs a live connection.
          * Exposed acquires the connection lazily; SQL preparation may perform blocking JDBC I/O to read metadata.
          * Preparation cleanup also calls [JdbcTransaction.rollback], which can perform JDBC I/O on an open connection.
          * Run these operations on a thread where blocking is allowed, not on a Vert.x event-loop thread.
@@ -172,7 +143,7 @@ class ReusingJdbcTransactionExposedTransactionProvider(
         @ExperimentalEvscApi
         fun createWithOpenTransaction(database: Database): ReusingJdbcTransactionExposedTransactionProvider =
             ReusingJdbcTransactionExposedTransactionProvider(
-                database.transactionManager.newTransaction(Connection.TRANSACTION_READ_UNCOMMITTED, true, null)
+                database.transactionManager.newTransaction(Connection.TRANSACTION_READ_UNCOMMITTED, true)
             )
     }
 
@@ -219,4 +190,38 @@ class ReusingJdbcTransactionExposedTransactionProvider(
         }
     }
     */
+}
+
+/** Compatibility wrapper for [ReusingJdbcTransactionExposedTransactionProvider]. */
+@Deprecated(
+    "Use ReusingJdbcTransactionExposedTransactionProvider instead.",
+    ReplaceWith("ReusingJdbcTransactionExposedTransactionProvider")
+)
+@ExperimentalEvscApi
+class JdbcTransactionExposedTransactionProvider(
+    val jdbcTransaction: JdbcTransaction
+) : StatementPreparationExposedTransactionProvider by ReusingJdbcTransactionExposedTransactionProvider(jdbcTransaction) {
+    /**
+     * Secondary constructor that creates a [JdbcTransaction] from a [Database].
+     *
+     * @param database the Exposed [Database] to use for creating the transaction
+     */
+    @Deprecated(
+        "Use ReusingJdbcTransactionExposedTransactionProvider.createWithClosedTransaction(database) instead.",
+        ReplaceWith("ReusingJdbcTransactionExposedTransactionProvider.createWithClosedTransaction(database)")
+    )
+    constructor(database: Database) : this(
+        ReusingJdbcTransactionExposedTransactionProvider.createWithClosedTransaction(database).jdbcTransaction
+    )
+
+    companion object {
+        @Deprecated(
+            "Use ReusingJdbcTransactionExposedTransactionProvider.createWithClosedTransaction(database) instead.",
+            ReplaceWith("ReusingJdbcTransactionExposedTransactionProvider.createWithClosedTransaction(database)")
+        )
+        fun fromDatabaseTransaction(database: Database): JdbcTransactionExposedTransactionProvider =
+            JdbcTransactionExposedTransactionProvider(
+                ReusingJdbcTransactionExposedTransactionProvider.createWithClosedTransaction(database).jdbcTransaction
+            )
+    }
 }

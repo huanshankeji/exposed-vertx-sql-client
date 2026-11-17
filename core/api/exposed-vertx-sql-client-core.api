@@ -156,11 +156,29 @@ public abstract interface annotation class com/huanshankeji/exposedvertxsqlclien
 }
 
 public final class com/huanshankeji/exposedvertxsqlclient/JdbcTransactionExposedTransactionProvider : com/huanshankeji/exposedvertxsqlclient/StatementPreparationExposedTransactionProvider {
+	public static final field Companion Lcom/huanshankeji/exposedvertxsqlclient/JdbcTransactionExposedTransactionProvider$Companion;
 	public fun <init> (Lorg/jetbrains/exposed/v1/jdbc/Database;)V
 	public fun <init> (Lorg/jetbrains/exposed/v1/jdbc/JdbcTransaction;)V
 	public final fun getJdbcTransaction ()Lorg/jetbrains/exposed/v1/jdbc/JdbcTransaction;
 	public fun statementPreparationExposedTransaction (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
 	public fun withExplicitOnlyStatementPreparationExposedTransaction (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+}
+
+public final class com/huanshankeji/exposedvertxsqlclient/JdbcTransactionExposedTransactionProvider$Companion {
+	public final fun fromDatabaseTransaction (Lorg/jetbrains/exposed/v1/jdbc/Database;)Lcom/huanshankeji/exposedvertxsqlclient/JdbcTransactionExposedTransactionProvider;
+}
+
+public final class com/huanshankeji/exposedvertxsqlclient/ReusingJdbcTransactionExposedTransactionProvider : com/huanshankeji/exposedvertxsqlclient/StatementPreparationExposedTransactionProvider {
+	public static final field Companion Lcom/huanshankeji/exposedvertxsqlclient/ReusingJdbcTransactionExposedTransactionProvider$Companion;
+	public fun <init> (Lorg/jetbrains/exposed/v1/jdbc/JdbcTransaction;)V
+	public final fun getJdbcTransaction ()Lorg/jetbrains/exposed/v1/jdbc/JdbcTransaction;
+	public fun statementPreparationExposedTransaction (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public fun withExplicitOnlyStatementPreparationExposedTransaction (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+}
+
+public final class com/huanshankeji/exposedvertxsqlclient/ReusingJdbcTransactionExposedTransactionProvider$Companion {
+	public final fun createWithClosedTransaction (Lorg/jetbrains/exposed/v1/jdbc/Database;)Lcom/huanshankeji/exposedvertxsqlclient/ReusingJdbcTransactionExposedTransactionProvider;
+	public final fun createWithOpenTransaction (Lorg/jetbrains/exposed/v1/jdbc/Database;)Lcom/huanshankeji/exposedvertxsqlclient/ReusingJdbcTransactionExposedTransactionProvider;
 }
 
 public final class com/huanshankeji/exposedvertxsqlclient/SingleUpdateException : java/lang/Exception {
@@ -211,6 +229,7 @@ public final class com/huanshankeji/exposedvertxsqlclient/exposed/ExposedDatabas
 }
 
 public final class com/huanshankeji/exposedvertxsqlclient/exposed/QueryKt {
+	public static final fun forUpdateWithExposedTransaction (Lorg/jetbrains/exposed/v1/jdbc/Query;)Lorg/jetbrains/exposed/v1/jdbc/Query;
 	public static final fun forUpdateWithTransaction (Lorg/jetbrains/exposed/v1/jdbc/Query;)Lorg/jetbrains/exposed/v1/jdbc/Query;
 }
 

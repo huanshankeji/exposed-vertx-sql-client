@@ -26,6 +26,7 @@ import java.sql.Connection
 import java.sql.DriverManager
 
 // This test file was completely created by Codex.
+// ShreckYe has not reviewed this test file in detail.
 @OptIn(ExperimentalEvscApi::class)
 class JdbcTransactionExposedTransactionProviderTests : FunSpec({
     val container = install(TestContainerSpecExtension(LatestPostgreSQLContainer()))
