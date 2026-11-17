@@ -9,7 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add `ReusingJdbcTransactionExposedTransactionProvider` with `fromDatabaseTransaction(database)` to make transaction initialization and potential blocking JDBC I/O explicit (#121).
+- Add experimental `ReusingJdbcTransactionExposedTransactionProvider.createWithOpenTransaction(database)` to retain an open transaction for SQL preparation; the caller owns its cleanup (#121).
+
+- Add `ReusingJdbcTransactionExposedTransactionProvider` with `createWithClosedTransaction(database)` to make transaction initialization and potential blocking JDBC I/O explicit (#121).
 
 ### Changed
 
@@ -19,7 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Deprecate `JdbcTransactionExposedTransactionProvider` in favor of `ReusingJdbcTransactionExposedTransactionProvider`, keeping the old class as a compatibility wrapper (#121).
 
-- Deprecate `JdbcTransactionExposedTransactionProvider(database)` in favor of `ReusingJdbcTransactionExposedTransactionProvider.fromDatabaseTransaction(database)` (#121).
+- Deprecate `JdbcTransactionExposedTransactionProvider(database)` in favor of `ReusingJdbcTransactionExposedTransactionProvider.createWithClosedTransaction(database)` (#121).
 
 ## [0.8.1] - 2026-03-31
 

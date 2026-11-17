@@ -120,12 +120,12 @@ val pool = createPgPool(vertx, evscConfig.vertxSqlClientConnectionConfig)
 val sqlConnection = createPgConnection(vertx, evscConfig.vertxSqlClientConnectionConfig)
 ```
 
-Create a transaction provider during initialization on a thread where blocking is allowed. `fromDatabaseTransaction` runs a read-only Exposed transaction and retains it for SQL preparation. It may perform blocking JDBC I/O, for example when applying a configured default schema. Exposed acquires connections lazily, so an empty transaction need not open one; SQL preparation may later acquire a connection for database metadata. Run these potentially blocking operations on a worker thread.
+Create a transaction provider during initialization on a thread where blocking is allowed. `createWithClosedTransaction` runs and closes an independent read-only Exposed transaction and retains it for SQL preparation. It may perform blocking JDBC I/O, for example when applying a configured default schema. Exposed acquires connections lazily, so an empty transaction need not open one; SQL preparation may later acquire a connection for database metadata. Run these potentially blocking operations on a worker thread.
 
 Then create a `DatabaseClient` with the provided Vert.x `SqlClient` and that provider, preferably in a `Verticle`:
 
 ```kotlin
-val transactionProvider = ReusingJdbcTransactionExposedTransactionProvider.fromDatabaseTransaction(exposedDatabase)
+val transactionProvider = ReusingJdbcTransactionExposedTransactionProvider.createWithClosedTransaction(exposedDatabase)
 val databaseClient = DatabaseClient(
     vertxSqlClient,
     PgDatabaseClientConfig(transactionProvider)
@@ -138,7 +138,9 @@ The `DatabaseClient` uses a `StatementPreparationExposedTransactionProvider` to 
 
 - **`ReusingJdbcTransactionExposedTransactionProvider` (recommended)**: Reuses a single JDBC transaction for all SQL preparation calls. This approach provides better performance by avoiding the overhead of creating a new transaction for each SQL preparation. This is the recommended option for most use cases.
   
-  **Note:** This depends on reusing a possibly closed `Transaction` (properties and functions used including `identity` and `.db.dialect` etc.). It's not guaranteed that Exposed APIs won't change in the future, and creating `Statement`s and calling `prepareSQL` may require an open `Transaction` based on a connection in future Exposed versions. It also depends on the `withThreadLocalTransaction` API which is marked `@InternalApi` at the moment.
+  **Note:** The `createWithClosedTransaction` factory depends on reusing a possibly closed `Transaction` (properties and functions used including `identity` and `.db.dialect` etc.). It's not guaranteed that Exposed APIs won't change in the future, and creating `Statement`s and calling `prepareSQL` may require an open `Transaction` based on a connection in future Exposed versions. It also depends on the `withThreadLocalTransaction` API which is marked `@InternalApi` at the moment.
+
+  The experimental `createWithOpenTransaction(exposedDatabase)` factory keeps an independent transaction open instead. Connections are still acquired lazily, and preparation cleanup can perform JDBC rollback I/O. Close `transactionProvider.jdbcTransaction` after its last use. This variant uses the transaction manager directly and does not apply configured default-schema setup.
 
 - **`DatabaseExposedTransactionProvider`**: Creates a new transaction for each SQL preparation call. This is kept as a fallback solution in case the `ReusingJdbcTransactionExposedTransactionProvider` approach has issues with future Exposed API changes (see note above).
 

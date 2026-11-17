@@ -64,7 +64,7 @@ abstract class AllConfigurationsSpec(
 
                 StatementPreparationExposedTransactionProviderType.JdbcTransaction ->
                     context("ReusingJdbcTransactionExposedTransactionProvider") {
-                        tests(ReusingJdbcTransactionExposedTransactionProvider.fromDatabaseTransaction(exposedDatabase))
+                        tests(ReusingJdbcTransactionExposedTransactionProvider.createWithClosedTransaction(exposedDatabase))
                     }
             }
         }
