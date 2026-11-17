@@ -61,17 +61,22 @@ suspend fun examples(vertx: Vertx) {
 
     val vertxSqlClient = sqlClient
 
-    val databaseClient = DatabaseClient(
-        vertxSqlClient,
-        PgDatabaseClientConfig(ReusingJdbcTransactionExposedTransactionProvider.createWithClosedTransaction(exposedDatabase))
-    )
+    val transactionProvider = ReusingJdbcTransactionExposedTransactionProvider.createWithClosedTransaction(exposedDatabase)
+    try {
+        val databaseClient = DatabaseClient(
+            vertxSqlClient,
+            PgDatabaseClientConfig(transactionProvider)
+        )
 
-    // put in `Vertx.executeBlocking` or `Dispatchers.IO` if needed
-    createTablesWithExposedTransaction()
+        // put in `Vertx.executeBlocking` or `Dispatchers.IO` if needed
+        createTablesWithExposedTransaction()
 
-    val crudSupportConfig = CrudSupportConfig.POSTGRESQL
-    crudWithStatements(databaseClient, crudSupportConfig)
-    crudExtensions(databaseClient, crudSupportConfig)
+        val crudSupportConfig = CrudSupportConfig.POSTGRESQL
+        crudWithStatements(databaseClient, crudSupportConfig)
+        crudExtensions(databaseClient, crudSupportConfig)
+    } finally {
+        transactionProvider.jdbcTransaction.close()
+    }
 }
 
 // for copying to README.md

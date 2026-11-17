@@ -59,19 +59,25 @@ class JdbcTransactionExposedTransactionProviderTests : FunSpec({
         val legacyProvider = JdbcTransactionExposedTransactionProvider(database)
         connections.size shouldBe 0
 
-        for ((currentProvider, expectedTransaction) in listOf(
-            provider to provider.jdbcTransaction, legacyProvider to legacyProvider.jdbcTransaction
-        )) {
-            repeat(2) {
-                currentProvider.statementPreparationExposedTransaction {
-                    this shouldBeSameInstanceAs expectedTransaction
-                    table.selectAll().prepareSQL(this) shouldBe "SELECT example.id FROM example"
+        try {
+            for ((currentProvider, expectedTransaction) in listOf(
+                provider to provider.jdbcTransaction, legacyProvider to legacyProvider.jdbcTransaction
+            )) {
+                repeat(2) {
+                    currentProvider.statementPreparationExposedTransaction {
+                        this shouldBeSameInstanceAs expectedTransaction
+                        table.selectAll().prepareSQL(this) shouldBe "SELECT example.id FROM example"
+                    }
                 }
             }
+            connections.size shouldBe 1
+            JdbcTransactionExposedTransactionProvider(provider.jdbcTransaction).jdbcTransaction shouldBeSameInstanceAs
+                    provider.jdbcTransaction
+        } finally {
+            legacyProvider.jdbcTransaction.close()
+            provider.jdbcTransaction.close()
         }
-        connections.size shouldBe 1
-        JdbcTransactionExposedTransactionProvider(provider.jdbcTransaction).jdbcTransaction shouldBeSameInstanceAs
-                provider.jdbcTransaction
+        connections.single().isClosed.shouldBeTrue()
     }
 
     test("a configured default schema performs JDBC I/O during provider initialization and closes the connection") {

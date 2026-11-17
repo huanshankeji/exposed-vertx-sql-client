@@ -31,6 +31,7 @@ import io.kotest.core.spec.style.scopes.FunSpecContainerScope
 import io.kotest.extensions.testcontainers.TestContainerSpecExtension
 import io.vertx.core.Vertx
 import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 import java.util.*
 
 @OptIn(ExperimentalEvscApi::class)
@@ -46,7 +47,14 @@ abstract class AllConfigurationsSpec(
     )
 ) : FunSpec({
     val vertx = Vertx.vertx()
-    afterSpec { vertx.close().await() }
+    val reusedTransactions = mutableListOf<JdbcTransaction>()
+    afterSpec {
+        try {
+            vertx.close().await()
+        } finally {
+            reusedTransactions.forEach { it.close() }
+        }
+    }
 
     // This causes passing tests to fail. Not sure why.
     //testExecutionMode = TestExecutionMode.Concurrent
@@ -64,7 +72,9 @@ abstract class AllConfigurationsSpec(
 
                 StatementPreparationExposedTransactionProviderType.JdbcTransaction ->
                     context("ReusingJdbcTransactionExposedTransactionProvider") {
-                        tests(ReusingJdbcTransactionExposedTransactionProvider.createWithClosedTransaction(exposedDatabase))
+                        val provider = ReusingJdbcTransactionExposedTransactionProvider.createWithClosedTransaction(exposedDatabase)
+                        reusedTransactions.add(provider.jdbcTransaction)
+                        tests(provider)
                     }
             }
         }

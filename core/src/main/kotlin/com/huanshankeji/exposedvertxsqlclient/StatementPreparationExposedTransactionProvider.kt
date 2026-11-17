@@ -83,6 +83,7 @@ class DatabaseExposedTransactionProvider(
  * Use [createWithClosedTransaction] by default when no SQL preparation failures are observed.
  * If SQL preparation requires an open transaction, try the experimental [createWithOpenTransaction].
  * Wrapping an existing [JdbcTransaction] with the primary constructor does not obtain a connection.
+ * The caller manages the retained transaction's lifecycle; preparation cleanup rolls it back but does not close it.
  *
  * @param jdbcTransaction the [JdbcTransaction] to use for SQL statement preparation
  */
@@ -109,6 +110,8 @@ class ReusingJdbcTransactionExposedTransactionProvider(
          *
          * Exposed acquires connections lazily: an empty transaction need not open a connection, and SQL preparation
          * may later acquire one to read database metadata even though the initialization scope has completed.
+         * The caller must therefore close [jdbcTransaction] after the last SQL preparation to release any connection
+         * acquired later. Closing [DatabaseClient] only closes its Vert.x SQL client.
          *
          * @param database the Exposed [Database] to use for creating the transaction
          * @see createWithOpenTransaction
