@@ -75,6 +75,7 @@ suspend fun examples(vertx: Vertx) {
         crudWithStatements(databaseClient, crudSupportConfig)
         crudExtensions(databaseClient, crudSupportConfig)
     } finally {
+        // Release any connection acquired lazily after the initialization scope completed.
         transactionProvider.jdbcTransaction.close()
     }
 }

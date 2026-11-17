@@ -132,7 +132,7 @@ val databaseClient = DatabaseClient(
 )
 ```
 
-Keep the provider for its full lifetime. After the last SQL preparation, for example in the `Verticle`'s `stop` method, call `transactionProvider.jdbcTransaction.close()` to release any JDBC connection acquired lazily. This applies to both factories; closing `DatabaseClient` only closes its Vert.x SQL client.
+Exposed's `JdbcTransaction.close()` closes an already-initialized connection, but it does not prevent lazy connection acquisition after an empty initialization scope. If first SQL preparation acquires a connection later, release it with `transactionProvider.jdbcTransaction.close()` after the provider's last use, for example in the `Verticle`'s `stop` method. This final close is redundant when initialization already acquired and closed the connection. The experimental open variant leaves transaction cleanup to the caller.
 
 **About `StatementPreparationExposedTransactionProvider`:**
 

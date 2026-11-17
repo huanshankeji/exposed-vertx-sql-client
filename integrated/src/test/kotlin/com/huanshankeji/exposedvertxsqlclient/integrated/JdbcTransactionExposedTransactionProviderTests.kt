@@ -26,7 +26,7 @@ import java.sql.Connection
 import java.sql.DriverManager
 
 // This test file was completely created by Codex.
-// ShreckYe has not reviewed this test file in detail.
+// This test file has not been reviewed in detail by a human developer.
 @OptIn(ExperimentalEvscApi::class)
 class JdbcTransactionExposedTransactionProviderTests : FunSpec({
     val container = install(TestContainerSpecExtension(LatestPostgreSQLContainer()))
@@ -49,7 +49,7 @@ class JdbcTransactionExposedTransactionProviderTests : FunSpec({
         val id = integer("id")
     }
 
-    test("database creation, an empty transaction, and provider construction leave connection acquisition lazy") {
+    test("empty initialization stays connection-free until preparation acquires a live metadata connection") {
         val database = database()
         connections.size shouldBe 0
         transaction(database, Connection.TRANSACTION_READ_UNCOMMITTED, true) {}
@@ -71,6 +71,7 @@ class JdbcTransactionExposedTransactionProviderTests : FunSpec({
                 }
             }
             connections.size shouldBe 1
+            connections.single().isClosed.shouldBeFalse()
             JdbcTransactionExposedTransactionProvider(provider.jdbcTransaction).jdbcTransaction shouldBeSameInstanceAs
                     provider.jdbcTransaction
         } finally {

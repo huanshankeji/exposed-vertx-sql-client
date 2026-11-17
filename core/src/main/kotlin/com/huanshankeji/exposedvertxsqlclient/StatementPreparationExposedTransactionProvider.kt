@@ -108,16 +108,18 @@ class ReusingJdbcTransactionExposedTransactionProvider(
          * Any connection acquired during initialization is closed before this function returns.
          * The transaction is independent of any caller's active transaction, which is left untouched.
          *
-         * Exposed acquires connections lazily: an empty transaction need not open a connection, and SQL preparation
-         * may later acquire one to read database metadata even though the initialization scope has completed.
-         * The caller must therefore close [jdbcTransaction] after the last SQL preparation to release any connection
-         * acquired later. Closing [DatabaseClient] only closes its Vert.x SQL client.
+         * Exposed's [JdbcTransaction.close] closes only an already-initialized connection; closing an empty
+         * initialization scope does not prevent later metadata access from initializing its lazy connection.
+         * If SQL preparation acquires a connection afterward, the caller closes [jdbcTransaction] after its last use
+         * to release that connection. This final close is redundant when initialization already acquired and closed
+         * the connection.
          *
          * @param database the Exposed [Database] to use for creating the transaction
          * @see createWithOpenTransaction
          */
         fun createWithClosedTransaction(database: Database): ReusingJdbcTransactionExposedTransactionProvider =
             ReusingJdbcTransactionExposedTransactionProvider(
+                // Avoid reusing a caller's active transaction: preparation cleanup would roll back its writes.
                 inTopLevelTransaction(database, Connection.TRANSACTION_READ_UNCOMMITTED, true) {
                     // Store reference to the current transaction for reuse
                     // The transaction members needed for SQL preparation are still usable
