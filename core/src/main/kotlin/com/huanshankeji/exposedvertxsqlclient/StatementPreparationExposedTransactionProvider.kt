@@ -123,6 +123,8 @@ class ReusingJdbcTransactionExposedTransactionProvider(
                 // Preparation cleanup could otherwise roll back the caller's writes.
                 // The old provider used TRANSACTION_READ_UNCOMMITTED. Oracle rejects that level when
                 // metadata initialization acquires a JDBC connection, so use TRANSACTION_READ_COMMITTED.
+                // Exposed sets this isolation during JDBC connection setup, outside steady-state SQL preparation.
+                // Vert.x executes the resulting SQL on its own connections.
                 inTopLevelTransaction(database, Connection.TRANSACTION_READ_COMMITTED, true) {
                     // Initialize Exposed's lazy metadata before SQL rendering reads it from the retained transaction.
                     database.identifierManager
