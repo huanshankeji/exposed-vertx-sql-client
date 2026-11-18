@@ -1,7 +1,6 @@
 package com.huanshankeji.exposedvertxsqlclient.integrated
 
 import com.huanshankeji.exposedvertxsqlclient.ExperimentalEvscApi
-import com.huanshankeji.exposedvertxsqlclient.JdbcTransactionExposedTransactionProvider
 import com.huanshankeji.exposedvertxsqlclient.ReusingJdbcTransactionExposedTransactionProvider
 import com.huanshankeji.testcontainers.LatestPostgreSQLContainer
 import io.kotest.core.extensions.install
@@ -56,24 +55,19 @@ class JdbcTransactionExposedTransactionProviderTests : FunSpec({
         connections.size shouldBe 0
         val provider = ReusingJdbcTransactionExposedTransactionProvider.createWithClosedTransaction(database)
         connections.single().isClosed.shouldBeTrue()
-        @Suppress("DEPRECATION")
-        val legacyProvider = JdbcTransactionExposedTransactionProvider(database)
+        val secondProvider = ReusingJdbcTransactionExposedTransactionProvider.createWithClosedTransaction(database)
         connections.single().isClosed.shouldBeTrue()
 
-        for ((currentProvider, expectedTransaction) in listOf(
-            provider to provider.jdbcTransaction, legacyProvider to legacyProvider.jdbcTransaction
-        )) {
+        for (currentProvider in listOf(provider, secondProvider)) {
             repeat(2) {
                 currentProvider.statementPreparationExposedTransaction {
-                    this shouldBeSameInstanceAs expectedTransaction
+                    this shouldBeSameInstanceAs currentProvider.jdbcTransaction
                     table.selectAll().prepareSQL(this) shouldBe "SELECT example.id FROM example"
                     table.selectAll().forUpdate().prepareSQL(this) shouldBe "SELECT example.id FROM example FOR UPDATE"
                 }
             }
         }
         connections.single().isClosed.shouldBeTrue()
-        JdbcTransactionExposedTransactionProvider(provider.jdbcTransaction).jdbcTransaction shouldBeSameInstanceAs
-                provider.jdbcTransaction
     }
 
     test("a configured default schema performs JDBC I/O during provider initialization and closes the connection") {

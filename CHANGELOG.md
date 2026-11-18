@@ -11,17 +11,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add experimental `ReusingJdbcTransactionExposedTransactionProvider.createWithOpenTransaction(database)` to retain an open transaction for SQL preparation; the caller owns its cleanup (#121).
 
-- Add `ReusingJdbcTransactionExposedTransactionProvider` with `createWithClosedTransaction(database)` to make transaction initialization and potential blocking JDBC I/O explicit (#121).
-
 ### Changed
 
 - Upgrade Exposed JDBC, core, and experimental R2DBC dependencies to 1.6.1.
 
 ### Deprecated
 
-- Deprecate `JdbcTransactionExposedTransactionProvider` in favor of `ReusingJdbcTransactionExposedTransactionProvider`, keeping the old class as a compatibility wrapper (#121).
+- Deprecate `JdbcTransactionExposedTransactionProvider` in favor of `ReusingJdbcTransactionExposedTransactionProvider`. The deprecated class retains its original behavior (#121).
 
 - Deprecate `JdbcTransactionExposedTransactionProvider(database)` in favor of `ReusingJdbcTransactionExposedTransactionProvider.createWithClosedTransaction(database)` (#121).
+
+### Fixed
+
+- Use `ReusingJdbcTransactionExposedTransactionProvider.createWithClosedTransaction(database)` to load SQL preparation metadata and release its JDBC connection during initialization. The factory also isolates the retained transaction from any active caller transaction, so preparation cleanup cannot roll back the caller's writes (#121).
 
 ## [0.8.1] - 2026-03-31
 

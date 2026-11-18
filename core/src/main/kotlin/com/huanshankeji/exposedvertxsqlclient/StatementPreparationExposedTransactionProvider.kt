@@ -110,6 +110,8 @@ class ReusingJdbcTransactionExposedTransactionProvider(
          * This can perform blocking JDBC I/O on the first use of [database] or when Exposed applies a configured default
          * schema. Run initialization on a thread where blocking is allowed. Any acquired connection is closed before
          * this function returns.
+         * Custom statements that read additional JDBC metadata or require a live connection should use
+         * [createWithOpenTransaction].
          * The transaction is independent of any caller's active transaction, which is left untouched.
          *
          * @param database the Exposed [Database] to use for creating the transaction
@@ -117,7 +119,8 @@ class ReusingJdbcTransactionExposedTransactionProvider(
          */
         fun createWithClosedTransaction(database: Database): ReusingJdbcTransactionExposedTransactionProvider =
             ReusingJdbcTransactionExposedTransactionProvider(
-                // Avoid reusing a caller's active transaction: preparation cleanup would roll back its writes.
+                // Unlike transaction, inTopLevelTransaction does not reuse the caller's active transaction.
+                // Preparation cleanup could otherwise roll back the caller's writes.
                 inTopLevelTransaction(database, Connection.TRANSACTION_READ_COMMITTED, true) {
                     // Initialize Exposed's lazy metadata before SQL rendering reads it from the retained transaction.
                     database.identifierManager
@@ -179,6 +182,90 @@ class ReusingJdbcTransactionExposedTransactionProvider(
     @Deprecated("Not currently used by other declarations in this library.")
     override fun <T> withExplicitOnlyStatementPreparationExposedTransaction(block: ExposedTransaction.() -> T): T =
         jdbcTransaction.block()
+}
+
+/**
+ * A [StatementPreparationExposedTransactionProvider] that reuses/shares a possibly closed [JdbcTransaction] for SQL preparation calls.
+ *
+ * This approach provides better performance by avoiding the overhead of creating a new transaction
+ * for each SQL preparation call. The transaction is created once, possibly closed, and reused/shared across multiple SQL preparations.
+ *
+ * **Implementation note:** The transaction instance members needed for SQL preparation remain usable even after
+ * the underlying connection is not actively used.
+ *
+ * **Thread safety:** This provider holds a single [JdbcTransaction] instance with internal mutable state and is
+ * not designed for concurrent use from multiple threads. Calling [statementPreparationExposedTransaction] from
+ * multiple threads at the same time on the same provider instance may lead to inconsistent internal state.
+ * If you need to prepare statements concurrently, create a separate
+ * [JdbcTransactionExposedTransactionProvider] (and underlying [JdbcTransaction]) per thread/[Verticle].
+ *
+ * **Read-only behavior:** This provider is intended to be used only for SQL statement preparation (e.g., statement
+ * building and `prepareSQL`) and the transaction must not be used to execute DML/DDL statements that modify the database.
+ * The underlying [JdbcTransaction] may still accumulate internal state (such as caches or counters) while being
+ * used for SQL generation, so it is not strictly read-only in terms of object immutability, but it should be used
+ * in a way that does not perform database writes.
+ *
+ * @param jdbcTransaction the [JdbcTransaction] to use for SQL statement preparation
+ */
+@Deprecated(
+    "Use ReusingJdbcTransactionExposedTransactionProvider. This legacy provider can acquire a connection during SQL " +
+            "preparation and can reuse and roll back an active transaction if constructed inside one.",
+    ReplaceWith(
+        "ReusingJdbcTransactionExposedTransactionProvider",
+        "com.huanshankeji.exposedvertxsqlclient.ReusingJdbcTransactionExposedTransactionProvider"
+    )
+)
+@ExperimentalEvscApi
+class JdbcTransactionExposedTransactionProvider(
+    val jdbcTransaction: JdbcTransaction
+) : StatementPreparationExposedTransactionProvider {
+    /**
+     * Secondary constructor that creates a [JdbcTransaction] from a [Database].
+     *
+     * @param database the Exposed [Database] to use for creating the transaction
+     */
+    @Deprecated(
+        "Use createWithClosedTransaction to load SQL metadata during initialization in a separate transaction.",
+        ReplaceWith(
+            "ReusingJdbcTransactionExposedTransactionProvider.createWithClosedTransaction(database)",
+            "com.huanshankeji.exposedvertxsqlclient.ReusingJdbcTransactionExposedTransactionProvider"
+        )
+    )
+    constructor(database: Database) : this(
+        /*
+        // alternative implementation that keeps that transaction open
+        database.transactionManager.newTransaction(Connection.TRANSACTION_READ_UNCOMMITTED, true)
+        */
+        transaction(database, Connection.TRANSACTION_READ_UNCOMMITTED, true) {
+            // Store reference to the current transaction for reuse
+            // The transaction members needed for SQL preparation are still usable
+            this
+        }
+    )
+
+    @OptIn(InternalApi::class)
+    override fun <T> statementPreparationExposedTransaction(block: ExposedTransaction.() -> T): T =
+        try {
+            // Call statement directly on the transaction - it will be executed in the transaction context
+            withThreadLocalTransaction(jdbcTransaction) {
+                jdbcTransaction.block()
+            }
+        } finally {
+            // Accumulating state needs to be cleared. Otherwise, it causes progressive performance degradation for update statements as found.
+            // `rollback` calls `withThreadLocalTransaction` too so it's put outside the `withThreadLocalTransaction` block above.
+            /*
+            `rollback` doesn't have synchronization mechanism as I checked.
+            So when you share a transaction across multiple threads, they may call `rollback` and clear states concurrently.
+            This hasn't caused performance or correctness issues as I have tested.
+            However, to avoid potential issues, you are recommended to provide a separate `transaction` for each thread or `Verticle`.
+            For library users: please also report any concurrency issues you encounter.
+             */
+            jdbcTransaction.rollback()
+        }
+
+    @Deprecated("Not currently used by other declarations in this library.")
+    override fun <T> withExplicitOnlyStatementPreparationExposedTransaction(block: ExposedTransaction.() -> T): T =
+        jdbcTransaction.block()
 
     /*
     // This implementation breaks Exposed's own transactions. See commit a07319e376f0a491e312136ab102a1eb28a7035c for more details.
@@ -199,38 +286,4 @@ class ReusingJdbcTransactionExposedTransactionProvider(
         }
     }
     */
-}
-
-/** Compatibility wrapper for [ReusingJdbcTransactionExposedTransactionProvider]. */
-@Deprecated(
-    "Use ReusingJdbcTransactionExposedTransactionProvider instead.",
-    ReplaceWith("ReusingJdbcTransactionExposedTransactionProvider")
-)
-@ExperimentalEvscApi
-class JdbcTransactionExposedTransactionProvider(
-    val jdbcTransaction: JdbcTransaction
-) : StatementPreparationExposedTransactionProvider by ReusingJdbcTransactionExposedTransactionProvider(jdbcTransaction) {
-    /**
-     * Secondary constructor that creates a [JdbcTransaction] from a [Database].
-     *
-     * @param database the Exposed [Database] to use for creating the transaction
-     */
-    @Deprecated(
-        "Use ReusingJdbcTransactionExposedTransactionProvider.createWithClosedTransaction(database) instead.",
-        ReplaceWith("ReusingJdbcTransactionExposedTransactionProvider.createWithClosedTransaction(database)")
-    )
-    constructor(database: Database) : this(
-        ReusingJdbcTransactionExposedTransactionProvider.createWithClosedTransaction(database).jdbcTransaction
-    )
-
-    companion object {
-        @Deprecated(
-            "Use ReusingJdbcTransactionExposedTransactionProvider.createWithClosedTransaction(database) instead.",
-            ReplaceWith("ReusingJdbcTransactionExposedTransactionProvider.createWithClosedTransaction(database)")
-        )
-        fun fromDatabaseTransaction(database: Database): JdbcTransactionExposedTransactionProvider =
-            JdbcTransactionExposedTransactionProvider(
-                ReusingJdbcTransactionExposedTransactionProvider.createWithClosedTransaction(database).jdbcTransaction
-            )
-    }
 }

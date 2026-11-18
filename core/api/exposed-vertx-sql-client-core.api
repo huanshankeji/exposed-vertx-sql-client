@@ -156,16 +156,11 @@ public abstract interface annotation class com/huanshankeji/exposedvertxsqlclien
 }
 
 public final class com/huanshankeji/exposedvertxsqlclient/JdbcTransactionExposedTransactionProvider : com/huanshankeji/exposedvertxsqlclient/StatementPreparationExposedTransactionProvider {
-	public static final field Companion Lcom/huanshankeji/exposedvertxsqlclient/JdbcTransactionExposedTransactionProvider$Companion;
 	public fun <init> (Lorg/jetbrains/exposed/v1/jdbc/Database;)V
 	public fun <init> (Lorg/jetbrains/exposed/v1/jdbc/JdbcTransaction;)V
 	public final fun getJdbcTransaction ()Lorg/jetbrains/exposed/v1/jdbc/JdbcTransaction;
 	public fun statementPreparationExposedTransaction (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
 	public fun withExplicitOnlyStatementPreparationExposedTransaction (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
-}
-
-public final class com/huanshankeji/exposedvertxsqlclient/JdbcTransactionExposedTransactionProvider$Companion {
-	public final fun fromDatabaseTransaction (Lorg/jetbrains/exposed/v1/jdbc/Database;)Lcom/huanshankeji/exposedvertxsqlclient/JdbcTransactionExposedTransactionProvider;
 }
 
 public final class com/huanshankeji/exposedvertxsqlclient/ReusingJdbcTransactionExposedTransactionProvider : com/huanshankeji/exposedvertxsqlclient/StatementPreparationExposedTransactionProvider {

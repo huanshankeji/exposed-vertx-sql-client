@@ -46,9 +46,7 @@ abstract class AllConfigurationsSpec(
     )
 ) : FunSpec({
     val vertx = Vertx.vertx()
-    afterSpec {
-        vertx.close().await()
-    }
+    afterSpec { vertx.close().await() }
 
     // This causes passing tests to fail. Not sure why.
     //testExecutionMode = TestExecutionMode.Concurrent
