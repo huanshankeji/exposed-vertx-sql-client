@@ -13,6 +13,7 @@ import com.huanshankeji.exposedvertxsqlclient.postgresql.vertx.pgclient.createPg
 import com.huanshankeji.exposedvertxsqlclient.postgresql.vertx.pgclient.createPgPool
 import io.vertx.core.Verticle
 import io.vertx.core.Vertx
+import io.vertx.kotlin.coroutines.coAwait
 import io.vertx.sqlclient.SqlClient
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
@@ -61,23 +62,20 @@ suspend fun examples(vertx: Vertx) {
 
     val vertxSqlClient = sqlClient
 
-    val transactionProvider = ReusingJdbcTransactionExposedTransactionProvider.createWithClosedTransaction(exposedDatabase)
-    try {
-        val databaseClient = DatabaseClient(
-            vertxSqlClient,
-            PgDatabaseClientConfig(transactionProvider)
-        )
+    val transactionProvider = vertx.executeBlocking {
+        ReusingJdbcTransactionExposedTransactionProvider.createWithClosedTransaction(exposedDatabase)
+    }.coAwait()
+    val databaseClient = DatabaseClient(
+        vertxSqlClient,
+        PgDatabaseClientConfig(transactionProvider)
+    )
 
-        // put in `Vertx.executeBlocking` or `Dispatchers.IO` if needed
-        createTablesWithExposedTransaction()
+    // put in `Vertx.executeBlocking` or `Dispatchers.IO` if needed
+    createTablesWithExposedTransaction()
 
-        val crudSupportConfig = CrudSupportConfig.POSTGRESQL
-        crudWithStatements(databaseClient, crudSupportConfig)
-        crudExtensions(databaseClient, crudSupportConfig)
-    } finally {
-        // Release any connection acquired lazily after the initialization scope completed.
-        transactionProvider.jdbcTransaction.close()
-    }
+    val crudSupportConfig = CrudSupportConfig.POSTGRESQL
+    crudWithStatements(databaseClient, crudSupportConfig)
+    crudExtensions(databaseClient, crudSupportConfig)
 }
 
 // for copying to README.md

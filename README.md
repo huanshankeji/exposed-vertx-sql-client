@@ -120,7 +120,7 @@ val pool = createPgPool(vertx, evscConfig.vertxSqlClientConnectionConfig)
 val sqlConnection = createPgConnection(vertx, evscConfig.vertxSqlClientConnectionConfig)
 ```
 
-Create a transaction provider once during initialization, for example in a `Verticle`'s `start` method. `createWithClosedTransaction` runs and closes an independent read-only Exposed transaction and retains it for SQL preparation. Exposed acquires connections lazily: initialization or first SQL preparation may fetch JDBC metadata, and later preparations reuse the retained transaction state. A configured default schema can also cause JDBC I/O during initialization.
+Create a transaction provider once during initialization. `createWithClosedTransaction` runs an independent read-only Exposed transaction to cache the metadata used for SQL preparation on the Exposed `Database`. It closes any connection it acquired before returning and retains the transaction object for SQL preparation. Run initialization where blocking JDBC I/O is allowed, for example using `executeBlocking` from a `Verticle`'s `start` method. Providers that share the same `Database` also share its metadata cache.
 
 Then create a `DatabaseClient` with the provided Vert.x `SqlClient` and that provider, preferably in a `Verticle`:
 
@@ -131,8 +131,6 @@ val databaseClient = DatabaseClient(
     PgDatabaseClientConfig(transactionProvider)
 )
 ```
-
-Exposed's `JdbcTransaction.close()` closes an already-initialized connection, but it does not prevent lazy connection acquisition after an empty initialization scope. If first SQL preparation acquires a connection later, release it with `transactionProvider.jdbcTransaction.close()` after the provider's last use, for example in the `Verticle`'s `stop` method. This final close is redundant when initialization already acquired and closed the connection. The experimental open variant leaves transaction cleanup to the caller.
 
 **About `StatementPreparationExposedTransactionProvider`:**
 

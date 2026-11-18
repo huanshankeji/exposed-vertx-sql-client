@@ -3,6 +3,7 @@ package com.huanshankeji.exposedvertxsqlclient
 import io.vertx.core.Verticle
 import org.jetbrains.exposed.v1.core.InternalApi
 import org.jetbrains.exposed.v1.core.transactions.withThreadLocalTransaction
+import org.jetbrains.exposed.v1.core.vendors.H2Dialect
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 import org.jetbrains.exposed.v1.jdbc.transactions.inTopLevelTransaction
@@ -83,7 +84,8 @@ class DatabaseExposedTransactionProvider(
  * Use [createWithClosedTransaction] by default when no SQL preparation failures are observed.
  * If SQL preparation requires an open transaction, try the experimental [createWithOpenTransaction].
  * Wrapping an existing [JdbcTransaction] with the primary constructor does not obtain a connection.
- * The caller manages the retained transaction's lifecycle; preparation cleanup rolls it back but does not close it.
+ * Preparation cleanup rolls back the retained transaction. The caller manages its lifetime when passing a transaction
+ * to the primary constructor or using [createWithOpenTransaction].
  *
  * @param jdbcTransaction the [JdbcTransaction] to use for SQL statement preparation
  */
@@ -104,15 +106,11 @@ class ReusingJdbcTransactionExposedTransactionProvider(
          * try the experimental [createWithOpenTransaction].
          *
          * Create the provider once during initialization, for example in a [Verticle]'s `start` method.
-         * Initialization may perform blocking JDBC I/O, for example when Exposed applies a configured default schema.
-         * Any connection acquired during initialization is closed before this function returns.
+         * Initialization reads SQL preparation metadata into Exposed's [Database] cache so later preparation can reuse it.
+         * This can perform blocking JDBC I/O on the first use of [database] or when Exposed applies a configured default
+         * schema. Run initialization on a thread where blocking is allowed. Any acquired connection is closed before
+         * this function returns.
          * The transaction is independent of any caller's active transaction, which is left untouched.
-         *
-         * Exposed's [JdbcTransaction.close] closes only an already-initialized connection; closing an empty
-         * initialization scope does not prevent later metadata access from initializing its lazy connection.
-         * If SQL preparation acquires a connection afterward, the caller closes [jdbcTransaction] after its last use
-         * to release that connection. This final close is redundant when initialization already acquired and closed
-         * the connection.
          *
          * @param database the Exposed [Database] to use for creating the transaction
          * @see createWithOpenTransaction
@@ -121,6 +119,12 @@ class ReusingJdbcTransactionExposedTransactionProvider(
             ReusingJdbcTransactionExposedTransactionProvider(
                 // Avoid reusing a caller's active transaction: preparation cleanup would roll back its writes.
                 inTopLevelTransaction(database, Connection.TRANSACTION_READ_UNCOMMITTED, true) {
+                    // Initialize Exposed's lazy metadata before SQL rendering reads it from the retained transaction.
+                    database.identifierManager
+                    database.version
+                    database.fullVersion
+                    database.supportsSelectForUpdate
+                    if (database.dialect is H2Dialect) database.dialectMode
                     // Store reference to the current transaction for reuse
                     // The transaction members needed for SQL preparation are still usable
                     this

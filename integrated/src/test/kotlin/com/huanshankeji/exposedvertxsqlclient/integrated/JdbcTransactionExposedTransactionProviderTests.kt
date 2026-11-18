@@ -49,36 +49,31 @@ class JdbcTransactionExposedTransactionProviderTests : FunSpec({
         val id = integer("id")
     }
 
-    test("empty initialization stays connection-free until preparation acquires a live metadata connection") {
+    test("closed factory caches metadata at initialization and shares it with providers on the same database") {
         val database = database()
         connections.size shouldBe 0
         transaction(database, Connection.TRANSACTION_READ_UNCOMMITTED, true) {}
         connections.size shouldBe 0
         val provider = ReusingJdbcTransactionExposedTransactionProvider.createWithClosedTransaction(database)
+        connections.single().isClosed.shouldBeTrue()
         @Suppress("DEPRECATION")
         val legacyProvider = JdbcTransactionExposedTransactionProvider(database)
-        connections.size shouldBe 0
+        connections.single().isClosed.shouldBeTrue()
 
-        try {
-            for ((currentProvider, expectedTransaction) in listOf(
-                provider to provider.jdbcTransaction, legacyProvider to legacyProvider.jdbcTransaction
-            )) {
-                repeat(2) {
-                    currentProvider.statementPreparationExposedTransaction {
-                        this shouldBeSameInstanceAs expectedTransaction
-                        table.selectAll().prepareSQL(this) shouldBe "SELECT example.id FROM example"
-                    }
+        for ((currentProvider, expectedTransaction) in listOf(
+            provider to provider.jdbcTransaction, legacyProvider to legacyProvider.jdbcTransaction
+        )) {
+            repeat(2) {
+                currentProvider.statementPreparationExposedTransaction {
+                    this shouldBeSameInstanceAs expectedTransaction
+                    table.selectAll().prepareSQL(this) shouldBe "SELECT example.id FROM example"
+                    table.selectAll().forUpdate().prepareSQL(this) shouldBe "SELECT example.id FROM example FOR UPDATE"
                 }
             }
-            connections.size shouldBe 1
-            connections.single().isClosed.shouldBeFalse()
-            JdbcTransactionExposedTransactionProvider(provider.jdbcTransaction).jdbcTransaction shouldBeSameInstanceAs
-                    provider.jdbcTransaction
-        } finally {
-            legacyProvider.jdbcTransaction.close()
-            provider.jdbcTransaction.close()
         }
         connections.single().isClosed.shouldBeTrue()
+        JdbcTransactionExposedTransactionProvider(provider.jdbcTransaction).jdbcTransaction shouldBeSameInstanceAs
+                provider.jdbcTransaction
     }
 
     test("a configured default schema performs JDBC I/O during provider initialization and closes the connection") {
