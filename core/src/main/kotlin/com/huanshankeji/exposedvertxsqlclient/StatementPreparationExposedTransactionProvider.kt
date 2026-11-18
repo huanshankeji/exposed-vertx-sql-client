@@ -110,6 +110,9 @@ class ReusingJdbcTransactionExposedTransactionProvider(
          * This can perform blocking JDBC I/O on the first use of [database] or when Exposed applies a configured default
          * schema. Run initialization on a thread where blocking is allowed. Any acquired connection is closed before
          * this function returns.
+         *
+         * Preparation cleanup still calls [JdbcTransaction.rollback] to run Exposed's rollback hooks and clear
+         * transaction state. Exposed skips the JDBC rollback when the connection is closed or was never acquired.
          * Custom statements that read additional JDBC metadata or require a live connection should use
          * [createWithOpenTransaction].
          * The transaction is independent of any caller's active transaction, which is left untouched.
@@ -146,8 +149,11 @@ class ReusingJdbcTransactionExposedTransactionProvider(
          * Experimental alternative if [createWithClosedTransaction] fails because SQL preparation requires an open
          * transaction. It keeps the transaction available when SQL preparation needs a live connection.
          * Exposed acquires the connection lazily; SQL preparation may perform blocking JDBC I/O to read metadata.
-         * Preparation cleanup also calls [JdbcTransaction.rollback], which can perform JDBC I/O on an open connection.
-         * Run these operations on a thread where blocking is allowed, not on a Vert.x event-loop thread.
+         *
+         * Once a connection is acquired, [JdbcTransaction.rollback] during each preparation's cleanup can issue a
+         * blocking JDBC rollback while the connection remains open. Depending on the driver and transaction state,
+         * this can add a database round trip compared with [createWithClosedTransaction]. Before Exposed acquires a
+         * connection, cleanup skips the JDBC rollback. Run preparation on a thread where blocking is allowed.
          *
          * The transaction is not bound to the current thread and does not reuse a caller's active transaction.
          * This factory uses the transaction manager directly; it does not run transaction-block setup such as
