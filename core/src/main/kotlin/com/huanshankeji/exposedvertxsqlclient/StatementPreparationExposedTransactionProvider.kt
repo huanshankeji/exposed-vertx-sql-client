@@ -118,7 +118,7 @@ class ReusingJdbcTransactionExposedTransactionProvider(
         fun createWithClosedTransaction(database: Database): ReusingJdbcTransactionExposedTransactionProvider =
             ReusingJdbcTransactionExposedTransactionProvider(
                 // Avoid reusing a caller's active transaction: preparation cleanup would roll back its writes.
-                inTopLevelTransaction(database, Connection.TRANSACTION_READ_UNCOMMITTED, true) {
+                inTopLevelTransaction(database, Connection.TRANSACTION_READ_COMMITTED, true) {
                     // Initialize Exposed's lazy metadata before SQL rendering reads it from the retained transaction.
                     database.identifierManager
                     database.version
@@ -152,7 +152,7 @@ class ReusingJdbcTransactionExposedTransactionProvider(
         @ExperimentalEvscApi
         fun createWithOpenTransaction(database: Database): ReusingJdbcTransactionExposedTransactionProvider =
             ReusingJdbcTransactionExposedTransactionProvider(
-                database.transactionManager.newTransaction(Connection.TRANSACTION_READ_UNCOMMITTED, true)
+                database.transactionManager.newTransaction(Connection.TRANSACTION_READ_COMMITTED, true)
             )
     }
 
