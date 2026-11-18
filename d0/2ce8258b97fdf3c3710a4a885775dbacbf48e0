@@ -1,0 +1,14 @@
+core/src/main/kotlin/com/huanshankeji/exposedvertxsqlclient/StatementPreparationExposedTransactionProvider.kt
+  h_6630c9ca8bc8dc 283
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "d02ce8258b97fdf3c3710a4a885775dbacbf48e0",
+  "prompts": {},
+  "humans": {
+    "h_6630c9ca8bc8dc": {
+      "author": "Yongshun Ye <shreckye@gmail.com>"
+    }
+  }
+}
