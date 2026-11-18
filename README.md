@@ -134,15 +134,19 @@ val databaseClient = DatabaseClient(
 
 **About `StatementPreparationExposedTransactionProvider`:**
 
-The `DatabaseClient` uses a `StatementPreparationExposedTransactionProvider` to manage Exposed transactions for SQL statement preparation. There are two options:
+The `DatabaseClient` uses a `StatementPreparationExposedTransactionProvider` to manage Exposed transactions for SQL statement preparation. The two factories on `ReusingJdbcTransactionExposedTransactionProvider` retain a single JDBC transaction for reuse.
 
-- **`ReusingJdbcTransactionExposedTransactionProvider` (recommended)**: Reuses a single JDBC transaction for all SQL preparation calls. This approach provides better performance by avoiding the overhead of creating a new transaction for each SQL preparation. This is the recommended option for most use cases.
-  
-  Use `createWithClosedTransaction` by default when no SQL preparation failures are observed. If SQL preparation requires an open transaction, try the experimental `createWithOpenTransaction`.
+| Provider option | Expected preparation overhead | When to use it |
+| --- | --- | --- |
+| `createWithClosedTransaction` | Lowest steady-state overhead. Caches SQL metadata and closes any acquired JDBC connection during initialization. Cleanup skips JDBC rollback when the connection is closed or was never acquired. | Default for most applications. |
+| `createWithOpenTransaction` | May hold a JDBC connection open after its first use. Cleanup on a live connection can incur a blocking rollback and an extra database round trip. | Experimental alternative when SQL preparation needs a live connection. |
+| `DatabaseExposedTransactionProvider` | Typically the highest overhead because each preparation runs in an Exposed transaction scope, which may perform blocking JDBC I/O. | Most reliable fallback. Uses Exposed's standard transaction lifecycle and is less likely to fail if Exposed changes what preparation requires. |
+
+- **`createWithClosedTransaction` (recommended)**: Use by default. If SQL preparation requires an open transaction, try the experimental `createWithOpenTransaction`.
 
   **Note:** The `createWithClosedTransaction` factory depends on reusing a possibly closed `Transaction` (properties and functions used including `identity` and `.db.dialect` etc.). It's not guaranteed that Exposed APIs won't change in the future, and creating `Statement`s and calling `prepareSQL` may require an open `Transaction` based on a connection in future Exposed versions. It also depends on the `withThreadLocalTransaction` API which is marked `@InternalApi` at the moment.
 
-  The experimental `createWithOpenTransaction(exposedDatabase)` factory keeps an independent transaction open instead. Connections are still acquired lazily, and preparation cleanup can perform JDBC rollback I/O. Close `transactionProvider.jdbcTransaction` after its last use. This variant uses the transaction manager directly and does not apply configured default-schema setup.
+- **`createWithOpenTransaction` (experimental)**: Keeps an independent transaction open. Exposed acquires the connection lazily. Run preparation where blocking is allowed, and close `transactionProvider.jdbcTransaction` after its last use. This variant uses the transaction manager directly and does not apply configured default-schema setup.
 
 - **`DatabaseExposedTransactionProvider`**: Creates a new transaction for each SQL preparation call. This is kept as a fallback solution in case the `ReusingJdbcTransactionExposedTransactionProvider` approach has issues with future Exposed API changes (see note above).
 
