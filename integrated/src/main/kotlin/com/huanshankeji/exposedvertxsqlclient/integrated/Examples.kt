@@ -13,8 +13,9 @@ import com.huanshankeji.exposedvertxsqlclient.postgresql.vertx.pgclient.createPg
 import com.huanshankeji.exposedvertxsqlclient.postgresql.vertx.pgclient.createPgPool
 import io.vertx.core.Verticle
 import io.vertx.core.Vertx
-import io.vertx.kotlin.coroutines.coAwait
 import io.vertx.sqlclient.SqlClient
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
 import org.jetbrains.exposed.v1.core.eq
@@ -62,9 +63,9 @@ suspend fun examples(vertx: Vertx) {
 
     val vertxSqlClient = sqlClient
 
-    val transactionProvider = vertx.executeBlocking {
+    val transactionProvider = withContext(Dispatchers.IO) {
         ReusingJdbcTransactionExposedTransactionProvider.createWithClosedTransaction(exposedDatabase)
-    }.coAwait()
+    }
     val databaseClient = DatabaseClient(
         vertxSqlClient,
         PgDatabaseClientConfig(transactionProvider)

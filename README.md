@@ -120,7 +120,7 @@ val pool = createPgPool(vertx, evscConfig.vertxSqlClientConnectionConfig)
 val sqlConnection = createPgConnection(vertx, evscConfig.vertxSqlClientConnectionConfig)
 ```
 
-Create a transaction provider once during initialization. `createWithClosedTransaction` runs an independent read-only Exposed transaction to cache the metadata used for SQL preparation on the Exposed `Database`. It closes any connection it acquired before returning and retains the transaction object for SQL preparation. Run initialization where blocking JDBC I/O is allowed, for example using `executeBlocking` from a `Verticle`'s `start` method. Providers that share the same `Database` also share its metadata cache.
+Create a transaction provider once during initialization. `createWithClosedTransaction` runs an independent read-only Exposed transaction to cache the metadata used for SQL preparation on the Exposed `Database`. It closes any connection it acquired before returning and retains the transaction object for SQL preparation. Run initialization where blocking JDBC I/O is allowed, for example with `withContext(Dispatchers.IO)` from a coroutine. Providers that share the same `Database` also share its metadata cache.
 
 Then create a `DatabaseClient` with the provided Vert.x `SqlClient` and that provider, preferably in a `Verticle`:
 
