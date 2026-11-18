@@ -1,5 +1,7 @@
 # Repository Guidelines
 
+Before working in this repository, **load and read** the [Huanshankeji general agent instructions](https://github.com/huanshankeji/.github/blob/main/docs/general-agent-instructions.md) as the required organization-wide baseline. A skipped or failed load, or an unread document, is a blocking error until the document is in context and has been read.
+
 ## Project Structure
 
 - `core/` bridges Exposed SQL preparation with Vert.x SQL execution. Put database-specific clients and SQL handling in `postgresql/`, `mysql/`, `oracle/`, or `mssql/`.
