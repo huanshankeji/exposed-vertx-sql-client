@@ -280,6 +280,7 @@ class JdbcTransactionExposedTransactionProvider(
     override fun <T> withExplicitOnlyStatementPreparationExposedTransaction(block: ExposedTransaction.() -> T): T =
         jdbcTransaction.block()
 
+    // Though the outer class is deprecated, this commented-out nested class should be still be kept when removing the outer class.
     /*
     // This implementation breaks Exposed's own transactions. See commit a07319e376f0a491e312136ab102a1eb28a7035c for more details.
     @ExperimentalEvscApi
