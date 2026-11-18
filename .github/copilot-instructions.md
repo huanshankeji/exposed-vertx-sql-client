@@ -21,7 +21,7 @@ This is **Exposed Vert.x SQL Client**, a Kotlin library that provides integratio
 - Supported Databases: PostgreSQL, MySQL, Oracle, Microsoft SQL Server
 - Size: ~18MB repository
 - Current Version: 0.8.1-SNAPSHOT
-- Exposed Version: v1.1.1 (important: stick to this exact version for compatibility)
+- Exposed Version: v1.6.1 (important: stick to this exact version for compatibility)
 
 ## Project Structure
 
@@ -258,7 +258,7 @@ Before check-in, the following validations run:
 
 ### Key Dependencies
 
-- **Exposed**: 1.1.1 (via `commonDependencies.exposed.*`)
+- **Exposed**: 1.6.1 (via `commonDependencies.exposed.*`)
 - **Vert.x**: Managed by `vertx.platformStackDepchain()` (uses Vert.x BOM)
 - **Kotlin**: 2.3.20
 - **Arrow**: For functional constructs
@@ -297,7 +297,7 @@ module-name/
 
 1. **DatabaseClient** is the main entry point for executing reactive database operations
 2. **StatementPreparationExposedTransactionProvider** manages Exposed transactions for SQL statement preparation:
-   - **JdbcTransactionExposedTransactionProvider** (recommended): Reuses a single JDBC transaction for better performance
+   - **ReusingJdbcTransactionExposedTransactionProvider** (recommended): Reuses a single JDBC transaction for better performance
    - **DatabaseExposedTransactionProvider**: Fallback that creates a new transaction per call
 3. **EvscConfig** is the single-source-of-truth for database configuration (since v0.5.0)
 4. API marked with `@ExperimentalEvscApi` is subject to change
