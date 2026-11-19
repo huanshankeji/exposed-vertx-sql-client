@@ -3,9 +3,12 @@ package com.huanshankeji.exposedvertxsqlclient
 import io.vertx.core.Verticle
 import org.jetbrains.exposed.v1.core.InternalApi
 import org.jetbrains.exposed.v1.core.transactions.withThreadLocalTransaction
+import org.jetbrains.exposed.v1.core.vendors.H2Dialect
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
+import org.jetbrains.exposed.v1.jdbc.transactions.inTopLevelTransaction
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.transactions.transactionManager
 import java.sql.Connection
 import org.jetbrains.exposed.v1.core.Transaction as ExposedTransaction
 
@@ -17,7 +20,7 @@ import org.jetbrains.exposed.v1.core.Transaction as ExposedTransaction
  * - Transaction-based: reuses a single JDBC transaction for better performance
  *
  * @see DatabaseExposedTransactionProvider
- * @see JdbcTransactionExposedTransactionProvider
+ * @see ReusingJdbcTransactionExposedTransactionProvider
  */
 @ExperimentalEvscApi
 interface StatementPreparationExposedTransactionProvider {
@@ -61,6 +64,144 @@ class DatabaseExposedTransactionProvider(
 }
 
 /**
+ * A [StatementPreparationExposedTransactionProvider] that reuses/shares a single [JdbcTransaction] for SQL preparation calls.
+ *
+ * This approach provides better performance by avoiding the overhead of creating a new transaction
+ * for each SQL preparation call. The same transaction is reused/shared across multiple SQL preparations.
+ *
+ * **Thread safety:** This provider holds a single [JdbcTransaction] instance with internal mutable state and is
+ * not designed for concurrent use from multiple threads. Calling [statementPreparationExposedTransaction] from
+ * multiple threads at the same time on the same provider instance may lead to inconsistent internal state.
+ * If you need to prepare statements concurrently, create a separate
+ * [ReusingJdbcTransactionExposedTransactionProvider] (and underlying [JdbcTransaction]) per thread/[Verticle].
+ *
+ * **Read-only behavior:** This provider is intended to be used only for SQL statement preparation (e.g., statement
+ * building and `prepareSQL`) and the transaction must not be used to execute DML/DDL statements that modify the database.
+ * The underlying [JdbcTransaction] may still accumulate internal state (such as caches or counters) while being
+ * used for SQL generation, so it is not strictly read-only in terms of object immutability, but it should be used
+ * in a way that does not perform database writes.
+ *
+ * Use [createWithClosedTransaction] by default when no SQL preparation failures are observed.
+ * If SQL preparation requires an open transaction, try the experimental [createWithOpenTransaction].
+ * Wrapping an existing [JdbcTransaction] with the primary constructor does not obtain a connection.
+ * Preparation cleanup rolls back the retained transaction. The caller manages its lifetime when passing a transaction
+ * to the primary constructor or using [createWithOpenTransaction].
+ *
+ * @param jdbcTransaction the [JdbcTransaction] to use for SQL statement preparation
+ */
+@ExperimentalEvscApi
+class ReusingJdbcTransactionExposedTransactionProvider(
+    val jdbcTransaction: JdbcTransaction
+) : StatementPreparationExposedTransactionProvider {
+    companion object {
+        /**
+         * Creates a provider by running and closing an independent read-only Exposed transaction on [database],
+         * retaining its [JdbcTransaction] for SQL preparation after the transaction scope has completed.
+         *
+         * **Implementation note:** The transaction instance members needed for SQL preparation remain usable even after
+         * the underlying connection is not actively used. This workaround depends on Exposed continuing to support
+         * SQL preparation with that retained state.
+         *
+         * Recommended when no SQL preparation failures are observed. If SQL preparation requires an open transaction,
+         * try the experimental [createWithOpenTransaction].
+         *
+         * Create the provider once during initialization, for example in a [Verticle]'s `start` method.
+         * Initialization reads SQL preparation metadata into Exposed's [Database] cache so later preparation can reuse it.
+         * This can perform blocking JDBC I/O on the first use of [database] or when Exposed applies a configured default
+         * schema. Run initialization on a thread where blocking is allowed. Any acquired connection is closed before
+         * this function returns.
+         *
+         * Preparation cleanup still calls [JdbcTransaction.rollback] to run Exposed's rollback hooks and clear
+         * transaction state. Exposed skips the JDBC rollback when the connection is closed or was never acquired.
+         * Custom statements that read additional JDBC metadata or require a live connection should use
+         * [createWithOpenTransaction].
+         * The transaction is independent of any caller's active transaction, which is left untouched.
+         *
+         * @param database the Exposed [Database] to use for creating the transaction
+         * @see createWithOpenTransaction
+         */
+        fun createWithClosedTransaction(database: Database): ReusingJdbcTransactionExposedTransactionProvider =
+            ReusingJdbcTransactionExposedTransactionProvider(
+                /*
+                Unlike transaction, inTopLevelTransaction does not reuse the caller's active transaction.
+                Preparation cleanup could otherwise roll back the caller's writes.
+
+                The old provider used TRANSACTION_READ_UNCOMMITTED. Oracle rejects that level when
+                metadata initialization acquires a JDBC connection, so use TRANSACTION_READ_COMMITTED.
+
+                Compared with TRANSACTION_READ_UNCOMMITTED, TRANSACTION_READ_COMMITTED should have no impact
+                on steady-state EVSC client performance.
+                Exposed sets this isolation during JDBC connection setup, outside steady-state SQL preparation.
+                Vert.x executes the resulting SQL on its own connections.
+                 */
+                inTopLevelTransaction(database, Connection.TRANSACTION_READ_COMMITTED, true) {
+                    // Initialize Exposed's lazy metadata before SQL rendering reads it from the retained transaction.
+                    database.identifierManager
+                    database.version
+                    database.fullVersion
+                    database.supportsSelectForUpdate
+                    if (database.dialect is H2Dialect) database.dialectMode
+                    // Store reference to the current transaction for reuse
+                    // The transaction members needed for SQL preparation are still usable
+                    this
+                }
+            )
+
+        /**
+         * Creates a provider with an independent read-only [JdbcTransaction] that remains open for SQL preparation.
+         *
+         * Experimental alternative if [createWithClosedTransaction] fails because SQL preparation requires an open
+         * transaction. It keeps the transaction available when SQL preparation needs a live connection.
+         * Exposed acquires the connection lazily; SQL preparation may perform blocking JDBC I/O to read metadata.
+         *
+         * Once a connection is acquired, [JdbcTransaction.rollback] during each preparation's cleanup can issue a
+         * blocking JDBC rollback while the connection remains open. Depending on the driver and transaction state,
+         * this can add a database round trip compared with [createWithClosedTransaction]. Before Exposed acquires a
+         * connection, cleanup skips the JDBC rollback. Run preparation on a thread where blocking is allowed.
+         *
+         * The transaction is not bound to the current thread and does not reuse a caller's active transaction.
+         * This factory uses the transaction manager directly; it does not run transaction-block setup such as
+         * applying a configured default schema.
+         *
+         * The caller owns the retained transaction and must close [jdbcTransaction] after the last SQL preparation.
+         *
+         * @param database the Exposed [Database] to use for creating the transaction
+         * @see createWithClosedTransaction
+         */
+        @ExperimentalEvscApi
+        fun createWithOpenTransaction(database: Database): ReusingJdbcTransactionExposedTransactionProvider =
+            ReusingJdbcTransactionExposedTransactionProvider(
+                // Use the same isolation as the closed factory so lazy JDBC acquisition also works on Oracle.
+                database.transactionManager.newTransaction(Connection.TRANSACTION_READ_COMMITTED, true)
+            )
+    }
+
+    @OptIn(InternalApi::class)
+    override fun <T> statementPreparationExposedTransaction(block: ExposedTransaction.() -> T): T =
+        try {
+            // Call statement directly on the transaction - it will be executed in the transaction context
+            withThreadLocalTransaction(jdbcTransaction) {
+                jdbcTransaction.block()
+            }
+        } finally {
+            // Accumulating state needs to be cleared. Otherwise, it causes progressive performance degradation for update statements as found.
+            // `rollback` calls `withThreadLocalTransaction` too so it's put outside the `withThreadLocalTransaction` block above.
+            /*
+            `rollback` doesn't have synchronization mechanism as I checked.
+            So when you share a transaction across multiple threads, they may call `rollback` and clear states concurrently.
+            This hasn't caused performance or correctness issues as I have tested.
+            However, to avoid potential issues, you are recommended to provide a separate `transaction` for each thread or `Verticle`.
+            For library users: please also report any concurrency issues you encounter.
+             */
+            jdbcTransaction.rollback()
+        }
+
+    @Deprecated("Not currently used by other declarations in this library.")
+    override fun <T> withExplicitOnlyStatementPreparationExposedTransaction(block: ExposedTransaction.() -> T): T =
+        jdbcTransaction.block()
+}
+
+/**
  * A [StatementPreparationExposedTransactionProvider] that reuses/shares a possibly closed [JdbcTransaction] for SQL preparation calls.
  *
  * This approach provides better performance by avoiding the overhead of creating a new transaction
@@ -83,6 +224,14 @@ class DatabaseExposedTransactionProvider(
  *
  * @param jdbcTransaction the [JdbcTransaction] to use for SQL statement preparation
  */
+@Deprecated(
+    "Use ReusingJdbcTransactionExposedTransactionProvider. This legacy provider can acquire a connection during SQL " +
+            "preparation and can reuse and roll back an active transaction if constructed inside one.",
+    ReplaceWith(
+        "ReusingJdbcTransactionExposedTransactionProvider",
+        "com.huanshankeji.exposedvertxsqlclient.ReusingJdbcTransactionExposedTransactionProvider"
+    )
+)
 @ExperimentalEvscApi
 class JdbcTransactionExposedTransactionProvider(
     val jdbcTransaction: JdbcTransaction
@@ -92,6 +241,13 @@ class JdbcTransactionExposedTransactionProvider(
      *
      * @param database the Exposed [Database] to use for creating the transaction
      */
+    @Deprecated(
+        "Use createWithClosedTransaction to load SQL metadata during initialization in a separate transaction.",
+        ReplaceWith(
+            "ReusingJdbcTransactionExposedTransactionProvider.createWithClosedTransaction(database)",
+            "com.huanshankeji.exposedvertxsqlclient.ReusingJdbcTransactionExposedTransactionProvider"
+        )
+    )
     constructor(database: Database) : this(
         /*
         // alternative implementation that keeps that transaction open
@@ -128,6 +284,7 @@ class JdbcTransactionExposedTransactionProvider(
     override fun <T> withExplicitOnlyStatementPreparationExposedTransaction(block: ExposedTransaction.() -> T): T =
         jdbcTransaction.block()
 
+    // Though the outer class is deprecated, this commented-out nested class should be still be kept when removing the outer class.
     /*
     // This implementation breaks Exposed's own transactions. See commit a07319e376f0a491e312136ab102a1eb28a7035c for more details.
     @ExperimentalEvscApi

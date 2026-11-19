@@ -163,6 +163,19 @@ public final class com/huanshankeji/exposedvertxsqlclient/JdbcTransactionExposed
 	public fun withExplicitOnlyStatementPreparationExposedTransaction (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
 }
 
+public final class com/huanshankeji/exposedvertxsqlclient/ReusingJdbcTransactionExposedTransactionProvider : com/huanshankeji/exposedvertxsqlclient/StatementPreparationExposedTransactionProvider {
+	public static final field Companion Lcom/huanshankeji/exposedvertxsqlclient/ReusingJdbcTransactionExposedTransactionProvider$Companion;
+	public fun <init> (Lorg/jetbrains/exposed/v1/jdbc/JdbcTransaction;)V
+	public final fun getJdbcTransaction ()Lorg/jetbrains/exposed/v1/jdbc/JdbcTransaction;
+	public fun statementPreparationExposedTransaction (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public fun withExplicitOnlyStatementPreparationExposedTransaction (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+}
+
+public final class com/huanshankeji/exposedvertxsqlclient/ReusingJdbcTransactionExposedTransactionProvider$Companion {
+	public final fun createWithClosedTransaction (Lorg/jetbrains/exposed/v1/jdbc/Database;)Lcom/huanshankeji/exposedvertxsqlclient/ReusingJdbcTransactionExposedTransactionProvider;
+	public final fun createWithOpenTransaction (Lorg/jetbrains/exposed/v1/jdbc/Database;)Lcom/huanshankeji/exposedvertxsqlclient/ReusingJdbcTransactionExposedTransactionProvider;
+}
+
 public final class com/huanshankeji/exposedvertxsqlclient/SingleUpdateException : java/lang/Exception {
 	public fun <init> (I)V
 }
